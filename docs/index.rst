@@ -7,6 +7,14 @@ Welcome to NMDC Mass Spectrometry Metadata Operation documentation. This package
    :maxdepth: 2
    :caption: Contents:
 
+Calculate Module
+~~~~~~~~~~
+
+.. autoclass:: nmdc_mass_spectrometry_metadata_generation.example
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Indices and tables
 ==================
 
