@@ -1,0 +1,22 @@
+name: test
+
+on: [push, pull_request, workflow_dispatch]
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+      - name: Install dependencies
+        run: |
+            pip install requirements-dev.txt
+            for file in test/*.py; do
+            python "$file"
+            done
+    
+        
+        
