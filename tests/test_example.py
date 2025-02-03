@@ -1,6 +1,7 @@
-from nmdc_mass_spectrometry_metadata_generation.src.example import Example
-class TestExample(Example):
+from src.example import Example
+class TestExample():
     
     def test_example(self):
-        result = self.calculate()
+        ex = Example()
+        result = ex.calculate()
         assert result == 2
