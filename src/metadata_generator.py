@@ -20,7 +20,7 @@ from src.api_info_retriever import ApiInfoRetriever, NMDCAPIInterface
 from dotenv import load_dotenv
 load_dotenv()
 import os
-CONFIG = os.getenv('CONFIG')
+
 CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv('CLIENT_SECRET')  
 # Configure logging
