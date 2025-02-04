@@ -16,8 +16,13 @@ from tqdm import tqdm
 
 import nmdc_schema.nmdc as nmdc
 from linkml_runtime.dumpers import json_dumper
-from api_info_retriever import ApiInfoRetriever, NMDCAPIInterface
-
+from src.api_info_retriever import ApiInfoRetriever, NMDCAPIInterface
+from dotenv import load_dotenv
+load_dotenv()
+import os
+CONFIG = os.getenv('CONFIG')
+CLIENT_ID = os.getenv('CLIENT_ID')
+CLIENT_SECRET = os.getenv('CLIENT_SECRET')  
 # Configure logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -177,8 +182,6 @@ class NMDCMetadataGenerator(ABC):
         Base URL for the raw data files.
     process_data_url : str
         Base URL for the processed data files.
-    minting_config_creds : str
-        Path to the config file with credentials for minting IDs.
     """
 
     def __init__(
@@ -187,7 +190,6 @@ class NMDCMetadataGenerator(ABC):
         database_dump_json_path: str,
         raw_data_url: str,
         process_data_url: str,
-        minting_config_creds: str,
     ):
         """
         Initialize the MetadataGenerator with required file paths and configuration.
@@ -202,8 +204,6 @@ class NMDCMetadataGenerator(ABC):
             Base URL for the raw data files.
         process_data_url : str
             Base URL for the processed data files.
-        minting_config_creds : str
-            Path to the config file with credentials for minting IDs.
 
         Returns
         -------
@@ -219,7 +219,6 @@ class NMDCMetadataGenerator(ABC):
         self.database_dump_json_path = database_dump_json_path
         self.raw_data_url = raw_data_url
         self.process_data_url = process_data_url
-        self.minting_client_config_path = minting_config_creds
         self.raw_data_category = "instrument_data"
 
     def start_nmdc_database(self) -> nmdc.Database:
@@ -635,16 +634,15 @@ class NMDCMetadataGenerator(ABC):
         details. The file should contain 'client_id' and 'client_secret' keys.
 
         """
-        config = yaml.safe_load(open(self.minting_client_config_path))
-        client = oauthlib.oauth2.BackendApplicationClient(client_id=config["client_id"])
+        client = oauthlib.oauth2.BackendApplicationClient(client_id=CLIENT_ID)
         oauth = requests_oauthlib.OAuth2Session(client=client)
 
         api_base_url = "https://api.microbiomedata.org"
 
         token = oauth.fetch_token(
             token_url=f"{api_base_url}/token",
-            client_id=config["client_id"],
-            client_secret=config["client_secret"],
+            client_id=CLIENT_ID,
+            client_secret=CLIENT_SECRET,
         )
 
         nmdc_mint_url = f"{api_base_url}/pids/mint"
@@ -713,14 +711,12 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
         database_dump_json_path: str,
         raw_data_url: str,
         process_data_url: str,
-        minting_config_creds: str,
     ):
         super().__init__(
             metadata_file=metadata_file,
             database_dump_json_path=database_dump_json_path,
             raw_data_url=raw_data_url,
             process_data_url=process_data_url,
-            minting_config_creds=minting_config_creds,
         )
 
         self.grouped_columns = [
@@ -1078,7 +1074,6 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         database_dump_json_path: str,
         raw_data_url: str,
         process_data_url: str,
-        minting_config_creds: str,
         calibration_standard: str = "fames",
     ):
         super().__init__(
@@ -1086,7 +1081,6 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             database_dump_json_path=database_dump_json_path,
             raw_data_url=raw_data_url,
             process_data_url=process_data_url,
-            minting_config_creds=minting_config_creds,
         )
 
         # Calibration attributes
