@@ -170,8 +170,6 @@ class NMDCMetadataGenerator(ABC):
         Base URL for raw data files.
     process_data_url : str
         Base URL for processed data files.
-    minting_client_config_path : str
-        Path to the YAML configuration file for the NMDC ID minting client.
 
     Parameters
     ----------
@@ -382,8 +380,8 @@ class NMDCMetadataGenerator(ABC):
             "type": NmdcTypes.MassSpectrometry,
         }
 
-        if calibration_id is not None:
-            data_dict["generates_calibration"] = calibration_id
+        # if calibration_id is not None:
+        #     data_dict["generates_calibration"] = calibration_id
 
         mass_spectrometry = nmdc.DataGeneration(**data_dict)
 
@@ -531,8 +529,8 @@ class NMDCMetadataGenerator(ABC):
             "type": NmdcTypes.MetabolomicsAnalysis,
         }
 
-        if calibration_id is not None:
-            data_dict["uses_calibration"] = calibration_id
+        # if calibration_id is not None:
+        #     data_dict["uses_calibration"] = calibration_id
 
         if metabolite_identifications is not None:
             data_dict["has_metabolite_identifications"] = metabolite_identifications
