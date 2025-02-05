@@ -7,7 +7,8 @@ import os
 python_path = os.getenv('PYTHONPATH')
 if python_path:
     os.environ['PYTHONPATH'] = python_path
-if __name__ == "__main__":
+    
+def test_gcms_metadata_gen():
     # Set up output file with datetime stame
     output_file = (
         "tests/test_data/test_database_gcms_"
@@ -25,3 +26,4 @@ if __name__ == "__main__":
 
     # Run the metadata generation process
     generator.run()
+    assert os.path.exists(output_file)

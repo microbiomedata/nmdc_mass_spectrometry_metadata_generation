@@ -16,12 +16,13 @@ from tqdm import tqdm
 
 import nmdc_schema.nmdc as nmdc
 from linkml_runtime.dumpers import json_dumper
-from api_info_retriever import ApiInfoRetriever, NMDCAPIInterface
+from src.api_info_retriever import ApiInfoRetriever, NMDCAPIInterface
 from dotenv import load_dotenv
 load_dotenv()
 import os
 # set the cwd to /src/
-os.chdir(Path.cwd() / 'src')
+if 'src' not in Path.cwd().name:
+    os.chdir(Path.cwd() / 'src')
 CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv('CLIENT_SECRET')  
 # Configure logging
