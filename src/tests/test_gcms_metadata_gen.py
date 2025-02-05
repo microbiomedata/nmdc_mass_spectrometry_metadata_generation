@@ -1,6 +1,6 @@
 # This script will serve as a test for the lipdomics metadata generation script.
 from datetime import datetime
-from metadata_generator import GCMSMetabolomicsMetadataGenerator
+from src.metadata_generator import GCMSMetabolomicsMetadataGenerator
 from dotenv import load_dotenv
 load_dotenv()
 import os
