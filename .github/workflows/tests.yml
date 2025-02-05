@@ -25,8 +25,8 @@ jobs:
       - name: Run tests
         working-directory: ./src
         env:
-          API_KEY: ${{ secrets.CLIENT_ID }}
-          API_SECRET: ${{ secrets.CLIENT_SECRET }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
         run: pytest tests/test_lipid_metadata_gen.py
     
         
