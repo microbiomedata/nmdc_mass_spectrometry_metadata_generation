@@ -5,7 +5,7 @@ __pycache__/
 
 # C extensions
 *.so
-
+src/tests/test_data/test_database_*.json
 # Distribution / packaging
 .Python
 build/

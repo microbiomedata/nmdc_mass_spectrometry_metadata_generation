@@ -1,16 +1,18 @@
 # This script will serve as a test for the lipdomics metadata generation script.
 from datetime import datetime
-from src.metadata_generator import LCMSLipidomicsMetadataGenerator
+from metadata_generator import LCMSLipidomicsMetadataGenerator
 from dotenv import load_dotenv
 load_dotenv()
 import os
-
+python_path = os.getenv('PYTHONPATH')
+if python_path:
+    os.environ['PYTHONPATH'] = python_path
 if __name__ == "__main__":
     current_directory = os.path.dirname(__file__)
     csv_file_path = os.path.join(current_directory, 'test_data', 'test_metadata_file_lipid.csv')
     # Set up output file with datetime stame
     output_file = (
-        "/tests/test_data/test_database_"
+        "tests/test_data/test_database_"
         + datetime.now().strftime("%Y%m%d%H%M%S")
         + ".json"
     )

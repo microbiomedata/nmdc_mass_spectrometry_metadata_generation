@@ -16,11 +16,12 @@ from tqdm import tqdm
 
 import nmdc_schema.nmdc as nmdc
 from linkml_runtime.dumpers import json_dumper
-from src.api_info_retriever import ApiInfoRetriever, NMDCAPIInterface
+from api_info_retriever import ApiInfoRetriever, NMDCAPIInterface
 from dotenv import load_dotenv
 load_dotenv()
 import os
-
+# set the cwd to /src/
+os.chdir(Path.cwd() / 'src')
 CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv('CLIENT_SECRET')  
 # Configure logging
@@ -845,9 +846,9 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
                 )
 
                 # list all paths in the processed data directory
-                processed_data_paths = Path(
+                processed_data_paths = list(Path(
                     workflow_metadata_obj.processed_data_dir
-                ).glob("**/*")
+                ).glob("**/*"))
 
                 # Add a check that the processed data directory is not empty
                 if not any(processed_data_paths):
@@ -860,7 +861,7 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
                 processed_data_paths = [x for x in processed_data_paths if x.is_file()]
                 if len(processed_data_paths) != 3:
                     raise ValueError(
-                        f"Expected 3 files in the processed data directory, found {len(processed_data_paths)}."
+                        f"Expected 3 files in the processed data directory {processed_data_paths}, found {len(processed_data_paths)}."
                     )
 
                 processed_data = []
