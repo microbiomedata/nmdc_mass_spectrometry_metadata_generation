@@ -1,7 +1,10 @@
 import requests
 import json
 import logging
-
+from dotenv import load_dotenv
+import os
+load_dotenv()
+API_KEY = os.getenv('BIO_API_KEY')
 
 class NMDCAPIInterface:
     """
@@ -268,12 +271,9 @@ class BioOntologyInfoRetriever:
         Makes an authenticated request to BioPortal API to retrieve the
         preferred label (prefLabel) for the given ENVO term.
         """
-        
-        config = yaml.safe_load(open(self.config))
-        api_key = config['api_key']
 
         url = f"http://data.bioontology.org/ontologies/ENVO/classes/{envo_id}"
-        headers = {"Authorization": f"apikey token={api_key}"}
+        headers = {"Authorization": f"apikey token={API_KEY}"}
 
         response = requests.get(url, headers=headers)
         response.raise_for_status()
