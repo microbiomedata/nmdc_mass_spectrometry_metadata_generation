@@ -4,7 +4,7 @@ from datetime import datetime
 from dataclasses import dataclass
 from typing import List, Dict
 from abc import ABC
-
+from dataclasses import asdict
 import pandas as pd
 import hashlib
 import json
@@ -13,10 +13,12 @@ import oauthlib
 import requests_oauthlib
 import requests
 from tqdm import tqdm
-
+import shutil
+import numpy as np
 import nmdc_schema.nmdc as nmdc
 from linkml_runtime.dumpers import json_dumper
 from src.api_info_retriever import ApiInfoRetriever, NMDCAPIInterface
+from src.metadata_parser import MetadataParser, BiosampleIncludedMetadata, NoBiosampleIncludedMetadata
 from dotenv import load_dotenv
 load_dotenv()
 import os
@@ -652,6 +654,238 @@ class NMDCMetadataGenerator(ABC):
         list_ids = response.json()
 
         return list_ids
+    
+    def generate_biosample(self, biosamp_metadata: BiosampleIncludedMetadata) -> nmdc.Biosample:
+        """
+        TODO: Decide if this belongs in this class
+        Generate a biosample from the given metadata.
+
+        Parameters
+        ----------
+        biosamp_metadata : object
+            The metadata object containing biosample information.
+
+        Returns
+        -------
+        object
+            The generated biosample instance.
+        """
+
+        # Drop non biosample-related keys from EmslMetadata to create Biosample dict 
+        biosamp_dict = asdict(biosamp_metadata)
+        non_biosamp_keys = {"data_path", "dms_dataset_id", "myemsl_link", "instrument_used", "eluent_intro", "mass_spec_config", "chrom_config_name"}
+        for key in non_biosamp_keys:
+            biosamp_dict.pop(key, None)
+
+        # Remove keys with NaN values
+        biosamp_dict = {k: v for k, v in biosamp_dict.items() if not (isinstance(v, float) and np.isnan(v))}
+
+        # If no biosample id in spreadsheet, mint biosample ids
+        if biosamp_dict['biosample_id'] is None:
+            biosamp_dict['biosample_id'] = self.mint_nmdc_id(nmdc_type=NmdcTypes.Biosample)[0]
+
+        # Change biosample_id to id and add type slot
+        biosamp_dict['id'] = biosamp_dict.pop('biosample_id')
+        biosamp_dict['type'] = NmdcTypes.Biosample
+
+        # Filter dictionary to remove any key/value pairs with None as the value
+        biosamp_dict = {k: v for k, v in biosamp_dict.items() if v is not None}
+    
+        biosample_object = nmdc.Biosample(**biosamp_dict)
+
+        return biosample_object
+    def handle_biosample(self, parser: MetadataParser, row: pd.Series) -> tuple:
+        """
+        TODO: Decide if this belongs in this class
+        Process biosample information from metadata row.
+
+        Checks if a biosample ID exists in the row. If it does, returns the existing 
+        biosample information. If not, generates a new biosample.
+
+        Parameters
+        ----------
+        parser : MetadataParser
+            Parser instance for processing metadata
+        row : pd.Series
+            A row from the metadata DataFrame containing biosample information
+
+        Returns
+        -------
+        tuple
+            A tuple containing:
+            - emsl_metadata : BiosampleIncludedMetadata or NoBiosampleIncludedMetadata
+                The parsed metadata from the row
+            - biosample_id : str
+                The ID of the biosample (existing or newly generated)
+            - biosample : Biosample or None
+                The generated biosample object if new, None if existing
+        """
+
+        if parser.check_for_biosamples(row):
+            emsl_metadata = parser.parse_no_biosample_metadata(row)
+            biosample_id = emsl_metadata.biosample_id
+            tqdm.write(f"Biosample already exists for {emsl_metadata.data_path}, will not generate Biosample...")
+            return emsl_metadata, biosample_id, None
+        else:
+            # Generate biosamples if no biosample_id in spreadsheet
+            emsl_metadata = parser.parse_biosample_metadata(row)
+            biosample = self.generate_biosample(biosamp_metadata=emsl_metadata)
+            biosample_id = biosample.id
+            tqdm.write(f"Generating Biosamples for {emsl_metadata.data_path}")
+            return emsl_metadata, biosample_id, biosample
+    
+    def save_error_log(self, failed_metadata: dict, results_dir: Path) -> None:
+        """
+        # TODO: Decide if this belongs in this class
+        Save processing errors to JSON file and display notification.
+
+        If any errors occurred during metadata processing, saves them to a JSON file
+        in the results directory and displays a colored notification message.
+
+        Parameters
+        ----------
+        failed_metadata : dict
+            Dictionary containing lists of validation and processing errors. Expected 
+            structure is {'validation_errors': [], 'processing_errors': []}
+        results_dir : Path
+            Directory path where the error log file should be saved
+
+        Returns
+        -------
+        None
+            Writes error log file if errors exist and displays status message
+
+        Notes
+        -----
+        - Error log is saved as 'failed_metadata_rows.json' in the results directory
+        - Output JSON is formatted with indentation level of 2 for readability
+        - Uses ANSI color code 91 (bright red) for the console notification message
+
+        See Also
+        --------
+        record_processing_error : Method for recording individual processing errors
+        """
+        if any(failed_metadata.values()):
+            error_file = results_dir / 'failed_metadata_rows.json'
+            with open(error_file, 'w') as f:
+                json.dump(failed_metadata, f, indent=2)
+            tqdm.write(f"\n\033[91mSome rows failed processing. See {error_file} for details.\033[0m")
+
+    def record_processing_error(self, failed_metadata: dict, index: int, filename: str, error: str) -> None:
+        """
+        Record processing errors in tracking dictionary and display status message.
+
+        Records details about processing errors that occur during metadata generation,
+        including row index, filename, and error message. Also displays the error to
+        the console using tqdm.write.
+
+        Parameters
+        ----------
+        failed_metadata : dict
+            Dictionary tracking all processing errors that occur during execution
+        index : int
+            Zero-based row index from the metadata DataFrame
+        filename : str
+            Name of the file that encountered the error
+        error : str
+            Description or message explaining the error that occurred
+
+        Returns
+        -------
+        None
+            Updates failed_metadata dictionary in place and prints error message
+
+        Notes
+        -----
+        Row indices are incremented by 2 in the output to account for:
+        1. Zero-based DataFrame indexing
+        2. Header row in original spreadsheet
+        """
+        failed_metadata['processing_errors'].append({
+            'row_index': index + 2,
+            'filename': str(filename),
+            'error': str(error)
+        })
+        tqdm.write(f"Error processing row {index + 2}: {str(error)}")
+    def process_data_files(self, ms, raw_file_path: Path, raw_dir_zip: Path, results_dir: Path) -> tuple[Path, Path, Path]:
+        """
+        TODO: Decide if this belongs in this class
+        Process raw data files and generate output files.
+
+        Takes a raw data file, zips it if needed (.d extension), generates CSV output,
+        and creates associated TOML metadata file.
+
+        Parameters
+        ----------
+        ms : object
+            Mass spectrometry object with to_csv method
+        raw_file_path : Path
+            Path to the raw data file to be processed
+        raw_dir_zip : Path  
+            Directory path for storing zipped raw files
+        results_dir : Path
+            Directory path for storing output files
+
+        Returns
+        -------
+        tuple[Path, Path, Path]
+            A tuple containing:
+            - raw_file_to_upload_path : Path
+                Path to the processed raw file (zipped if .d extension)
+            - output_file_path : Path
+                Path to the generated CSV output file
+            - toml_file_path : Path
+                Path to the generated TOML metadata file
+
+        Notes
+        -----
+        The ms.to_csv() call with write_metadata=True generates two files:
+        1. A CSV file with the processed data
+        2. A TOML file containing metadata configuration
+        """
+
+        if raw_file_path.suffix == '.d':
+            raw_file_to_upload_path = Path(raw_dir_zip / raw_file_path.stem)
+            # Create a zip file
+            shutil.make_archive(raw_file_to_upload_path, 'zip', raw_file_path)
+        else:
+            raw_file_to_upload_path = raw_file_path
+
+        result_file_name = Path(raw_file_path.name)
+        output_file_path = results_dir / result_file_name.with_suffix('.csv')
+        # to_csv with write_metadata=True will save two files: a csv and a toml file.
+        ms.to_csv(output_file_path, write_metadata=True)
+
+        # Get workflow parameter toml path
+        toml_file_path = output_file_path.with_suffix('.toml')
+
+        return raw_file_to_upload_path, output_file_path, toml_file_path
+    def setup_directories(self) -> tuple[Path, Path, Path]:
+        """
+        #TODO: Decide if this belongs in this class
+        Create directory structure for storing raw, processed and registration data.
+
+        Creates three directories:
+        - raw_zip: For storing zipped raw data files
+        - results: For storing processed output files
+        - registration: For storing registration/metadata files
+
+        Returns
+        -------
+        tuple[Path, Path, Path]
+            A tuple containing (raw_dir_zip, results_dir, registration_dir) Paths
+        """
+
+        raw_dir_zip = self.data_dir / Path("raw_zip/")
+        raw_dir_zip.mkdir(parents=True, exist_ok=True)
+
+        results_dir = self.data_dir / Path("results/")
+        results_dir.mkdir(parents=True, exist_ok=True)
+
+        registration_dir = self.data_dir / 'registration'
+        registration_dir.mkdir(parents=True, exist_ok=True)
+
+        return raw_dir_zip, results_dir, registration_dir
 
 
 class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
