@@ -3,9 +3,21 @@ import json
 import logging
 from dotenv import load_dotenv
 import os
+from pathlib import Path
+import oauthlib
+import requests_oauthlib
+import requests
 load_dotenv()
-API_KEY = os.getenv('BIO_API_KEY')
 
+API_KEY = os.getenv('BIO_API_KEY')
+from dotenv import load_dotenv
+load_dotenv()
+import os
+# set the cwd to /src/
+if 'src' not in Path.cwd().name:
+    os.chdir(Path.cwd() / 'src')
+CLIENT_ID = os.getenv('CLIENT_ID')
+CLIENT_SECRET = os.getenv('CLIENT_SECRET')  
 class NMDCAPIInterface:
     """
     A generic interface for the NMDC runtime API.
@@ -212,6 +224,51 @@ class ApiInfoRetriever(NMDCAPIInterface):
         identifier = data['resources'][0]['id']
 
         return identifier
+    def mint_nmdc_id(self, nmdc_type: str) -> list[str]:
+        """
+        Mint new NMDC IDs of the specified type using the NMDC ID minting API.
+
+        Parameters
+        ----------
+        nmdc_type : str
+            The type of NMDC ID to mint (e.g., 'nmdc:MassSpectrometry',
+            'nmdc:DataObject').
+
+        Returns
+        -------
+        list[str]
+            A list containing one newly minted NMDC ID.
+
+        Raises
+        ------
+        requests.exceptions.RequestException
+            If there is an error during the API request.
+
+        Notes
+        -----
+        This method relies on a YAML configuration file for authentication
+        details. The file should contain 'client_id' and 'client_secret' keys.
+
+        """
+        client = oauthlib.oauth2.BackendApplicationClient(client_id=CLIENT_ID)
+        oauth = requests_oauthlib.OAuth2Session(client=client)
+
+        api_base_url = "https://api.microbiomedata.org"
+
+        token = oauth.fetch_token(
+            token_url=f"{api_base_url}/token",
+            client_id=CLIENT_ID,
+            client_secret=CLIENT_SECRET,
+        )
+
+        nmdc_mint_url = f"{api_base_url}/pids/mint"
+
+        payload = {"schema_class": {"id": nmdc_type}, "how_many": 1}
+
+        response = oauth.post(nmdc_mint_url, data=json.dumps(payload))
+        list_ids = response.json()
+
+        return list_ids
     
 class BioOntologyInfoRetriever:
     """

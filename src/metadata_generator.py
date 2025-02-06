@@ -9,9 +9,6 @@ import pandas as pd
 import hashlib
 import json
 import yaml
-import oauthlib
-import requests_oauthlib
-import requests
 from tqdm import tqdm
 import shutil
 import numpy as np
@@ -19,14 +16,7 @@ import nmdc_schema.nmdc as nmdc
 from linkml_runtime.dumpers import json_dumper
 from src.api_info_retriever import ApiInfoRetriever, NMDCAPIInterface
 from src.metadata_parser import MetadataParser, BiosampleIncludedMetadata, NoBiosampleIncludedMetadata
-from dotenv import load_dotenv
-load_dotenv()
-import os
-# set the cwd to /src/
-if 'src' not in Path.cwd().name:
-    os.chdir(Path.cwd() / 'src')
-CLIENT_ID = os.getenv('CLIENT_ID')
-CLIENT_SECRET = os.getenv('CLIENT_SECRET')  
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -609,51 +599,7 @@ class NMDCMetadataGenerator(ABC):
         json_dumper.dump(nmdc_database, self.database_dump_json_path)
         logging.info("Database successfully dumped in %s", self.database_dump_json_path)
 
-    def mint_nmdc_id(self, nmdc_type: str) -> list[str]:
-        """
-        Mint new NMDC IDs of the specified type using the NMDC ID minting API.
-
-        Parameters
-        ----------
-        nmdc_type : str
-            The type of NMDC ID to mint (e.g., 'nmdc:MassSpectrometry',
-            'nmdc:DataObject').
-
-        Returns
-        -------
-        list[str]
-            A list containing one newly minted NMDC ID.
-
-        Raises
-        ------
-        requests.exceptions.RequestException
-            If there is an error during the API request.
-
-        Notes
-        -----
-        This method relies on a YAML configuration file for authentication
-        details. The file should contain 'client_id' and 'client_secret' keys.
-
-        """
-        client = oauthlib.oauth2.BackendApplicationClient(client_id=CLIENT_ID)
-        oauth = requests_oauthlib.OAuth2Session(client=client)
-
-        api_base_url = "https://api.microbiomedata.org"
-
-        token = oauth.fetch_token(
-            token_url=f"{api_base_url}/token",
-            client_id=CLIENT_ID,
-            client_secret=CLIENT_SECRET,
-        )
-
-        nmdc_mint_url = f"{api_base_url}/pids/mint"
-
-        payload = {"schema_class": {"id": nmdc_type}, "how_many": 1}
-
-        response = oauth.post(nmdc_mint_url, data=json.dumps(payload))
-        list_ids = response.json()
-
-        return list_ids
+    
     
     def generate_biosample(self, biosamp_metadata: BiosampleIncludedMetadata) -> nmdc.Biosample:
         """
