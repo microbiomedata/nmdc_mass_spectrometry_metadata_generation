@@ -65,6 +65,51 @@ class NMDCAPIInterface:
         if response.text != '{"result":"All Okay!"}' or response.status_code != 200:
             logging.error(f"Request failed with response {response.text}")
             raise Exception("Validation failed")
+    def mint_nmdc_id(self, nmdc_type: str) -> list[str]:
+        """
+        Mint new NMDC IDs of the specified type using the NMDC ID minting API.
+
+        Parameters
+        ----------
+        nmdc_type : str
+            The type of NMDC ID to mint (e.g., 'nmdc:MassSpectrometry',
+            'nmdc:DataObject').
+
+        Returns
+        -------
+        list[str]
+            A list containing one newly minted NMDC ID.
+
+        Raises
+        ------
+        requests.exceptions.RequestException
+            If there is an error during the API request.
+
+        Notes
+        -----
+        This method relies on a YAML configuration file for authentication
+        details. The file should contain 'client_id' and 'client_secret' keys.
+
+        """
+        client = oauthlib.oauth2.BackendApplicationClient(client_id=CLIENT_ID)
+        oauth = requests_oauthlib.OAuth2Session(client=client)
+
+        
+
+        token = oauth.fetch_token(
+            token_url=f"{self.base_url}/token",
+            client_id=CLIENT_ID,
+            client_secret=CLIENT_SECRET,
+        )
+
+        nmdc_mint_url = f"{self.base_url}/pids/mint"
+
+        payload = {"schema_class": {"id": nmdc_type}, "how_many": 1}
+
+        response = oauth.post(nmdc_mint_url, data=json.dumps(payload))
+        list_ids = response.json()
+
+        return list_ids
 
 
 class ApiInfoRetriever(NMDCAPIInterface):
@@ -224,51 +269,7 @@ class ApiInfoRetriever(NMDCAPIInterface):
         identifier = data['resources'][0]['id']
 
         return identifier
-    def mint_nmdc_id(self, nmdc_type: str) -> list[str]:
-        """
-        Mint new NMDC IDs of the specified type using the NMDC ID minting API.
 
-        Parameters
-        ----------
-        nmdc_type : str
-            The type of NMDC ID to mint (e.g., 'nmdc:MassSpectrometry',
-            'nmdc:DataObject').
-
-        Returns
-        -------
-        list[str]
-            A list containing one newly minted NMDC ID.
-
-        Raises
-        ------
-        requests.exceptions.RequestException
-            If there is an error during the API request.
-
-        Notes
-        -----
-        This method relies on a YAML configuration file for authentication
-        details. The file should contain 'client_id' and 'client_secret' keys.
-
-        """
-        client = oauthlib.oauth2.BackendApplicationClient(client_id=CLIENT_ID)
-        oauth = requests_oauthlib.OAuth2Session(client=client)
-
-        api_base_url = "https://api.microbiomedata.org"
-
-        token = oauth.fetch_token(
-            token_url=f"{api_base_url}/token",
-            client_id=CLIENT_ID,
-            client_secret=CLIENT_SECRET,
-        )
-
-        nmdc_mint_url = f"{api_base_url}/pids/mint"
-
-        payload = {"schema_class": {"id": nmdc_type}, "how_many": 1}
-
-        response = oauth.post(nmdc_mint_url, data=json.dumps(payload))
-        list_ids = response.json()
-
-        return list_ids
     
 class BioOntologyInfoRetriever:
     """

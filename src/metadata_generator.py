@@ -147,6 +147,13 @@ class NmdcTypes:
     DataObject: str = "nmdc:DataObject"
     CalibrationInformation: str = "nmdc:CalibrationInformation"
     MetaboliteIdentification: str = "nmdc:MetaboliteIdentification"
+    NomAnalysis: str = "nmdc:NomAnalysis"
+    OntologyClass: str = "nmdc:OntologyClass"
+    ControlledIdentifiedTermValue: str = "nmdc:ControlledIdentifiedTermValue"
+    TextValue: str = "nmdc:TextValue"
+    GeolocationValue: str = "nmdc:GeolocationValue"
+    TimeStampValue: str = "nmdc:TimestampValue"
+    QuantityValue: str = "nmdc:QuantityValue"
 
 
 class NMDCMetadataGenerator(ABC):
@@ -338,7 +345,8 @@ class NMDCMetadataGenerator(ABC):
         This method uses the ApiInfoRetriever to fetch IDs for the instrument
         and configurations. It also mints a new NMDC ID for the DataGeneration object.
         """
-        nmdc_id = self.mint_nmdc_id(nmdc_type=NmdcTypes.MassSpectrometry)[0]
+        api = NMDCAPIInterface()
+        nmdc_id = api.mint_nmdc_id(nmdc_type=NmdcTypes.MassSpectrometry)[0]
 
         # Look up instrument, lc_config, and mass_spec_config id by name slot using API
         api_instrument_getter = ApiInfoRetriever(collection_name="instrument_set")
@@ -460,6 +468,7 @@ class NMDCMetadataGenerator(ABC):
         processing_institution: str,
         calibration_id: str = None,
         metabolite_identifications: List[nmdc.MetaboliteIdentification] = None,
+        type: str = NmdcTypes.MetabolomicsAnalysis,
     ) -> nmdc.MetabolomicsAnalysis:
         """
         Create an NMDC MetabolomicsAnalysis object with metadata for a workflow analysis.
@@ -501,7 +510,8 @@ class NMDCMetadataGenerator(ABC):
         placeholder values and should be updated with actual timestamps later
         when the processed files are iterated over in the run method.
         """
-        nmdc_id = self.mint_nmdc_id(nmdc_type=NmdcTypes.MetabolomicsAnalysis)[0] + ".1"
+        api = NMDCAPIInterface()
+        nmdc_id = api.mint_nmdc_id(nmdc_type=NmdcTypes.MetabolomicsAnalysis)[0] + ".1"
         # TODO: Update the minting to handle versioning in the future
 
         # TODO KRH: Add workflow category to the generation of the workflow object when schema is updated
@@ -518,7 +528,7 @@ class NMDCMetadataGenerator(ABC):
             "has_output": [processed_data_id],
             "started_at_time": "placeholder",
             "ended_at_time": "placeholder",
-            "type": NmdcTypes.MetabolomicsAnalysis,
+            "type": type,
         }
 
         if calibration_id is not None:

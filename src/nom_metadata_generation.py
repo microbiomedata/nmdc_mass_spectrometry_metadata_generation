@@ -1,6 +1,6 @@
 from metadata_generator import MetadataGenerator
 from metadata_parser import MetadataParser, NmdcTypes
-from api_info_retriever import NmdcApiInfoRetriever
+from api_info_retriever import ApiInfoRetriever, NMDCAPIInterface
 from tqdm import tqdm
 from datetime import datetime
 from pathlib import Path
@@ -27,6 +27,10 @@ class NOMMetadataGenerator(MetadataGenerator):
                  database_dump_json_path, execution_resource,
                  field_strength, workflow_version,
                  config_path)
+        self.mass_spec_description = ""
+        self.mass_spec_description = ""
+        self.mass_spec_eluent_intro = ""
+        self.analyte_category = ""
         
     def run(self):
         """
@@ -108,11 +112,20 @@ class NOMMetadataGenerator(MetadataGenerator):
                 The database instance to store the generated metadata.
             """
             # Generate mass spectrometry instance
-            mass_spectrometry = self.generate_mass_spectrometry(metadata_obj=emsl_metadata,
-                                                                file_path=raw_data_path,
-                                                                biosample_id=biosample_id,
-                                                                raw_data_id="nmdc:placeholder",
-                                                                mass_spec_description=f"{emsl_metadata.eluent_intro} ultra high resolution mass spectrum")
+            self.mass_spec_description = f"{emsl_metadata.eluent_intro} ultra high resolution mass spectrum"
+            self.mas_spec_eluent_intro = emsl_metadata.eluent_intro
+            self.analyte_category = "nom"
+            mass_spectrometry = self.generate_mass_spectrometry(raw_data_path=raw_data_path,
+                                                                instrument=emsl_metadata.instrument_used,
+                                                                metadata_obj=emsl_metadata,
+                                                                sample_id=biosample_id,
+                                                                processing_institution="EMSL",
+                                                                mass_spec_config_name=emsl_metadata.mass_spec_config_name,
+                                                                lc_config_name=emsl_metadata.lc_config_name,
+                                                                start_date='',
+                                                                end_date='',
+                                                               )
+            
 
             # Generate raw data object / create a raw data object description.
             eluent_intro_pretty = emsl_metadata.eluent_intro.replace("_", " ")
@@ -181,18 +194,18 @@ class NOMMetadataGenerator(MetadataGenerator):
         nmdc.MetabolomicsAnalysis
             The generated metabolomics analysis object.
         """
-
-        nmdc_id = self.mint_nmdc_id(
+        api = NMDCAPIInterface()
+        nmdc_id = api.mint_nmdc_id(
             nmdc_type=NmdcTypes.NomAnalysis)[0]
         
         # Lookup calibration id by md5 checksum of ref_calibration_path file
         calib_md5 = hashlib.md5(self.ref_calibration_path.open('rb').read()).hexdigest()
-        api_calib_do_getter = NmdcApiInfoRetriever(
+        api_calib_do_getter = ApiInfoRetriever(
             collection_name="data_object_set")
         
         try:
             calib_do_id = api_calib_do_getter.get_id_by_slot_from_collection(slot_name="md5_checksum", slot_field_value=calib_md5)
-            api_calibration_getter = NmdcApiInfoRetriever(collection_name="calibration_set")
+            api_calibration_getter = ApiInfoRetriever(collection_name="calibration_set")
             calibration_id = api_calibration_getter.get_id_by_slot_from_collection(slot_name="calibration_object", slot_field_value=calib_do_id)
 
         except ValueError as e:
