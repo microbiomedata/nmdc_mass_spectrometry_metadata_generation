@@ -1,36 +1,63 @@
-from metadata_generator import MetadataGenerator
+from metadata_generator import NMDCMetadataGenerator
 from metadata_parser import MetadataParser, NmdcTypes
 from api_info_retriever import ApiInfoRetriever, NMDCAPIInterface
 from tqdm import tqdm
 from datetime import datetime
 from pathlib import Path
+from dataclasses import dataclass
 
 import nmdc_schema.nmdc as nmdc
 import hashlib
 
+@dataclass
+class NOMWorkflowMetadata:
+    """
+    Data class for holding NOM workflow metadata information.
 
-class NOMMetadataGenerator(MetadataGenerator):
+    Attributes
+    ----------
+    """
+    id: str
+    name: str
+    description: str
+    processing_institution: str
+    execution_resource: str
+    git_url: str
+    version: str
+    was_informed_by: str
+    has_input: list[str]
+    has_output: list[str]
+    started_at_time: str
+    ended_at_time: str
+    type = "nmdc:NomAnalysis"
+
+class NOMMetadataGenerator(NMDCMetadataGenerator):
     # TODO: run in 2 modes - you already have biosample ids or you do not have biosample ids. This can be a future feature addition. To start just bring over the instance of already having biosample ids.
-    analyte_category="nom"
-    workflow_analysis_name="NOM Analysis"
-    workflow_description=("Natural Organic Matter analysis of raw mass "
-                                    "spectrometry data.")
-    workflow_git_url="https://github.com/microbiomedata/enviroMS"
-
-    def __init__(self, metadata_file: str, data_dir: str, ref_calibration_path: str,
-                 raw_data_object_type: str, processed_data_object_type: str,
-                 database_dump_json_path: str, execution_resource: str,
-                 field_strength: int, workflow_version: str,
-                 config_path: str):
-        super().__init__(metadata_file, data_dir, ref_calibration_path,
-                 raw_data_object_type, processed_data_object_type,
-                 database_dump_json_path, execution_resource,
-                 field_strength, workflow_version,
-                 config_path)
+   
+    def __init__(
+        self,
+        metadata_file: str,
+        database_dump_json_path: str,
+        raw_data_url: str,
+        process_data_url: str,
+    ):
+        super().__init__(
+            metadata_file=metadata_file,
+            database_dump_json_path=database_dump_json_path,
+            raw_data_url=raw_data_url,
+            process_data_url=process_data_url,
+        )
         self.mass_spec_description = ""
         self.mass_spec_description = ""
         self.mass_spec_eluent_intro = ""
-        self.analyte_category = ""
+        self.raw_data_object_type = "LC-DDA-MS/MS Raw Data"
+        self.processed_data_object_type = "FT ICR-MS Analysis Results"
+        self.processed_data_category = "processed_data"
+        self.execution_resource = "EMSL-RZR"
+        self.analyte_category="nom"
+        self.workflow_analysis_name="NOM Analysis"
+        self.workflow_description=("Natural Organic Matter analysis of raw mass "
+                                    "spectrometry data.")
         
     def run(self):
         """
@@ -40,82 +67,21 @@ class NOMMetadataGenerator(MetadataGenerator):
         and metadata, and manages the workflow for generating NOM analysis data.
         """
 
-        file_ext = '.d'
-        raw_dir_zip, results_dir, registration_dir = self.setup_directories()
-        registration_file = registration_dir / self.database_dump_json_path
-
-        # Dictionary to track failures
-        failed_metadata = {
-            'validation_errors': [],
-            'processing_errors': []
-        }
-
-        nmdc_database = self.start_nmdc_database()
-
+        nmdc_database_inst = self.start_nmdc_database()
+        grouped_data = self.load_metadata()
+        metadata_df = grouped_data.apply(lambda x: x.reset_index(drop=True))
         # Initialize parser
         parser = MetadataParser(metadata_file=self.metadata_file, config_path=self.config_path)
-
-        # Load metadata spreadsheet with Biosample metadata into dataframe
-        metadata_df = parser.load_metadata_file()
-
+    
         tqdm.write("\033[92mStarting metadata processing...\033[0m")
-
+        processed_data = []
         # Iterate through each row in df to generate metadata
-        for index, row in tqdm(metadata_df.iterrows(), total=metadata_df.shape[0], desc="\033[95mProcessing rows\033[0m"):
-            # Do not generate biosamples if biosample_id exists in spreadsheet
-            try:
-                
-                # Check if biosample_id is in metadata_csv. If no biosample_id, then will generate biosamples,
-                # if biosample_id exists, will return None for biosample.
-                emsl_metadata, biosample_id, biosample = self.handle_biosample(parser, row)
+        for index, row in tqdm(grouped_data.iterrows(), total=grouped_data.shape[0], desc="Processing NOM rows"):
+            emsl_metadata, biosample_id, biosample = self.handle_biosample(parser, row)
+            # Generate metabolomics analysis object with metabolite identifications
 
-                # Create raw_file_path
-                raw_file_path = self.data_dir / emsl_metadata.data_path.with_suffix(file_ext)
-
-            except Exception as e:
-                # Record the failed row with its error
-                self.record_processing_error(
-                    failed_metadata, 
-                    index,
-                    row.get('LC-MS filename', 'Unknown'),
-                    str(e)
-                )
-                continue
-
-        # At the end of processing, save the failed metadata if there are any errors
-        self.save_error_log(failed_metadata, results_dir)
-
-        self.dump_nmdc_database(nmdc_database, registration_file)
-
-        tqdm.write("\033[92mMetadata processing completed.\033[0m")
-
-    def create_nmdc_metadata(self, raw_data_path: Path, data_product_path: Path,
-                                emsl_metadata: object, biosample_id: str,
-                                toml_workflow_param_path: Path,
-                                nom_metadata_db: nmdc.Database):
-            """
-            Create NMDC metadata entries.
-
-            Parameters
-            ----------
-            raw_data_path : Path
-                The path to the raw data file.
-            data_product_path : Path
-                The path to the processed data product.
-            emsl_metadata : object
-                The EMSL metadata object containing information about the sample.
-            biosample_id : str
-                The ID of the biosample.
-            toml_workflow_param_path: Path
-                The path to the workflow parameter metadata toml file.
-            nom_metadata_db : nmdc.Database
-                The database instance to store the generated metadata.
-            """
-            # Generate mass spectrometry instance
-            self.mass_spec_description = f"{emsl_metadata.eluent_intro} ultra high resolution mass spectrum"
-            self.mas_spec_eluent_intro = emsl_metadata.eluent_intro
-            self.analyte_category = "nom"
-            mass_spectrometry = self.generate_mass_spectrometry(raw_data_path=raw_data_path,
+            # Generate data generation / mass spectrometry object
+            mass_spec = self.generate_mass_spectrometry(file_path=Path(emsl_metadata.raw_data_file),
                                                                 instrument=emsl_metadata.instrument_used,
                                                                 metadata_obj=emsl_metadata,
                                                                 sample_id=biosample_id,
@@ -125,54 +91,84 @@ class NOMMetadataGenerator(MetadataGenerator):
                                                                 start_date='',
                                                                 end_date='',
                                                                )
-            
-
-            # Generate raw data object / create a raw data object description.
             eluent_intro_pretty = emsl_metadata.eluent_intro.replace("_", " ")
             raw_data_object_desc = f"Raw {emsl_metadata.instrument_used} {eluent_intro_pretty} data."
-            raw_data_object = self.generate_data_object(file_path=raw_data_path,
-                                                        data_category=self.raw_data_category,
-                                                        data_object_type=self.raw_data_object_type,
-                                                        description=raw_data_object_desc,
-                                                        was_generated_by=mass_spectrometry.id)
-
+            raw_data_object = self.generate_data_object(
+                file_path=Path(row["raw_data_file"]),
+                data_category=self.raw_data_category,
+                data_object_type="LC-DDA-MS/MS Raw Data",
+                description=raw_data_object_desc,
+                was_generated_by=mass_spec.id,
+            )
             # Generate nom analysis instance
-            nom_analysis = self.generate_nom_analysis(file_path=raw_data_path,
+            nom_analysis = self.generate_nom_analysis(file_path=Path(row["raw_data_path"]),
                                                     raw_data_id=raw_data_object.id,
-                                                    data_gen_id=mass_spectrometry.id,
+                                                    data_gen_id=mass_spec.id,
                                                     processed_data_id="nmdc:placeholder")
-
-            # Generate processed data object
             processed_data_object_desc = (f"EnviroMS {emsl_metadata.instrument_used} "
                                         "natural organic matter workflow molecular formula assignment output details")
-            processed_data_object = self.generate_data_object(file_path=data_product_path,
-                                                            data_category=self.processed_data_category,
-                                                            data_object_type=self.processed_data_object_type,
-                                                            description=processed_data_object_desc,
-                                                            was_generated_by=nom_analysis.id)
-            
             # Generate workflow parameter data object
             workflow_param_data_object_desc = (f"CoreMS processing parameters for natural organic matter analysis "
                                             "used to generate {processed_data_object.id}")
-            parameter_data_object = self.generate_data_object(file_path=toml_workflow_param_path,
+            processed_data_file = Path(row["processed_data_file"])
+            processed_data_object = self.generate_data_object(file_path=processed_data_file,
                                                             data_category=self.workflow_param_data_category,
                                                             data_object_type=self.workflow_param_data_object_type,
                                                             description=workflow_param_data_object_desc)
+            processed_data.append(processed_data_object.id)
 
+        # Update the outputs for mass_spectrometry and nom_analysis
+            self.update_outputs(mass_spec_obj=mass_spec,
+                    analysis_obj=nom_analysis,
+                    raw_data_obj=raw_data_object,
+                    parameter_data_id="something here",
+                    processed_data_id_list=processed_data)
+           
+        self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
+        api_interface = NMDCAPIInterface()
+        api_interface.validate_json(self.database_dump_json_path)
+    
+    def create_workflow_metadata(
+        self, row: dict[str, str]
+    ) -> NOMWorkflowMetadata:
+        """
+        Create a NOMWorkflowMetadata object from a dictionary of workflow metadata.
 
-            # Update the outputs for mass_spectrometry and nom_analysis
-            self.update_outputs(mass_spec_obj=mass_spectrometry,
-                                analysis_obj=nom_analysis,
-                                raw_data_obj=raw_data_object,
-                                processed_data_obj=processed_data_object,
-                                workflow_param_obj=parameter_data_object)
+        Parameters
+        ----------
+        row : dict[str, str]
+            Dictionary containing metadata for a workflow. This is typically
+            a row from the input metadata CSV file.
 
-            # Add instances to database
-            nom_metadata_db.data_object_set.append(raw_data_object)
-            nom_metadata_db.workflow_execution_set.append(nom_analysis)
-            nom_metadata_db.data_generation_set.append(mass_spectrometry)
-            nom_metadata_db.data_object_set.append(processed_data_object)
-            nom_metadata_db.data_object_set.append(parameter_data_object)
+        Returns
+        -------
+        NOMWorkflowMetadata
+            A NOMWorkflowMetadata object populated with data from the input dictionary.
+
+        Notes
+        -----
+        The input dictionary is expected to contain the following keys:
+        'Processed Data Directory', 'Raw Data File', 'Raw Data Object Alt Id',
+        'mass spec configuration name', 'lc config name', 'instrument used',
+        'instrument analysis start date', 'instrument analysis end date',
+        'execution resource'.
+        """
+
+        return NOMWorkflowMetadata(
+            id=row["id"],
+            name=row["name"],
+            description=row["description"],
+            processing_institution=row["processing_institution"],
+            execution_resource=self.execution_resource,
+            git_url=row["git_url"],
+            version=row["version"],
+            was_informed_by=row["was_informed_by"],
+            has_input=row["has_input"].split(","),
+            has_output=row["has_output"].split(","),
+            started_at_time=row["started_at_time"],
+            ended_at_time=row["ended_at_time"],
+        )
+
 
     def generate_nom_analysis(self, file_path: Path, raw_data_id: str, data_gen_id: str, processed_data_id: str) -> nmdc.MetabolomicsAnalysis:
         """
