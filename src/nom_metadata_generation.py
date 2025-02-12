@@ -47,9 +47,6 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             raw_data_url=raw_data_url,
             process_data_url=process_data_url,
         )
-        self.mass_spec_description = ""
-        self.mass_spec_description = ""
-        self.mass_spec_eluent_intro = ""
         self.raw_data_object_type = "LC-DDA-MS/MS Raw Data"
         self.processed_data_object_type = "FT ICR-MS Analysis Results"
         self.processed_data_category = "processed_data"
