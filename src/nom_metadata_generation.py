@@ -1,6 +1,6 @@
-from metadata_generator import NMDCMetadataGenerator
-from metadata_parser import MetadataParser, NmdcTypes
-from api_info_retriever import ApiInfoRetriever, NMDCAPIInterface
+from src.metadata_generator import NMDCMetadataGenerator
+from src.metadata_parser import MetadataParser, NmdcTypes
+from src.api_info_retriever import ApiInfoRetriever, NMDCAPIInterface
 from tqdm import tqdm
 from datetime import datetime
 from pathlib import Path
@@ -57,6 +57,11 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                                     "spectrometry data.")
         self.workflow_param_data_category = "workflow_parameter_data"
         self.workflow_param_data_object_type = "Configuration toml"
+        self.unique_columns = ["raw_data_directory", "processed_data_directory"]
+        self.grouped_columns = [
+            "biosample_id",
+            "associated_study",
+        ]
 
 
         
@@ -72,7 +77,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         grouped_data = self.load_metadata()
         metadata_df = grouped_data.apply(lambda x: x.reset_index(drop=True))
         # Initialize parser
-        parser = MetadataParser(metadata_file=self.metadata_file, config_path=self.config_path)
+        parser = MetadataParser(metadata_file=self.metadata_file)
     
         tqdm.write("\033[92mStarting metadata processing...\033[0m")
         processed_data = []
@@ -93,6 +98,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                                                                 end_date='',
                                                                )
             eluent_intro_pretty = emsl_metadata.eluent_intro.replace("_", " ")
+            # raw is the zipped .d directory
             raw_data_object_desc = f"Raw {emsl_metadata.instrument_used} {eluent_intro_pretty} data."
             raw_data_object = self.generate_data_object(
                 file_path=Path(row["raw_data_file"]),
@@ -107,6 +113,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                                                     data_gen_id=mass_spec.id,
                                                     processed_data_id="nmdc:placeholder")
             # we will have processed data object AFTER the workflow is ran. Since this is how the lipidomics and gcms work, that is how this will function as well.
+            # this is the .csv file of the processed data
             processed_data_object_desc = (f"EnviroMS {emsl_metadata.instrument_used} "
                                         "natural organic matter workflow molecular formula assignment output details")
             processed_data_file = Path(row["processed_data_file"])
@@ -120,6 +127,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                                                             was_generated_by=nom_analysis.id,
                                                             alternative_id=None)
             # Generate workflow parameter data object
+            # this is the .json file of processed data
             workflow_param_data_object_desc = (f"CoreMS processing parameters for natural organic matter analysis "
                                             "used to generate {processed_data_object.id}")
 

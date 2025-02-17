@@ -15,7 +15,7 @@ import numpy as np
 import nmdc_schema.nmdc as nmdc
 from linkml_runtime.dumpers import json_dumper
 from src.api_info_retriever import ApiInfoRetriever, NMDCAPIInterface
-from src.metadata_parser import MetadataParser, BiosampleIncludedMetadata, NoBiosampleIncludedMetadata
+from src.metadata_parser import MetadataParser, BiosampleIncludedMetadata
 
 # Configure logging
 logging.basicConfig(
@@ -281,11 +281,12 @@ class NMDCMetadataGenerator(ABC):
             raise ValueError("Biosample IDs do not exist in the collection.")
 
         # Check that all studies exist
-        study_ids = metadata_df["associated_study"].unique()
-        api_study_getter = ApiInfoRetriever(collection_name="study_set")
+        if "associated_study" in metadata_df.columns:
+            study_ids = metadata_df["associated_study"].unique()
+            api_study_getter = ApiInfoRetriever(collection_name="study_set")
 
-        if not api_study_getter.check_if_ids_exist(study_ids):
-            raise ValueError("Study IDs do not exist in the collection.")
+            if not api_study_getter.check_if_ids_exist(study_ids):
+                raise ValueError("Study IDs do not exist in the collection.")
 
         # Group by Biosample
         grouped = metadata_df.groupby(self.grouped_columns)
@@ -610,46 +611,6 @@ class NMDCMetadataGenerator(ABC):
         logging.info("Database successfully dumped in %s", self.database_dump_json_path)
 
     
-    
-    def generate_biosample(self, biosamp_metadata: BiosampleIncludedMetadata) -> nmdc.Biosample:
-        """
-        TODO: Decide if this belongs in this class
-        Generate a biosample from the given metadata.
-
-        Parameters
-        ----------
-        biosamp_metadata : object
-            The metadata object containing biosample information.
-
-        Returns
-        -------
-        object
-            The generated biosample instance.
-        """
-
-        # Drop non biosample-related keys from EmslMetadata to create Biosample dict 
-        biosamp_dict = asdict(biosamp_metadata)
-        non_biosamp_keys = {"data_path", "dms_dataset_id", "myemsl_link", "instrument_used", "eluent_intro", "mass_spec_config", "chrom_config_name"}
-        for key in non_biosamp_keys:
-            biosamp_dict.pop(key, None)
-
-        # Remove keys with NaN values
-        biosamp_dict = {k: v for k, v in biosamp_dict.items() if not (isinstance(v, float) and np.isnan(v))}
-
-        # If no biosample id in spreadsheet, mint biosample ids
-        if biosamp_dict['biosample_id'] is None:
-            biosamp_dict['biosample_id'] = self.mint_nmdc_id(nmdc_type=NmdcTypes.Biosample)[0]
-
-        # Change biosample_id to id and add type slot
-        biosamp_dict['id'] = biosamp_dict.pop('biosample_id')
-        biosamp_dict['type'] = NmdcTypes.Biosample
-
-        # Filter dictionary to remove any key/value pairs with None as the value
-        biosamp_dict = {k: v for k, v in biosamp_dict.items() if v is not None}
-    
-        biosample_object = nmdc.Biosample(**biosamp_dict)
-
-        return biosample_object
     def handle_biosample(self, parser: MetadataParser, row: pd.Series) -> tuple:
         """
         TODO: Decide if this belongs in this class
@@ -669,7 +630,7 @@ class NMDCMetadataGenerator(ABC):
         -------
         tuple
             A tuple containing:
-            - emsl_metadata : BiosampleIncludedMetadata or NoBiosampleIncludedMetadata
+            - emsl_metadata : BiosampleIncludedMetadata
                 The parsed metadata from the row
             - biosample_id : str
                 The ID of the biosample (existing or newly generated)
@@ -677,18 +638,11 @@ class NMDCMetadataGenerator(ABC):
                 The generated biosample object if new, None if existing
         """
 
-        if parser.check_for_biosamples(row):
-            emsl_metadata = parser.parse_no_biosample_metadata(row)
-            biosample_id = emsl_metadata.biosample_id
-            tqdm.write(f"Biosample already exists for {emsl_metadata.data_path}, will not generate Biosample...")
-            return emsl_metadata, biosample_id, None
-        else:
-            # Generate biosamples if no biosample_id in spreadsheet
-            emsl_metadata = parser.parse_biosample_metadata(row)
-            biosample = self.generate_biosample(biosamp_metadata=emsl_metadata)
-            biosample_id = biosample.id
-            tqdm.write(f"Generating Biosamples for {emsl_metadata.data_path}")
-            return emsl_metadata, biosample_id, biosample
+        
+        emsl_metadata = parser.parse_biosample_metadata(row)
+        biosample_id = emsl_metadata.biosample_id
+        tqdm.write(f"Generating Biosamples for {emsl_metadata.data_path}")
+        return emsl_metadata, biosample_id, 
     
     def save_error_log(self, failed_metadata: dict, results_dir: Path) -> None:
         """

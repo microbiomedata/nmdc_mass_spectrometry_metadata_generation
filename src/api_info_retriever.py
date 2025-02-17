@@ -280,8 +280,6 @@ class BioOntologyInfoRetriever:
 
     Parameters
     ----------
-    config_path : str
-        Path to YAML configuration file containing BioPortal API credentials
 
     Notes
     -----
@@ -295,8 +293,9 @@ class BioOntologyInfoRetriever:
     >>> print(envo_terms)
     {'ENVO:00002042': 'surface water'}
     """
-    def __init__(self, config_path: str):
-        self.config = config_path
+    def __init__(self):
+        pass
+
 
     def get_envo_terms(self, envo_id: dict):
         """

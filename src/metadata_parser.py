@@ -49,18 +49,6 @@ class BiosampleIncludedMetadata:
     ecosystem_category: Optional[str] = None
     biosample_id: Optional[str] = None
 
-@ dataclass
-class NoBiosampleIncludedMetadata:
-    biosample_id: str
-    data_path: str
-    dms_dataset_id: str
-    myemsl_link: str
-    associated_studies: list
-    instrument_used: str
-    eluent_intro: str
-    mass_spec_config: str
-    chrom_config_name: Optional[str] = None
-
 @dataclass
 class NmdcTypes:
 
@@ -80,7 +68,7 @@ class NmdcTypes:
 class MetadataParser:
     """Parsers metadata from input metadata spreadsheet."""
 
-    def __init__(self, metadata_file, config_path):
+    def __init__(self, metadata_file):
         """
         Parameters
         ----------
@@ -89,7 +77,6 @@ class MetadataParser:
         """
 
         self.metadata_file = metadata_file
-        self.config_path = config_path
 
     def load_metadata_file(self) -> pd.DataFrame:
         """
@@ -219,7 +206,7 @@ class MetadataParser:
             return False
         return True
     
-    # Helper function to handle missing or NaN values
+       # Helper function to handle missing or NaN values
     def get_value(self, row: pd.Series, key: str, default=None):
         """
         Retrieve a value from a row, handling missing or NaN values.
@@ -242,39 +229,6 @@ class MetadataParser:
             return default
         return value
         
-    def parse_no_biosample_metadata(self, row: pd.Series) -> NoBiosampleIncludedMetadata:
-        """
-        Parse the metadata row if it does not include biosample information.
-
-        Parameters
-        ----------
-        row : pd.Series
-            A row from the DataFrame containing metadata.
-
-        Returns
-        -------
-        NoBiosampleIncludedMetadata
-            An instance of NoBiosampleIncludedMetadata populated with the parsed values.
-        """
-
-        #Initialize metadata dictionary
-        metadata_dict = {
-            'biosample_id': self.get_value(row, 'biosample_id'),
-            'raw_data_path': Path(self.get_value(row, 'LC-MS filename')),
-            'dms_dataset_id': self.get_value(row, 'DMS Dataset ID'),
-            'myemsl_link': self.get_value(row, 'MyEMSL link'),
-            'associated_studies': [study.strip() for study in self.get_value(row, 'NMDC Study ID').split(',')] if self.get_value(row, 'NMDC Study ID') else None,
-            'instrument_used': self.get_value(row, 'instrument_used'),
-            'eluent_intro': self.get_value(row, 'eluent_intro'),
-            'mass_spec_config': self.get_value(row, 'mass_spec_config'),
-            'chrom_config_name': self.get_value(row, 'chrom_config_name')
-        }
-
-        # Create and return the EmslMetadata instance
-        metadata = NoBiosampleIncludedMetadata(**metadata_dict)
-
-        return metadata
-
     def parse_biosample_metadata(self, row: pd.Series) -> BiosampleIncludedMetadata:
         """
         Parse the metadata row if it includes biosample information.
@@ -291,7 +245,7 @@ class MetadataParser:
         """
 
         # Initialize BioOntologyInfoRetriever
-        envo_retriever = BioOntologyInfoRetriever(config_path=self.config_path)
+        envo_retriever = BioOntologyInfoRetriever()
         
         # Initialize the metadata dictionary
         metadata_dict = {
@@ -309,7 +263,7 @@ class MetadataParser:
             'env_local_scale': self.create_controlled_identified_term_value(self.get_value(row, 'env_local_scale'), envo_retriever.get_envo_terms(self.get_value(row, 'env_local_scale'))) if self.get_value(row,'env_local_scale') else None,
             'description': self.get_value(row, 'description'),
             'collection_date': self.create_time_stamp_value(row_value=self.get_value(row, 'collection_date:has_raw_value')) if self.get_value(row, 'collection_date:has_raw_value') else None,
-            'associated_studies': [study.strip() for study in self.get_value(row, 'NMDC Study ID').split(',')] if self.get_value(row, 'NMDC Study ID') else None,
+            'associated_studies': [study.strip() for study in self.get_value(row, 'associated_study').split(',')] if self.get_value(row, 'associated_study') else None,
             'samp_store_temp': {'has_raw_value': self.get_value(row, 'samp_store_temp.has_raw_value'), 'type': NmdcTypes.QuantityValue} if self.get_value(row, 'samp_store_temp.has_raw_value') else None,
             'samp_size': self.create_quantity_value(raw_value=self.get_value(row, 'samp_size.has_raw_value')) if self.get_value(row, 'samp_size.has_raw_value') else None,
             'samp_collec_device': self.get_value(row, 'samp_collec_device'),
