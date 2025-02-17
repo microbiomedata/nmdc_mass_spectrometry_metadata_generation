@@ -55,6 +55,10 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         self.workflow_analysis_name="NOM Analysis"
         self.workflow_description=("Natural Organic Matter analysis of raw mass "
                                     "spectrometry data.")
+        self.workflow_param_data_category = "workflow_parameter_data"
+        self.workflow_param_data_object_type = "Configuration toml"
+
+
         
     def run(self):
         """
@@ -73,7 +77,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         tqdm.write("\033[92mStarting metadata processing...\033[0m")
         processed_data = []
         # Iterate through each row in df to generate metadata
-        for index, row in tqdm(grouped_data.iterrows(), total=grouped_data.shape[0], desc="Processing NOM rows"):
+        for index, row in tqdm(metadata_df.iterrows(), total=metadata_df.shape[0], desc="Processing NOM rows"):
             emsl_metadata, biosample_id, biosample = self.handle_biosample(parser, row)
             # Generate metabolomics analysis object with metabolite identifications
 
@@ -105,23 +109,41 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             # we will have processed data object AFTER the workflow is ran. Since this is how the lipidomics and gcms work, that is how this will function as well.
             processed_data_object_desc = (f"EnviroMS {emsl_metadata.instrument_used} "
                                         "natural organic matter workflow molecular formula assignment output details")
-            # Generate workflow parameter data object
-            workflow_param_data_object_desc = (f"CoreMS processing parameters for natural organic matter analysis "
-                                            "used to generate {processed_data_object.id}")
             processed_data_file = Path(row["processed_data_file"])
+
+            
             processed_data_object = self.generate_data_object(file_path=processed_data_file,
                                                             data_category=self.workflow_param_data_category,
                                                             data_object_type=self.workflow_param_data_object_type,
-                                                            description=workflow_param_data_object_desc)
+                                                            description=processed_data_object_desc,
+                                                            base_url="", 
+                                                            was_generated_by=nom_analysis.id,
+                                                            alternative_id=None)
+            # Generate workflow parameter data object
+            workflow_param_data_object_desc = (f"CoreMS processing parameters for natural organic matter analysis "
+                                            "used to generate {processed_data_object.id}")
+
+            workflow_data_object = self.generate_data_object(file_path=processed_data_file,
+                                                            data_category=self.workflow_param_data_category,
+                                                            data_object_type=self.workflow_param_data_object_type,
+                                                            description=workflow_param_data_object_desc,
+                                                            base_url="", 
+                                                            was_generated_by=nom_analysis.id,
+                                                            alternative_id=None)
             processed_data.append(processed_data_object.id)
 
         # Update the outputs for mass_spectrometry and nom_analysis
             self.update_outputs(mass_spec_obj=mass_spec,
                     analysis_obj=nom_analysis,
                     raw_data_obj=raw_data_object,
-                    parameter_data_id="something here",
+                    parameter_data_id=workflow_data_object.id,
                     processed_data_id_list=processed_data)
-           
+            nmdc_database_inst.data_generation_set.append(mass_spec)
+            nmdc_database_inst.data_object_set.append(raw_data_object)
+            nmdc_database_inst.data_object_set.append(processed_data_object)
+            nmdc_database_inst.data_object_set.append(workflow_data_object)
+            nmdc_database_inst.workflow_execution_set.append(nom_analysis)
+
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
         api_interface = NMDCAPIInterface()
         api_interface.validate_json(self.database_dump_json_path)
