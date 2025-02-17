@@ -78,7 +78,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             # Generate metabolomics analysis object with metabolite identifications
 
             # Generate data generation / mass spectrometry object
-            mass_spec = self.generate_mass_spectrometry(file_path=Path(emsl_metadata.raw_data_file),
+            mass_spec = self.generate_mass_spectrometry(file_path=Path(emsl_metadata.raw_data_path),
                                                                 instrument=emsl_metadata.instrument_used,
                                                                 metadata_obj=emsl_metadata,
                                                                 sample_id=biosample_id,
@@ -102,6 +102,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                                                     raw_data_id=raw_data_object.id,
                                                     data_gen_id=mass_spec.id,
                                                     processed_data_id="nmdc:placeholder")
+            # we will have processed data object AFTER the workflow is ran. Since this is how the lipidomics and gcms work, that is how this will function as well.
             processed_data_object_desc = (f"EnviroMS {emsl_metadata.instrument_used} "
                                         "natural organic matter workflow molecular formula assignment output details")
             # Generate workflow parameter data object

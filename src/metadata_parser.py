@@ -260,7 +260,7 @@ class MetadataParser:
         #Initialize metadata dictionary
         metadata_dict = {
             'biosample_id': self.get_value(row, 'biosample_id'),
-            'data_path': Path(self.get_value(row, 'LC-MS filename')),
+            'raw_data_path': Path(self.get_value(row, 'LC-MS filename')),
             'dms_dataset_id': self.get_value(row, 'DMS Dataset ID'),
             'myemsl_link': self.get_value(row, 'MyEMSL link'),
             'associated_studies': [study.strip() for study in self.get_value(row, 'NMDC Study ID').split(',')] if self.get_value(row, 'NMDC Study ID') else None,
