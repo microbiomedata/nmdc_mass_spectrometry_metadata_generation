@@ -8,7 +8,8 @@ from src.api_info_retriever import ApiInfoRetriever, BioOntologyInfoRetriever
 
 @ dataclass
 class BiosampleIncludedMetadata:
-
+    raw_data_directory: str
+    processed_data_directory: str
     data_path: str
     dms_dataset_id: str
     myemsl_link: str
@@ -22,7 +23,7 @@ class BiosampleIncludedMetadata:
     env_local_scale: dict
     description: str
     collection_date: dict
-    associated_studies: list
+    associated_study: list
     samp_store_temp: dict
     samp_collec_device: str
     elev: float
@@ -249,6 +250,8 @@ class MetadataParser:
         
         # Initialize the metadata dictionary
         metadata_dict = {
+            'raw_data_directory': Path(self.get_value(row, 'raw_data_directory')),
+            'processed_data_directory': Path(self.get_value(row, 'processed_data_directory')),
             'data_path': Path(self.get_value(row, 'LC-MS filename')),
             'dms_dataset_id': self.get_value(row,'DMS Dataset ID'),
             'myemsl_link': self.get_value(row,'MyEMSL link'),
@@ -263,7 +266,7 @@ class MetadataParser:
             'env_local_scale': self.create_controlled_identified_term_value(self.get_value(row, 'env_local_scale'), envo_retriever.get_envo_terms(self.get_value(row, 'env_local_scale'))) if self.get_value(row,'env_local_scale') else None,
             'description': self.get_value(row, 'description'),
             'collection_date': self.create_time_stamp_value(row_value=self.get_value(row, 'collection_date:has_raw_value')) if self.get_value(row, 'collection_date:has_raw_value') else None,
-            'associated_studies': [study.strip() for study in self.get_value(row, 'associated_study').split(',')] if self.get_value(row, 'associated_study') else None,
+            'associated_study': [study.strip() for study in self.get_value(row, 'associated_study').split(',')] if self.get_value(row, 'associated_study') else None,
             'samp_store_temp': {'has_raw_value': self.get_value(row, 'samp_store_temp.has_raw_value'), 'type': NmdcTypes.QuantityValue} if self.get_value(row, 'samp_store_temp.has_raw_value') else None,
             'samp_size': self.create_quantity_value(raw_value=self.get_value(row, 'samp_size.has_raw_value')) if self.get_value(row, 'samp_size.has_raw_value') else None,
             'samp_collec_device': self.get_value(row, 'samp_collec_device'),

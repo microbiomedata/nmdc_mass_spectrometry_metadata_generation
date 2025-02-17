@@ -83,17 +83,18 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         processed_data = []
         # Iterate through each row in df to generate metadata
         for index, row in tqdm(metadata_df.iterrows(), total=metadata_df.shape[0], desc="Processing NOM rows"):
-            emsl_metadata, biosample_id, biosample = self.handle_biosample(parser, row)
+            emsl_metadata, biosample_id = self.handle_biosample(parser, row)
             # Generate metabolomics analysis object with metabolite identifications
 
             # Generate data generation / mass spectrometry object
-            mass_spec = self.generate_mass_spectrometry(file_path=Path(emsl_metadata.raw_data_path),
-                                                                instrument=emsl_metadata.instrument_used,
-                                                                metadata_obj=emsl_metadata,
+            mass_spec = self.generate_mass_spectrometry(file_path=Path(emsl_metadata.data_path),
+                                                                instrument_name=emsl_metadata.instrument_used,
                                                                 sample_id=biosample_id,
+                                                                raw_data_id="nmdc:placeholder",
+                                                                study_id=emsl_metadata.associated_study,
                                                                 processing_institution="EMSL",
-                                                                mass_spec_config_name=emsl_metadata.mass_spec_config_name,
-                                                                lc_config_name=emsl_metadata.lc_config_name,
+                                                                mass_spec_config_name=emsl_metadata.mass_spec_config,
+                                                                lc_config_name="", #done a different way in other repo. Need to harmonize
                                                                 start_date='',
                                                                 end_date='',
                                                                )
