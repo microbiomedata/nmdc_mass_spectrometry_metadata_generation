@@ -47,7 +47,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             raw_data_url=raw_data_url,
             process_data_url=process_data_url,
         )
-        self.raw_data_object_type = "LC-DDA-MS/MS Raw Data"
+        self.raw_data_object_type = "Direct Infusion FT ICR-MS Raw Data"
         self.processed_data_object_type = "FT ICR-MS Analysis Results"
         self.processed_data_category = "processed_data"
         self.execution_resource = "EMSL-RZR"
@@ -62,6 +62,12 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             "biosample_id",
             "associated_study",
         ]
+        self.mass_spec_desc = " ultra high resolution mass spectrum"
+        self.mass_spec_eluent_intro = ""
+        self.processing_institution = "EMSL"
+        self.workflow_git_url = "https://github.com/microbiomedata/enviroMS"
+        self.workflow_version = "2.2.3"
+        self.base_url = "https://nmdcdemo.emsl.pnnl.gov/"
 
 
         
@@ -85,62 +91,78 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         for index, row in tqdm(metadata_df.iterrows(), total=metadata_df.shape[0], desc="Processing NOM rows"):
             emsl_metadata, biosample_id = self.handle_biosample(parser, row)
             # Generate metabolomics analysis object with metabolite identifications
-
+            self.mass_spec_desc = f"{emsl_metadata.eluent_intro} ultra high resolution mass spectrum"
+            self.mass_spec_eluent_intro = emsl_metadata.eluent_intro
             # Generate data generation / mass spectrometry object
             mass_spec = self.generate_mass_spectrometry(file_path=Path(emsl_metadata.data_path),
                                                                 instrument_name=emsl_metadata.instrument_used,
                                                                 sample_id=biosample_id,
                                                                 raw_data_id="nmdc:placeholder",
                                                                 study_id=emsl_metadata.associated_study,
-                                                                processing_institution="EMSL",
+                                                                processing_institution=self.processing_institution,
                                                                 mass_spec_config_name=emsl_metadata.mass_spec_config,
-                                                                lc_config_name="", #done a different way in other repo. Need to harmonize
+                                                                lc_config_name="", # TODO done a different way in other repo. Need to harmonize
                                                                 start_date='',
                                                                 end_date='',
                                                                )
+            print(f"Mass spec object: {mass_spec}")
             eluent_intro_pretty = emsl_metadata.eluent_intro.replace("_", " ")
             # raw is the zipped .d directory
             raw_data_object_desc = f"Raw {emsl_metadata.instrument_used} {eluent_intro_pretty} data."
             raw_data_object = self.generate_data_object(
-                file_path=Path(row["raw_data_file"]),
+                file_path=Path(row["raw_data_directory"]),
                 data_category=self.raw_data_category,
-                data_object_type="LC-DDA-MS/MS Raw Data",
+                data_object_type= self.raw_data_object_type,
                 description=raw_data_object_desc,
+                base_url=self.raw_data_url,
                 was_generated_by=mass_spec.id,
             )
-            # Generate nom analysis instance
-            nom_analysis = self.generate_nom_analysis(file_path=Path(row["raw_data_path"]),
+            print(f"Raw data object: {raw_data_object}")
+            # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
+            nom_analysis = self.generate_nom_analysis(file_path=Path(row["raw_data_directory"]),
+                                                    ref_calibration_path=Path(row["ref_calibration_path"]),
                                                     raw_data_id=raw_data_object.id,
                                                     data_gen_id=mass_spec.id,
                                                     processed_data_id="nmdc:placeholder")
-            # we will have processed data object AFTER the workflow is ran. Since this is how the lipidomics and gcms work, that is how this will function as well.
-            # this is the .csv file of the processed data
-            processed_data_object_desc = (f"EnviroMS {emsl_metadata.instrument_used} "
-                                        "natural organic matter workflow molecular formula assignment output details")
-            processed_data_file = Path(row["processed_data_file"])
-
+            print(f"Nom analysis object: {nom_analysis}")
+            ### we will have processed data object AFTER the workflow is ran. Since this is how the lipidomics and gcms work, that is how this will function as well.
             
-            processed_data_object = self.generate_data_object(file_path=processed_data_file,
-                                                            data_category=self.workflow_param_data_category,
-                                                            data_object_type=self.workflow_param_data_object_type,
-                                                            description=processed_data_object_desc,
-                                                            base_url="", 
-                                                            was_generated_by=nom_analysis.id,
-                                                            alternative_id=None)
-            # Generate workflow parameter data object
-            # this is the .json file of processed data
-            workflow_param_data_object_desc = (f"CoreMS processing parameters for natural organic matter analysis "
-                                            "used to generate {processed_data_object.id}")
+            processed_data_paths = list(Path(row["processed_data_directory"]).glob("**/*"))
+            # Add a check that the processed data directory is not empty
+            if not any(processed_data_paths):
+                raise FileNotFoundError(
+                    f"No files found in processed data directory: "
+                    f"{row["processed_data_directory"]}"
+                )
+            processed_data_paths = [x for x in processed_data_paths if x.is_file()]
+            for file in processed_data_paths:
+                if file.suffix == ".csv":
+                    # this is the .csv file of the processed data
+                    processed_data_object_desc = (f"EnviroMS {emsl_metadata.instrument_used} "
+                                                "natural organic matter workflow molecular formula assignment output details")
+                    processed_data_object = self.generate_data_object(file_path=file,
+                                                                    data_category=self.workflow_param_data_category,
+                                                                    data_object_type=self.workflow_param_data_object_type,
+                                                                    description=processed_data_object_desc,
+                                                                    base_url=self.base_url + file.name, 
+                                                                    was_generated_by=nom_analysis.id,
+                                                                    alternative_id=None)
+                    processed_data.append(processed_data_object.id)
+                    print(f"Processed data object: {processed_data_object}")
+                if file.suffix == ".json":
+                    # Generate workflow parameter data object
+                    # this is the .json file of processed data
+                    workflow_param_data_object_desc = (f"CoreMS processing parameters for natural organic matter analysis "
+                                                    "used to generate {processed_data_object.id}")
 
-            workflow_data_object = self.generate_data_object(file_path=processed_data_file,
-                                                            data_category=self.workflow_param_data_category,
-                                                            data_object_type=self.workflow_param_data_object_type,
-                                                            description=workflow_param_data_object_desc,
-                                                            base_url="", 
-                                                            was_generated_by=nom_analysis.id,
-                                                            alternative_id=None)
-            processed_data.append(processed_data_object.id)
-
+                    workflow_data_object = self.generate_data_object(file_path=file,
+                                                                    data_category=self.workflow_param_data_category,
+                                                                    data_object_type=self.workflow_param_data_object_type,
+                                                                    description=workflow_param_data_object_desc,
+                                                                    base_url=self.base_url + file.name, 
+                                                                    was_generated_by=nom_analysis.id,
+                                                                    alternative_id=None)
+                    print(f"Workflow data object: {workflow_data_object}")
         # Update the outputs for mass_spectrometry and nom_analysis
             self.update_outputs(mass_spec_obj=mass_spec,
                     analysis_obj=nom_analysis,
@@ -199,7 +221,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         )
 
 
-    def generate_nom_analysis(self, file_path: Path, raw_data_id: str, data_gen_id: str, processed_data_id: str) -> nmdc.MetabolomicsAnalysis:
+    def generate_nom_analysis(self, file_path: Path, ref_calibration_path:str , raw_data_id: str, data_gen_id: str, processed_data_id: str) -> nmdc.MetabolomicsAnalysis:
         """
         Generate a metabolomics analysis object from the provided file information.
 
@@ -207,6 +229,8 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         ----------
         file_path : Path
             The file path of the metabolomics analysis data file.
+        ref_calibration_path : str
+            The file path of the calibration file used for the analysis
         raw_data_id : str
             The ID of the raw data associated with the analysis.
         data_gen_id : str
@@ -224,7 +248,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             nmdc_type=NmdcTypes.NomAnalysis)[0]
         
         # Lookup calibration id by md5 checksum of ref_calibration_path file
-        calib_md5 = hashlib.md5(self.ref_calibration_path.open('rb').read()).hexdigest()
+        calib_md5 = hashlib.md5(ref_calibration_path.open('rb').read()).hexdigest()
         api_calib_do_getter = ApiInfoRetriever(
             collection_name="data_object_set")
         
@@ -235,6 +259,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
 
         except ValueError as e:
             print(f"Calibration object does not exist: {e}")
+            calibration_id = None
 
         except Exception as e:
             print(f"An error occurred: {e}")

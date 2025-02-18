@@ -356,9 +356,12 @@ class NMDCMetadataGenerator(ABC):
         )
 
         api_config_getter = ApiInfoRetriever(collection_name="configuration_set")
-        lc_config_id = api_config_getter.get_id_by_name_from_collection(
-            name_field_value=lc_config_name
-        )
+        if lc_config_name:
+            lc_config_id = api_config_getter.get_id_by_name_from_collection(
+                name_field_value=lc_config_name
+            )
+        else: 
+            lc_config_id = ""
         mass_spec_id = api_config_getter.get_id_by_name_from_collection(
             name_field_value=mass_spec_config_name
         )
@@ -436,7 +439,8 @@ class NMDCMetadataGenerator(ABC):
         This method calculates the MD5 checksum of the file, which may be
         time-consuming for large files.
         """
-        nmdc_id = self.mint_nmdc_id(nmdc_type=NmdcTypes.DataObject)[0]
+        api = NMDCAPIInterface()
+        nmdc_id = api.mint_nmdc_id(nmdc_type=NmdcTypes.DataObject)[0]
         data_dict = {
             "id": nmdc_id,
             "data_category": data_category,
