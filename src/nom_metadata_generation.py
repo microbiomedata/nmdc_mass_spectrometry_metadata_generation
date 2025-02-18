@@ -105,7 +105,6 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                                                                 start_date='',
                                                                 end_date='',
                                                                )
-            print(f"Mass spec object: {mass_spec}")
             eluent_intro_pretty = emsl_metadata.eluent_intro.replace("_", " ")
             # raw is the zipped .d directory
             raw_data_object_desc = f"Raw {emsl_metadata.instrument_used} {eluent_intro_pretty} data."
@@ -117,14 +116,12 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                 base_url=self.raw_data_url,
                 was_generated_by=mass_spec.id,
             )
-            print(f"Raw data object: {raw_data_object}")
             # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
             nom_analysis = self.generate_nom_analysis(file_path=Path(row["raw_data_directory"]),
                                                     ref_calibration_path=Path(row["ref_calibration_path"]),
                                                     raw_data_id=raw_data_object.id,
                                                     data_gen_id=mass_spec.id,
                                                     processed_data_id="nmdc:placeholder")
-            print(f"Nom analysis object: {nom_analysis}")
             ### we will have processed data object AFTER the workflow is ran. Since this is how the lipidomics and gcms work, that is how this will function as well.
             
             processed_data_paths = list(Path(row["processed_data_directory"]).glob("**/*"))
@@ -148,7 +145,6 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                                                                     was_generated_by=nom_analysis.id,
                                                                     alternative_id=None)
                     processed_data.append(processed_data_object.id)
-                    print(f"Processed data object: {processed_data_object}")
                 if file.suffix == ".json":
                     # Generate workflow parameter data object
                     # this is the .json file of processed data
@@ -162,7 +158,6 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                                                                     base_url=self.base_url + file.name, 
                                                                     was_generated_by=nom_analysis.id,
                                                                     alternative_id=None)
-                    print(f"Workflow data object: {workflow_data_object}")
         # Update the outputs for mass_spectrometry and nom_analysis
             self.update_outputs(mass_spec_obj=mass_spec,
                     analysis_obj=nom_analysis,

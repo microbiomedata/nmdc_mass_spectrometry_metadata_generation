@@ -587,7 +587,7 @@ class NMDCMetadataGenerator(ABC):
         - Sets `analysis_obj.has_output` to `processed_data_id_list`.
         """
         mass_spec_obj.has_output = [raw_data_obj.id]
-        analysis_obj.has_input[1] = parameter_data_id
+        analysis_obj.has_input.append(parameter_data_id)
         analysis_obj.has_output = processed_data_id_list
 
     def dump_nmdc_database(self, nmdc_database: nmdc.Database) -> None:
