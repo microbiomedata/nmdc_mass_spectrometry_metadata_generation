@@ -100,8 +100,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                                                                 raw_data_id="nmdc:placeholder",
                                                                 study_id=emsl_metadata.associated_study,
                                                                 processing_institution=self.processing_institution,
-                                                                mass_spec_config_name=emsl_metadata.mass_spec_config,
-                                                                lc_config_name=row["chrom_config_name"], 
+                                                                mass_spec_config_name=emsl_metadata.mass_spec_config, 
                                                                 start_date=row["start_date"],
                                                                 end_date=row["end_date"]
                                                                )
@@ -169,6 +168,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             nmdc_database_inst.data_object_set.append(processed_data_object)
             nmdc_database_inst.data_object_set.append(workflow_data_object)
             nmdc_database_inst.workflow_execution_set.append(nom_analysis)
+            processed_data = []
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
         api_interface = NMDCAPIInterface()

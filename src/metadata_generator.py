@@ -300,9 +300,9 @@ class NMDCMetadataGenerator(ABC):
         study_id: str,
         processing_institution: str,
         mass_spec_config_name: str,
-        lc_config_name: str,
         start_date: str,
         end_date: str,
+        lc_config_name: str = None,
         calibration_id: str = None,
     ) -> nmdc.DataGeneration:
         """
@@ -644,7 +644,7 @@ class NMDCMetadataGenerator(ABC):
         emsl_metadata = parser.parse_biosample_metadata(row)
         biosample_id = emsl_metadata.biosample_id
         tqdm.write(f"Generating Biosamples for {emsl_metadata.data_path}")
-        return emsl_metadata, biosample_id, 
+        return emsl_metadata, biosample_id
     
     
     def process_data_files(self, ms, raw_file_path: Path, raw_dir_zip: Path, results_dir: Path) -> tuple[Path, Path, Path]:
@@ -1377,8 +1377,9 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         ValueError
             If the calibration type is not supported.
         """
+        api = NMDCAPIInterface()
         if fames and not internal:
-            nmdc_id = self.mint_nmdc_id(nmdc_type=NmdcTypes.CalibrationInformation)[0]
+            nmdc_id = api.mint_nmdc_id(nmdc_type=NmdcTypes.CalibrationInformation)[0]
             data_dict = {
                 "id": nmdc_id,
                 "type": NmdcTypes.CalibrationInformation,

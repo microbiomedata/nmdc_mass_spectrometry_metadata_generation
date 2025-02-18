@@ -13,7 +13,7 @@ def test_lipid_metadata_gen():
     csv_file_path = os.path.join(current_directory, 'test_data', 'test_metadata_file_lipid.csv')
     # Set up output file with datetime stame
     output_file = (
-        "tests/test_data/test_database_"
+        "tests/test_data/test_database_lipid_"
         + datetime.now().strftime("%Y%m%d%H%M%S")
         + ".json"
     )
