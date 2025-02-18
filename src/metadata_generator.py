@@ -595,6 +595,11 @@ class NMDCMetadataGenerator(ABC):
         mass_spec_obj.has_output = [raw_data_obj.id]
         analysis_obj.has_input.append(parameter_data_id)
         analysis_obj.has_output = processed_data_id_list
+        # check to remove the placeholder values after we have added input and outputs
+        if "nmdc:placeholder" in analysis_obj.has_input:
+            analysis_obj.has_input.remove("nmdc:placeholder")
+        if "nmdc:placeholder" in analysis_obj.has_output:
+            analysis_obj.has_output.remove("nmdc:placeholder")
 
     def dump_nmdc_database(self, nmdc_database: nmdc.Database) -> None:
         """
