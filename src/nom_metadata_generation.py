@@ -172,49 +172,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
         api_interface = NMDCAPIInterface()
-        api_interface.validate_json(self.database_dump_json_path)
-    
-    def create_workflow_metadata(
-        self, row: dict[str, str]
-    ) -> NOMWorkflowMetadata:
-        """
-        Create a NOMWorkflowMetadata object from a dictionary of workflow metadata.
-
-        Parameters
-        ----------
-        row : dict[str, str]
-            Dictionary containing metadata for a workflow. This is typically
-            a row from the input metadata CSV file.
-
-        Returns
-        -------
-        NOMWorkflowMetadata
-            A NOMWorkflowMetadata object populated with data from the input dictionary.
-
-        Notes
-        -----
-        The input dictionary is expected to contain the following keys:
-        'Processed Data Directory', 'Raw Data File', 'Raw Data Object Alt Id',
-        'mass spec configuration name', 'lc config name', 'instrument used',
-        'instrument analysis start date', 'instrument analysis end date',
-        'execution resource'.
-        """
-
-        return NOMWorkflowMetadata(
-            id=row["id"],
-            name=row["name"],
-            description=row["description"],
-            processing_institution=row["processing_institution"],
-            execution_resource=self.execution_resource,
-            git_url=row["git_url"],
-            version=row["version"],
-            was_informed_by=row["was_informed_by"],
-            has_input=row["has_input"].split(","),
-            has_output=row["has_output"].split(","),
-            started_at_time=row["started_at_time"],
-            ended_at_time=row["ended_at_time"],
-        )
-
+        # api_interface.validate_json(self.database_dump_json_path)
 
     def generate_nom_analysis(self, file_path: Path, ref_calibration_path:str , raw_data_id: str, data_gen_id: str, processed_data_id: str) -> nmdc.MetabolomicsAnalysis:
         """

@@ -2,20 +2,18 @@ import logging
 from pathlib import Path
 from datetime import datetime
 from dataclasses import dataclass
-from typing import List, Dict
+from typing import List
 from abc import ABC
 from dataclasses import asdict
 import pandas as pd
 import hashlib
 import json
-import yaml
 from tqdm import tqdm
 import shutil
-import numpy as np
 import nmdc_schema.nmdc as nmdc
 from linkml_runtime.dumpers import json_dumper
 from src.api_info_retriever import ApiInfoRetriever, NMDCAPIInterface
-from src.metadata_parser import MetadataParser, BiosampleIncludedMetadata
+from src.metadata_parser import MetadataParser
 
 # Configure logging
 logging.basicConfig(
@@ -648,79 +646,7 @@ class NMDCMetadataGenerator(ABC):
         tqdm.write(f"Generating Biosamples for {emsl_metadata.data_path}")
         return emsl_metadata, biosample_id, 
     
-    def save_error_log(self, failed_metadata: dict, results_dir: Path) -> None:
-        """
-        # TODO: Decide if this belongs in this class
-        Save processing errors to JSON file and display notification.
-
-        If any errors occurred during metadata processing, saves them to a JSON file
-        in the results directory and displays a colored notification message.
-
-        Parameters
-        ----------
-        failed_metadata : dict
-            Dictionary containing lists of validation and processing errors. Expected 
-            structure is {'validation_errors': [], 'processing_errors': []}
-        results_dir : Path
-            Directory path where the error log file should be saved
-
-        Returns
-        -------
-        None
-            Writes error log file if errors exist and displays status message
-
-        Notes
-        -----
-        - Error log is saved as 'failed_metadata_rows.json' in the results directory
-        - Output JSON is formatted with indentation level of 2 for readability
-        - Uses ANSI color code 91 (bright red) for the console notification message
-
-        See Also
-        --------
-        record_processing_error : Method for recording individual processing errors
-        """
-        if any(failed_metadata.values()):
-            error_file = results_dir / 'failed_metadata_rows.json'
-            with open(error_file, 'w') as f:
-                json.dump(failed_metadata, f, indent=2)
-            tqdm.write(f"\n\033[91mSome rows failed processing. See {error_file} for details.\033[0m")
-
-    def record_processing_error(self, failed_metadata: dict, index: int, filename: str, error: str) -> None:
-        """
-        Record processing errors in tracking dictionary and display status message.
-
-        Records details about processing errors that occur during metadata generation,
-        including row index, filename, and error message. Also displays the error to
-        the console using tqdm.write.
-
-        Parameters
-        ----------
-        failed_metadata : dict
-            Dictionary tracking all processing errors that occur during execution
-        index : int
-            Zero-based row index from the metadata DataFrame
-        filename : str
-            Name of the file that encountered the error
-        error : str
-            Description or message explaining the error that occurred
-
-        Returns
-        -------
-        None
-            Updates failed_metadata dictionary in place and prints error message
-
-        Notes
-        -----
-        Row indices are incremented by 2 in the output to account for:
-        1. Zero-based DataFrame indexing
-        2. Header row in original spreadsheet
-        """
-        failed_metadata['processing_errors'].append({
-            'row_index': index + 2,
-            'filename': str(filename),
-            'error': str(error)
-        })
-        tqdm.write(f"Error processing row {index + 2}: {str(error)}")
+    
     def process_data_files(self, ms, raw_file_path: Path, raw_dir_zip: Path, results_dir: Path) -> tuple[Path, Path, Path]:
         """
         TODO: Decide if this belongs in this class
@@ -774,33 +700,6 @@ class NMDCMetadataGenerator(ABC):
         toml_file_path = output_file_path.with_suffix('.toml')
 
         return raw_file_to_upload_path, output_file_path, toml_file_path
-    def setup_directories(self) -> tuple[Path, Path, Path]:
-        """
-        #TODO: Decide if this belongs in this class
-        Create directory structure for storing raw, processed and registration data.
-
-        Creates three directories:
-        - raw_zip: For storing zipped raw data files
-        - results: For storing processed output files
-        - registration: For storing registration/metadata files
-
-        Returns
-        -------
-        tuple[Path, Path, Path]
-            A tuple containing (raw_dir_zip, results_dir, registration_dir) Paths
-        """
-
-        raw_dir_zip = self.data_dir / Path("raw_zip/")
-        raw_dir_zip.mkdir(parents=True, exist_ok=True)
-
-        results_dir = self.data_dir / Path("results/")
-        results_dir.mkdir(parents=True, exist_ok=True)
-
-        registration_dir = self.data_dir / 'registration'
-        registration_dir.mkdir(parents=True, exist_ok=True)
-
-        return raw_dir_zip, results_dir, registration_dir
-
 
 class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
     """
