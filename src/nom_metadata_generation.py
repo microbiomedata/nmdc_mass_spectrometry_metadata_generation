@@ -163,11 +163,11 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                     raw_data_obj=raw_data_object,
                     parameter_data_id=workflow_data_object.id,
                     processed_data_id_list=processed_data)
-            nmdc_database_inst.data_generation_set.append(mass_spec)
-            nmdc_database_inst.data_object_set.append(raw_data_object)
-            nmdc_database_inst.data_object_set.append(processed_data_object)
-            nmdc_database_inst.data_object_set.append(workflow_data_object)
-            nmdc_database_inst.workflow_execution_set.append(nom_analysis)
+            nmdc_database_inst.data_generation_set.append(self.clean_dict(mass_spec))
+            nmdc_database_inst.data_object_set.append(self.clean_dict(raw_data_object))
+            nmdc_database_inst.data_object_set.append(self.clean_dict(processed_data_object))
+            nmdc_database_inst.data_object_set.append(self.clean_dict(workflow_data_object))
+            nmdc_database_inst.workflow_execution_set.append(self.clean_dict(nom_analysis))
             processed_data = []
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)

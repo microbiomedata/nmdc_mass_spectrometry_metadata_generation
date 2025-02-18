@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 from datetime import datetime
 from dataclasses import dataclass
-from typing import List
+from typing import List, Dict
 from abc import ABC
 from dataclasses import asdict
 import pandas as pd
@@ -290,7 +290,15 @@ class NMDCMetadataGenerator(ABC):
         grouped = metadata_df.groupby(self.grouped_columns)
 
         return grouped
-
+    
+    def clean_dict(self, dict: Dict) -> Dict:
+        """
+        Clean the dictionary of empty values.
+        dict : Dict
+            The dictionary to clean.
+        """
+        return {k: v for k, v in asdict(dict).items() if v not in [None, ""]}
+    
     def generate_mass_spectrometry(
         self,
         file_path: Path,
