@@ -101,9 +101,9 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                                                                 study_id=emsl_metadata.associated_study,
                                                                 processing_institution=self.processing_institution,
                                                                 mass_spec_config_name=emsl_metadata.mass_spec_config,
-                                                                lc_config_name="", # TODO done a different way in other repo. Need to harmonize
-                                                                start_date='',
-                                                                end_date='',
+                                                                lc_config_name=row["chrom_config_name"], 
+                                                                start_date=row["start_date"],
+                                                                end_date=row["end_date"]
                                                                )
             eluent_intro_pretty = emsl_metadata.eluent_intro.replace("_", " ")
             # raw is the zipped .d directory
@@ -172,7 +172,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
         api_interface = NMDCAPIInterface()
-        # api_interface.validate_json(self.database_dump_json_path)
+        api_interface.validate_json(self.database_dump_json_path)
 
     def generate_nom_analysis(self, file_path: Path, ref_calibration_path:str , raw_data_id: str, data_gen_id: str, processed_data_id: str) -> nmdc.MetabolomicsAnalysis:
         """
