@@ -62,11 +62,11 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             "biosample_id",
             "associated_study",
         ]
-        self.mass_spec_desc = " ultra high resolution mass spectrum"
-        self.mass_spec_eluent_intro = ""
+        self.mass_spec_desc = "ultra high resolution mass spectrum"
+        self.mass_spec_eluent_intro = "direct_infusion_autosampler"
         self.processing_institution = "EMSL"
         self.workflow_git_url = "https://github.com/microbiomedata/enviroMS"
-        self.workflow_version = "2.2.3"
+        self.workflow_version = "4.3.1"
         self.base_url = "https://nmdcdemo.emsl.pnnl.gov/"
 
 
@@ -90,10 +90,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         # Iterate through each row in df to generate metadata
         for index, row in tqdm(metadata_df.iterrows(), total=metadata_df.shape[0], desc="Processing NOM rows"):
             emsl_metadata, biosample_id = self.handle_biosample(parser, row)
-            # Generate metabolomics analysis object with metabolite identifications
-            self.mass_spec_desc = f"{emsl_metadata.eluent_intro} ultra high resolution mass spectrum"
-            self.mass_spec_eluent_intro = emsl_metadata.eluent_intro
-            # Generate data generation / mass spectrometry object
+            # Generate MassSpectrometry record
             mass_spec = self.generate_mass_spectrometry(file_path=Path(emsl_metadata.data_path),
                                                                 instrument_name=emsl_metadata.instrument_used,
                                                                 sample_id=biosample_id,
@@ -104,7 +101,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                                                                 start_date=row["start_date"],
                                                                 end_date=row["end_date"]
                                                                )
-            eluent_intro_pretty = emsl_metadata.eluent_intro.replace("_", " ")
+            eluent_intro_pretty = self.mass_spec_eluent_intro.replace("_", " ")
             # raw is the zipped .d directory
             raw_data_object_desc = f"Raw {emsl_metadata.instrument_used} {eluent_intro_pretty} data."
             raw_data_object = self.generate_data_object(
@@ -163,11 +160,11 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                     raw_data_obj=raw_data_object,
                     parameter_data_id=workflow_data_object.id,
                     processed_data_id_list=processed_data)
-            nmdc_database_inst.data_generation_set.append(self.clean_dict(mass_spec))
-            nmdc_database_inst.data_object_set.append(self.clean_dict(raw_data_object))
-            nmdc_database_inst.data_object_set.append(self.clean_dict(processed_data_object))
-            nmdc_database_inst.data_object_set.append(self.clean_dict(workflow_data_object))
-            nmdc_database_inst.workflow_execution_set.append(self.clean_dict(nom_analysis))
+            nmdc_database_inst.data_generation_set.append(mass_spec)
+            nmdc_database_inst.data_object_set.append(raw_data_object)
+            nmdc_database_inst.data_object_set.append(processed_data_object)
+            nmdc_database_inst.data_object_set.append(workflow_data_object)
+            nmdc_database_inst.workflow_execution_set.append(nom_analysis)
             processed_data = []
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
@@ -233,7 +230,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             'ended_at_time': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             'type': NmdcTypes.NomAnalysis,
         }
-
+        self.clean_dict(data_dict)
         nomAnalysis = nmdc.NomAnalysis(**data_dict)
 
         return nomAnalysis

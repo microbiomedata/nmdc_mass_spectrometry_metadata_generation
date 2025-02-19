@@ -297,7 +297,7 @@ class NMDCMetadataGenerator(ABC):
         dict : Dict
             The dictionary to clean.
         """
-        return {k: v for k, v in asdict(dict).items() if v not in [None, ""]}
+        return {k: v for k, v in dict.items() if v not in [None, ""]}
     
     def generate_mass_spectrometry(
         self,
@@ -393,7 +393,7 @@ class NMDCMetadataGenerator(ABC):
 
         if calibration_id is not None:
             data_dict["generates_calibration"] = calibration_id
-
+        self.clean_dict(data_dict)
         mass_spectrometry = nmdc.DataGeneration(**data_dict)
 
         return mass_spectrometry
@@ -462,8 +462,7 @@ class NMDCMetadataGenerator(ABC):
         }
 
         # If any of the data_dict values are None or empty strings, remove them
-        data_dict = {k: v for k, v in data_dict.items() if v not in [None, ""]}
-
+        self.clean_dict(data_dict)
         data_object = nmdc.DataObject(**data_dict)
 
         return data_object
@@ -547,7 +546,7 @@ class NMDCMetadataGenerator(ABC):
 
         if metabolite_identifications is not None:
             data_dict["has_metabolite_identifications"] = metabolite_identifications
-
+        self.clean_dict(data_dict)
         metab_analysis = nmdc.MetabolomicsAnalysis(**data_dict)
 
         return metab_analysis
@@ -658,61 +657,6 @@ class NMDCMetadataGenerator(ABC):
         biosample_id = emsl_metadata.biosample_id
         tqdm.write(f"Generating Biosamples for {emsl_metadata.data_path}")
         return emsl_metadata, biosample_id
-    
-    
-    def process_data_files(self, ms, raw_file_path: Path, raw_dir_zip: Path, results_dir: Path) -> tuple[Path, Path, Path]:
-        """
-        TODO: Decide if this belongs in this class
-        Process raw data files and generate output files.
-
-        Takes a raw data file, zips it if needed (.d extension), generates CSV output,
-        and creates associated TOML metadata file.
-
-        Parameters
-        ----------
-        ms : object
-            Mass spectrometry object with to_csv method
-        raw_file_path : Path
-            Path to the raw data file to be processed
-        raw_dir_zip : Path  
-            Directory path for storing zipped raw files
-        results_dir : Path
-            Directory path for storing output files
-
-        Returns
-        -------
-        tuple[Path, Path, Path]
-            A tuple containing:
-            - raw_file_to_upload_path : Path
-                Path to the processed raw file (zipped if .d extension)
-            - output_file_path : Path
-                Path to the generated CSV output file
-            - toml_file_path : Path
-                Path to the generated TOML metadata file
-
-        Notes
-        -----
-        The ms.to_csv() call with write_metadata=True generates two files:
-        1. A CSV file with the processed data
-        2. A TOML file containing metadata configuration
-        """
-
-        if raw_file_path.suffix == '.d':
-            raw_file_to_upload_path = Path(raw_dir_zip / raw_file_path.stem)
-            # Create a zip file
-            shutil.make_archive(raw_file_to_upload_path, 'zip', raw_file_path)
-        else:
-            raw_file_to_upload_path = raw_file_path
-
-        result_file_name = Path(raw_file_path.name)
-        output_file_path = results_dir / result_file_name.with_suffix('.csv')
-        # to_csv with write_metadata=True will save two files: a csv and a toml file.
-        ms.to_csv(output_file_path, write_metadata=True)
-
-        # Get workflow parameter toml path
-        toml_file_path = output_file_path.with_suffix('.toml')
-
-        return raw_file_to_upload_path, output_file_path, toml_file_path
 
 class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
     """
