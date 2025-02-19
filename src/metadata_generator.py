@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import logging
 from pathlib import Path
 from datetime import datetime
@@ -290,15 +291,15 @@ class NMDCMetadataGenerator(ABC):
         grouped = metadata_df.groupby(self.grouped_columns)
 
         return grouped
-    
+
     def clean_dict(self, dict: Dict) -> Dict:
         """
         Clean the dictionary of empty values.
         dict : Dict
             The dictionary to clean.
         """
-        return {k: v for k, v in dict.items() if v not in [None, ""]}
-    
+        return {k: v for k, v in dict.items() if v not in [None, "", ""]}
+
     def generate_mass_spectrometry(
         self,
         file_path: Path,
@@ -366,7 +367,7 @@ class NMDCMetadataGenerator(ABC):
             lc_config_id = api_config_getter.get_id_by_name_from_collection(
                 name_field_value=lc_config_name
             )
-        else: 
+        else:
             lc_config_id = ""
         mass_spec_id = api_config_getter.get_id_by_name_from_collection(
             name_field_value=mass_spec_config_name
@@ -393,7 +394,7 @@ class NMDCMetadataGenerator(ABC):
 
         if calibration_id is not None:
             data_dict["generates_calibration"] = calibration_id
-        self.clean_dict(data_dict)
+        data_dict = self.clean_dict(data_dict)
         mass_spectrometry = nmdc.DataGeneration(**data_dict)
 
         return mass_spectrometry
@@ -462,7 +463,7 @@ class NMDCMetadataGenerator(ABC):
         }
 
         # If any of the data_dict values are None or empty strings, remove them
-        self.clean_dict(data_dict)
+        data_dict = self.clean_dict(data_dict)
         data_object = nmdc.DataObject(**data_dict)
 
         return data_object
@@ -546,7 +547,7 @@ class NMDCMetadataGenerator(ABC):
 
         if metabolite_identifications is not None:
             data_dict["has_metabolite_identifications"] = metabolite_identifications
-        self.clean_dict(data_dict)
+        data_dict = self.clean_dict(data_dict)
         metab_analysis = nmdc.MetabolomicsAnalysis(**data_dict)
 
         return metab_analysis
@@ -624,13 +625,12 @@ class NMDCMetadataGenerator(ABC):
         json_dumper.dump(nmdc_database, self.database_dump_json_path)
         logging.info("Database successfully dumped in %s", self.database_dump_json_path)
 
-    
     def handle_biosample(self, parser: MetadataParser, row: pd.Series) -> tuple:
         """
         TODO: Decide if this belongs in this class
         Process biosample information from metadata row.
 
-        Checks if a biosample ID exists in the row. If it does, returns the existing 
+        Checks if a biosample ID exists in the row. If it does, returns the existing
         biosample information. If not, generates a new biosample.
 
         Parameters
@@ -652,11 +652,11 @@ class NMDCMetadataGenerator(ABC):
                 The generated biosample object if new, None if existing
         """
 
-        
         emsl_metadata = parser.parse_biosample_metadata(row)
         biosample_id = emsl_metadata.biosample_id
         tqdm.write(f"Generating Biosamples for {emsl_metadata.data_path}")
         return emsl_metadata, biosample_id
+
 
 class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
     """
@@ -848,9 +848,9 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
                 )
 
                 # list all paths in the processed data directory
-                processed_data_paths = list(Path(
-                    workflow_metadata_obj.processed_data_dir
-                ).glob("**/*"))
+                processed_data_paths = list(
+                    Path(workflow_metadata_obj.processed_data_dir).glob("**/*")
+                )
 
                 # Add a check that the processed data directory is not empty
                 if not any(processed_data_paths):
@@ -958,7 +958,11 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
                     processed_data_object_config,
                     processed_data_object_annot,
                     processed_data_object,
-                ) = None, None, None
+                ) = (
+                    None,
+                    None,
+                    None,
+                )
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
         api_interface = NMDCAPIInterface()

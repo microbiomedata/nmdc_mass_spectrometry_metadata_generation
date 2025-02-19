@@ -58,10 +58,10 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         self.analyte_category = "nom"
         self.workflow_analysis_name = "NOM Analysis"
         self.workflow_description = (
-            "Natural Organic Matter analysis of raw mass " "spectrometry data."
+            "Natural Organic Matter analysis of raw mass spectrometry data."
         )
         self.workflow_param_data_category = "workflow_parameter_data"
-        self.workflow_param_data_object_type = "Configuration toml"
+        self.workflow_param_data_object_type = "Analysis Tool Parameter File"
         self.unique_columns = ["raw_data_directory", "processed_data_directory"]
         self.grouped_columns = [
             "biosample_id",
@@ -161,10 +161,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                 if file.suffix == ".json":
                     # Generate workflow parameter data object
                     # this is the .json file of processed data
-                    workflow_param_data_object_desc = (
-                        f"CoreMS processing parameters for natural organic matter analysis "
-                        "used to generate {processed_data_object.id}"
-                    )
+                    workflow_param_data_object_desc = f"CoreMS processing parameters for natural organic matter analysis used to generate {nom_analysis.id}"
 
                     workflow_data_object = self.generate_data_object(
                         file_path=file,
