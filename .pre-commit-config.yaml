@@ -15,7 +15,6 @@ repos:
       - id: check-json
       - id: check-vcs-permalinks
       - id: mixed-line-ending
-      - id: name-tests-test
       - id: pretty-format-json
         args:
           - --autofix

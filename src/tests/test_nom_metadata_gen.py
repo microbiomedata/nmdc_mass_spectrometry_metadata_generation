@@ -1,13 +1,17 @@
+# -*- coding: utf-8 -*-
 # This script will serve as a test for the lipdomics metadata generation script.
 from datetime import datetime
 from src.nom_metadata_generation import NOMMetadataGenerator
 from dotenv import load_dotenv
+
 load_dotenv()
 import os
-python_path = os.getenv('PYTHONPATH')
+
+python_path = os.getenv("PYTHONPATH")
 if python_path:
-    os.environ['PYTHONPATH'] = python_path
-    
+    os.environ["PYTHONPATH"] = python_path
+
+
 def test_nom_metadata_gen():
     # Set up output file with datetime stame
     output_file = (
@@ -20,7 +24,7 @@ def test_nom_metadata_gen():
     generator = NOMMetadataGenerator(
         metadata_file="tests/test_data/test_metadata_file_nom.csv",
         database_dump_json_path=output_file,
-        raw_data_url="https://example_raw_data_url/",
+        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/",
         process_data_url="https://example_processed_data_url/",
     )
 
