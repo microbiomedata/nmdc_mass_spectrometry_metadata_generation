@@ -670,7 +670,7 @@ class NMDCMetadataGenerator(ABC):
         if pd.isna(value) or value == "":
             biosample_exists = False
         if biosample_exists:
-            return
+            return None, True, None
         else:
             # Generate biosamples if no biosample_id in spreadsheet
             emsl_metadata = parser.parse_biosample_metadata(row)

@@ -11,32 +11,13 @@ import nmdc_schema.nmdc as nmdc
 import hashlib
 
 
-@dataclass
-class NOMWorkflowMetadata:
+class NOMMetadataGenerator(NMDCMetadataGenerator):
     """
-    Data class for holding NOM workflow metadata information.
-
+    A class for generating NMDC metadata objects using provided metadata files and configuration
+    for Natural Organic Matter (NOM) data.
     Attributes
     ----------
     """
-
-    id: str
-    name: str
-    description: str
-    processing_institution: str
-    execution_resource: str
-    git_url: str
-    version: str
-    was_informed_by: str
-    has_input: list[str]
-    has_output: list[str]
-    started_at_time: str
-    ended_at_time: str
-    type = "nmdc:NomAnalysis"
-
-
-class NOMMetadataGenerator(NMDCMetadataGenerator):
-    # TODO: run in 2 modes - you already have biosample ids or you do not have biosample ids. This can be a future feature addition. To start just bring over the instance of already having biosample ids.
 
     def __init__(
         self,
@@ -95,7 +76,15 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             total=metadata_df.shape[0],
             desc="Processing NOM rows",
         ):
-            emsl_metadata, biosample_id = self.handle_biosample(parser, row)
+            # check to see if biosample exists, if not, the function with create and return it
+            # this is a bit clunky right now as i slowly shit over to new processes and allow the check_for_biosamples function to be used by multiple subclasses
+            # I think eventually parsing the object before generating objects in all subclasses is ultimately more readble and easier to track
+            emsl_metadata, biosample_id, _ = self.check_for_biosamples(parser, row)
+            if biosample_id is None:
+                # if the check comes back as None, this means a biosample exists and we can parse the row into an object
+                # TODO: In our next iteration of csv inputs, if the biopsample id exists we will not have the biosample fields filled out in the rows
+                # this means that we will need to create a biosample object from the biosample_id using the nmdc Biosample class and the biosample_id
+                emsl_metadata, biosample_id, _ = self.handle_biosample(parser, row)
             # Generate MassSpectrometry record
             mass_spec = self.generate_mass_spectrometry(
                 file_path=Path(emsl_metadata.data_path),

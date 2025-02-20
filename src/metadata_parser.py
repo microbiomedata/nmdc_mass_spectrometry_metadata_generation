@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Optional
 from pathlib import Path
 from src.api_info_retriever import ApiInfoRetriever, BioOntologyInfoRetriever
+from nmdc_schema.nmdc import Biosample
 
 
 @dataclass
@@ -416,6 +417,10 @@ class MetadataParser:
         metadata = BiosampleIncludedMetadata(**metadata_dict)
 
         return metadata
+
+    def dynam_parse_biosample_metadata(self, row: pd.Series) -> Biosample:
+        for field_name, field in Biosample.__dataclass_fields__.items():
+            print(field_name)
 
     def create_controlled_identified_term_value(
         self, row_value: str, slot_enum_dict: dict
