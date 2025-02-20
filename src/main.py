@@ -34,12 +34,6 @@ def main():
     --process_data_url : str
         URL base for the processed data files.
         Example: 'https://nmdcdemo.emsl.pnnl.gov/nom/1000soils/results/'
-    --minting_config_creds : str, optional
-        Path to the config file with credentials for minting IDs.
-        Should be a YAML file with format:
-        line 1: client_id: X
-        line 2: client_secret: X
-        Default: 'metaMS/nmdc_lipidomics_metadata_generation/.config.yaml'
 
     Notes
     -----

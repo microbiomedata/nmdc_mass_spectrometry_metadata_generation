@@ -1,30 +1,21 @@
+# -*- coding: utf-8 -*-
 import logging
 from pathlib import Path
 from datetime import datetime
 from dataclasses import dataclass
 from typing import List, Dict
 from abc import ABC
-
+from dataclasses import asdict
 import pandas as pd
 import hashlib
 import json
-import yaml
-import oauthlib
-import requests_oauthlib
-import requests
 from tqdm import tqdm
-
+import shutil
 import nmdc_schema.nmdc as nmdc
 from linkml_runtime.dumpers import json_dumper
 from src.api_info_retriever import ApiInfoRetriever, NMDCAPIInterface
-from dotenv import load_dotenv
-load_dotenv()
-import os
-# set the cwd to /src/
-if 'src' not in Path.cwd().name:
-    os.chdir(Path.cwd() / 'src')
-CLIENT_ID = os.getenv('CLIENT_ID')
-CLIENT_SECRET = os.getenv('CLIENT_SECRET')  
+from src.metadata_parser import MetadataParser
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -155,6 +146,13 @@ class NmdcTypes:
     DataObject: str = "nmdc:DataObject"
     CalibrationInformation: str = "nmdc:CalibrationInformation"
     MetaboliteIdentification: str = "nmdc:MetaboliteIdentification"
+    NomAnalysis: str = "nmdc:NomAnalysis"
+    OntologyClass: str = "nmdc:OntologyClass"
+    ControlledIdentifiedTermValue: str = "nmdc:ControlledIdentifiedTermValue"
+    TextValue: str = "nmdc:TextValue"
+    GeolocationValue: str = "nmdc:GeolocationValue"
+    TimeStampValue: str = "nmdc:TimestampValue"
+    QuantityValue: str = "nmdc:QuantityValue"
 
 
 class NMDCMetadataGenerator(ABC):
@@ -282,16 +280,25 @@ class NMDCMetadataGenerator(ABC):
             raise ValueError("Biosample IDs do not exist in the collection.")
 
         # Check that all studies exist
-        study_ids = metadata_df["associated_study"].unique()
-        api_study_getter = ApiInfoRetriever(collection_name="study_set")
+        if "associated_study" in metadata_df.columns:
+            study_ids = metadata_df["associated_study"].unique()
+            api_study_getter = ApiInfoRetriever(collection_name="study_set")
 
-        if not api_study_getter.check_if_ids_exist(study_ids):
-            raise ValueError("Study IDs do not exist in the collection.")
+            if not api_study_getter.check_if_ids_exist(study_ids):
+                raise ValueError("Study IDs do not exist in the collection.")
 
         # Group by Biosample
         grouped = metadata_df.groupby(self.grouped_columns)
 
         return grouped
+
+    def clean_dict(self, dict: Dict) -> Dict:
+        """
+        Clean the dictionary of empty values.
+        dict : Dict
+            The dictionary to clean.
+        """
+        return {k: v for k, v in dict.items() if v not in [None, "", ""]}
 
     def generate_mass_spectrometry(
         self,
@@ -302,9 +309,9 @@ class NMDCMetadataGenerator(ABC):
         study_id: str,
         processing_institution: str,
         mass_spec_config_name: str,
-        lc_config_name: str,
         start_date: str,
         end_date: str,
+        lc_config_name: str = None,
         calibration_id: str = None,
     ) -> nmdc.DataGeneration:
         """
@@ -346,7 +353,8 @@ class NMDCMetadataGenerator(ABC):
         This method uses the ApiInfoRetriever to fetch IDs for the instrument
         and configurations. It also mints a new NMDC ID for the DataGeneration object.
         """
-        nmdc_id = self.mint_nmdc_id(nmdc_type=NmdcTypes.MassSpectrometry)[0]
+        api = NMDCAPIInterface()
+        nmdc_id = api.mint_nmdc_id(nmdc_type=NmdcTypes.MassSpectrometry)[0]
 
         # Look up instrument, lc_config, and mass_spec_config id by name slot using API
         api_instrument_getter = ApiInfoRetriever(collection_name="instrument_set")
@@ -355,9 +363,12 @@ class NMDCMetadataGenerator(ABC):
         )
 
         api_config_getter = ApiInfoRetriever(collection_name="configuration_set")
-        lc_config_id = api_config_getter.get_id_by_name_from_collection(
-            name_field_value=lc_config_name
-        )
+        if lc_config_name:
+            lc_config_id = api_config_getter.get_id_by_name_from_collection(
+                name_field_value=lc_config_name
+            )
+        else:
+            lc_config_id = ""
         mass_spec_id = api_config_getter.get_id_by_name_from_collection(
             name_field_value=mass_spec_config_name
         )
@@ -383,7 +394,7 @@ class NMDCMetadataGenerator(ABC):
 
         if calibration_id is not None:
             data_dict["generates_calibration"] = calibration_id
-
+        data_dict = self.clean_dict(data_dict)
         mass_spectrometry = nmdc.DataGeneration(**data_dict)
 
         return mass_spectrometry
@@ -435,7 +446,8 @@ class NMDCMetadataGenerator(ABC):
         This method calculates the MD5 checksum of the file, which may be
         time-consuming for large files.
         """
-        nmdc_id = self.mint_nmdc_id(nmdc_type=NmdcTypes.DataObject)[0]
+        api = NMDCAPIInterface()
+        nmdc_id = api.mint_nmdc_id(nmdc_type=NmdcTypes.DataObject)[0]
         data_dict = {
             "id": nmdc_id,
             "data_category": data_category,
@@ -451,8 +463,7 @@ class NMDCMetadataGenerator(ABC):
         }
 
         # If any of the data_dict values are None or empty strings, remove them
-        data_dict = {k: v for k, v in data_dict.items() if v not in [None, ""]}
-
+        data_dict = self.clean_dict(data_dict)
         data_object = nmdc.DataObject(**data_dict)
 
         return data_object
@@ -468,6 +479,7 @@ class NMDCMetadataGenerator(ABC):
         processing_institution: str,
         calibration_id: str = None,
         metabolite_identifications: List[nmdc.MetaboliteIdentification] = None,
+        type: str = NmdcTypes.MetabolomicsAnalysis,
     ) -> nmdc.MetabolomicsAnalysis:
         """
         Create an NMDC MetabolomicsAnalysis object with metadata for a workflow analysis.
@@ -509,7 +521,8 @@ class NMDCMetadataGenerator(ABC):
         placeholder values and should be updated with actual timestamps later
         when the processed files are iterated over in the run method.
         """
-        nmdc_id = self.mint_nmdc_id(nmdc_type=NmdcTypes.MetabolomicsAnalysis)[0] + ".1"
+        api = NMDCAPIInterface()
+        nmdc_id = api.mint_nmdc_id(nmdc_type=NmdcTypes.MetabolomicsAnalysis)[0] + ".1"
         # TODO: Update the minting to handle versioning in the future
 
         # TODO KRH: Add workflow category to the generation of the workflow object when schema is updated
@@ -526,7 +539,7 @@ class NMDCMetadataGenerator(ABC):
             "has_output": [processed_data_id],
             "started_at_time": "placeholder",
             "ended_at_time": "placeholder",
-            "type": NmdcTypes.MetabolomicsAnalysis,
+            "type": type,
         }
 
         if calibration_id is not None:
@@ -534,7 +547,7 @@ class NMDCMetadataGenerator(ABC):
 
         if metabolite_identifications is not None:
             data_dict["has_metabolite_identifications"] = metabolite_identifications
-
+        data_dict = self.clean_dict(data_dict)
         metab_analysis = nmdc.MetabolomicsAnalysis(**data_dict)
 
         return metab_analysis
@@ -544,7 +557,7 @@ class NMDCMetadataGenerator(ABC):
         mass_spec_obj: object,
         analysis_obj: object,
         raw_data_obj: object,
-        parameter_data_id: str,
+        parameter_data_id: list,
         processed_data_id_list: list,
     ) -> None:
         """
@@ -580,7 +593,7 @@ class NMDCMetadataGenerator(ABC):
         - Sets `analysis_obj.has_output` to `processed_data_id_list`.
         """
         mass_spec_obj.has_output = [raw_data_obj.id]
-        analysis_obj.has_input[1] = parameter_data_id
+        analysis_obj.has_input = parameter_data_id
         analysis_obj.has_output = processed_data_id_list
 
     def dump_nmdc_database(self, nmdc_database: nmdc.Database) -> None:
@@ -607,51 +620,37 @@ class NMDCMetadataGenerator(ABC):
         json_dumper.dump(nmdc_database, self.database_dump_json_path)
         logging.info("Database successfully dumped in %s", self.database_dump_json_path)
 
-    def mint_nmdc_id(self, nmdc_type: str) -> list[str]:
+    def handle_biosample(self, parser: MetadataParser, row: pd.Series) -> tuple:
         """
-        Mint new NMDC IDs of the specified type using the NMDC ID minting API.
+        TODO: Decide if this belongs in this class
+        Process biosample information from metadata row.
+
+        Checks if a biosample ID exists in the row. If it does, returns the existing
+        biosample information. If not, generates a new biosample.
 
         Parameters
         ----------
-        nmdc_type : str
-            The type of NMDC ID to mint (e.g., 'nmdc:MassSpectrometry',
-            'nmdc:DataObject').
+        parser : MetadataParser
+            Parser instance for processing metadata
+        row : pd.Series
+            A row from the metadata DataFrame containing biosample information
 
         Returns
         -------
-        list[str]
-            A list containing one newly minted NMDC ID.
-
-        Raises
-        ------
-        requests.exceptions.RequestException
-            If there is an error during the API request.
-
-        Notes
-        -----
-        This method relies on a YAML configuration file for authentication
-        details. The file should contain 'client_id' and 'client_secret' keys.
-
+        tuple
+            A tuple containing:
+            - emsl_metadata : BiosampleIncludedMetadata
+                The parsed metadata from the row
+            - biosample_id : str
+                The ID of the biosample (existing or newly generated)
+            - biosample : Biosample or None
+                The generated biosample object if new, None if existing
         """
-        client = oauthlib.oauth2.BackendApplicationClient(client_id=CLIENT_ID)
-        oauth = requests_oauthlib.OAuth2Session(client=client)
 
-        api_base_url = "https://api.microbiomedata.org"
-
-        token = oauth.fetch_token(
-            token_url=f"{api_base_url}/token",
-            client_id=CLIENT_ID,
-            client_secret=CLIENT_SECRET,
-        )
-
-        nmdc_mint_url = f"{api_base_url}/pids/mint"
-
-        payload = {"schema_class": {"id": nmdc_type}, "how_many": 1}
-
-        response = oauth.post(nmdc_mint_url, data=json.dumps(payload))
-        list_ids = response.json()
-
-        return list_ids
+        emsl_metadata = parser.parse_biosample_metadata(row)
+        biosample_id = emsl_metadata.biosample_id
+        tqdm.write(f"Generating Biosamples for {emsl_metadata.data_path}")
+        return emsl_metadata, biosample_id
 
 
 class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
@@ -844,9 +843,9 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
                 )
 
                 # list all paths in the processed data directory
-                processed_data_paths = list(Path(
-                    workflow_metadata_obj.processed_data_dir
-                ).glob("**/*"))
+                processed_data_paths = list(
+                    Path(workflow_metadata_obj.processed_data_dir).glob("**/*")
+                )
 
                 # Add a check that the processed data directory is not empty
                 if not any(processed_data_paths):
@@ -936,12 +935,12 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
                     raise ValueError(
                         f"Not all processed data objects were created for {workflow_metadata_obj.processed_data_dir}."
                     )
-
+                has_input = [parameter_data_id, raw_data_object.id]
                 self.update_outputs(
                     mass_spec_obj=mass_spec,
                     analysis_obj=metab_analysis,
                     raw_data_obj=raw_data_object,
-                    parameter_data_id=parameter_data_id,
+                    parameter_data_id=has_input,
                     processed_data_id_list=processed_data,
                 )
 
@@ -954,7 +953,11 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
                     processed_data_object_config,
                     processed_data_object_annot,
                     processed_data_object,
-                ) = None, None, None
+                ) = (
+                    None,
+                    None,
+                    None,
+                )
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
         api_interface = NMDCAPIInterface()
@@ -1281,12 +1284,12 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             metab_analysis.ended_at_time = datetime.fromtimestamp(
                 processed_file.stat().st_mtime
             ).strftime("%Y-%m-%d %H:%M:%S")
-
+            has_inputs = [parameter_data_id, raw_data_object.id]
             self.update_outputs(
                 mass_spec_obj=mass_spec,
                 analysis_obj=metab_analysis,
                 raw_data_obj=raw_data_object,
-                parameter_data_id=parameter_data_id,
+                parameter_data_id=has_inputs,
                 processed_data_id_list=[processed_data_object.id],
             )
 
@@ -1330,8 +1333,9 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         ValueError
             If the calibration type is not supported.
         """
+        api = NMDCAPIInterface()
         if fames and not internal:
-            nmdc_id = self.mint_nmdc_id(nmdc_type=NmdcTypes.CalibrationInformation)[0]
+            nmdc_id = api.mint_nmdc_id(nmdc_type=NmdcTypes.CalibrationInformation)[0]
             data_dict = {
                 "id": nmdc_id,
                 "type": NmdcTypes.CalibrationInformation,

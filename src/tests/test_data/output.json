@@ -1,0 +1,483 @@
+{
+  "data_generation_set": [
+    {
+      "id": "nmdc:dgms-11-dwbehk92",
+      "type": "nmdc:MassSpectrometry",
+      "name": "Blanchard_CHCl3Ext_C-30-AB-M_18Feb18_Alder_Infuse_p15_1_01_27330",
+      "description": "direct_infusion_autosampler ultra high resolution mass spectrum",
+      "has_input": [
+        "nmdc:bsm-11-cpekyy11"
+      ],
+      "has_output": [
+        "nmdc:dobj-11-qpqd1a14"
+      ],
+      "processing_institution": "EMSL",
+      "analyte_category": "nom",
+      "associated_studies": [
+        "nmdc:sty-11-8ws97026"
+      ],
+      "add_date": "2025-01-16",
+      "instrument_used": [
+        "nmdc:inst-14-tjtq1d92"
+      ],
+      "eluent_introduction_category": "direct_infusion_autosampler",
+      "has_mass_spectrometry_configuration": "nmdc:mscon-14-g2npyh35"
+    },
+    {
+      "id": "nmdc:dgms-11-43ktpx18",
+      "type": "nmdc:MassSpectrometry",
+      "name": "Blanchard_CHCl3Ext_H-17-AB-M_18Feb18_Alder_Infuse_p15_1_01_27331",
+      "description": "direct_infusion_autosampler ultra high resolution mass spectrum",
+      "has_input": [
+        "nmdc:bsm-11-efm5hh51"
+      ],
+      "has_output": [
+        "nmdc:dobj-11-gs93xq92"
+      ],
+      "processing_institution": "EMSL",
+      "analyte_category": "nom",
+      "associated_studies": [
+        "nmdc:sty-11-8ws97026"
+      ],
+      "add_date": "2025-01-16",
+      "instrument_used": [
+        "nmdc:inst-14-tjtq1d92"
+      ],
+      "eluent_introduction_category": "direct_infusion_autosampler",
+      "has_mass_spectrometry_configuration": "nmdc:mscon-14-g2npyh35"
+    },
+    {
+      "id": "nmdc:dgms-11-8gsd9760",
+      "type": "nmdc:MassSpectrometry",
+      "name": "Blanchard_CHCl3Ext_H-26-AB-M_18Feb18_Alder_Infuse_p15_1_01_27334",
+      "description": "direct_infusion_autosampler ultra high resolution mass spectrum",
+      "has_input": [
+        "nmdc:bsm-11-gk0czc37"
+      ],
+      "has_output": [
+        "nmdc:dobj-11-bewyzr15"
+      ],
+      "processing_institution": "EMSL",
+      "analyte_category": "nom",
+      "associated_studies": [
+        "nmdc:sty-11-8ws97026"
+      ],
+      "add_date": "2025-01-16",
+      "instrument_used": [
+        "nmdc:inst-14-tjtq1d92"
+      ],
+      "eluent_introduction_category": "direct_infusion_autosampler",
+      "has_mass_spectrometry_configuration": "nmdc:mscon-14-g2npyh35"
+    },
+    {
+      "id": "nmdc:dgms-11-eatqcp51",
+      "type": "nmdc:MassSpectrometry",
+      "name": "Blanchard_CHCl3Ext_H-4-AB-M_18Feb18_Alder_Infuse_p15_1_01_27336",
+      "description": "direct_infusion_autosampler ultra high resolution mass spectrum",
+      "has_input": [
+        "nmdc:bsm-11-nq2tfm26"
+      ],
+      "has_output": [
+        "nmdc:dobj-11-dmzecf62"
+      ],
+      "processing_institution": "EMSL",
+      "analyte_category": "nom",
+      "associated_studies": [
+        "nmdc:sty-11-8ws97026"
+      ],
+      "add_date": "2025-01-16",
+      "instrument_used": [
+        "nmdc:inst-14-tjtq1d92"
+      ],
+      "eluent_introduction_category": "direct_infusion_autosampler",
+      "has_mass_spectrometry_configuration": "nmdc:mscon-14-g2npyh35"
+    },
+    {
+      "id": "nmdc:dgms-11-wy5gst67",
+      "type": "nmdc:MassSpectrometry",
+      "name": "Blanchard_CHCl3Ext_H-11-AB-M_18Feb18_Alder_Infuse_p15_1_01_27338",
+      "description": "direct_infusion_autosampler ultra high resolution mass spectrum",
+      "has_input": [
+        "nmdc:bsm-11-65a4xw75"
+      ],
+      "has_output": [
+        "nmdc:dobj-11-qdbp1b07"
+      ],
+      "processing_institution": "EMSL",
+      "analyte_category": "nom",
+      "associated_studies": [
+        "nmdc:sty-11-8ws97026"
+      ],
+      "add_date": "2025-01-16",
+      "instrument_used": [
+        "nmdc:inst-14-tjtq1d92"
+      ],
+      "eluent_introduction_category": "direct_infusion_autosampler",
+      "has_mass_spectrometry_configuration": "nmdc:mscon-14-g2npyh35"
+    },
+    {
+      "id": "nmdc:dgms-11-h1wrzk11",
+      "type": "nmdc:MassSpectrometry",
+      "name": "Blanchard_CHCl3Ext_C-19-AB-M_18Feb18_Alder_Infuse_p15_1_01_27339",
+      "description": "direct_infusion_autosampler ultra high resolution mass spectrum",
+      "has_input": [
+        "nmdc:bsm-11-93mc8g67"
+      ],
+      "has_output": [
+        "nmdc:dobj-11-p3d0pf79"
+      ],
+      "processing_institution": "EMSL",
+      "analyte_category": "nom",
+      "associated_studies": [
+        "nmdc:sty-11-8ws97026"
+      ],
+      "add_date": "2025-01-16",
+      "instrument_used": [
+        "nmdc:inst-14-tjtq1d92"
+      ],
+      "eluent_introduction_category": "direct_infusion_autosampler",
+      "has_mass_spectrometry_configuration": "nmdc:mscon-14-g2npyh35"
+    }
+  ],
+  "data_object_set": [
+    {
+      "id": "nmdc:dobj-11-qpqd1a14",
+      "type": "nmdc:DataObject",
+      "name": "Blanchard_CHCl3Ext_C-30-AB-M_18Feb18_Alder_Infuse_p15_1_01_27330.zip",
+      "description": "Raw 12T FT-ICR MS direct infusion autosampler data.",
+      "data_category": "instrument_data",
+      "data_object_type": "Direct Infusion FT ICR-MS Raw Data",
+      "file_size_bytes": 35183055,
+      "md5_checksum": "cb44e20664b78c0e101a46bf737571ef",
+      "url": "https://nmdcdemo.emsl.pnnl.gov/Blanchard_CHCl3Ext_C-30-AB-M_18Feb18_Alder_Infuse_p15_1_01_27330.zip",
+      "was_generated_by": "nmdc:dgms-11-dwbehk92"
+    },
+    {
+      "id": "nmdc:dobj-11-2jmb4s80",
+      "type": "nmdc:DataObject",
+      "name": "Blanchard_CHCl3Ext_C-30-AB-M_18Feb18_Alder_Infuse_p15_1_01_27330.csv",
+      "description": "EnviroMS 12T FT-ICR MS natural organic matter workflow molecular formula assignment output details",
+      "data_category": "processed_data",
+      "data_object_type": "FT ICR-MS Analysis Results",
+      "file_size_bytes": 914178,
+      "md5_checksum": "a93ab26c9b8b452f3b6d54c2fb9d1ef7",
+      "url": "https://nmdcdemo.emsl.pnnl.gov/Blanchard_CHCl3Ext_C-30-AB-M_18Feb18_Alder_Infuse_p15_1_01_27330.csv",
+      "was_generated_by": "nmdc:wfnom-11-qt4ejc26.1"
+    },
+    {
+      "id": "nmdc:dobj-11-57p6n045",
+      "type": "nmdc:DataObject",
+      "name": "Blanchard_CHCl3Ext_C-30-AB-M_18Feb18_Alder_Infuse_p15_1_01_27330.json",
+      "description": "CoreMS processing parameters for natural organic matter analysis used to generate {processed_data_object.id}",
+      "data_category": "workflow_parameter_data",
+      "data_object_type": "Configuration toml",
+      "file_size_bytes": 7185,
+      "md5_checksum": "c7e1eb6eeda1734d9c18a4a54c257f95",
+      "url": "https://nmdcdemo.emsl.pnnl.gov/Blanchard_CHCl3Ext_C-30-AB-M_18Feb18_Alder_Infuse_p15_1_01_27330.json"
+    },
+    {
+      "id": "nmdc:dobj-11-gs93xq92",
+      "type": "nmdc:DataObject",
+      "name": "Blanchard_CHCl3Ext_H-17-AB-M_18Feb18_Alder_Infuse_p15_1_01_27331.zip",
+      "description": "Raw 12T FT-ICR MS direct infusion autosampler data.",
+      "data_category": "instrument_data",
+      "data_object_type": "Direct Infusion FT ICR-MS Raw Data",
+      "file_size_bytes": 35268080,
+      "md5_checksum": "064bcfcadb18ef04d7c7588155766f3d",
+      "url": "https://nmdcdemo.emsl.pnnl.gov/Blanchard_CHCl3Ext_H-17-AB-M_18Feb18_Alder_Infuse_p15_1_01_27331.zip",
+      "was_generated_by": "nmdc:dgms-11-43ktpx18"
+    },
+    {
+      "id": "nmdc:dobj-11-b0t8hv14",
+      "type": "nmdc:DataObject",
+      "name": "Blanchard_CHCl3Ext_H-17-AB-M_18Feb18_Alder_Infuse_p15_1_01_27331.csv",
+      "description": "EnviroMS 12T FT-ICR MS natural organic matter workflow molecular formula assignment output details",
+      "data_category": "processed_data",
+      "data_object_type": "FT ICR-MS Analysis Results",
+      "file_size_bytes": 1168813,
+      "md5_checksum": "1b47ef8ffdc6c0bbd81fd65128e362ec",
+      "url": "https://nmdcdemo.emsl.pnnl.gov/Blanchard_CHCl3Ext_H-17-AB-M_18Feb18_Alder_Infuse_p15_1_01_27331.csv",
+      "was_generated_by": "nmdc:wfnom-11-rh2xdm52.1"
+    },
+    {
+      "id": "nmdc:dobj-11-x55dqa85",
+      "type": "nmdc:DataObject",
+      "name": "Blanchard_CHCl3Ext_H-17-AB-M_18Feb18_Alder_Infuse_p15_1_01_27331.json",
+      "description": "CoreMS processing parameters for natural organic matter analysis used to generate {processed_data_object.id}",
+      "data_category": "workflow_parameter_data",
+      "data_object_type": "Configuration toml",
+      "file_size_bytes": 7185,
+      "md5_checksum": "58cf4830b6602c56314a4de5a6db8b9a",
+      "url": "https://nmdcdemo.emsl.pnnl.gov/Blanchard_CHCl3Ext_H-17-AB-M_18Feb18_Alder_Infuse_p15_1_01_27331.json"
+    },
+    {
+      "id": "nmdc:dobj-11-bewyzr15",
+      "type": "nmdc:DataObject",
+      "name": "Blanchard_CHCl3Ext_H-26-AB-M_18Feb18_Alder_Infuse_p15_1_01_27334.zip",
+      "description": "Raw 12T FT-ICR MS direct infusion autosampler data.",
+      "data_category": "instrument_data",
+      "data_object_type": "Direct Infusion FT ICR-MS Raw Data",
+      "file_size_bytes": 34542373,
+      "md5_checksum": "710821f8ce9e7c3a6d3b88c82efed571",
+      "url": "https://nmdcdemo.emsl.pnnl.gov/Blanchard_CHCl3Ext_H-26-AB-M_18Feb18_Alder_Infuse_p15_1_01_27334.zip",
+      "was_generated_by": "nmdc:dgms-11-8gsd9760"
+    },
+    {
+      "id": "nmdc:dobj-11-jqaf1b04",
+      "type": "nmdc:DataObject",
+      "name": "Blanchard_CHCl3Ext_H-26-AB-M_18Feb18_Alder_Infuse_p15_1_01_27334.csv",
+      "description": "EnviroMS 12T FT-ICR MS natural organic matter workflow molecular formula assignment output details",
+      "data_category": "processed_data",
+      "data_object_type": "FT ICR-MS Analysis Results",
+      "file_size_bytes": 521937,
+      "md5_checksum": "5dad56e86c854540c8f1d11ffd1d29a8",
+      "url": "https://nmdcdemo.emsl.pnnl.gov/Blanchard_CHCl3Ext_H-26-AB-M_18Feb18_Alder_Infuse_p15_1_01_27334.csv",
+      "was_generated_by": "nmdc:wfnom-11-efkkb490.1"
+    },
+    {
+      "id": "nmdc:dobj-11-p43vny48",
+      "type": "nmdc:DataObject",
+      "name": "Blanchard_CHCl3Ext_H-26-AB-M_18Feb18_Alder_Infuse_p15_1_01_27334.json",
+      "description": "CoreMS processing parameters for natural organic matter analysis used to generate {processed_data_object.id}",
+      "data_category": "workflow_parameter_data",
+      "data_object_type": "Configuration toml",
+      "file_size_bytes": 7185,
+      "md5_checksum": "f8e45a3371b84a21e978c8a8fae1ad04",
+      "url": "https://nmdcdemo.emsl.pnnl.gov/Blanchard_CHCl3Ext_H-26-AB-M_18Feb18_Alder_Infuse_p15_1_01_27334.json"
+    },
+    {
+      "id": "nmdc:dobj-11-dmzecf62",
+      "type": "nmdc:DataObject",
+      "name": "Blanchard_CHCl3Ext_H-4-AB-M_18Feb18_Alder_Infuse_p15_1_01_27336.zip",
+      "description": "Raw 12T FT-ICR MS direct infusion autosampler data.",
+      "data_category": "instrument_data",
+      "data_object_type": "Direct Infusion FT ICR-MS Raw Data",
+      "file_size_bytes": 35876633,
+      "md5_checksum": "2b61d62653dab6cbc5c252770e9c2ff1",
+      "url": "https://nmdcdemo.emsl.pnnl.gov/Blanchard_CHCl3Ext_H-4-AB-M_18Feb18_Alder_Infuse_p15_1_01_27336.zip",
+      "was_generated_by": "nmdc:dgms-11-eatqcp51"
+    },
+    {
+      "id": "nmdc:dobj-11-ptb3rq19",
+      "type": "nmdc:DataObject",
+      "name": "Blanchard_CHCl3Ext_H-4-AB-M_18Feb18_Alder_Infuse_p15_1_01_27336.csv",
+      "description": "EnviroMS 12T FT-ICR MS natural organic matter workflow molecular formula assignment output details",
+      "data_category": "processed_data",
+      "data_object_type": "FT ICR-MS Analysis Results",
+      "file_size_bytes": 424507,
+      "md5_checksum": "6b0c8505bc37ce41230c2289b03d82b8",
+      "url": "https://nmdcdemo.emsl.pnnl.gov/Blanchard_CHCl3Ext_H-4-AB-M_18Feb18_Alder_Infuse_p15_1_01_27336.csv",
+      "was_generated_by": "nmdc:wfnom-11-7aed2552.1"
+    },
+    {
+      "id": "nmdc:dobj-11-e5kt1593",
+      "type": "nmdc:DataObject",
+      "name": "Blanchard_CHCl3Ext_H-4-AB-M_18Feb18_Alder_Infuse_p15_1_01_27336.json",
+      "description": "CoreMS processing parameters for natural organic matter analysis used to generate {processed_data_object.id}",
+      "data_category": "workflow_parameter_data",
+      "data_object_type": "Configuration toml",
+      "file_size_bytes": 7182,
+      "md5_checksum": "d63819db06663c09ccf0fb8f7f104408",
+      "url": "https://nmdcdemo.emsl.pnnl.gov/Blanchard_CHCl3Ext_H-4-AB-M_18Feb18_Alder_Infuse_p15_1_01_27336.json"
+    },
+    {
+      "id": "nmdc:dobj-11-qdbp1b07",
+      "type": "nmdc:DataObject",
+      "name": "Blanchard_CHCl3Ext_H-11-AB-M_18Feb18_Alder_Infuse_p15_1_01_27338.zip",
+      "description": "Raw 12T FT-ICR MS direct infusion autosampler data.",
+      "data_category": "instrument_data",
+      "data_object_type": "Direct Infusion FT ICR-MS Raw Data",
+      "file_size_bytes": 35595875,
+      "md5_checksum": "a0d951ba009b7bc44db28c10e4bf9940",
+      "url": "https://nmdcdemo.emsl.pnnl.gov/Blanchard_CHCl3Ext_H-11-AB-M_18Feb18_Alder_Infuse_p15_1_01_27338.zip",
+      "was_generated_by": "nmdc:dgms-11-wy5gst67"
+    },
+    {
+      "id": "nmdc:dobj-11-w964xk43",
+      "type": "nmdc:DataObject",
+      "name": "Blanchard_CHCl3Ext_H-11-AB-M_18Feb18_Alder_Infuse_p15_1_01_27338.csv",
+      "description": "EnviroMS 12T FT-ICR MS natural organic matter workflow molecular formula assignment output details",
+      "data_category": "processed_data",
+      "data_object_type": "FT ICR-MS Analysis Results",
+      "file_size_bytes": 367955,
+      "md5_checksum": "396e46e7d69da4f36fe94bf99b7f3bf4",
+      "url": "https://nmdcdemo.emsl.pnnl.gov/Blanchard_CHCl3Ext_H-11-AB-M_18Feb18_Alder_Infuse_p15_1_01_27338.csv",
+      "was_generated_by": "nmdc:wfnom-11-4gda7g39.1"
+    },
+    {
+      "id": "nmdc:dobj-11-xyjzkk09",
+      "type": "nmdc:DataObject",
+      "name": "Blanchard_CHCl3Ext_H-11-AB-M_18Feb18_Alder_Infuse_p15_1_01_27338.json",
+      "description": "CoreMS processing parameters for natural organic matter analysis used to generate {processed_data_object.id}",
+      "data_category": "workflow_parameter_data",
+      "data_object_type": "Configuration toml",
+      "file_size_bytes": 7185,
+      "md5_checksum": "eb11305867006666a77eee6d482ccd32",
+      "url": "https://nmdcdemo.emsl.pnnl.gov/Blanchard_CHCl3Ext_H-11-AB-M_18Feb18_Alder_Infuse_p15_1_01_27338.json"
+    },
+    {
+      "id": "nmdc:dobj-11-p3d0pf79",
+      "type": "nmdc:DataObject",
+      "name": "Blanchard_CHCl3Ext_C-19-AB-M_18Feb18_Alder_Infuse_p15_1_01_27339.zip",
+      "description": "Raw 12T FT-ICR MS direct infusion autosampler data.",
+      "data_category": "instrument_data",
+      "data_object_type": "Direct Infusion FT ICR-MS Raw Data",
+      "file_size_bytes": 34618518,
+      "md5_checksum": "4747ec02906996018d70a15d36465783",
+      "url": "https://nmdcdemo.emsl.pnnl.gov/Blanchard_CHCl3Ext_C-19-AB-M_18Feb18_Alder_Infuse_p15_1_01_27339.zip",
+      "was_generated_by": "nmdc:dgms-11-h1wrzk11"
+    },
+    {
+      "id": "nmdc:dobj-11-792hmc32",
+      "type": "nmdc:DataObject",
+      "name": "Blanchard_CHCl3Ext_C-19-AB-M_18Feb18_Alder_Infuse_p15_1_01_27339.csv",
+      "description": "EnviroMS 12T FT-ICR MS natural organic matter workflow molecular formula assignment output details",
+      "data_category": "processed_data",
+      "data_object_type": "FT ICR-MS Analysis Results",
+      "file_size_bytes": 1068990,
+      "md5_checksum": "a69796b850dbf9a8ed5cd6ffc389d5fe",
+      "url": "https://nmdcdemo.emsl.pnnl.gov/Blanchard_CHCl3Ext_C-19-AB-M_18Feb18_Alder_Infuse_p15_1_01_27339.csv",
+      "was_generated_by": "nmdc:wfnom-11-b70h1195.1"
+    },
+    {
+      "id": "nmdc:dobj-11-rrtzdn22",
+      "type": "nmdc:DataObject",
+      "name": "Blanchard_CHCl3Ext_C-19-AB-M_18Feb18_Alder_Infuse_p15_1_01_27339.json",
+      "description": "CoreMS processing parameters for natural organic matter analysis used to generate {processed_data_object.id}",
+      "data_category": "workflow_parameter_data",
+      "data_object_type": "Configuration toml",
+      "file_size_bytes": 7186,
+      "md5_checksum": "ecfe3c380551c0f6351eab8477e555ed",
+      "url": "https://nmdcdemo.emsl.pnnl.gov/Blanchard_CHCl3Ext_C-19-AB-M_18Feb18_Alder_Infuse_p15_1_01_27339.json"
+    }
+  ],
+  "workflow_execution_set": [
+    {
+      "id": "nmdc:wfnom-11-qt4ejc26.1",
+      "type": "nmdc:NomAnalysis",
+      "name": "NOM Analysis for Blanchard_CHCl3Ext_C-30-AB-M_18Feb18_Alder_Infuse_p15_1_01_27330.zip",
+      "description": "Natural Organic Matter analysis of raw mass spectrometry data.",
+      "has_input": [
+        "nmdc:dobj-11-qpqd1a14",
+        "nmdc:dobj-11-57p6n045"
+      ],
+      "has_output": [
+        "nmdc:dobj-11-2jmb4s80"
+      ],
+      "processing_institution": "EMSL",
+      "execution_resource": "EMSL-RZR",
+      "git_url": "https://github.com/microbiomedata/enviroMS",
+      "started_at_time": "2025-01-16 15:05:46",
+      "was_informed_by": "nmdc:dgms-11-dwbehk92",
+      "ended_at_time": "2025-01-16 15:05:46",
+      "version": "3.1.0",
+      "uses_calibration": "nmdc:calib-14-hhn3qb47"
+    },
+    {
+      "id": "nmdc:wfnom-11-rh2xdm52.1",
+      "type": "nmdc:NomAnalysis",
+      "name": "NOM Analysis for Blanchard_CHCl3Ext_H-17-AB-M_18Feb18_Alder_Infuse_p15_1_01_27331.zip",
+      "description": "Natural Organic Matter analysis of raw mass spectrometry data.",
+      "has_input": [
+        "nmdc:dobj-11-gs93xq92",
+        "nmdc:dobj-11-x55dqa85"
+      ],
+      "has_output": [
+        "nmdc:dobj-11-b0t8hv14"
+      ],
+      "processing_institution": "EMSL",
+      "execution_resource": "EMSL-RZR",
+      "git_url": "https://github.com/microbiomedata/enviroMS",
+      "started_at_time": "2025-01-16 15:06:01",
+      "was_informed_by": "nmdc:dgms-11-43ktpx18",
+      "ended_at_time": "2025-01-16 15:06:01",
+      "version": "3.1.0",
+      "uses_calibration": "nmdc:calib-14-hhn3qb47"
+    },
+    {
+      "id": "nmdc:wfnom-11-efkkb490.1",
+      "type": "nmdc:NomAnalysis",
+      "name": "NOM Analysis for Blanchard_CHCl3Ext_H-26-AB-M_18Feb18_Alder_Infuse_p15_1_01_27334.zip",
+      "description": "Natural Organic Matter analysis of raw mass spectrometry data.",
+      "has_input": [
+        "nmdc:dobj-11-bewyzr15",
+        "nmdc:dobj-11-p43vny48"
+      ],
+      "has_output": [
+        "nmdc:dobj-11-jqaf1b04"
+      ],
+      "processing_institution": "EMSL",
+      "execution_resource": "EMSL-RZR",
+      "git_url": "https://github.com/microbiomedata/enviroMS",
+      "started_at_time": "2025-01-16 15:06:18",
+      "was_informed_by": "nmdc:dgms-11-8gsd9760",
+      "ended_at_time": "2025-01-16 15:06:18",
+      "version": "3.1.0",
+      "uses_calibration": "nmdc:calib-14-hhn3qb47"
+    },
+    {
+      "id": "nmdc:wfnom-11-7aed2552.1",
+      "type": "nmdc:NomAnalysis",
+      "name": "NOM Analysis for Blanchard_CHCl3Ext_H-4-AB-M_18Feb18_Alder_Infuse_p15_1_01_27336.zip",
+      "description": "Natural Organic Matter analysis of raw mass spectrometry data.",
+      "has_input": [
+        "nmdc:dobj-11-dmzecf62",
+        "nmdc:dobj-11-e5kt1593"
+      ],
+      "has_output": [
+        "nmdc:dobj-11-ptb3rq19"
+      ],
+      "processing_institution": "EMSL",
+      "execution_resource": "EMSL-RZR",
+      "git_url": "https://github.com/microbiomedata/enviroMS",
+      "started_at_time": "2025-01-16 15:06:30",
+      "was_informed_by": "nmdc:dgms-11-eatqcp51",
+      "ended_at_time": "2025-01-16 15:06:30",
+      "version": "3.1.0",
+      "uses_calibration": "nmdc:calib-14-hhn3qb47"
+    },
+    {
+      "id": "nmdc:wfnom-11-4gda7g39.1",
+      "type": "nmdc:NomAnalysis",
+      "name": "NOM Analysis for Blanchard_CHCl3Ext_H-11-AB-M_18Feb18_Alder_Infuse_p15_1_01_27338.zip",
+      "description": "Natural Organic Matter analysis of raw mass spectrometry data.",
+      "has_input": [
+        "nmdc:dobj-11-qdbp1b07",
+        "nmdc:dobj-11-xyjzkk09"
+      ],
+      "has_output": [
+        "nmdc:dobj-11-w964xk43"
+      ],
+      "processing_institution": "EMSL",
+      "execution_resource": "EMSL-RZR",
+      "git_url": "https://github.com/microbiomedata/enviroMS",
+      "started_at_time": "2025-01-16 15:06:49",
+      "was_informed_by": "nmdc:dgms-11-wy5gst67",
+      "ended_at_time": "2025-01-16 15:06:49",
+      "version": "3.1.0",
+      "uses_calibration": "nmdc:calib-14-hhn3qb47"
+    },
+    {
+      "id": "nmdc:wfnom-11-b70h1195.1",
+      "type": "nmdc:NomAnalysis",
+      "name": "NOM Analysis for Blanchard_CHCl3Ext_C-19-AB-M_18Feb18_Alder_Infuse_p15_1_01_27339.zip",
+      "description": "Natural Organic Matter analysis of raw mass spectrometry data.",
+      "has_input": [
+        "nmdc:dobj-11-p3d0pf79",
+        "nmdc:dobj-11-rrtzdn22"
+      ],
+      "has_output": [
+        "nmdc:dobj-11-792hmc32"
+      ],
+      "processing_institution": "EMSL",
+      "execution_resource": "EMSL-RZR",
+      "git_url": "https://github.com/microbiomedata/enviroMS",
+      "started_at_time": "2025-01-16 15:07:04",
+      "was_informed_by": "nmdc:dgms-11-h1wrzk11",
+      "ended_at_time": "2025-01-16 15:07:04",
+      "version": "3.1.0",
+      "uses_calibration": "nmdc:calib-14-hhn3qb47"
+    }
+  ],
+  "@type": "Database"
+}

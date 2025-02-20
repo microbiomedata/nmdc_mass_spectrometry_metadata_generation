@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<method>
+<submethods>
+<submethod program="HyStar_LC" revision="0">
+<name>2017_TPV_p65_IATp05</name>
+<files>
+<file name="hystar.method"/>
+</files>
+</submethod>
+<submethod program="apexControl" revision="0">
+<name>2017_TPV_p65_IATp05</name>
+<files>
+<file name="apexAcquisition.method"/>
+</files>
+</submethod>
+</submethods>
+<locked>false</locked>
+<readonly>false</readonly>
+<comment/>
+</method>
