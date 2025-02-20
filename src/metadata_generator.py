@@ -557,7 +557,7 @@ class NMDCMetadataGenerator(ABC):
         mass_spec_obj: object,
         analysis_obj: object,
         raw_data_obj: object,
-        parameter_data_id: str,
+        parameter_data_id: list,
         processed_data_id_list: list,
     ) -> None:
         """
@@ -593,13 +593,8 @@ class NMDCMetadataGenerator(ABC):
         - Sets `analysis_obj.has_output` to `processed_data_id_list`.
         """
         mass_spec_obj.has_output = [raw_data_obj.id]
-        analysis_obj.has_input.append(parameter_data_id)
+        analysis_obj.has_input = parameter_data_id
         analysis_obj.has_output = processed_data_id_list
-        # check to remove the placeholder values after we have added input and outputs
-        if "nmdc:placeholder" in analysis_obj.has_input:
-            analysis_obj.has_input.remove("nmdc:placeholder")
-        if "nmdc:placeholder" in analysis_obj.has_output:
-            analysis_obj.has_output.remove("nmdc:placeholder")
 
     def dump_nmdc_database(self, nmdc_database: nmdc.Database) -> None:
         """
@@ -940,12 +935,12 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
                     raise ValueError(
                         f"Not all processed data objects were created for {workflow_metadata_obj.processed_data_dir}."
                     )
-
+                has_input = [parameter_data_id, raw_data_object.id]
                 self.update_outputs(
                     mass_spec_obj=mass_spec,
                     analysis_obj=metab_analysis,
                     raw_data_obj=raw_data_object,
-                    parameter_data_id=parameter_data_id,
+                    parameter_data_id=has_input,
                     processed_data_id_list=processed_data,
                 )
 
@@ -1289,12 +1284,12 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             metab_analysis.ended_at_time = datetime.fromtimestamp(
                 processed_file.stat().st_mtime
             ).strftime("%Y-%m-%d %H:%M:%S")
-
+            has_inputs = [parameter_data_id, raw_data_object.id]
             self.update_outputs(
                 mass_spec_obj=mass_spec,
                 analysis_obj=metab_analysis,
                 raw_data_obj=raw_data_object,
-                parameter_data_id=parameter_data_id,
+                parameter_data_id=has_inputs,
                 processed_data_id_list=[processed_data_object.id],
             )
 

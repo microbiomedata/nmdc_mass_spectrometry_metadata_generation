@@ -90,7 +90,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         tqdm.write("\033[92mStarting metadata processing...\033[0m")
         processed_data = []
         # Iterate through each row in df to generate metadata
-        for index, row in tqdm(
+        for _, row in tqdm(
             metadata_df.iterrows(),
             total=metadata_df.shape[0],
             desc="Processing NOM rows",
@@ -122,13 +122,18 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                 was_generated_by=mass_spec.id,
             )
             # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
+            started_at_time = row["start_date"] + " " + row["started_at_time"]
+            eneded_at_time = row["end_date"] + " " + row["ended_at_time"]
             nom_analysis = self.generate_nom_analysis(
                 file_path=Path(row["raw_data_directory"]),
                 ref_calibration_path=Path(row["ref_calibration_path"]),
                 raw_data_id=raw_data_object.id,
                 data_gen_id=mass_spec.id,
                 processed_data_id="nmdc:placeholder",
+                started_at_time=started_at_time,
+                ended_at_time=eneded_at_time,
             )
+
             ### we will have processed data object AFTER the workflow is ran. Since this is how the lipidomics and gcms work, that is how this will function as well.
 
             processed_data_paths = list(
@@ -172,12 +177,13 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                         was_generated_by=nom_analysis.id,
                         alternative_id=None,
                     )
+            has_input = [workflow_data_object.id, raw_data_object.id]
             # Update the outputs for mass_spectrometry and nom_analysis
             self.update_outputs(
                 mass_spec_obj=mass_spec,
                 analysis_obj=nom_analysis,
                 raw_data_obj=raw_data_object,
-                parameter_data_id=workflow_data_object.id,
+                parameter_data_id=has_input,
                 processed_data_id_list=processed_data,
             )
             nmdc_database_inst.data_generation_set.append(mass_spec)
@@ -198,6 +204,8 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         raw_data_id: str,
         data_gen_id: str,
         processed_data_id: str,
+        started_at_time: str,
+        ended_at_time: str,
     ) -> nmdc.MetabolomicsAnalysis:
         """
         Generate a metabolomics analysis object from the provided file information.
@@ -214,7 +222,10 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             The ID of the data generation process that informed this analysis.
         processed_data_id : str
             The ID of the processed data resulting from this analysis.
-
+        started_at_time : str
+            The start time of the analysis.
+        ended_at_time : str
+            The end time of the analysis.
         Returns
         -------
         nmdc.MetabolomicsAnalysis
@@ -255,8 +266,8 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             "was_informed_by": data_gen_id,
             "has_input": [raw_data_id],
             "has_output": [processed_data_id],
-            "started_at_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "ended_at_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "started_at_time": started_at_time,
+            "ended_at_time": ended_at_time,
             "type": NmdcTypes.NomAnalysis,
         }
         self.clean_dict(data_dict)
