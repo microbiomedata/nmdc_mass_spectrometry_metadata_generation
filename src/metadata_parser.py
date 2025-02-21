@@ -5,7 +5,7 @@ import numpy as np
 from dataclasses import dataclass
 from typing import Optional, Dict
 from pathlib import Path
-from src.api_info_retriever import ApiInfoRetriever
+from src.api_info_retriever import BioOntologyInfoRetriever
 from nmdc_schema.nmdc import Biosample
 
 
@@ -37,48 +37,6 @@ class MetadataParser:
         """
 
         self.metadata_file = metadata_file
-
-    def check_for_valid_configs(sefl, df: pd.DataFrame):
-        """
-        Get unique values for all columns containing 'config' in their name and verify they exist in API.
-
-        Parameters
-        ----------
-        df : pd.DataFrame
-            DataFrame to analyze
-
-        Raises
-        ------
-        ValueError
-            If any config value doesn't exist in the API
-        """
-
-        # Instantiate configuration_set info retriever
-        api_config_getter = ApiInfoRetriever(collection_name="configuration_set")
-
-        config_columns = ["chrom_config_name", "mass_spec_config"]
-        invalid_configs = []
-
-        for col in config_columns:
-            unique_vals = [val for val in df[col].unique() if pd.notna(val)]
-
-            for val in unique_vals:
-                try:
-                    # skip empty values
-                    if not val:
-                        continue
-                    api_config_getter.get_id_by_slot_from_collection(
-                        slot_name="name", slot_field_value=val
-                    )
-                except ValueError:
-                    invalid_configs.append((col, val))
-
-        # If any invalid conifgs were found, raise error
-        if invalid_configs:
-            error_msg = "The following configurations were not found in the API:\n"
-            for col, val in invalid_configs:
-                error_msg += f"  Column '{col}': '{val}'\n"
-            raise ValueError(error_msg)
 
     # Helper function to handle missing or NaN values
     def get_value(self, row: pd.Series, key: str, default=None):
@@ -149,14 +107,67 @@ class MetadataParser:
 
         return metadata
 
-    def dynam_parse_biosample_metadata(self, row: pd.Series) -> Biosample:
+    def dynam_parse_biosample_metadata(self, row: pd.Series) -> Dict:
         """
+        # TODO: handle cases where the field value needs to be a specific data class type ie lat_lon
         Function to parse the metadata row if it includes biosample information.
         This pulls the most recent version of the ontology terms from the API and compares them to the values in the given row.
+        params:
+            row: pd.Series - A row from the DataFrame containing metadata.
+        returns:
+            Dict
+            The metadata dictionary.
         """
+        envo_retriever = BioOntologyInfoRetriever()
+        # 'env_broad_scale': self.create_controlled_identified_term_value(self.get_value(row,'env_broad_scale'), envo_retriever.get_envo_terms(self.get_value(row, 'env_broad_scale'))) if self.get_value(row, 'env_broad_scale') else None,
+
         metadata = {}
         for field_name, _ in Biosample.__dataclass_fields__.items():
-            metadata[field_name] = (
-                self.get_value(row, field_name) if field_name in row else None
-            )
-        return Biosample(**metadata)
+            if "env_" in field_name and field_name != "env_package":
+                # create envo term for env_broad_scale, env_local_scale, env_medium
+                metadata[field_name] = (
+                    self.create_controlled_identified_term_value(
+                        self.get_value(row, field_name),
+                        envo_retriever.get_envo_terms(self.get_value(row, field_name)),
+                    )
+                    if self.get_value(row, field_name)
+                    else None
+                )
+            else:
+                metadata[field_name] = (
+                    self.get_value(row, field_name)
+                    if self.get_value(row, field_name)
+                    else None
+                )
+        return metadata
+
+    def create_controlled_identified_term_value(
+        self, row_value: str, slot_enum_dict: dict
+    ):
+        """
+        Create a controlled identified term value.
+
+        Parameters
+        ----------
+        raw_value : str
+            The raw value to be converted.
+        control_terms : dict
+            A mapping of controlled terms.
+
+        Returns
+        -------
+        dict
+            A dictionary representing the controlled identified term.
+        """
+
+        nmdc_controlled_term_slot = {
+            "has_raw_value": row_value,
+            "term": {
+                "id": row_value,
+                "name": slot_enum_dict.get(row_value),
+                "type": NmdcTypes.OntologyClass,
+            },
+            "type": NmdcTypes.ControlledIdentifiedTermValue,
+        }
+
+        return nmdc_controlled_term_slot

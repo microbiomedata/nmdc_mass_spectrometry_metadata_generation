@@ -45,7 +45,6 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         self.workflow_param_data_object_type = "Analysis Tool Parameter File"
         self.unique_columns = ["raw_data_directory", "processed_data_directory"]
         self.grouped_columns = [
-            "biosample_id",
             "associated_study",
         ]
         self.mass_spec_desc = "ultra high resolution mass spectrum"

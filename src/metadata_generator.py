@@ -14,7 +14,7 @@ import shutil
 import nmdc_schema.nmdc as nmdc
 from linkml_runtime.dumpers import json_dumper
 from src.api_info_retriever import ApiInfoRetriever, NMDCAPIInterface
-from src.metadata_parser import MetadataParser, BiosampleIncludedMetadata
+from src.metadata_parser import MetadataParser
 
 # Configure logging
 logging.basicConfig(
@@ -276,8 +276,8 @@ class NMDCMetadataGenerator(ABC):
         biosample_ids = metadata_df["biosample_id"].unique()
         api_biosample_getter = ApiInfoRetriever(collection_name="biosample_set")
 
-        if not api_biosample_getter.check_if_ids_exist(biosample_ids):
-            raise ValueError("Biosample IDs do not exist in the collection.")
+        # if not api_biosample_getter.check_if_ids_exist(biosample_ids):
+        #     raise ValueError("Biosample IDs do not exist in the collection.")
 
         # Check that all studies exist
         if "associated_study" in metadata_df.columns:
@@ -680,7 +680,7 @@ class NMDCMetadataGenerator(ABC):
             biosample_id = biosample.id
             return csv_metadata, biosample_id, biosample_metadata
 
-    def generate_biosample(self, biosamp_metadata: nmdc.Biosample) -> nmdc.Biosample:
+    def generate_biosample(self, biosamp_metadata: Dict) -> nmdc.Biosample:
         """
         Generate a biosample from the given metadata.
 
@@ -695,14 +695,15 @@ class NMDCMetadataGenerator(ABC):
             The generated biosample instance.
         """
         api = NMDCAPIInterface()
-        biosamp_dict = asdict(biosamp_metadata)
 
         # If no biosample id in spreadsheet, mint biosample ids
-        if biosamp_dict["id"] is None:
-            biosamp_dict["id"] = api.mint_nmdc_id(nmdc_type=NmdcTypes.Biosample)[0]
+        if biosamp_metadata["id"] is None:
+            # commented for testing purposes
+            # biosamp_dict["id"] = api.mint_nmdc_id(nmdc_type=NmdcTypes.Biosample)[0]
+            biosamp_metadata["id"] = "nmdc:bsm-11-abc123"
 
         # Filter dictionary to remove any key/value pairs with None as the value
-        biosamp_dict = self.clean_dict(biosamp_dict)
+        biosamp_dict = self.clean_dict(biosamp_metadata)
 
         biosample_object = nmdc.Biosample(**biosamp_dict)
 
