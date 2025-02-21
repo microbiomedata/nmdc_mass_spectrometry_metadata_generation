@@ -77,30 +77,30 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             desc="Processing NOM rows",
         ):
             # check to see if biosample exists, if not, the function with create and return it
-            # this is a bit clunky right now as i slowly shit over to new processes and allow the check_for_biosamples function to be used by multiple subclasses
+            # this is a bit clunky right now as i slowly shift over to new processes and allow the check_for_biosamples function to be used by multiple subclasses
             # I think eventually parsing the object before generating objects in all subclasses is ultimately more readble and easier to track
             emsl_metadata, biosample_id, _ = self.check_for_biosamples(parser, row)
             if biosample_id is None:
                 # if the check comes back as None, this means a biosample exists and we can parse the row into an object
                 # TODO: In our next iteration of csv inputs, if the biopsample id exists we will not have the biosample fields filled out in the rows
                 # this means that we will need to create a biosample object from the biosample_id using the nmdc Biosample class and the biosample_id
-                emsl_metadata, biosample_id, _ = self.handle_biosample(parser, row)
+                emsl_metadata, biosample_id = self.handle_biosample(parser, row)
             # Generate MassSpectrometry record
             mass_spec = self.generate_mass_spectrometry(
-                file_path=Path(emsl_metadata.data_path),
-                instrument_name=emsl_metadata.instrument_used,
+                file_path=Path(emsl_metadata["data_path"]),
+                instrument_name=emsl_metadata["instrument_used"],
                 sample_id=biosample_id,
                 raw_data_id="nmdc:placeholder",
-                study_id=emsl_metadata.associated_study,
+                study_id=emsl_metadata["associated_study"],
                 processing_institution=self.processing_institution,
-                mass_spec_config_name=emsl_metadata.mass_spec_config,
+                mass_spec_config_name=emsl_metadata["mass_spec_config"],
                 start_date=row["start_date"],
                 end_date=row["end_date"],
             )
             eluent_intro_pretty = self.mass_spec_eluent_intro.replace("_", " ")
             # raw is the zipped .d directory
             raw_data_object_desc = (
-                f"Raw {emsl_metadata.instrument_used} {eluent_intro_pretty} data."
+                f"Raw {emsl_metadata['instrument_used']} {eluent_intro_pretty} data."
             )
             raw_data_object = self.generate_data_object(
                 file_path=Path(row["raw_data_directory"]),
@@ -139,7 +139,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                 if file.suffix == ".csv":
                     # this is the .csv file of the processed data
                     processed_data_object_desc = (
-                        f"EnviroMS {emsl_metadata.instrument_used} "
+                        f"EnviroMS {emsl_metadata['instrument_used']} "
                         "natural organic matter workflow molecular formula assignment output details"
                     )
                     processed_data_object = self.generate_data_object(

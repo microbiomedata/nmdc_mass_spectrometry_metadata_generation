@@ -639,8 +639,8 @@ class NMDCMetadataGenerator(ABC):
         -------
         tuple
             A tuple containing:
-            - emsl_metadata : BiosampleIncludedMetadata
-                The parsed metadata from the row
+            - emsl_metadata : Dict
+                Parsed metadata from input csv row
             - biosample_id : str
                 The ID of the biosample (existing or newly generated)
             - biosample : Biosample or None
@@ -648,7 +648,7 @@ class NMDCMetadataGenerator(ABC):
         """
 
         emsl_metadata = parser.parse_biosample_metadata(row)
-        biosample_id = emsl_metadata.biosample_id
+        biosample_id = emsl_metadata["biosample_id"]
         return emsl_metadata, biosample_id
 
     def check_for_biosamples(self, parser: MetadataParser, row: pd.Series) -> bool:
@@ -672,16 +672,15 @@ class NMDCMetadataGenerator(ABC):
         if biosample_exists:
             return None, True, None
         else:
+            # get the non biosample class info from the csv, needed for generating objects
+            csv_metadata = parser.parse_biosample_metadata(row)
             # Generate biosamples if no biosample_id in spreadsheet
-            emsl_metadata = parser.parse_biosample_metadata(row)
-            biosample = self.generate_biosample(biosamp_metadata=emsl_metadata)
+            biosample_metadata = parser.dynam_parse_biosample_metadata(row)
+            biosample = self.generate_biosample(biosamp_metadata=biosample_metadata)
             biosample_id = biosample.id
-            tqdm.write(f"Generating Biosamples for {emsl_metadata.data_path}")
-            return emsl_metadata, biosample_id, biosample
+            return csv_metadata, biosample_id, biosample_metadata
 
-    def generate_biosample(
-        self, biosamp_metadata: BiosampleIncludedMetadata
-    ) -> nmdc.Biosample:
+    def generate_biosample(self, biosamp_metadata: nmdc.Biosample) -> nmdc.Biosample:
         """
         Generate a biosample from the given metadata.
 
@@ -696,32 +695,11 @@ class NMDCMetadataGenerator(ABC):
             The generated biosample instance.
         """
         api = NMDCAPIInterface()
-        # Drop non biosample-related keys from EmslMetadata to create Biosample dict
         biosamp_dict = asdict(biosamp_metadata)
-        non_biosamp_keys = {
-            "data_path",
-            "dms_dataset_id",
-            "myemsl_link",
-            "instrument_used",
-            "eluent_intro",
-            "mass_spec_config",
-            "chrom_config_name",
-        }
-        for key in non_biosamp_keys:
-            biosamp_dict.pop(key, None)
-
-        # Remove keys with NaN values
-        biosamp_dict = self.clean_dict(biosamp_dict)
 
         # If no biosample id in spreadsheet, mint biosample ids
-        if biosamp_dict["biosample_id"] is None:
-            biosamp_dict["biosample_id"] = api.mint_nmdc_id(
-                nmdc_type=NmdcTypes.Biosample
-            )[0]
-
-        # Change biosample_id to id and add type slot
-        biosamp_dict["id"] = biosamp_dict.pop("biosample_id")
-        biosamp_dict["type"] = NmdcTypes.Biosample
+        if biosamp_dict["id"] is None:
+            biosamp_dict["id"] = api.mint_nmdc_id(nmdc_type=NmdcTypes.Biosample)[0]
 
         # Filter dictionary to remove any key/value pairs with None as the value
         biosamp_dict = self.clean_dict(biosamp_dict)
