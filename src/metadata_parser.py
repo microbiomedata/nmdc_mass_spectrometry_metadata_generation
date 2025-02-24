@@ -85,11 +85,11 @@ class MetadataParser:
             "data_path": Path(self.get_value(row, "LC-MS filename")),
             "dms_dataset_id": self.get_value(row, "DMS Dataset ID"),
             "myemsl_link": self.get_value(row, "MyEMSL link"),
-            "associated_study": [
+            "associated_studies": [
                 study.strip()
-                for study in self.get_value(row, "associated_study").split(",")
+                for study in self.get_value(row, "associated_studies").split(",")
             ]
-            if self.get_value(row, "associated_study")
+            if self.get_value(row, "associated_studies")
             else None,
             "biosample_id": self.get_value(row, "biosample_id")
             if self.get_value(row, "biosample_id") or self.get_value(row, "id")
@@ -119,10 +119,9 @@ class MetadataParser:
             The metadata dictionary.
         """
         envo_retriever = BioOntologyInfoRetriever()
-        # 'env_broad_scale': self.create_controlled_identified_term_value(self.get_value(row,'env_broad_scale'), envo_retriever.get_envo_terms(self.get_value(row, 'env_broad_scale'))) if self.get_value(row, 'env_broad_scale') else None,
 
         metadata = {}
-        for field_name, _ in Biosample.__dataclass_fields__.items():
+        for field_name, field_data in Biosample.__dataclass_fields__.items():
             if "env_" in field_name and field_name != "env_package":
                 # create envo term for env_broad_scale, env_local_scale, env_medium
                 metadata[field_name] = (
