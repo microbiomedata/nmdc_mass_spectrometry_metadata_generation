@@ -15,6 +15,7 @@ import nmdc_schema.nmdc as nmdc
 from linkml_runtime.dumpers import json_dumper
 from src.api_info_retriever import ApiInfoRetriever, NMDCAPIInterface
 from src.metadata_parser import MetadataParser
+import ast
 
 # Configure logging
 logging.basicConfig(
@@ -280,8 +281,9 @@ class NMDCMetadataGenerator(ABC):
         #     raise ValueError("Biosample IDs do not exist in the collection.")
 
         # Check that all studies exist
-        if "associated_study" in metadata_df.columns:
-            study_ids = metadata_df["associated_study"].unique()
+        if "associated_studies" in metadata_df.columns:
+            # Convert string to list, make sure the values are unique, conmvert
+            study_ids = ast.literal_eval(metadata_df.associated_studies.iloc[0])
             api_study_getter = ApiInfoRetriever(collection_name="study_set")
 
             if not api_study_getter.check_if_ids_exist(study_ids):
@@ -678,7 +680,7 @@ class NMDCMetadataGenerator(ABC):
             biosample_metadata = parser.dynam_parse_biosample_metadata(row)
             biosample = self.generate_biosample(biosamp_metadata=biosample_metadata)
             biosample_id = biosample.id
-            return csv_metadata, biosample_id, biosample_metadata
+            return csv_metadata, biosample_id, biosample
 
     def generate_biosample(self, biosamp_metadata: Dict) -> nmdc.Biosample:
         """
@@ -699,7 +701,7 @@ class NMDCMetadataGenerator(ABC):
         # If no biosample id in spreadsheet, mint biosample ids
         if biosamp_metadata["id"] is None:
             # commented for testing purposes
-            # biosamp_dict["id"] = api.mint_nmdc_id(nmdc_type=NmdcTypes.Biosample)[0]
+            # biosamp_metadata["id"] = api.mint_nmdc_id(nmdc_type=NmdcTypes.Biosample)[0]
             biosamp_metadata["id"] = "nmdc:bsm-11-abc123"
 
         # Filter dictionary to remove any key/value pairs with None as the value

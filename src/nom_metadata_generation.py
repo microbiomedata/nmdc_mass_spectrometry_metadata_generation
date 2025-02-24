@@ -79,7 +79,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             # this is a bit clunky right now as i slowly shift over to new processes and allow the check_for_biosamples function to be used by multiple subclasses
             # I think eventually parsing the object before generating objects in all subclasses is ultimately more readble and easier to track
             emsl_metadata, biosample_id, _ = self.check_for_biosamples(parser, row)
-            if biosample_id is None:
+            if biosample_id is True:
                 # if the check comes back as None, this means a biosample exists and we can parse the row into an object
                 # TODO: In our next iteration of csv inputs, if the biopsample id exists we will not have the biosample fields filled out in the rows
                 # this means that we will need to create a biosample object from the biosample_id using the nmdc Biosample class and the biosample_id

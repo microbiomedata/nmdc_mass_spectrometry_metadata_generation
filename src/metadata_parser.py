@@ -3,10 +3,12 @@ import pandas as pd
 import numpy as np
 
 from dataclasses import dataclass
-from typing import Optional, Dict
+from typing import Optional, Dict, List, get_origin, get_args
+import typing_inspect
 from pathlib import Path
 from src.api_info_retriever import BioOntologyInfoRetriever
 from nmdc_schema.nmdc import Biosample
+import ast
 
 
 @dataclass
@@ -107,6 +109,23 @@ class MetadataParser:
 
         return metadata
 
+    def is_list_type(self, type_hint):
+        """Recursively check if a type hint is or contains a List type."""
+        # Check if the origin of the type hint is a List
+        if get_origin(type_hint) == list or (
+            typing_inspect.is_union_type(type_hint)
+            and any(get_origin(tp) == list for tp in get_args(type_hint))
+        ):
+            return True
+        # If the type is a Union, check the arguments recursively
+        if typing_inspect.is_union_type(type_hint):
+            return any(
+                self.is_list_type(arg)
+                for arg in get_args(type_hint)
+                if arg is not type(None)
+            )
+        return False
+
     def dynam_parse_biosample_metadata(self, row: pd.Series) -> Dict:
         """
         # TODO: handle cases where the field value needs to be a specific data class type ie lat_lon
@@ -122,7 +141,14 @@ class MetadataParser:
 
         metadata = {}
         for field_name, field_data in Biosample.__dataclass_fields__.items():
-            if "env_" in field_name and field_name != "env_package":
+            #  check if the field is a list type, we will need to convert the csv row to a list instead of treating it as a string
+            if self.is_list_type(field_data.type):
+                metadata[field_name] = (
+                    ast.literal_eval(self.get_value(row, field_name))
+                    if self.get_value(row, field_name)
+                    else None
+                )
+            elif "env_" in field_name and field_name != "env_package":
                 # create envo term for env_broad_scale, env_local_scale, env_medium
                 metadata[field_name] = (
                     self.create_controlled_identified_term_value(
