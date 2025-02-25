@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 
 from dataclasses import dataclass, is_dataclass
-from typing import Optional, Dict, List, get_origin, get_args
+from typing import Union, Dict, List, get_origin, get_args
 import typing_inspect
 from pathlib import Path
 from src.api_info_retriever import BioOntologyInfoRetriever
@@ -144,7 +144,6 @@ class MetadataParser:
 
     def dynam_parse_biosample_metadata(self, row: pd.Series) -> Dict:
         """
-        # TODO: how to handle lists of dict (dataclasses)?
         Function to parse the metadata row if it includes biosample information.
         This pulls the most recent version of the ontology terms from the API and compares them to the values in the given row.
         Different parsing is done on different types of fields, such as lists, controlled identified terms, and text values to ensure the correct format is used.
@@ -158,6 +157,36 @@ class MetadataParser:
 
         metadata = {}
         for field_name, field_data in Biosample.__dataclass_fields__.items():
+            # check if the field is a list of dataclasses
+            if self.is_type(field_data.type, List[Union[dict, dataclass]]):
+                # check if a value exists before we begin complex parsing, saves time douing this at the begining
+                if self.get_value(row, field_name):
+                    # we need to make a dict for each item in the list
+                    metadata[field_name] = []
+                    # get the list of dicts from the csv row
+                    list_of_dicts = ast.literal_eval(self.get_value(row, field_name))
+                    # iterate through the list of dicts and format them
+                    for item in list_of_dicts:
+                        if self.is_type(field_data.type, TextValue):
+                            metadata[field_name].append(
+                                self.create_text_value(item, field_name)
+                            )
+                        elif self.is_type(
+                            field_data.type, ControlledIdentifiedTermValue
+                        ):
+                            metadata[field_name].append(
+                                self.create_controlled_identified_term_value(
+                                    item,
+                                    {item: item},
+                                )
+                            )
+                        elif self.is_type(field_data.type, QuantityValue):
+                            metadata[field_name].append(
+                                self.create_quantity_value(raw_value=item)
+                            )
+                        else:
+                            metadata[field_name].append(item)
+
             #  check if the field is a list type, we will need to convert the csv row to a list instead of treating it as a string
             if self.is_type(field_data.type, list):
                 metadata[field_name] = (
@@ -300,7 +329,7 @@ class MetadataParser:
 
         return nmdc_geo_loc_value
 
-    def create_text_value(self, row_value: str, is_list: bool):
+    def create_text_value(self, row_value: str, is_list: bool) -> Dict:
         """
         Create a text value representation.
 
@@ -317,27 +346,13 @@ class MetadataParser:
             A dictionary representing the text value.
         """
 
-        if is_list:
-            output_list = []
-            values = row_value.split(",")
-            for value in values:
-                stripped_value = value.strip()
-                nmdc_text_value = {
-                    "has_raw_value": stripped_value,
-                    "type": NmdcTypes.TextValue,
-                }
-                output_list.append(nmdc_text_value)
+        nmdc_text_value = {"has_raw_value": row_value, "type": NmdcTypes.TextValue}
 
-            return output_list
-
-        else:
-            nmdc_text_value = {"has_raw_value": row_value, "type": NmdcTypes.TextValue}
-
-            return nmdc_text_value
+        return nmdc_text_value
 
     def create_controlled_identified_term_value(
         self, row_value: str, slot_enum_dict: dict
-    ):
+    ) -> Dict:
         """
         Create a controlled identified term value.
 
