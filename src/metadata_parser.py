@@ -7,7 +7,14 @@ from typing import Optional, Dict, List, get_origin, get_args
 import typing_inspect
 from pathlib import Path
 from src.api_info_retriever import BioOntologyInfoRetriever
-from nmdc_schema.nmdc import Biosample, ControlledIdentifiedTermValue
+from nmdc_schema.nmdc import (
+    Biosample,
+    ControlledIdentifiedTermValue,
+    TextValue,
+    QuantityValue,
+    GeolocationValue,
+    TimestampValue,
+)
 import ast
 
 
@@ -137,7 +144,7 @@ class MetadataParser:
 
     def dynam_parse_biosample_metadata(self, row: pd.Series) -> Dict:
         """
-        # TODO: handle cases where the field value needs to be a specific data class type ie lat_lon
+        # TODO: how to handle lists of dict (dataclasses)?
         Function to parse the metadata row if it includes biosample information.
         This pulls the most recent version of the ontology terms from the API and compares them to the values in the given row.
         Different parsing is done on different types of fields, such as lists, controlled identified terms, and text values to ensure the correct format is used.
@@ -158,6 +165,26 @@ class MetadataParser:
                     if self.get_value(row, field_name)
                     else None
                 )
+            # format GeolocationValue dict
+            elif self.is_type(field_data.type, GeolocationValue):
+                metadata[field_name] = (
+                    self.create_geo_loc_value(
+                        self.get_value(row, field_name),
+                        self.get_value(row, field_name),
+                    )
+                    if self.get_value(row, field_name)
+                    else None
+                )
+            # format QuantityValue dict
+            elif self.is_type(field_data.type, QuantityValue):
+                metadata[field_name] = (
+                    self.create_quantity_value(
+                        raw_value=self.get_value(row, field_name)
+                    )
+                    if self.get_value(row, field_name)
+                    else None
+                )
+            # format ControlledIdentifiedTermValue dict
             elif self.is_type(
                 field_data.type, ControlledIdentifiedTermValue
             ) and field_name not in [
@@ -177,6 +204,16 @@ class MetadataParser:
                     if self.get_value(row, field_name)
                     else None
                 )
+            # format TextValue dict
+            elif self.is_type(field_data.type, TextValue):
+                metadata[field_name] = (
+                    self.create_text_value(
+                        self.get_value(row, field_name), field_name == "env_package"
+                    )
+                    if self.get_value(row, field_name)
+                    else None
+                )
+            # format and create envo term for env_broad_scale, env_local_scale, env_medium
             elif field_name in ["env_broad_scale", "env_local_scale", "env_medium"]:
                 # create envo term for env_broad_scale, env_local_scale, env_medium
                 metadata[field_name] = (
@@ -187,6 +224,7 @@ class MetadataParser:
                     if self.get_value(row, field_name)
                     else None
                 )
+            # catch all for normal case - strings, ints, etc
             else:
                 metadata[field_name] = (
                     self.get_value(row, field_name)
@@ -194,6 +232,108 @@ class MetadataParser:
                     else None
                 )
         return metadata
+
+    def create_quantity_value(
+        self,
+        num_value: str = None,
+        min_num_value: str = None,
+        max_num_value: str = None,
+        unit_value: str = None,
+        raw_value: str = None,
+    ):
+        """
+        Create a quantity value representation.
+
+        Parameters
+        ----------
+        raw_value : str
+            The raw value to convert to a quantity.
+
+        Returns
+        -------
+        dict
+            A dictionary representing the quantity value.
+        """
+
+        nmdc_quant_value = {"type": NmdcTypes.QuantityValue}
+
+        if num_value:
+            nmdc_quant_value["has_numeric_value"] = num_value
+        if min_num_value:
+            nmdc_quant_value["has_minimum_numeric_value"] = min_num_value
+        if max_num_value:
+            nmdc_quant_value["has_maximum_numeric_value"] = max_num_value
+        if unit_value:
+            nmdc_quant_value["has_unit"] = unit_value
+        if num_value and unit_value:
+            nmdc_quant_value["has_raw_value"] = str(num_value) + str(unit_value)
+        if raw_value:
+            nmdc_quant_value["has_raw_value"] = raw_value
+
+        return nmdc_quant_value
+
+    def create_geo_loc_value(self, raw_value: str, lat_value: str, long_value: str):
+        """
+        Create a geolocation value representation.
+
+        Parameters
+        ----------
+        raw_value : str
+            The raw value associated with geolocation.
+        lat_value : str
+            The latitude value.
+        long_value : str
+            The longitude value.
+
+        Returns
+        -------
+        dict
+            A dictionary representing the geolocation value.
+        """
+
+        nmdc_geo_loc_value = {
+            "has_raw_value": raw_value,
+            "latitude": lat_value,
+            "longitude": long_value,
+            "type": NmdcTypes.GeolocationValue,
+        }
+
+        return nmdc_geo_loc_value
+
+    def create_text_value(self, row_value: str, is_list: bool):
+        """
+        Create a text value representation.
+
+        Parameters
+        ----------
+        row_value : str
+            The raw value to convert.
+        is_list : bool
+            Whether to treat the value as a list.
+
+        Returns
+        -------
+        dict
+            A dictionary representing the text value.
+        """
+
+        if is_list:
+            output_list = []
+            values = row_value.split(",")
+            for value in values:
+                stripped_value = value.strip()
+                nmdc_text_value = {
+                    "has_raw_value": stripped_value,
+                    "type": NmdcTypes.TextValue,
+                }
+                output_list.append(nmdc_text_value)
+
+            return output_list
+
+        else:
+            nmdc_text_value = {"has_raw_value": row_value, "type": NmdcTypes.TextValue}
+
+            return nmdc_text_value
 
     def create_controlled_identified_term_value(
         self, row_value: str, slot_enum_dict: dict
