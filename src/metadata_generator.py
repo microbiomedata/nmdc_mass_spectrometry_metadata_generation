@@ -1138,7 +1138,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             "https://github.com/microbiomedata/metaMS/wdl/metaMS_gcms.wdl"
         )
         self.workflow_version = "3.0.0"
-        self.workflow_category = "gc_ms_metaboloimcs"
+        self.workflow_category = "gc_ms_metabolomics"
 
         # Processed data attributes
         self.processed_data_category = "processed_data"
