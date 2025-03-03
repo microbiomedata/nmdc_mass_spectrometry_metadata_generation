@@ -37,15 +37,8 @@ class NmdcTypes:
 class MetadataParser:
     """Parsers metadata from input metadata spreadsheet."""
 
-    def __init__(self, metadata_file):
-        """
-        Parameters
-        ----------
-        metadata_file : str
-            Path to the metadata file to be loaded.
-        """
-
-        self.metadata_file = metadata_file
+    def __init__(self):
+        pass
 
     # Helper function to handle missing or NaN values
     def get_value(self, row: pd.Series, key: str, default=None):

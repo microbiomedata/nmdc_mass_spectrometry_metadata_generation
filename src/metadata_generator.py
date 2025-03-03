@@ -653,7 +653,7 @@ class NMDCMetadataGenerator(ABC):
         biosample_id = emsl_metadata["biosample_id"]
         return emsl_metadata, biosample_id
 
-    def check_for_biosamples(self, parser: MetadataParser, row: pd.Series) -> bool:
+    def check_for_biosamples(self, row: pd.Series) -> bool:
         """
         Check if the biosample_id is not None, NaN, or empty.
 
@@ -667,6 +667,7 @@ class NMDCMetadataGenerator(ABC):
         bool
             True if biosample_id is valid; False otherwise.
         """
+        parser = MetadataParser()
         biosample_exists = True
         value = row.get("biosample_id")
         if pd.isna(value) or value == "":
