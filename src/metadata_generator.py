@@ -526,7 +526,6 @@ class NMDCMetadataGenerator(ABC):
         nmdc_id = api.mint_nmdc_id(nmdc_type=NmdcTypes.MetabolomicsAnalysis)[0] + ".1"
         # TODO: Update the minting to handle versioning in the future
 
-        # TODO KRH: Add workflow category to the generation of the workflow object when schema is updated
         data_dict = {
             "id": nmdc_id,
             "name": f"{self.workflow_analysis_name} for {raw_data_name}",
@@ -541,6 +540,7 @@ class NMDCMetadataGenerator(ABC):
             "started_at_time": "placeholder",
             "ended_at_time": "placeholder",
             "type": type,
+            "metabolomics_analysis_category": self.workflow_category
         }
 
         if calibration_id is not None:
@@ -816,8 +816,8 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
         self.csv_process_data_description = (
             "Lipid annotations as a result of a lipidomics workflow activity."
         )
-        # TODO KRH: Switch to "LC-MS Lipidomics Processed Data" when the type is added to the schema with release of 11.4
-        self.hdf5_process_data_obj_type = "LC-MS Lipidomics Results"
+
+        self.hdf5_process_data_obj_type = "LC-MS Lipidomics Processed Data"
         self.hdf5_process_data_description = "CoreMS hdf5 file representing a lipidomics data file including annotations."
 
     def run(self):
@@ -1181,8 +1181,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         self.mass_spec_desc = "Generation of mass spectrometry data by GC/MS for the analysis of metabolites."
         self.mass_spec_eluent_intro = "gas_chromatography"
         self.analyte_category = "metabolome"
-        # TODO KRH: Update to new enum value when available
-        self.raw_data_obj_type = None
+        self.raw_data_obj_type = "GC-MS Raw Data"
         self.raw_data_obj_desc = (
             "GC/MS low resolution raw data for metabolomics data acquisition."
         )
@@ -1196,7 +1195,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             "https://github.com/microbiomedata/metaMS/wdl/metaMS_gcms.wdl"
         )
         self.workflow_version = "3.0.0"
-        self.workflow_category = "gc_ms_metaboloimcs"
+        self.workflow_category = "gc_ms_metabolomics"
 
         # Processed data attributes
         self.processed_data_category = "processed_data"
