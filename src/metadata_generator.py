@@ -237,7 +237,7 @@ class NMDCMetadataGenerator(ABC):
         """
         return nmdc.Database()
 
-    def load_metadata(self) -> pd.core.groupby.DataFrameGroupBy:
+    def load_metadata(self) -> pd.core.frame.DataFrame:
         """
         Load and group workflow metadata from a CSV file.
 
@@ -283,16 +283,15 @@ class NMDCMetadataGenerator(ABC):
         # Check that all studies exist
         if "associated_studies" in metadata_df.columns:
             # Convert string to list, make sure the values are unique, conmvert
-            study_ids = ast.literal_eval(metadata_df.associated_studies.iloc[0])
+            try:
+                study_ids = ast.literal_eval(metadata_df.associated_studies.iloc[0])
+            except SyntaxError:
+                study_ids = [metadata_df.associated_studies.iloc[0]]
             api_study_getter = ApiInfoRetriever(collection_name="study_set")
-
             if not api_study_getter.check_if_ids_exist(study_ids):
                 raise ValueError("Study IDs do not exist in the collection.")
 
-        # Group by Biosample
-        grouped = metadata_df.groupby(self.grouped_columns)
-
-        return grouped
+        return metadata_df
 
     def clean_dict(self, dict: Dict) -> Dict:
         """
@@ -622,7 +621,7 @@ class NMDCMetadataGenerator(ABC):
         json_dumper.dump(nmdc_database, self.database_dump_json_path)
         logging.info("Database successfully dumped in %s", self.database_dump_json_path)
 
-    def handle_biosample(self, parser: MetadataParser, row: pd.Series) -> tuple:
+    def handle_biosample(self, row: pd.Series) -> tuple:
         """
         TODO: Decide if this belongs in this class
         Process biosample information from metadata row.
@@ -632,8 +631,6 @@ class NMDCMetadataGenerator(ABC):
 
         Parameters
         ----------
-        parser : MetadataParser
-            Parser instance for processing metadata
         row : pd.Series
             A row from the metadata DataFrame containing biosample information
 
@@ -648,7 +645,7 @@ class NMDCMetadataGenerator(ABC):
             - biosample : Biosample or None
                 The generated biosample object if new, None if existing
         """
-
+        parser = MetadataParser()
         emsl_metadata = parser.parse_biosample_metadata(row)
         biosample_id = emsl_metadata["biosample_id"]
         return emsl_metadata, biosample_id

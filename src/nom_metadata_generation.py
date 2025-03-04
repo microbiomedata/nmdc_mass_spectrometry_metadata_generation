@@ -86,7 +86,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                 instrument_name=emsl_metadata["instrument_used"],
                 sample_id=biosample_id,
                 raw_data_id="nmdc:placeholder",
-                study_id=emsl_metadata["associated_study"],
+                study_id=emsl_metadata["associated_studies"],
                 processing_institution=self.processing_institution,
                 mass_spec_config_name=emsl_metadata["mass_spec_config"],
                 start_date=row["start_date"],
