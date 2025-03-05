@@ -661,8 +661,8 @@ class NMDCMetadataGenerator(ABC):
 
         Returns
         -------
-        bool
-            True if biosample_id is valid; False otherwise.
+        Tuple
+
         """
         parser = MetadataParser()
         biosample_exists = True
@@ -670,15 +670,14 @@ class NMDCMetadataGenerator(ABC):
         if pd.isna(value) or value == "":
             biosample_exists = False
         if biosample_exists:
-            return None, True, None
+            return value, None
         else:
-            # get the non biosample class info from the csv, needed for generating objects
-            csv_metadata = parser.parse_biosample_metadata(row)
             # Generate biosamples if no biosample_id in spreadsheet
             biosample_metadata = parser.dynam_parse_biosample_metadata(row)
             biosample = self.generate_biosample(biosamp_metadata=biosample_metadata)
+            row["biosample_id"] = biosample.id
             biosample_id = biosample.id
-            return csv_metadata, biosample_id, biosample
+            return biosample_id, biosample
 
     def generate_biosample(self, biosamp_metadata: Dict) -> nmdc.Biosample:
         """

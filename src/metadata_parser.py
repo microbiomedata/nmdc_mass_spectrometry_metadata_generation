@@ -87,10 +87,9 @@ class MetadataParser:
             "data_path": Path(self.get_value(row, "LC-MS filename")),
             "dms_dataset_id": self.get_value(row, "DMS Dataset ID"),
             "myemsl_link": self.get_value(row, "MyEMSL link"),
-            "associated_studies": [
-                study.strip()
-                for study in self.get_value(row, "associated_studies").split(",")
-            ]
+            "associated_studies": ast.literal_eval(
+                self.get_value(row, "associated_studies")
+            )
             if self.get_value(row, "associated_studies")
             else None,
             "biosample_id": self.get_value(row, "biosample_id")
