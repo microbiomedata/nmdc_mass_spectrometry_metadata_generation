@@ -540,7 +540,7 @@ class NMDCMetadataGenerator(ABC):
             "started_at_time": "placeholder",
             "ended_at_time": "placeholder",
             "type": type,
-            "metabolomics_analysis_category": self.workflow_category
+            "metabolomics_analysis_category": self.workflow_category,
         }
 
         if calibration_id is not None:
@@ -845,176 +845,173 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
         """
 
         nmdc_database_inst = self.start_nmdc_database()
-        grouped_data = self.load_metadata()
-        total_groups = len(grouped_data)
+        metadata_df = self.load_metadata()
 
-        for group, data in tqdm(
-            grouped_data, total=total_groups, desc="Processing biosamples"
+        for _, data in tqdm(
+            metadata_df.iterrows(),
+            total=metadata_df.shape[0],
+            desc="Processing LCMS biosamples",
         ):
             grouped_df = data[self.grouped_columns].drop_duplicates()
-            group_metadata_obj = grouped_df.apply(
-                lambda row: self.create_grouped_metadata(row), axis=1
-            ).iloc[0]
+            group_metadata_obj = self.create_grouped_metadata(grouped_df)
 
+            # check if the biosample exists
+            _, biosample_id, _ = self.check_for_biosamples(row=data)
+            if biosample_id is not True:
+                group_metadata_obj.biosample_id = biosample_id
             workflow_df = data.drop(columns=self.grouped_columns)
-            workflow_metadata = workflow_df.apply(
-                lambda row: self.create_workflow_metadata(row), axis=1
+            workflow_metadata = self.create_workflow_metadata(workflow_df)
+
+            # for workflow_metadata_obj in tqdm(
+            #     workflow_metadata,
+            #     desc=f"Processing mass spec metadata for biosample "
+            #     f"{group_metadata_obj.biosample_id}",
+            #     leave=False,
+            # ):
+            mass_spec = self.generate_mass_spectrometry(
+                file_path=Path(workflow_metadata.raw_data_file),
+                instrument_name=workflow_metadata.instrument_used,
+                sample_id=group_metadata_obj.biosample_id,
+                raw_data_id="nmdc:placeholder",
+                study_id=group_metadata_obj.nmdc_study,
+                processing_institution=group_metadata_obj.processing_institution,
+                mass_spec_config_name=workflow_metadata.mass_spec_config_name,
+                lc_config_name=workflow_metadata.lc_config_name,
+                start_date=workflow_metadata.instrument_analysis_start_date,
+                end_date=workflow_metadata.instrument_analysis_end_date,
             )
 
-            for workflow_metadata_obj in tqdm(
-                workflow_metadata,
-                desc=f"Processing mass spec metadata for biosample "
-                f"{group_metadata_obj.biosample_id}",
-                leave=False,
+            raw_data_object = self.generate_data_object(
+                file_path=Path(workflow_metadata.raw_data_file),
+                data_category=self.raw_data_category,
+                data_object_type=self.raw_data_obj_type,
+                description=self.raw_data_obj_desc,
+                base_url=self.raw_data_url,
+                was_generated_by=mass_spec.id,
+            )
+
+            metab_analysis = self.generate_metabolomics_analysis(
+                cluster_name=workflow_metadata.execution_resource,
+                raw_data_name=Path(workflow_metadata.raw_data_file).name,
+                raw_data_id=raw_data_object.id,
+                data_gen_id=mass_spec.id,
+                processed_data_id="nmdc:placeholder",
+                parameter_data_id="nmdc:placeholder",
+                processing_institution=group_metadata_obj.processing_institution,
+            )
+
+            # list all paths in the processed data directory
+            processed_data_paths = list(
+                Path(workflow_metadata.processed_data_dir).glob("**/*")
+            )
+
+            # Add a check that the processed data directory is not empty
+            if not any(processed_data_paths):
+                raise FileNotFoundError(
+                    f"No files found in processed data directory: "
+                    f"{workflow_metadata.processed_data_dir}"
+                )
+
+            # Check that there is a .csv, .hdf5, and .toml file in the processed data directory and no other files
+            processed_data_paths = [x for x in processed_data_paths if x.is_file()]
+            if len(processed_data_paths) != 3:
+                raise ValueError(
+                    f"Expected 3 files in the processed data directory {processed_data_paths}, found {len(processed_data_paths)}."
+                )
+
+            processed_data = []
+
+            for file in processed_data_paths:
+                file_type = file.suffixes
+                if file_type:
+                    file_type = file_type[0].lstrip(".")
+
+                    if file_type == "toml":
+                        # Generate a data object for the parameter data
+                        processed_data_object_config = self.generate_data_object(
+                            file_path=file,
+                            data_category=self.wf_config_process_data_category,
+                            data_object_type=self.wf_config_process_data_obj_type,
+                            description=self.wf_config_process_data_description,
+                            base_url=self.process_data_url,
+                            was_generated_by=metab_analysis.id,
+                        )
+                        nmdc_database_inst.data_object_set.append(
+                            processed_data_object_config
+                        )
+                        parameter_data_id = processed_data_object_config.id
+
+                    elif file_type == "csv":
+                        # Generate a data object for the annotated data
+                        processed_data_object_annot = self.generate_data_object(
+                            file_path=file,
+                            data_category=self.no_config_process_data_category,
+                            data_object_type=self.no_config_process_data_obj_type,
+                            description=self.csv_process_data_description,
+                            base_url=self.process_data_url,
+                            was_generated_by=metab_analysis.id,
+                        )
+                        nmdc_database_inst.data_object_set.append(
+                            processed_data_object_annot
+                        )
+                        processed_data.append(processed_data_object_annot.id)
+
+                    elif file_type == "hdf5":
+                        # Generate a data object for the HDF5 processed data
+                        processed_data_object = self.generate_data_object(
+                            file_path=file,
+                            data_category=self.no_config_process_data_category,
+                            data_object_type=self.hdf5_process_data_obj_type,
+                            description=self.hdf5_process_data_description,
+                            base_url=self.process_data_url,
+                            was_generated_by=metab_analysis.id,
+                        )
+                        nmdc_database_inst.data_object_set.append(processed_data_object)
+                        processed_data.append(processed_data_object.id)
+
+                        # Update MetabolomicsAnalysis times based on HDF5 file
+                        metab_analysis.started_at_time = datetime.fromtimestamp(
+                            file.stat().st_ctime
+                        ).strftime("%Y-%m-%d %H:%M:%S")
+                        metab_analysis.ended_at_time = datetime.fromtimestamp(
+                            file.stat().st_mtime
+                        ).strftime("%Y-%m-%d %H:%M:%S")
+
+                    else:
+                        raise ValueError(f"Unexpected file type found for file {file}.")
+
+            # Check that all processed data objects were created
+            if (
+                processed_data_object_config is None
+                or processed_data_object_annot is None
+                or processed_data_object is None
             ):
-                mass_spec = self.generate_mass_spectrometry(
-                    file_path=Path(workflow_metadata_obj.raw_data_file),
-                    instrument_name=workflow_metadata_obj.instrument_used,
-                    sample_id=group_metadata_obj.biosample_id,
-                    raw_data_id="nmdc:placeholder",
-                    study_id=group_metadata_obj.nmdc_study,
-                    processing_institution=group_metadata_obj.processing_institution,
-                    mass_spec_config_name=workflow_metadata_obj.mass_spec_config_name,
-                    lc_config_name=workflow_metadata_obj.lc_config_name,
-                    start_date=workflow_metadata_obj.instrument_analysis_start_date,
-                    end_date=workflow_metadata_obj.instrument_analysis_end_date,
+                raise ValueError(
+                    f"Not all processed data objects were created for {workflow_metadata.processed_data_dir}."
                 )
+            has_input = [parameter_data_id, raw_data_object.id]
+            self.update_outputs(
+                mass_spec_obj=mass_spec,
+                analysis_obj=metab_analysis,
+                raw_data_obj=raw_data_object,
+                parameter_data_id=has_input,
+                processed_data_id_list=processed_data,
+            )
 
-                raw_data_object = self.generate_data_object(
-                    file_path=Path(workflow_metadata_obj.raw_data_file),
-                    data_category=self.raw_data_category,
-                    data_object_type=self.raw_data_obj_type,
-                    description=self.raw_data_obj_desc,
-                    base_url=self.raw_data_url,
-                    was_generated_by=mass_spec.id,
-                )
+            nmdc_database_inst.data_generation_set.append(mass_spec)
+            nmdc_database_inst.data_object_set.append(raw_data_object)
+            nmdc_database_inst.workflow_execution_set.append(metab_analysis)
 
-                metab_analysis = self.generate_metabolomics_analysis(
-                    cluster_name=workflow_metadata_obj.execution_resource,
-                    raw_data_name=Path(workflow_metadata_obj.raw_data_file).name,
-                    raw_data_id=raw_data_object.id,
-                    data_gen_id=mass_spec.id,
-                    processed_data_id="nmdc:placeholder",
-                    parameter_data_id="nmdc:placeholder",
-                    processing_institution=group_metadata_obj.processing_institution,
-                )
-
-                # list all paths in the processed data directory
-                processed_data_paths = list(
-                    Path(workflow_metadata_obj.processed_data_dir).glob("**/*")
-                )
-
-                # Add a check that the processed data directory is not empty
-                if not any(processed_data_paths):
-                    raise FileNotFoundError(
-                        f"No files found in processed data directory: "
-                        f"{workflow_metadata_obj.processed_data_dir}"
-                    )
-
-                # Check that there is a .csv, .hdf5, and .toml file in the processed data directory and no other files
-                processed_data_paths = [x for x in processed_data_paths if x.is_file()]
-                if len(processed_data_paths) != 3:
-                    raise ValueError(
-                        f"Expected 3 files in the processed data directory {processed_data_paths}, found {len(processed_data_paths)}."
-                    )
-
-                processed_data = []
-
-                for file in processed_data_paths:
-                    file_type = file.suffixes
-                    if file_type:
-                        file_type = file_type[0].lstrip(".")
-
-                        if file_type == "toml":
-                            # Generate a data object for the parameter data
-                            processed_data_object_config = self.generate_data_object(
-                                file_path=file,
-                                data_category=self.wf_config_process_data_category,
-                                data_object_type=self.wf_config_process_data_obj_type,
-                                description=self.wf_config_process_data_description,
-                                base_url=self.process_data_url,
-                                was_generated_by=metab_analysis.id,
-                            )
-                            nmdc_database_inst.data_object_set.append(
-                                processed_data_object_config
-                            )
-                            parameter_data_id = processed_data_object_config.id
-
-                        elif file_type == "csv":
-                            # Generate a data object for the annotated data
-                            processed_data_object_annot = self.generate_data_object(
-                                file_path=file,
-                                data_category=self.no_config_process_data_category,
-                                data_object_type=self.no_config_process_data_obj_type,
-                                description=self.csv_process_data_description,
-                                base_url=self.process_data_url,
-                                was_generated_by=metab_analysis.id,
-                            )
-                            nmdc_database_inst.data_object_set.append(
-                                processed_data_object_annot
-                            )
-                            processed_data.append(processed_data_object_annot.id)
-
-                        elif file_type == "hdf5":
-                            # Generate a data object for the HDF5 processed data
-                            processed_data_object = self.generate_data_object(
-                                file_path=file,
-                                data_category=self.no_config_process_data_category,
-                                data_object_type=self.hdf5_process_data_obj_type,
-                                description=self.hdf5_process_data_description,
-                                base_url=self.process_data_url,
-                                was_generated_by=metab_analysis.id,
-                            )
-                            nmdc_database_inst.data_object_set.append(
-                                processed_data_object
-                            )
-                            processed_data.append(processed_data_object.id)
-
-                            # Update MetabolomicsAnalysis times based on HDF5 file
-                            metab_analysis.started_at_time = datetime.fromtimestamp(
-                                file.stat().st_ctime
-                            ).strftime("%Y-%m-%d %H:%M:%S")
-                            metab_analysis.ended_at_time = datetime.fromtimestamp(
-                                file.stat().st_mtime
-                            ).strftime("%Y-%m-%d %H:%M:%S")
-
-                        else:
-                            raise ValueError(
-                                f"Unexpected file type found for file {file}."
-                            )
-
-                # Check that all processed data objects were created
-                if (
-                    processed_data_object_config is None
-                    or processed_data_object_annot is None
-                    or processed_data_object is None
-                ):
-                    raise ValueError(
-                        f"Not all processed data objects were created for {workflow_metadata_obj.processed_data_dir}."
-                    )
-                has_input = [parameter_data_id, raw_data_object.id]
-                self.update_outputs(
-                    mass_spec_obj=mass_spec,
-                    analysis_obj=metab_analysis,
-                    raw_data_obj=raw_data_object,
-                    parameter_data_id=has_input,
-                    processed_data_id_list=processed_data,
-                )
-
-                nmdc_database_inst.data_generation_set.append(mass_spec)
-                nmdc_database_inst.data_object_set.append(raw_data_object)
-                nmdc_database_inst.workflow_execution_set.append(metab_analysis)
-
-                # Set processed data objects to none for next iteration
-                (
-                    processed_data_object_config,
-                    processed_data_object_annot,
-                    processed_data_object,
-                ) = (
-                    None,
-                    None,
-                    None,
-                )
+            # Set processed data objects to none for next iteration
+            (
+                processed_data_object_config,
+                processed_data_object_annot,
+                processed_data_object,
+            ) = (
+                None,
+                None,
+                None,
+            )
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
         api_interface = NMDCAPIInterface()
@@ -1041,11 +1038,12 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
         exactly four elements in the following order:
         [biosample_id, nmdc_study, processing_type, processing_institution]
         """
+
         return GroupedMetadata(
-            biosample_id=row[self.grouped_columns[0]],
-            nmdc_study=row[self.grouped_columns[1]],
-            processing_type=row[self.grouped_columns[2]],
-            processing_institution=row[self.grouped_columns[3]],
+            biosample_id=row["biosample_id"],
+            nmdc_study=row["associated_study"],
+            processing_type=row["material_processing_type"],
+            processing_institution=row["processing_institution"],
         )
 
     def create_workflow_metadata(
