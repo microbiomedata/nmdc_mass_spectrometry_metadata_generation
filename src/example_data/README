@@ -1,0 +1,20 @@
+# Example Data Directory
+
+This directory contains example CSV files that serve as templates for the minimum amount of information needed for their respective use case. These CSV files are designed to help you understand the required structure and content for your metadata files.
+
+## Files
+
+- `biosample_creation_required_info.csv`: This file contains the basic template for the REQUIRED columns needed when generating new Biosample IDs.
+
+## Usage
+
+1. Use these tempaltes in your generation and workflow scripts. Ensure the output matches these.
+3. Ensure that all mandatory fields are completed.
+
+## Notes
+
+- Please do not modify the column headers in the templates. If headers are different, metdata generation will not be accurate.
+**Ensure that the data format matches the examples provided in the templates.**
+- If you have any questions or need further assistance, please contact the contributors of this repository.
+
+Thank you for using our templates to ensure consistent and accurate data submissions.
