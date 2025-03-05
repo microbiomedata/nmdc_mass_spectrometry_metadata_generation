@@ -16,6 +16,7 @@ from linkml_runtime.dumpers import json_dumper
 from src.api_info_retriever import ApiInfoRetriever, NMDCAPIInterface
 from src.metadata_parser import MetadataParser
 import ast
+import math
 
 # Configure logging
 logging.basicConfig(
@@ -775,7 +776,7 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
 
         self.grouped_columns = [
             "biosample_id",
-            "associated_study",
+            "associated_studies",
             "material_processing_type",
             "processing_institution",
         ]
@@ -1031,7 +1032,7 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
 
         return GroupedMetadata(
             biosample_id=row["biosample_id"],
-            nmdc_study=row["associated_study"],
+            nmdc_study=row["associated_studies"],
             processing_type=row["material_processing_type"],
             processing_institution=row["processing_institution"],
         )
@@ -1157,7 +1158,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         # Grouping columns
         self.grouped_columns = [
             "biosample_id",
-            "associated_study",
+            "associated_studies",
             "material_processing_type",
             "processing_institution",
         ]
@@ -1265,11 +1266,10 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         ):
             workflow_metadata_obj = self.create_workflow_metadata(data)
 
-            if workflow_metadata_obj.biosample_id is None:
-                # check if the biosample exists
-                _, biosample_id, _ = self.check_for_biosamples(row=data)
-                if biosample_id is not True:
-                    workflow_metadata_obj.biosample_id = biosample_id
+            # if math.isnan(workflow_metadata_obj.biosample_id) or workflow_metadata_obj in [None,""]:
+            #     # check if the biosample exists
+            biosample_id, _ = self.check_for_biosamples(row=data)
+            workflow_metadata_obj.biosample_id = biosample_id
 
             # Generate data generation / mass spectrometry object
             mass_spec = self.generate_mass_spectrometry(
@@ -1430,7 +1430,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         """
         return GCMSMetabWorkflowMetadata(
             biosample_id=row["biosample_id"],
-            nmdc_study=row["associated_study"],
+            nmdc_study=ast.literal_eval(row["associated_studies"]),
             processing_institution=row["processing_institution"],
             processed_data_file=row["processed_data_file"],
             raw_data_file=row["raw_data_file"],

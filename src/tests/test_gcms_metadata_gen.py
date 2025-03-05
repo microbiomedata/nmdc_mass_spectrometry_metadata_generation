@@ -1,13 +1,18 @@
+# -*- coding: utf-8 -*-
 # This script will serve as a test for the lipdomics metadata generation script.
 from datetime import datetime
 from src.metadata_generator import GCMSMetabolomicsMetadataGenerator
 from dotenv import load_dotenv
+
 load_dotenv()
 import os
-python_path = os.getenv('PYTHONPATH')
+import json
+
+python_path = os.getenv("PYTHONPATH")
 if python_path:
-    os.environ['PYTHONPATH'] = python_path
-    
+    os.environ["PYTHONPATH"] = python_path
+
+
 def test_gcms_metadata_gen():
     # Set up output file with datetime stame
     output_file = (
@@ -27,3 +32,29 @@ def test_gcms_metadata_gen():
     # Run the metadata generation process
     generator.run()
     assert os.path.exists(output_file)
+
+
+def test_gcms_biosample_gen():
+    # Set up output file with datetime stame
+    output_file = (
+        "tests/test_data/test_database_gcms_"
+        + datetime.now().strftime("%Y%m%d%H%M%S")
+        + ".json"
+    )
+
+    # Start the metadata generation setup
+    generator = GCMSMetabolomicsMetadataGenerator(
+        metadata_file="tests/test_data/test_metadata_file_gcms_no_biosample_id.csv",
+        database_dump_json_path=output_file,
+        raw_data_url="https://example_raw_data_url/",
+        process_data_url="https://example_processed_data_url/",
+    )
+
+    # Run the metadata generation process
+    generator.run()
+    assert os.path.exists(output_file)
+
+    file = open(output_file, "r")
+    working_data = json.load(file)
+    file.close()
+    assert "nmdc:bsm" in working_data["data_generation_set"][0]["biosample_id"]
