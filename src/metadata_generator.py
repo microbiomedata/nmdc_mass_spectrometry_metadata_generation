@@ -862,12 +862,6 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
             workflow_df = data.drop(columns=self.grouped_columns)
             workflow_metadata = self.create_workflow_metadata(workflow_df)
 
-            # for workflow_metadata_obj in tqdm(
-            #     workflow_metadata,
-            #     desc=f"Processing mass spec metadata for biosample "
-            #     f"{group_metadata_obj.biosample_id}",
-            #     leave=False,
-            # ):
             mass_spec = self.generate_mass_spectrometry(
                 file_path=Path(workflow_metadata.raw_data_file),
                 instrument_name=workflow_metadata.instrument_used,
@@ -1034,9 +1028,6 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
 
         Notes
         -----
-        This method assumes that the `self.grouped_columns` list contains
-        exactly four elements in the following order:
-        [biosample_id, nmdc_study, processing_type, processing_institution]
         """
 
         return GroupedMetadata(
@@ -1228,8 +1219,8 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
 
         # Start NMDC database and make metadata dataframe
         nmdc_database_inst = self.start_nmdc_database()
-        grouped_data = self.load_metadata()
-        metadata_df = grouped_data.apply(lambda x: x.reset_index(drop=True))
+        df = self.load_metadata()
+        metadata_df = df.apply(lambda x: x.reset_index(drop=True))
 
         # Get the configuration file data object id and add it to the metadata_df
         api_data_object_getter = ApiInfoRetriever(collection_name="data_object_set")
@@ -1267,16 +1258,20 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
                 metadata_df["calibration_file"] == calibration_file, "calibration_id"
             ] = calibration.id
 
-        # Prepare the metadata for each workflow
-        workflow_metadata = metadata_df.apply(
-            lambda row: self.create_workflow_metadata(row), axis=1
-        )
-
-        for workflow_metadata_obj in tqdm(
-            workflow_metadata,
-            total=len(workflow_metadata),
+        # process workflow metadata
+        for _, data in tqdm(
+            metadata_df.iterrows(),
+            total=metadata_df.shape[0],
             desc="Processing Remaining Metadata",
         ):
+            workflow_metadata_obj = self.create_workflow_metadata(data)
+
+            if workflow_metadata_obj.biosample_id is None:
+                # check if the biosample exists
+                _, biosample_id, _ = self.check_for_biosamples(row=data)
+                if biosample_id is not True:
+                    workflow_metadata_obj.biosample_id = biosample_id
+
             # Generate data generation / mass spectrometry object
             mass_spec = self.generate_mass_spectrometry(
                 file_path=Path(workflow_metadata_obj.raw_data_file),
