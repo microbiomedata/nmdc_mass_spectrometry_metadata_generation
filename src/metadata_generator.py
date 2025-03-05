@@ -856,9 +856,8 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
             group_metadata_obj = self.create_grouped_metadata(grouped_df)
 
             # check if the biosample exists
-            _, biosample_id, _ = self.check_for_biosamples(row=data)
-            if biosample_id is not True:
-                group_metadata_obj.biosample_id = biosample_id
+            biosample_id, _ = self.check_for_biosamples(row=data)
+            group_metadata_obj.biosample_id = biosample_id
             workflow_df = data.drop(columns=self.grouped_columns)
             workflow_metadata = self.create_workflow_metadata(workflow_df)
 
@@ -1032,7 +1031,7 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
 
         return GroupedMetadata(
             biosample_id=row["biosample_id"],
-            nmdc_study=row["associated_studies"],
+            nmdc_study=ast.literal_eval(row["associated_studies"]),
             processing_type=row["material_processing_type"],
             processing_institution=row["processing_institution"],
         )
