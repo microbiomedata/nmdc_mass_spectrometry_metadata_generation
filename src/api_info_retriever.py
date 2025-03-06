@@ -338,10 +338,9 @@ class BioOntologyInfoRetriever:
         preferred label (prefLabel) for the given ENVO term.
         """
 
-        url = f"http://data.bioontology.org/ontologies/ENVO/classes/{envo_id}"
-        headers = {"Authorization": f"apikey token={BIO_API_KEY}"}
+        url = f"http://data.bioontology.org/ontologies/ENVO/classes/{envo_id}?apikey={BIO_API_KEY}"
 
-        response = requests.get(url, headers=headers)
+        response = requests.get(url)
         response.raise_for_status()
 
         data = response.json()
