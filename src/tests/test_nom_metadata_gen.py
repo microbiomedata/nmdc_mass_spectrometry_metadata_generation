@@ -58,7 +58,7 @@ def test_nom_biosample_gen():
     file = open(output_file, "r")
     working_data = json.load(file)
     file.close()
-    assert len(working_data["biosample_set"]) == 1
+    assert len(working_data["biosample_set"]) == 2
 
 
 @pytest.mark.skip(reason="Test relies on a specific file that may not be present")

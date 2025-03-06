@@ -57,4 +57,7 @@ def test_gcms_biosample_gen():
     file = open(output_file, "r")
     working_data = json.load(file)
     file.close()
-    assert len(working_data["biosample_set"]) == 2
+    assert len(working_data["biosample_set"]) == 1
+
+
+test_gcms_metadata_gen()

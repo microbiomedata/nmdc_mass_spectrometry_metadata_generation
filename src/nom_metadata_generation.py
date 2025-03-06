@@ -43,7 +43,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         )
         self.workflow_param_data_category = "workflow_parameter_data"
         self.workflow_param_data_object_type = "Analysis Tool Parameter File"
-        self.unique_columns = ["raw_data_directory", "processed_data_directory"]
+        self.unique_columns = []
         self.grouped_columns = [
             "associated_studies",
         ]
@@ -65,15 +65,13 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         metadata_df = self.load_metadata()
         tqdm.write("\033[92mStarting metadata processing...\033[0m")
         processed_data = []
+        self.check_for_biosamples(metadata_df, nmdc_database_inst)
         # Iterate through each row in df to generate metadata
         for _, row in tqdm(
             metadata_df.iterrows(),
             total=metadata_df.shape[0],
             desc="Processing NOM rows",
         ):
-            # check to see if biosample exists. If not, the function will create and return it
-            biosample_id, biosample = self.check_for_biosamples(row)
-
             emsl_metadata, biosample_id = self.handle_biosample(row)
             # Generate MassSpectrometry record
             mass_spec = self.generate_mass_spectrometry(
@@ -170,8 +168,6 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             nmdc_database_inst.data_object_set.append(processed_data_object)
             nmdc_database_inst.data_object_set.append(workflow_data_object)
             nmdc_database_inst.workflow_execution_set.append(nom_analysis)
-            if biosample:
-                nmdc_database_inst.biosample_set.append(biosample)
             processed_data = []
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)

@@ -60,4 +60,5 @@ def test_lipid_biosample_gen():
     file = open(output_file, "r")
     working_data = json.load(file)
     file.close()
-    assert len(working_data["biosample_set"]) == 4
+    # expecting 1 since we only have 1 unique biosample name in the csv
+    assert len(working_data["biosample_set"]) == 1

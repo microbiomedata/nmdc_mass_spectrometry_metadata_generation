@@ -651,7 +651,9 @@ class NMDCMetadataGenerator(ABC):
         biosample_id = emsl_metadata["biosample_id"]
         return emsl_metadata, biosample_id
 
-    def check_for_biosamples(self, row: pd.Series) -> bool:
+    def check_for_biosamples(
+        self, metadata_df: pd.DataFrame, nmdc_database_inst: nmdc.Database
+    ) -> bool:
         """
         Check if the biosample_id is not None, NaN, or empty.
 
@@ -666,19 +668,38 @@ class NMDCMetadataGenerator(ABC):
 
         """
         parser = MetadataParser()
-        biosample_exists = True
-        value = row.get("biosample_id")
-        if pd.isna(value) or value == "":
-            biosample_exists = False
-        if biosample_exists:
-            return value, None
-        else:
-            # Generate biosamples if no biosample_id in spreadsheet
-            biosample_metadata = parser.dynam_parse_biosample_metadata(row)
-            biosample = self.generate_biosample(biosamp_metadata=biosample_metadata)
-            row["biosample_id"] = biosample.id
-            biosample_id = biosample.id
-            return biosample_id, biosample
+        metadata_df["biosample_id"] = metadata_df["biosample_id"].astype("object")
+        # check for name
+        if "name" not in metadata_df.columns:
+            raise ValueError("The name column is missing from the DataFrame.")
+        rows = metadata_df.groupby("name")
+        for _, group in rows:
+            row = group.iloc[0]
+            if pd.isnull(row.get("biosample_id")):
+                required_columns = [
+                    "name",
+                    "type",
+                    "associated_studies",
+                    "env_broad_scale",
+                    "env_local_scale",
+                    "env_medium",
+                ]
+                # Check for the existence of all required columns
+                missing_columns = [
+                    col for col in required_columns if col not in metadata_df.columns
+                ]
+                if missing_columns:
+                    raise ValueError(
+                        f"The following required columns are missing from the DataFrame: {', '.join(missing_columns)}"
+                    )
+                # Generate biosamples if no biosample_id in spreadsheet
+                biosample_metadata = parser.dynam_parse_biosample_metadata(row)
+                biosample = self.generate_biosample(biosamp_metadata=biosample_metadata)
+                biosample_id = biosample.id
+                metadata_df.loc[
+                    metadata_df["name"] == row["name"], "biosample_id"
+                ] = biosample_id
+                nmdc_database_inst.biosample_set.append(biosample)
 
     def generate_biosample(self, biosamp_metadata: Dict) -> nmdc.Biosample:
         """
@@ -845,7 +866,9 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
 
         nmdc_database_inst = self.start_nmdc_database()
         metadata_df = self.load_metadata()
-
+        self.check_for_biosamples(
+            metadata_df=metadata_df, nmdc_database_inst=nmdc_database_inst
+        )
         for _, data in tqdm(
             metadata_df.iterrows(),
             total=metadata_df.shape[0],
@@ -855,8 +878,6 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
             group_metadata_obj = self.create_grouped_metadata(grouped_df)
 
             # check if the biosample exists
-            biosample_id, biosample = self.check_for_biosamples(row=data)
-            group_metadata_obj.biosample_id = biosample_id
             workflow_df = data.drop(columns=self.grouped_columns)
             workflow_metadata = self.create_workflow_metadata(workflow_df)
 
@@ -993,8 +1014,6 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
             nmdc_database_inst.data_generation_set.append(mass_spec)
             nmdc_database_inst.data_object_set.append(raw_data_object)
             nmdc_database_inst.workflow_execution_set.append(metab_analysis)
-            if biosample:
-                nmdc_database_inst.biosample_set.append(biosample)
 
             # Set processed data objects to none for next iteration
             (
@@ -1221,6 +1240,9 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         nmdc_database_inst = self.start_nmdc_database()
         df = self.load_metadata()
         metadata_df = df.apply(lambda x: x.reset_index(drop=True))
+        self.check_for_biosamples(
+            metadata_df=metadata_df, nmdc_database_inst=nmdc_database_inst
+        )
 
         # Get the configuration file data object id and add it to the metadata_df
         api_data_object_getter = ApiInfoRetriever(collection_name="data_object_set")
@@ -1246,11 +1268,6 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             desc="Processing Remaining Metadata",
         ):
             workflow_metadata_obj = self.create_workflow_metadata(data)
-
-            # if math.isnan(workflow_metadata_obj.biosample_id) or workflow_metadata_obj in [None,""]:
-            #     # check if the biosample exists
-            biosample_id, biosample = self.check_for_biosamples(row=data)
-            workflow_metadata_obj.biosample_id = biosample_id
 
             # Generate data generation / mass spectrometry object
             mass_spec = self.generate_mass_spectrometry(
@@ -1326,8 +1343,6 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             nmdc_database_inst.data_object_set.append(raw_data_object)
             nmdc_database_inst.data_object_set.append(processed_data_object)
             nmdc_database_inst.workflow_execution_set.append(metab_analysis)
-            if biosample:
-                nmdc_database_inst.biosample_set.append(biosample)
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
         api_interface = NMDCAPIInterface()
