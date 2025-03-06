@@ -33,4 +33,5 @@ jobs:
         env:
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          BIO_API_KEY: ${{ secrets.BIO_API_KEY }}
         run: pytest -r tests/

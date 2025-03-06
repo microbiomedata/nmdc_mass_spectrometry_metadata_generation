@@ -43,7 +43,7 @@ def test_lipid_biosample_gen():
     )
     # Set up output file with datetime stame
     output_file = (
-        "tests/test_data/test_database_lipid_"
+        "tests/test_data/test_database_lipid_no_biosample_"
         + datetime.now().strftime("%Y%m%d%H%M%S")
         + ".json"
     )
@@ -60,4 +60,4 @@ def test_lipid_biosample_gen():
     file = open(output_file, "r")
     working_data = json.load(file)
     file.close()
-    assert "nmdc:bsm" in working_data["data_generation_set"][0]["biosample_id"]
+    assert len(working_data["biosample_set"]) == 4
