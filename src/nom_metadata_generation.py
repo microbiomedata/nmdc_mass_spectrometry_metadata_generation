@@ -72,7 +72,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             desc="Processing NOM rows",
         ):
             # check to see if biosample exists. If not, the function will create and return it
-            biosample_id, _ = self.check_for_biosamples(row)
+            biosample_id, biosample = self.check_for_biosamples(row)
 
             emsl_metadata, biosample_id = self.handle_biosample(row)
             # Generate MassSpectrometry record
@@ -115,7 +115,9 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
 
             ### we will have processed data object AFTER the workflow is ran. Since this is how the lipidomics and gcms work, that is how this will function as well.
 
-            processed_data_paths = list(Path(row["processed_data"]).glob("**/*"))
+            processed_data_paths = list(
+                Path(row["processed_data_directory"]).glob("**/*")
+            )
             # Add a check that the processed data directory is not empty
             if not any(processed_data_paths):
                 raise FileNotFoundError(
@@ -168,6 +170,8 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             nmdc_database_inst.data_object_set.append(processed_data_object)
             nmdc_database_inst.data_object_set.append(workflow_data_object)
             nmdc_database_inst.workflow_execution_set.append(nom_analysis)
+            if biosample:
+                nmdc_database_inst.biosample_set.append(biosample)
             processed_data = []
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)

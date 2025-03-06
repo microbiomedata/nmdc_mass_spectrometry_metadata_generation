@@ -698,9 +698,8 @@ class NMDCMetadataGenerator(ABC):
 
         # If no biosample id in spreadsheet, mint biosample ids
         if biosamp_metadata["id"] is None:
-            # commented for testing purposes
-            # biosamp_metadata["id"] = api.mint_nmdc_id(nmdc_type=NmdcTypes.Biosample)[0]
-            biosamp_metadata["id"] = "nmdc:bsm-11-abc123"
+            biosamp_metadata["id"] = api.mint_nmdc_id(nmdc_type=NmdcTypes.Biosample)[0]
+            # biosamp_metadata["id"] = "nmdc:bsm-11-abc123"
 
         # Filter dictionary to remove any key/value pairs with None as the value
         biosamp_dict = self.clean_dict(biosamp_metadata)
@@ -856,7 +855,7 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
             group_metadata_obj = self.create_grouped_metadata(grouped_df)
 
             # check if the biosample exists
-            biosample_id, _ = self.check_for_biosamples(row=data)
+            biosample_id, biosample = self.check_for_biosamples(row=data)
             group_metadata_obj.biosample_id = biosample_id
             workflow_df = data.drop(columns=self.grouped_columns)
             workflow_metadata = self.create_workflow_metadata(workflow_df)
@@ -994,6 +993,8 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
             nmdc_database_inst.data_generation_set.append(mass_spec)
             nmdc_database_inst.data_object_set.append(raw_data_object)
             nmdc_database_inst.workflow_execution_set.append(metab_analysis)
+            if biosample:
+                nmdc_database_inst.biosample_set.append(biosample)
 
             # Set processed data objects to none for next iteration
             (
@@ -1267,7 +1268,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
 
             # if math.isnan(workflow_metadata_obj.biosample_id) or workflow_metadata_obj in [None,""]:
             #     # check if the biosample exists
-            biosample_id, _ = self.check_for_biosamples(row=data)
+            biosample_id, biosample = self.check_for_biosamples(row=data)
             workflow_metadata_obj.biosample_id = biosample_id
 
             # Generate data generation / mass spectrometry object
@@ -1344,6 +1345,8 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             nmdc_database_inst.data_object_set.append(raw_data_object)
             nmdc_database_inst.data_object_set.append(processed_data_object)
             nmdc_database_inst.workflow_execution_set.append(metab_analysis)
+            if biosample:
+                nmdc_database_inst.biosample_set.append(biosample)
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
         api_interface = NMDCAPIInterface()
