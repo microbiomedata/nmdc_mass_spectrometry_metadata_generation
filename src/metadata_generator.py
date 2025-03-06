@@ -1230,33 +1230,14 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         parameter_data_id = "nmdc:dobj-13-2p2qmv12"
         metadata_df["corems_config_file"] = config_do_id
 
-        # Get unique calibration file, create data object and Calibration information for each and attach associated ids to metadata_df
-        calibration_files = metadata_df["calibration_file"].unique()
-        for calibration_file in tqdm(
-            calibration_files,
-            total=len(calibration_files),
-            desc="Generating calibration information and data objects",
+        # check if there is an existing calibration_id in the metadata. If not, we need to generate them
+        if (
+            "calibration_id" not in metadata_df.columns
+            or metadata_df["calibration_id"].isnull().all()
         ):
-            calibration_data_object = self.generate_data_object(
-                file_path=Path(calibration_file),
-                data_category=self.raw_data_category,
-                data_object_type=self.raw_data_obj_type,
-                description=self.raw_data_obj_desc,
-                base_url=self.raw_data_url,
+            self.generate_calibration_id(
+                metadata_df=metadata_df, nmdc_database_inst=nmdc_database_inst
             )
-            nmdc_database_inst.data_object_set.append(calibration_data_object)
-
-            calibration = self.generate_calibration(
-                calibration_object=calibration_data_object,
-                fames=self.calibration_standard,
-                internal=False,
-            )
-            nmdc_database_inst.calibration_set.append(calibration)
-
-            # Add calibration information id to metadata_df
-            metadata_df.loc[
-                metadata_df["calibration_file"] == calibration_file, "calibration_id"
-            ] = calibration.id
 
         # process workflow metadata
         for _, data in tqdm(
@@ -1352,6 +1333,49 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         api_interface = NMDCAPIInterface()
         api_interface.validate_json(self.database_dump_json_path)
         logging.info("Metadata processing completed.")
+
+    def generate_calibration_id(
+        self, metadata_df: pd.DataFrame, nmdc_database_inst: nmdc.Database
+    ) -> None:
+        """
+        Generate calibration information and data objects for each calibration file.
+        Parameters
+        ----------
+        metadata_df : pd.DataFrame
+            The metadata DataFrame.
+        nmdc_database_inst : nmdc.Database
+            The NMDC Database instance.
+        Returns
+        -------
+        None
+        """
+        # Get unique calibration file, create data object and Calibration information for each and attach associated ids to metadata_df
+        calibration_files = metadata_df["calibration_file"].unique()
+        for calibration_file in tqdm(
+            calibration_files,
+            total=len(calibration_files),
+            desc="Generating calibration information and data objects",
+        ):
+            calibration_data_object = self.generate_data_object(
+                file_path=Path(calibration_file),
+                data_category=self.raw_data_category,
+                data_object_type=self.raw_data_obj_type,
+                description=self.raw_data_obj_desc,
+                base_url=self.raw_data_url,
+            )
+            nmdc_database_inst.data_object_set.append(calibration_data_object)
+
+            calibration = self.generate_calibration(
+                calibration_object=calibration_data_object,
+                fames=self.calibration_standard,
+                internal=False,
+            )
+            nmdc_database_inst.calibration_set.append(calibration)
+
+            # Add calibration information id to metadata_df
+            metadata_df.loc[
+                metadata_df["calibration_file"] == calibration_file, "calibration_id"
+            ] = calibration.id
 
     def generate_calibration(
         self, calibration_object: dict, fames: bool = True, internal: bool = False
