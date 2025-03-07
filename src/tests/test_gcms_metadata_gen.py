@@ -60,4 +60,28 @@ def test_gcms_biosample_gen():
     assert len(working_data["biosample_set"]) == 1
 
 
-test_gcms_metadata_gen()
+def test_gcms_calibration_exists():
+    """
+    Test to handle the case where calibration IDs already exist in the metadata file.
+    """
+    # Set up output file with datetime stame
+    output_file = (
+        "tests/test_data/test_database_gcms_calibration_id"
+        + datetime.now().strftime("%Y%m%d%H%M%S")
+        + ".json"
+    )
+
+    # Start the metadata generation setup
+    generator = GCMSMetabolomicsMetadataGenerator(
+        metadata_file="tests/test_data/test_metadata_file_gcms_calibration_id.csv",
+        database_dump_json_path=output_file,
+        raw_data_url="https://example_raw_data_url/",
+        process_data_url="https://example_processed_data_url/",
+    )
+
+    # Run the metadata generation process
+    generator.run()
+    assert os.path.exists(output_file)
+
+
+test_gcms_calibration_exists()
