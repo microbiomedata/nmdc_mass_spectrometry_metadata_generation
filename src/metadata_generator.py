@@ -793,13 +793,6 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
             process_data_url=process_data_url,
         )
 
-        self.grouped_columns = [
-            "biosample_id",
-            "associated_studies",
-            "material_processing_type",
-            "processing_institution",
-        ]
-
         self.unique_columns = ["raw_data_file", "processed_data_directory"]
 
         # Data Generation attributes
@@ -873,12 +866,9 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
             total=metadata_df.shape[0],
             desc="Processing LCMS biosamples",
         ):
-            grouped_df = data[self.grouped_columns].drop_duplicates()
-            group_metadata_obj = self.create_grouped_metadata(grouped_df)
+            group_metadata_obj = self.create_grouped_metadata(data)
 
-            # check if the biosample exists
-            workflow_df = data.drop(columns=self.grouped_columns)
-            workflow_metadata = self.create_workflow_metadata(workflow_df)
+            workflow_metadata = self.create_workflow_metadata(data)
 
             mass_spec = self.generate_mass_spectrometry(
                 file_path=Path(workflow_metadata.raw_data_file),
@@ -1172,14 +1162,6 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
 
         # Workflow Configuration attributes
         self.configuration_file_name = configuration_file_name
-
-        # Grouping columns
-        self.grouped_columns = [
-            "biosample_id",
-            "associated_studies",
-            "material_processing_type",
-            "processing_institution",
-        ]
 
         # Metadata attributes
         self.unique_columns = ["raw_data_file", "processed_data_file"]
