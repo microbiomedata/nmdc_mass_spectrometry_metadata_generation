@@ -1,19 +1,12 @@
-NMDC Mass Spectrometry Metadata Operation Documentation
+NMDC Mass Spectrometry Metadata Generation Documentation
 =================================
 
-Welcome to NMDC Mass Spectrometry Metadata Operation documentation. This package provides tools for workflow automation and metadata generation for mass spectrometry data.
+Welcome to NMDC Mass Spectrometry Metadata Generation documentation. This package provides tools for mass spectrometry metadata generation for GC/MS metabolomics, LC-MS lipidomics, and NOM data.
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-
-Calculate Module
-~~~~~~~~~~
-
-.. autoclass:: nmdc_mass_spectrometry_metadata_generation.example
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   functions
 
 Indices and tables
 ==================

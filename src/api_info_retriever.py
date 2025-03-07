@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import requests
 import json
 import logging
@@ -7,17 +8,22 @@ from pathlib import Path
 import oauthlib
 import requests_oauthlib
 import requests
+
 load_dotenv()
 
-API_KEY = os.getenv('BIO_API_KEY')
+BIO_API_KEY = os.getenv("BIO_API_KEY")
 from dotenv import load_dotenv
+
 load_dotenv()
 import os
+
 # set the cwd to /src/
-if 'src' not in Path.cwd().name:
-    os.chdir(Path.cwd() / 'src')
-CLIENT_ID = os.getenv('CLIENT_ID')
-CLIENT_SECRET = os.getenv('CLIENT_SECRET')  
+if "src" not in Path.cwd().name:
+    os.chdir(Path.cwd() / "src")
+CLIENT_ID = os.getenv("CLIENT_ID")
+CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+
+
 class NMDCAPIInterface:
     """
     A generic interface for the NMDC runtime API.
@@ -65,6 +71,7 @@ class NMDCAPIInterface:
         if response.text != '{"result":"All Okay!"}' or response.status_code != 200:
             logging.error(f"Request failed with response {response.text}")
             raise Exception("Validation failed")
+
     def mint_nmdc_id(self, nmdc_type: str) -> list[str]:
         """
         Mint new NMDC IDs of the specified type using the NMDC ID minting API.
@@ -93,8 +100,6 @@ class NMDCAPIInterface:
         """
         client = oauthlib.oauth2.BackendApplicationClient(client_id=CLIENT_ID)
         oauth = requests_oauthlib.OAuth2Session(client=client)
-
-        
 
         token = oauth.fetch_token(
             token_url=f"{self.base_url}/token",
@@ -225,7 +230,7 @@ class ApiInfoRetriever(NMDCAPIInterface):
                 raise requests.RequestException(f"Error making API request: {e}")
 
         return True
-    
+
     def get_id_by_slot_from_collection(self, slot_name: str, slot_field_value: str):
         """
         Retrieve the NMDC identifier from a specified collection based on a slot name and field value.
@@ -253,24 +258,28 @@ class ApiInfoRetriever(NMDCAPIInterface):
         filter = f'{{"{slot_name}": "{slot_field_value}"}}'
         field = "id"
 
-        og_url = f'https://api.microbiomedata.org/nmdcschema/{self.collection_name}?&filter={filter}&projection={field}'
+        og_url = f"https://api.microbiomedata.org/nmdcschema/{self.collection_name}?&filter={filter}&projection={field}"
         resp = requests.get(og_url)
 
         # Check if the response status is 200
         if resp.status_code != 200:
-            raise ValueError(f"Failed to retrieve data from {self.collection_name}, response code: {resp.status_code}")
-        
+            raise ValueError(
+                f"Failed to retrieve data from {self.collection_name}, response code: {resp.status_code}"
+            )
+
         data = resp.json()
 
         # Ensure there is at least one resource in the response
-        if not data['resources']:
-            raise ValueError(f"No resources in Mongo found for '{slot_name}' slot in {self.collection_name} with value {slot_field_value}")
-        
-        identifier = data['resources'][0]['id']
+        if not data["resources"]:
+            raise ValueError(
+                f"No resources in Mongo found for '{slot_name}' slot in {self.collection_name} with value {slot_field_value}"
+            )
+
+        identifier = data["resources"][0]["id"]
 
         return identifier
 
-    
+
 class BioOntologyInfoRetriever:
     """
     Client for retrieving ENVO term information from BioPortal API.
@@ -293,9 +302,9 @@ class BioOntologyInfoRetriever:
     >>> print(envo_terms)
     {'ENVO:00002042': 'surface water'}
     """
+
     def __init__(self):
         pass
-
 
     def get_envo_terms(self, envo_id: dict):
         """
@@ -330,10 +339,10 @@ class BioOntologyInfoRetriever:
         """
 
         url = f"http://data.bioontology.org/ontologies/ENVO/classes/{envo_id}"
-        headers = {"Authorization": f"apikey token={API_KEY}"}
+        headers = {"Authorization": f"apikey token={BIO_API_KEY}"}
 
         response = requests.get(url, headers=headers)
         response.raise_for_status()
 
         data = response.json()
-        return {envo_id: data['prefLabel']}
+        return {envo_id: data["prefLabel"]}

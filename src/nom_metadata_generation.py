@@ -11,32 +11,13 @@ import nmdc_schema.nmdc as nmdc
 import hashlib
 
 
-@dataclass
-class NOMWorkflowMetadata:
+class NOMMetadataGenerator(NMDCMetadataGenerator):
     """
-    Data class for holding NOM workflow metadata information.
-
+    A class for generating NMDC metadata objects using provided metadata files and configuration
+    for Natural Organic Matter (NOM) data.
     Attributes
     ----------
     """
-
-    id: str
-    name: str
-    description: str
-    processing_institution: str
-    execution_resource: str
-    git_url: str
-    version: str
-    was_informed_by: str
-    has_input: list[str]
-    has_output: list[str]
-    started_at_time: str
-    ended_at_time: str
-    type = "nmdc:NomAnalysis"
-
-
-class NOMMetadataGenerator(NMDCMetadataGenerator):
-    # TODO: run in 2 modes - you already have biosample ids or you do not have biosample ids. This can be a future feature addition. To start just bring over the instance of already having biosample ids.
 
     def __init__(
         self,
@@ -63,10 +44,6 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         self.workflow_param_data_category = "workflow_parameter_data"
         self.workflow_param_data_object_type = "Analysis Tool Parameter File"
         self.unique_columns = ["raw_data_directory", "processed_data_directory"]
-        self.grouped_columns = [
-            "biosample_id",
-            "associated_study",
-        ]
         self.mass_spec_desc = "ultra high resolution mass spectrum"
         self.mass_spec_eluent_intro = "direct_infusion_autosampler"
         self.processing_institution = "EMSL"
@@ -82,36 +59,33 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         """
 
         nmdc_database_inst = self.start_nmdc_database()
-        grouped_data = self.load_metadata()
-        metadata_df = grouped_data.apply(lambda x: x.reset_index(drop=True))
-        # Initialize parser
-        parser = MetadataParser(metadata_file=self.metadata_file)
-
+        metadata_df = self.load_metadata()
         tqdm.write("\033[92mStarting metadata processing...\033[0m")
         processed_data = []
+        self.check_for_biosamples(metadata_df, nmdc_database_inst)
         # Iterate through each row in df to generate metadata
         for _, row in tqdm(
             metadata_df.iterrows(),
             total=metadata_df.shape[0],
             desc="Processing NOM rows",
         ):
-            emsl_metadata, biosample_id = self.handle_biosample(parser, row)
+            emsl_metadata, biosample_id = self.handle_biosample(row)
             # Generate MassSpectrometry record
             mass_spec = self.generate_mass_spectrometry(
-                file_path=Path(emsl_metadata.data_path),
-                instrument_name=emsl_metadata.instrument_used,
+                file_path=Path(emsl_metadata["data_path"]),
+                instrument_name=emsl_metadata["instrument_used"],
                 sample_id=biosample_id,
                 raw_data_id="nmdc:placeholder",
-                study_id=emsl_metadata.associated_study,
+                study_id=emsl_metadata["associated_studies"],
                 processing_institution=self.processing_institution,
-                mass_spec_config_name=emsl_metadata.mass_spec_config,
+                mass_spec_config_name=emsl_metadata["mass_spec_config"],
                 start_date=row["start_date"],
                 end_date=row["end_date"],
             )
             eluent_intro_pretty = self.mass_spec_eluent_intro.replace("_", " ")
             # raw is the zipped .d directory
             raw_data_object_desc = (
-                f"Raw {emsl_metadata.instrument_used} {eluent_intro_pretty} data."
+                f"Raw {emsl_metadata['instrument_used']} {eluent_intro_pretty} data."
             )
             raw_data_object = self.generate_data_object(
                 file_path=Path(row["raw_data_directory"]),
@@ -143,14 +117,14 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             if not any(processed_data_paths):
                 raise FileNotFoundError(
                     f"No files found in processed data directory: "
-                    f"{row['processed_data_directory']}"
+                    f"{row['processed_data']}"
                 )
             processed_data_paths = [x for x in processed_data_paths if x.is_file()]
             for file in processed_data_paths:
                 if file.suffix == ".csv":
                     # this is the .csv file of the processed data
                     processed_data_object_desc = (
-                        f"EnviroMS {emsl_metadata.instrument_used} "
+                        f"EnviroMS {emsl_metadata['instrument_used']} "
                         "natural organic matter workflow molecular formula assignment output details"
                     )
                     processed_data_object = self.generate_data_object(
