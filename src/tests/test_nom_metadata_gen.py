@@ -77,3 +77,7 @@ def test_has_input():
             working_data["data_generation_set"][i]["has_input"]
             == testing_data["data_generation_set"][i]["has_input"]
         )
+
+
+test_nom_metadata_gen()
+test_nom_biosample_gen()
