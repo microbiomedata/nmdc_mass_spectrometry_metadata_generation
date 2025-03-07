@@ -16,7 +16,7 @@ from linkml_runtime.dumpers import json_dumper
 from src.api_info_retriever import ApiInfoRetriever, NMDCAPIInterface
 from src.metadata_parser import MetadataParser
 import ast
-import math
+import numpy as np
 
 # Configure logging
 logging.basicConfig(
@@ -277,9 +277,9 @@ class NMDCMetadataGenerator(ABC):
         # Check that all biosamples exist
         biosample_ids = metadata_df["biosample_id"].unique()
         api_biosample_getter = ApiInfoRetriever(collection_name="biosample_set")
-
-        # if not api_biosample_getter.check_if_ids_exist(biosample_ids):
-        #     raise ValueError("Biosample IDs do not exist in the collection.")
+        if pd.isna(biosample_ids)[0] == np.False_:
+            if not api_biosample_getter.check_if_ids_exist(biosample_ids):
+                raise ValueError("Biosample IDs do not exist in the collection.")
 
         # Check that all studies exist
         if "associated_studies" in metadata_df.columns:
