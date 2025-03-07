@@ -624,7 +624,6 @@ class NMDCMetadataGenerator(ABC):
 
     def handle_biosample(self, row: pd.Series) -> tuple:
         """
-        TODO: Decide if this belongs in this class
         Process biosample information from metadata row.
 
         Checks if a biosample ID exists in the row. If it does, returns the existing
