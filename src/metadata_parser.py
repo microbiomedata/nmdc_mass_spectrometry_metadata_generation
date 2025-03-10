@@ -6,7 +6,7 @@ from dataclasses import dataclass, is_dataclass
 from typing import Union, Dict, List, get_origin, get_args
 import typing_inspect
 from pathlib import Path
-from src.api_info_retriever import BioOntologyInfoRetriever
+from src.bio_ontology_api import BioOntologyInfoRetriever
 from nmdc_schema.nmdc import (
     Biosample,
     ControlledIdentifiedTermValue,
