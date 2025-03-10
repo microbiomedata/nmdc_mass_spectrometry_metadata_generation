@@ -1,17 +1,9 @@
 This page provides documentation for the functions in the package.
 
-API Instance
+Bio Ontology API Class
 ~~~~~~~~~~
 
-.. autoclass:: src.api_info_retriever.NMDCAPIInterface
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-API Info Retriever
-~~~~~~~~~~
-
-.. autoclass:: src.api_info_retriever.ApiInfoRetriever
+.. autoclass:: src.bio_ontology_api.BioOntologyInfoRetriever
    :members:
    :undoc-members:
    :show-inheritance:
