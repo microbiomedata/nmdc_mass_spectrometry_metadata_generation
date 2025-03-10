@@ -1,2 +1,2 @@
-biosample_id,env_medium,name,env_local_scale,env_broad_scale,type,associated_studies,name
-,ENVO:00002261,BW-C-30-M,ENVO:03600011,ENVO:01000174,nmdc:Biosample,"['nmdc:sty-11-8ws97026','nmdc:sty-11-aygzgv51']", "Biosample Name"
+biosample_id,biosample.env_medium,biosample.env_local_scale,biosample.env_broad_scale,biosample.associated_studies,biosample.name
+,ENVO:00002261,ENVO:03600011,ENVO:01000174,"['nmdc:sty-11-8ws97026','nmdc:sty-11-aygzgv51']", "Biosample Name"

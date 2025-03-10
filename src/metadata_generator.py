@@ -282,12 +282,14 @@ class NMDCMetadataGenerator(ABC):
                 raise ValueError("Biosample IDs do not exist in the collection.")
 
         # Check that all studies exist
-        if "associated_studies" in metadata_df.columns:
+        if "biosample.associated_studies" in metadata_df.columns:
             # Convert string to list, make sure the values are unique, conmvert
             try:
-                study_ids = ast.literal_eval(metadata_df.associated_studies.iloc[0])
+                study_ids = ast.literal_eval(
+                    metadata_df["biosample.associated_studies"].iloc[0]
+                )
             except SyntaxError:
-                study_ids = [metadata_df.associated_studies.iloc[0]]
+                study_ids = [metadata_df["biosample.associated_studies"].iloc[0]]
             api_study_getter = ApiInfoRetriever(collection_name="study_set")
             if not api_study_getter.check_if_ids_exist(study_ids):
                 raise ValueError("Study IDs do not exist in the collection.")
@@ -669,19 +671,18 @@ class NMDCMetadataGenerator(ABC):
         parser = MetadataParser()
         metadata_df["biosample_id"] = metadata_df["biosample_id"].astype("object")
         # check for name
-        if "name" not in metadata_df.columns:
-            raise ValueError("The name column is missing from the DataFrame.")
-        rows = metadata_df.groupby("name")
+        if "biosample.name" not in metadata_df.columns:
+            raise ValueError("The biosample.name column is missing from the DataFrame.")
+        rows = metadata_df.groupby("biosample.name")
         for _, group in rows:
             row = group.iloc[0]
             if pd.isnull(row.get("biosample_id")):
                 required_columns = [
-                    "name",
-                    "type",
-                    "associated_studies",
-                    "env_broad_scale",
-                    "env_local_scale",
-                    "env_medium",
+                    "biosample.name",
+                    "biosample.associated_studies",
+                    "biosample.env_broad_scale",
+                    "biosample.env_local_scale",
+                    "biosample.env_medium",
                 ]
                 # Check for the existence of all required columns
                 missing_columns = [
@@ -696,7 +697,8 @@ class NMDCMetadataGenerator(ABC):
                 biosample = self.generate_biosample(biosamp_metadata=biosample_metadata)
                 biosample_id = biosample.id
                 metadata_df.loc[
-                    metadata_df["name"] == row["name"], "biosample_id"
+                    metadata_df["biosample.name"] == row["biosample.name"],
+                    "biosample_id",
                 ] = biosample_id
                 nmdc_database_inst.biosample_set.append(biosample)
 
@@ -1040,7 +1042,7 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
 
         return GroupedMetadata(
             biosample_id=row["biosample_id"],
-            nmdc_study=ast.literal_eval(row["associated_studies"]),
+            nmdc_study=ast.literal_eval(row["biosample.associated_studies"]),
             processing_type=row["material_processing_type"],
             processing_institution=row["processing_institution"],
         )
@@ -1452,7 +1454,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         """
         return GCMSMetabWorkflowMetadata(
             biosample_id=row["biosample_id"],
-            nmdc_study=ast.literal_eval(row["associated_studies"]),
+            nmdc_study=ast.literal_eval(row["biosample.associated_studies"]),
             processing_institution=row["processing_institution"],
             processed_data_file=row["processed_data_file"],
             raw_data_file=row["raw_data_file"],

@@ -58,6 +58,10 @@ class MetadataParser:
         -------
         The value associated with the key, or default if not found.
         """
+        # if the value passed in is a Biosample field, we need to add the biosample prefix
+        for field, _ in Biosample.__dataclass_fields__.items():
+            if field == key:
+                key = "biosample." + key
         value = row.get(key, default)
         if isinstance(value, float) and np.isnan(value):
             return default
@@ -150,7 +154,9 @@ class MetadataParser:
         metadata = {}
         for field_name, field_data in Biosample.__dataclass_fields__.items():
             # check if the field is a list of dataclasses
-            if self.is_type(field_data.type, List[Union[dict, dataclass]]):
+            if field_name == "type":
+                metadata[field_name] = "nmdc:Biosample"
+            elif self.is_type(field_data.type, List[Union[dict, dataclass]]):
                 # check if a value exists before we begin complex parsing, saves time douing this at the begining
                 if self.get_value(row, field_name):
                     # we need to make a dict for each item in the list
@@ -180,7 +186,7 @@ class MetadataParser:
                             metadata[field_name].append(item)
 
             #  check if the field is a list type, we will need to convert the csv row to a list instead of treating it as a string
-            if self.is_type(field_data.type, list):
+            elif self.is_type(field_data.type, list):
                 metadata[field_name] = (
                     ast.literal_eval(self.get_value(row, field_name))
                     if self.get_value(row, field_name)

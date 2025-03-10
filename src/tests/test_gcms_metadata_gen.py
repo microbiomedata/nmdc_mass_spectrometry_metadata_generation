@@ -84,4 +84,4 @@ def test_gcms_calibration_exists():
     assert os.path.exists(output_file)
 
 
-test_gcms_calibration_exists()
+test_gcms_biosample_gen()
