@@ -1,14 +1,21 @@
 # -*- coding: utf-8 -*-
 from src.metadata_generator import NMDCMetadataGenerator
-from src.metadata_parser import MetadataParser, NmdcTypes
-from src.api_info_retriever import ApiInfoRetriever, NMDCAPIInterface
+from src.metadata_parser import NmdcTypes
 from tqdm import tqdm
-from datetime import datetime
 from pathlib import Path
-from dataclasses import dataclass
-
+from nmdc_api_utilities.data_object_search import DataObjectSearch
+from nmdc_api_utilities.calibration_search import CalibrationSearch
+from nmdc_api_utilities.minter import Minter
+from nmdc_api_utilities.metadata import Metadata
 import nmdc_schema.nmdc as nmdc
 import hashlib
+from dotenv import load_dotenv
+
+load_dotenv()
+import os
+
+CLIENT_ID = os.getenv("CLIENT_ID")
+CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
 
 class NOMMetadataGenerator(NMDCMetadataGenerator):
@@ -168,8 +175,8 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             processed_data = []
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
-        api_interface = NMDCAPIInterface()
-        api_interface.validate_json(self.database_dump_json_path)
+        api_metadata = Metadata()
+        api_metadata.validate_json(self.database_dump_json_path)
 
     def generate_nom_analysis(
         self,
@@ -205,26 +212,30 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         nmdc.MetabolomicsAnalysis
             The generated metabolomics analysis object.
         """
-        api = NMDCAPIInterface()
-        nmdc_id = api.mint_nmdc_id(nmdc_type=NmdcTypes.NomAnalysis)[0]
+        mint = Minter()
+        nmdc_id = mint.mint(
+            nmdc_type=NmdcTypes.NomAnalysis,
+            client_id=CLIENT_ID,
+            client_secret=CLIENT_SECRET,
+        )
 
         # Lookup calibration id by md5 checksum of ref_calibration_path file
         calib_md5 = hashlib.md5(ref_calibration_path.open("rb").read()).hexdigest()
-        api_calib_do_getter = ApiInfoRetriever(collection_name="data_object_set")
-
+        do_client = DataObjectSearch()
+        cs_client = CalibrationSearch()
         try:
-            calib_do_id = api_calib_do_getter.get_id_by_slot_from_collection(
-                slot_name="md5_checksum", slot_field_value=calib_md5
-            )
-            api_calibration_getter = ApiInfoRetriever(collection_name="calibration_set")
-            calibration_id = api_calibration_getter.get_id_by_slot_from_collection(
-                slot_name="calibration_object", slot_field_value=calib_do_id
-            )
-
+            calib_do_id = do_client.get_record_by_attribute(
+                attribute_name="md5_checksum", attribute_value=calib_md5, fields="id"
+            )[0]["id"]
+            calibration_id = cs_client.get_record_by_attribute(
+                attribute_name="calibration_object",
+                attribute_value=calib_do_id,
+                fields="id",
+            )[0]["id"]
+            print(calib_do_id, calibration_id)
         except ValueError as e:
             print(f"Calibration object does not exist: {e}")
             calibration_id = None
-
         except Exception as e:
             print(f"An error occurred: {e}")
 
