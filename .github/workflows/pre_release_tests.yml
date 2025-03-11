@@ -37,3 +37,17 @@ jobs:
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
           BIO_API_KEY: ${{ secrets.BIO_API_KEY }}
         run: pytest -r tests/
+      - name: Create Issue
+        if: failure() && github.event_name == 'schedule'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            await github.rest.issues.create({
+              owner,
+              repo,
+              title: "pre release tests failed",
+              body: "The pre release tests have failed in the latest run. Please investigate the issue.",
+              labels: ["report", "automated issue"]
+            });
