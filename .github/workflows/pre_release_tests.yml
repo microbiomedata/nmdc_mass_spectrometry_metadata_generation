@@ -1,0 +1,39 @@
+name: pre release tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+            python-version: 3.12
+      - name: Set up environment variables
+        working-directory: ./src
+        run: echo "Environment variables set up"
+        env:
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          BIO_API_KEY: ${{ secrets.BIO_API_KEY }}
+      - name: Install dependencies
+        run: |
+            python -m pip install --upgrade pip
+            pip install pytest requests~=2.32.3 requests-oauthlib~=2.0.0 linkml-runtime~=1.8.2 pyyaml~=6.0.2 tqdm~=4.66.5 pandas~=2.2.3 python-dotenv==1.0.1 typing-inspect~=0.9.0 nmdc_api_utilities
+            pip install --pre nmdc_schema
+      - name: Run tests
+        working-directory: ./src
+        env:
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          BIO_API_KEY: ${{ secrets.BIO_API_KEY }}
+        run: pytest -r tests/
