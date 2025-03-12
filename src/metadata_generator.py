@@ -1262,7 +1262,8 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             attribute_value=self.configuration_file_name,
             fields="id",
         )[0]["id"]
-        parameter_data_id = "nmdc:dobj-13-2p2qmv12"
+        # This is the ID for the parameters toml file
+        parameter_data_id = "nmdc:dobj-11-5tax4f20"
         metadata_df["corems_config_file"] = config_do_id
 
         # check if there is an existing calibration_id in the metadata. If not, we need to generate them
