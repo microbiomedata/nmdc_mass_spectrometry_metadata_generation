@@ -29,7 +29,7 @@ jobs:
         run: |
             python -m pip install --upgrade pip
             pip install -r requirements.txt
-            pip uninstall nmdc-schema
+            pip uninstall -y nmdc-schema
             pip install --pre nmdc-chema
       - name: Run tests
         working-directory: ./src
