@@ -378,16 +378,25 @@ class NMDCMetadataGenerator(ABC):
             client_secret=CLIENT_SECRET,
         )
         instrument_id = is_client.get_record_by_attribute(
-            attribute_name="name", attribute_value=instrument_name, fields="id"
+            attribute_name="name",
+            attribute_value=instrument_name,
+            fields="id",
+            exact_match=True,
         )[0]["id"]
         if lc_config_name:
             lc_config_id = cs_client.get_record_by_attribute(
-                attribute_name="name", attribute_value=lc_config_name, fields="id"
+                attribute_name="name",
+                attribute_value=lc_config_name,
+                fields="id",
+                exact_match=True,
             )[0]["id"]
         else:
             lc_config_id = ""
         mass_spec_id = cs_client.get_record_by_attribute(
-            attribute_name="name", attribute_value=mass_spec_config_name, fields="id"
+            attribute_name="name",
+            attribute_value=mass_spec_config_name,
+            fields="id",
+            exact_match=True,
         )[0]["id"]
 
         data_dict = {
@@ -1261,8 +1270,10 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             attribute_name="name",
             attribute_value=self.configuration_file_name,
             fields="id",
+            exact_match=True,
         )[0]["id"]
-        parameter_data_id = "nmdc:dobj-13-2p2qmv12"
+        # This is the ID for the parameters toml file
+        parameter_data_id = "nmdc:dobj-11-5tax4f20"
         metadata_df["corems_config_file"] = config_do_id
 
         # check if there is an existing calibration_id in the metadata. If not, we need to generate them
@@ -1542,7 +1553,16 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             # Prepare KEGG Compound ID as an alternative identifier
             alt_ids = []
             if not pd.isna(best_hit["Kegg Compound ID"]):
-                alt_ids.append("kegg:" + best_hit["Kegg Compound ID"])
+                # Check for | in Kegg Compound ID and split if necessary
+                if "|" in best_hit["Kegg Compound ID"]:
+                    alt_ids.extend(
+                        [
+                            "kegg:" + x.strip()
+                            for x in best_hit["Kegg Compound ID"].split("|")
+                        ]
+                    )
+                else:
+                    alt_ids.append("kegg:" + best_hit["Kegg Compound ID"])
             alt_ids = list(set(alt_ids))
 
             data_dict = {

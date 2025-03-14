@@ -225,12 +225,16 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         cs_client = CalibrationSearch()
         try:
             calib_do_id = do_client.get_record_by_attribute(
-                attribute_name="md5_checksum", attribute_value=calib_md5, fields="id"
+                attribute_name="md5_checksum",
+                attribute_value=calib_md5,
+                fields="id",
+                exact_match=True,
             )[0]["id"]
             calibration_id = cs_client.get_record_by_attribute(
                 attribute_name="calibration_object",
                 attribute_value=calib_do_id,
                 fields="id",
+                exact_match=True,
             )[0]["id"]
             print(calib_do_id, calibration_id)
         except ValueError as e:
