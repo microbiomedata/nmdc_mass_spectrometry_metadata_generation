@@ -289,7 +289,7 @@ class NMDCMetadataGenerator(ABC):
         biosample_ids = metadata_df["biosample_id"].unique()
         bs_client = BiosampleSearch()
         if pd.isna(biosample_ids)[0] == np.False_:
-            if not bs_client.check_ids_exist(biosample_ids):
+            if not bs_client.check_ids_exist(list(biosample_ids)):
                 raise ValueError("Biosample IDs do not exist in the collection.")
 
         # Check that all studies exist

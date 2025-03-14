@@ -82,6 +82,3 @@ def test_gcms_calibration_exists():
     # Run the metadata generation process
     generator.run()
     assert os.path.exists(output_file)
-
-
-test_gcms_biosample_gen()
