@@ -1,0 +1,54 @@
+name: pre release tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+            python-version: 3.12
+      - name: Set up environment variables
+        working-directory: ./src
+        run: echo "Environment variables set up"
+        env:
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          BIO_API_KEY: ${{ secrets.BIO_API_KEY }}
+      - name: Install dependencies
+        run: |
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
+            pip uninstall -y nmdc-schema
+            pip install --pre nmdc-schema
+      - name: Run tests
+        working-directory: ./src
+        env:
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          BIO_API_KEY: ${{ secrets.BIO_API_KEY }}
+        run: pytest -r tests/
+      - name: Create Issue
+        if: failure() && github.event_name == 'schedule'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            await github.rest.issues.create({
+              owner,
+              repo,
+              title: "pre release tests failed",
+              body: "The pre release tests have failed in the latest run. Please investigate the issue.",
+              labels: ["report", "automated issue"]
+            });
