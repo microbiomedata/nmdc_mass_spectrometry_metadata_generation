@@ -704,9 +704,14 @@ class NMDCMetadataGenerator(ABC):
         """
         parser = MetadataParser()
         metadata_df["biosample_id"] = metadata_df["biosample_id"].astype("object")
-        # check for name
+
         if "biosample.name" not in metadata_df.columns:
-            raise ValueError("The biosample.name column is missing from the DataFrame.")
+            for _, row in metadata_df.iterrows():
+                if row["biosample_id"] == None or pd.isnull(row["biosample_id"]):
+                    raise ValueError(
+                        f"biosample.name is missing from the metadata file. Please provide biosample.name in the metadata file in order to generate biosample ids."
+                    )
+            return
         rows = metadata_df.groupby("biosample.name")
         for _, group in rows:
             row = group.iloc[0]
