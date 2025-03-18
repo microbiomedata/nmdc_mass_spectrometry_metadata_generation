@@ -9,13 +9,6 @@ from nmdc_api_utilities.minter import Minter
 from nmdc_api_utilities.metadata import Metadata
 import nmdc_schema.nmdc as nmdc
 import hashlib
-from dotenv import load_dotenv
-
-load_dotenv()
-import os
-
-CLIENT_ID = os.getenv("CLIENT_ID")
-CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
 
 class NOMMetadataGenerator(NMDCMetadataGenerator):
@@ -32,6 +25,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         database_dump_json_path: str,
         raw_data_url: str,
         process_data_url: str,
+        minting_config_creds: str = None,
     ):
         super().__init__(
             metadata_file=metadata_file,
@@ -39,6 +33,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             raw_data_url=raw_data_url,
             process_data_url=process_data_url,
         )
+        self.minting_config_creds = minting_config_creds
         self.raw_data_object_type = "Direct Infusion FT ICR-MS Raw Data"
         self.processed_data_object_type = "FT ICR-MS Analysis Results"
         self.processed_data_category = "processed_data"
@@ -64,12 +59,19 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         This method processes the metadata file, generates biosamples (if needed)
         and metadata, and manages the workflow for generating NOM analysis data.
         """
-
+        client_id, client_secret = self.load_credentials(
+            config_file=self.minting_config_creds
+        )
         nmdc_database_inst = self.start_nmdc_database()
         metadata_df = self.load_metadata()
         tqdm.write("\033[92mStarting metadata processing...\033[0m")
         processed_data = []
-        self.check_for_biosamples(metadata_df, nmdc_database_inst)
+        self.check_for_biosamples(
+            metadata_df=metadata_df,
+            nmdc_database_inst=nmdc_database_inst,
+            CLIENT_ID=client_id,
+            CLIENT_SECRET=client_secret,
+        )
         # Iterate through each row in df to generate metadata
         for _, row in tqdm(
             metadata_df.iterrows(),
@@ -88,6 +90,8 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                 mass_spec_config_name=emsl_metadata["mass_spec_config"],
                 start_date=row["start_date"],
                 end_date=row["end_date"],
+                CLIENT_ID=client_id,
+                CLIENT_SECRET=client_secret,
             )
             eluent_intro_pretty = self.mass_spec_eluent_intro.replace("_", " ")
             # raw is the zipped .d directory
@@ -100,6 +104,8 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                 data_object_type=self.raw_data_object_type,
                 description=raw_data_object_desc,
                 base_url=self.raw_data_url,
+                CLIENT_ID=client_id,
+                CLIENT_SECRET=client_secret,
                 was_generated_by=mass_spec.id,
             )
             # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
@@ -113,6 +119,8 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                 processed_data_id="nmdc:placeholder",
                 started_at_time=started_at_time,
                 ended_at_time=eneded_at_time,
+                CLIENT_ID=client_id,
+                CLIENT_SECRET=client_secret,
             )
 
             ### we will have processed data object AFTER the workflow is ran. Since this is how the lipidomics and gcms work, that is how this will function as well.
@@ -187,6 +195,8 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         processed_data_id: str,
         started_at_time: str,
         ended_at_time: str,
+        CLIENT_ID: str,
+        CLIENT_SECRET: str,
     ) -> nmdc.MetabolomicsAnalysis:
         """
         Generate a metabolomics analysis object from the provided file information.
@@ -207,6 +217,10 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             The start time of the analysis.
         ended_at_time : str
             The end time of the analysis.
+        CLIENT_ID : str
+            The client ID for the NMDC API.
+        CLIENT_SECRET : str
+            The client secret for the NMDC API.
         Returns
         -------
         nmdc.MetabolomicsAnalysis

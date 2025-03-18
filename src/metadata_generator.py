@@ -20,14 +20,12 @@ from nmdc_api_utilities.data_object_search import DataObjectSearch
 from nmdc_api_utilities.minter import Minter
 from nmdc_api_utilities.metadata import Metadata
 import ast
+import json
 import numpy as np
 from dotenv import load_dotenv
 
 load_dotenv()
 import os
-
-CLIENT_ID = os.getenv("CLIENT_ID")
-CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
 # Configure logging
 logging.basicConfig(
@@ -232,6 +230,36 @@ class NMDCMetadataGenerator(ABC):
         self.process_data_url = process_data_url
         self.raw_data_category = "instrument_data"
 
+    def load_credentials(self, config_file: str = None):
+        """
+        Load the client ID and secret from the environment or a configuration file.
+        params:
+            config_file: str
+                The path to the configuration file.
+        returns:
+            client_id: str
+                The client ID for the NMDC API.
+            client_secret: str
+                The client secret for the NMDC API.
+        """
+        client_id = os.getenv("CLIENT_ID")
+        client_secret = os.getenv("CLIENT_SECRET")
+
+        if not client_id or not client_secret:
+            if config_file:
+                config_file = Path(config_file)
+                with open(config_file, "r") as file:
+                    config = json.load(file)
+                    client_id = config.get("CLIENT_ID")
+                    client_secret = config.get("CLIENT_SECRET")
+
+        if not client_id or not client_secret:
+            raise ValueError(
+                "Client ID and Secret must be set either in environment variables or passed in the config file.\nThey must be named CLIENT_ID and CLIENT_SECRET respectively."
+            )
+
+        return client_id, client_secret
+
     def start_nmdc_database(self) -> nmdc.Database:
         """
         Initialize and return a new NMDC Database instance.
@@ -326,6 +354,8 @@ class NMDCMetadataGenerator(ABC):
         mass_spec_config_name: str,
         start_date: str,
         end_date: str,
+        CLIENT_ID: str,
+        CLIENT_SECRET: str,
         lc_config_name: str = None,
         calibration_id: str = None,
     ) -> nmdc.DataGeneration:
@@ -432,6 +462,8 @@ class NMDCMetadataGenerator(ABC):
         data_object_type: str,
         description: str,
         base_url: str,
+        CLIENT_ID: str,
+        CLIENT_SECRET: str,
         was_generated_by: str = None,
         alternative_id: str = None,
     ) -> nmdc.DataObject:
@@ -456,6 +488,10 @@ class NMDCMetadataGenerator(ABC):
         base_url : str
             Base URL for accessing the data object, to which the file name is
             appended to form the complete URL.
+        CLIENT_ID : str
+            The client ID for the NMDC API.
+        CLIENT_SECRET : str
+            The client secret for the NMDC API.
         was_generated_by : str, optional
             ID of the process or entity that generated the data object
             (e.g., the DataGeneration id or the MetabolomicsAnalysis id).
@@ -507,6 +543,8 @@ class NMDCMetadataGenerator(ABC):
         processed_data_id: str,
         parameter_data_id: str,
         processing_institution: str,
+        CLIENT_ID: str,
+        CLIENT_SECRET: str,
         calibration_id: str = None,
         metabolite_identifications: List[nmdc.MetaboliteIdentification] = None,
         type: str = NmdcTypes.MetabolomicsAnalysis,
@@ -533,6 +571,10 @@ class NMDCMetadataGenerator(ABC):
             ID of the parameter data object used for the analysis.
         processing_institution : str
             Name of the institution where the analysis was performed.
+        CLIENT_ID : str
+            The client ID for the NMDC API.
+        CLIENT_SECRET : str
+            The client secret for the NMDC API.
         calibration_id : str, optional
             ID of the calibration information used for the analysis.
             Default is None, indicating no calibration information.
@@ -687,7 +729,11 @@ class NMDCMetadataGenerator(ABC):
         return emsl_metadata, biosample_id
 
     def check_for_biosamples(
-        self, metadata_df: pd.DataFrame, nmdc_database_inst: nmdc.Database
+        self,
+        metadata_df: pd.DataFrame,
+        nmdc_database_inst: nmdc.Database,
+        CLIENT_ID: str,
+        CLIENT_SECRET: str,
     ) -> bool:
         """
         Check if the biosample_id is not None, NaN, or empty.
@@ -696,7 +742,10 @@ class NMDCMetadataGenerator(ABC):
         ----------
         row : pd.Series
             A row from the DataFrame containing metadata.
-
+        CLIENT_ID : str
+            The client ID for the NMDC API.
+        CLIENT_SECRET : str
+            The client secret for the NMDC API.
         Returns
         -------
         Tuple
@@ -736,7 +785,11 @@ class NMDCMetadataGenerator(ABC):
                     )
                 # Generate biosamples if no biosample_id in spreadsheet
                 biosample_metadata = parser.dynam_parse_biosample_metadata(row)
-                biosample = self.generate_biosample(biosamp_metadata=biosample_metadata)
+                biosample = self.generate_biosample(
+                    biosamp_metadata=biosample_metadata,
+                    CLIENT_ID=CLIENT_ID,
+                    CLIENT_SECRET=CLIENT_SECRET,
+                )
                 biosample_id = biosample.id
                 metadata_df.loc[
                     metadata_df["biosample.name"] == row["biosample.name"],
@@ -744,7 +797,9 @@ class NMDCMetadataGenerator(ABC):
                 ] = biosample_id
                 nmdc_database_inst.biosample_set.append(biosample)
 
-    def generate_biosample(self, biosamp_metadata: Dict) -> nmdc.Biosample:
+    def generate_biosample(
+        self, biosamp_metadata: Dict, CLIENT_ID: str, CLIENT_SECRET: str
+    ) -> nmdc.Biosample:
         """
         Generate a biosample from the given metadata.
 
@@ -752,7 +807,10 @@ class NMDCMetadataGenerator(ABC):
         ----------
         biosamp_metadata : object
             The metadata object containing biosample information.
-
+        CLIENT_ID : str
+            The client ID for the NMDC API.
+        CLIENT_SECRET : str
+            The client secret for the NMDC API.
         Returns
         -------
         object
@@ -783,11 +841,21 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
 
     This class processes input metadata files, generates various NMDC objects, and produces
     a database dump in JSON format.
+    Parameters
+    ----------
+    metadata_file : str
+        Path to the input CSV metadata file.
+    database_dump_json_path : str
+        Path where the output database dump JSON file will be saved.
+    raw_data_url : str
+        Base URL for the raw data files.
+    process_data_url : str
+        Base URL for the processed data files.
+    minting_config_creds : str
+        Path to the configuration file containing the client ID and secret for minting NMDC IDs.
 
     Attributes
     ----------
-    grouped_columns : List[str]
-        List of columns used for grouping metadata.
     mass_spec_desc : str
         Description of the mass spectrometry analysis.
     mass_spec_eluent_intro : str
@@ -832,6 +900,7 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
         database_dump_json_path: str,
         raw_data_url: str,
         process_data_url: str,
+        minting_config_creds: str = None,
     ):
         super().__init__(
             metadata_file=metadata_file,
@@ -841,7 +910,7 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
         )
 
         self.unique_columns = ["raw_data_file", "processed_data_directory"]
-
+        self.minting_config_creds = minting_config_creds
         # Data Generation attributes
         self.mass_spec_desc = (
             "Generation of mass spectrometry data for the analysis of lipids."
@@ -902,11 +971,16 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
         This method uses tqdm to display progress bars for the processing of
         biosamples and mass spectrometry metadata.
         """
-
+        client_id, client_secret = self.load_credentials(
+            config_file=self.minting_config_creds
+        )
         nmdc_database_inst = self.start_nmdc_database()
         metadata_df = self.load_metadata()
         self.check_for_biosamples(
-            metadata_df=metadata_df, nmdc_database_inst=nmdc_database_inst
+            metadata_df=metadata_df,
+            nmdc_database_inst=nmdc_database_inst,
+            CLIENT_ID=client_id,
+            CLIENT_SECRET=client_secret,
         )
         for _, data in tqdm(
             metadata_df.iterrows(),
@@ -928,6 +1002,8 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
                 lc_config_name=workflow_metadata.lc_config_name,
                 start_date=workflow_metadata.instrument_analysis_start_date,
                 end_date=workflow_metadata.instrument_analysis_end_date,
+                CLIENT_ID=client_id,
+                CLIENT_SECRET=client_secret,
             )
 
             raw_data_object = self.generate_data_object(
@@ -936,6 +1012,8 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
                 data_object_type=self.raw_data_obj_type,
                 description=self.raw_data_obj_desc,
                 base_url=self.raw_data_url,
+                CLIENT_ID=client_id,
+                CLIENT_SECRET=client_secret,
                 was_generated_by=mass_spec.id,
             )
 
@@ -947,6 +1025,8 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
                 processed_data_id="nmdc:placeholder",
                 parameter_data_id="nmdc:placeholder",
                 processing_institution=group_metadata_obj.processing_institution,
+                CLIENT_ID=client_id,
+                CLIENT_SECRET=client_secret,
             )
 
             # list all paths in the processed data directory
@@ -983,6 +1063,8 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
                             data_object_type=self.wf_config_process_data_obj_type,
                             description=self.wf_config_process_data_description,
                             base_url=self.process_data_url,
+                            CLIENT_ID=client_id,
+                            CLIENT_SECRET=client_secret,
                             was_generated_by=metab_analysis.id,
                         )
                         nmdc_database_inst.data_object_set.append(
@@ -998,6 +1080,8 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
                             data_object_type=self.no_config_process_data_obj_type,
                             description=self.csv_process_data_description,
                             base_url=self.process_data_url,
+                            CLIENT_ID=client_id,
+                            CLIENT_SECRET=client_secret,
                             was_generated_by=metab_analysis.id,
                         )
                         nmdc_database_inst.data_object_set.append(
@@ -1013,6 +1097,8 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
                             data_object_type=self.hdf5_process_data_obj_type,
                             description=self.hdf5_process_data_description,
                             base_url=self.process_data_url,
+                            CLIENT_ID=client_id,
+                            CLIENT_SECRET=client_secret,
                             was_generated_by=metab_analysis.id,
                         )
                         nmdc_database_inst.data_object_set.append(processed_data_object)
@@ -1157,8 +1243,6 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
     ----------
     calibration_standard : str
         Name of the calibration standard used for the data.
-    grouped_columns : List[str]
-        List of columns used for grouping metadata. No affect on the metadata generation for this subclass.
     unique_columns : List[str]
         List of columns used to check for uniqueness in the metadata before processing.
     mass_spec_desc : str
@@ -1194,6 +1278,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         database_dump_json_path: str,
         raw_data_url: str,
         process_data_url: str,
+        minting_config_creds: str = None,
         calibration_standard: str = "fames",
         configuration_file_name: str = "emsl_gcms_corems_params.toml",
     ):
@@ -1203,7 +1288,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             raw_data_url=raw_data_url,
             process_data_url=process_data_url,
         )
-
+        self.minting_config_creds = minting_config_creds
         # Calibration attributes
         self.calibration_standard = calibration_standard
 
@@ -1261,6 +1346,10 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         This method uses tqdm to display progress bars for the processing of calibration information and
         mass spectrometry metadata.
         """
+        client_id, client_secret = self.load_credentials(
+            config_file=self.minting_config_creds
+        )
+
         if self.calibration_standard != "fames":
             raise ValueError("Only FAMES calibration is supported at this time.")
 
@@ -1269,7 +1358,10 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         df = self.load_metadata()
         metadata_df = df.apply(lambda x: x.reset_index(drop=True))
         self.check_for_biosamples(
-            metadata_df=metadata_df, nmdc_database_inst=nmdc_database_inst
+            metadata_df=metadata_df,
+            nmdc_database_inst=nmdc_database_inst,
+            CLIENT_ID=client_id,
+            CLIENT_SECRET=client_secret,
         )
 
         # Get the configuration file data object id and add it to the metadata_df
@@ -1290,7 +1382,10 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             or metadata_df["calibration_id"].isnull().all()
         ):
             self.generate_calibration_id(
-                metadata_df=metadata_df, nmdc_database_inst=nmdc_database_inst
+                metadata_df=metadata_df,
+                nmdc_database_inst=nmdc_database_inst,
+                CLIENT_ID=client_id,
+                CLIENT_SECRET=client_secret,
             )
 
         # process workflow metadata
@@ -1313,6 +1408,8 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
                 lc_config_name=workflow_metadata_obj.chromat_config_name,
                 start_date=workflow_metadata_obj.instrument_analysis_start_date,
                 end_date=workflow_metadata_obj.instrument_analysis_end_date,
+                CLIENT_ID=client_id,
+                CLIENT_SECRET=client_secret,
                 calibration_id=workflow_metadata_obj.calibration_id,
             )
 
@@ -1323,6 +1420,8 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
                 data_object_type=self.raw_data_obj_type,
                 description=self.raw_data_obj_desc,
                 base_url=self.raw_data_url,
+                CLIENT_ID=client_id,
+                CLIENT_SECRET=client_secret,
                 was_generated_by=mass_spec.id,
             )
 
@@ -1340,6 +1439,8 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
                 processed_data_id="nmdc:placeholder",
                 parameter_data_id=parameter_data_id,
                 processing_institution=workflow_metadata_obj.processing_institution,
+                CLIENT_ID=client_id,
+                CLIENT_SECRET=client_secret,
                 calibration_id=workflow_metadata_obj.calibration_id,
                 metabolite_identifications=metabolite_identifications,
             )
@@ -1351,6 +1452,8 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
                 data_object_type=self.processed_data_object_type,
                 description=self.processed_data_object_description,
                 base_url=self.process_data_url,
+                CLIENT_ID=client_id,
+                CLIENT_SECRET=client_secret,
                 was_generated_by=metab_analysis.id,
             )
 
@@ -1382,7 +1485,11 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         logging.info("Metadata processing completed.")
 
     def generate_calibration_id(
-        self, metadata_df: pd.DataFrame, nmdc_database_inst: nmdc.Database
+        self,
+        metadata_df: pd.DataFrame,
+        nmdc_database_inst: nmdc.Database,
+        CLIENT_ID: str,
+        CLIENT_SECRET: str,
     ) -> None:
         """
         Generate calibration information and data objects for each calibration file.
@@ -1392,6 +1499,10 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             The metadata DataFrame.
         nmdc_database_inst : nmdc.Database
             The NMDC Database instance.
+        CLIENT_ID : str
+            The client ID for the NMDC API.
+        CLIENT_SECRET : str
+            The client secret for the NMDC API.
         Returns
         -------
         None
@@ -1409,11 +1520,15 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
                 data_object_type=self.raw_data_obj_type,
                 description=self.raw_data_obj_desc,
                 base_url=self.raw_data_url,
+                CLIENT_ID=CLIENT_ID,
+                CLIENT_SECRET=CLIENT_SECRET,
             )
             nmdc_database_inst.data_object_set.append(calibration_data_object)
 
             calibration = self.generate_calibration(
                 calibration_object=calibration_data_object,
+                CLIENT_ID=CLIENT_ID,
+                CLIENT_SECRET=CLIENT_SECRET,
                 fames=self.calibration_standard,
                 internal=False,
             )
@@ -1425,7 +1540,12 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             ] = calibration.id
 
     def generate_calibration(
-        self, calibration_object: dict, fames: bool = True, internal: bool = False
+        self,
+        calibration_object: dict,
+        CLIENT_ID: str,
+        CLIENT_SECRET: str,
+        fames: bool = True,
+        internal: bool = False,
     ) -> nmdc.CalibrationInformation:
         """
         Generate a CalibrationInformation object for the NMDC Database.
@@ -1434,6 +1554,10 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         ----------
         calibration_object : dict
             The calibration data object.
+        CLIENT_ID : str
+            The client ID for the NMDC API.
+        CLIENT_SECRET : str
+            The client secret for the NMDC API.
         fames : bool, optional
             Whether the calibration is for FAMES. Default is True.
         internal : bool, optional
