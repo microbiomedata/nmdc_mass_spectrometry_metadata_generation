@@ -77,3 +77,25 @@ def test_has_input():
             working_data["data_generation_set"][i]["has_input"]
             == testing_data["data_generation_set"][i]["has_input"]
         )
+
+
+def test_config_file():
+    # Set up output file with datetime stame
+    output_file = (
+        "tests/test_data/test_database_nom_"
+        + datetime.now().strftime("%Y%m%d%H%M%S")
+        + ".json"
+    )
+
+    # Start the metadata generation setup
+    generator = NOMMetadataGenerator(
+        metadata_file="tests/test_data/test_metadata_file_nom.csv",
+        database_dump_json_path=output_file,
+        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/",
+        process_data_url="https://example_processed_data_url/",
+        minting_config_creds="/Users/hess887/Projects/NMDC/nmdc_mass_spectrometry_metadata_generation/src/config.toml",
+    )
+
+    # Run the metadata generation process
+    generator.run()
+    assert os.path.exists(output_file)
