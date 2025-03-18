@@ -148,6 +148,8 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                         data_object_type=self.workflow_param_data_object_type,
                         description=processed_data_object_desc,
                         base_url=self.process_data_url,
+                        CLIENT_ID=client_id,
+                        CLIENT_SECRET=client_secret,
                         was_generated_by=nom_analysis.id,
                         alternative_id=None,
                     )
@@ -164,6 +166,8 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                         description=workflow_param_data_object_desc,
                         base_url=self.process_data_url,
                         was_generated_by=nom_analysis.id,
+                        CLIENT_ID=client_id,
+                        CLIENT_SECRET=client_secret,
                         alternative_id=None,
                     )
             has_input = [workflow_data_object.id, raw_data_object.id]
@@ -250,7 +254,6 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                 fields="id",
                 exact_match=True,
             )[0]["id"]
-            print(calib_do_id, calibration_id)
         except ValueError as e:
             print(f"Calibration object does not exist: {e}")
             calibration_id = None

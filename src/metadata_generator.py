@@ -23,6 +23,7 @@ import ast
 import json
 import numpy as np
 from dotenv import load_dotenv
+import toml
 
 load_dotenv()
 import os
@@ -248,10 +249,14 @@ class NMDCMetadataGenerator(ABC):
         if not client_id or not client_secret:
             if config_file:
                 config_file = Path(config_file)
-                with open(config_file, "r") as file:
-                    config = json.load(file)
+                try:
+                    config = toml.load(config_file)
                     client_id = config.get("CLIENT_ID")
                     client_secret = config.get("CLIENT_SECRET")
+                except FileNotFoundError:
+                    raise ValueError(f"Config file {config_file} not found.")
+                except toml.TomlDecodeError:
+                    raise ValueError("Error decoding TOML from the config file.")
 
         if not client_id or not client_secret:
             raise ValueError(
