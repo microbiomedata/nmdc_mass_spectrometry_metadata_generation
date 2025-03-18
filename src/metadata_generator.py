@@ -713,7 +713,7 @@ class NMDCMetadataGenerator(ABC):
                 return
             else:
                 raise ValueError(
-                    "biosample.name column is missing from the metadata file. Please provide biosample.name or biosample_id for each row. biosample.name is requrie to generate new biosample_id."
+                    "biosample.name column is missing from the metadata file. Please provide biosample.name or biosample_id for each row. biosample.name is required to generate new biosample_id."
                 )
         rows = metadata_df.groupby("biosample.name")
         for _, group in rows:
