@@ -704,9 +704,17 @@ class NMDCMetadataGenerator(ABC):
         """
         parser = MetadataParser()
         metadata_df["biosample_id"] = metadata_df["biosample_id"].astype("object")
-        # check for name
+
         if "biosample.name" not in metadata_df.columns:
-            raise ValueError("The biosample.name column is missing from the DataFrame.")
+            # if biosample.name does not exists check if biosample_id is empty. biosample_id should not be empty if biosample.name does not exist
+            if len(metadata_df["biosample_id"]) == len(
+                metadata_df.dropna(subset=["biosample_id"])
+            ):
+                return
+            else:
+                raise ValueError(
+                    "biosample.name column is missing from the metadata file. Please provide biosample.name or biosample_id for each row. biosample.name is required to generate new biosample_id."
+                )
         rows = metadata_df.groupby("biosample.name")
         for _, group in rows:
             row = group.iloc[0]
