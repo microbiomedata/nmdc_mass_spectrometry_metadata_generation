@@ -706,6 +706,7 @@ class NMDCMetadataGenerator(ABC):
         metadata_df["biosample_id"] = metadata_df["biosample_id"].astype("object")
 
         if "biosample.name" not in metadata_df.columns:
+            # validate that if biosample_id is missing, biosample.name is present. Otherwise the csv is invalid and we should not continue.
             for _, row in metadata_df.iterrows():
                 if row["biosample_id"] == None or pd.isnull(row["biosample_id"]):
                     raise ValueError(
