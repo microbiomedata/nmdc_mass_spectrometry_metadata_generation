@@ -777,9 +777,12 @@ class NMDCMetadataGenerator(ABC):
         nmdc_database_inst: nmdc.Database,
         CLIENT_ID: str,
         CLIENT_SECRET: str,
-    ) -> bool:
+    ) -> None:
         """
-        Check if the biosample_id is not None, NaN, or empty.
+        This method verifies the presence of the 'biosample_id' in the provided metadata DataFrame. It will loop over each row to verify the presence of the 'biosample_id', giving the option for some rows to need generation and some to already exist.
+        If the 'biosample_id' is missing, it checks for the presence of required columns to generate a new biosample_id using the NMDC API. If they are all there, the function calls the dynam_parse_biosample_metadata method from the MetadataParser class to create the JSON for the biosample.
+        If the required columns are missing and there is no biosample_id - it raises a ValueError.
+        After the biosample_id is generated,it updates the DataFrame row with the newly minted biosample_id and the NMDC database instance with the new biosample JSON.
 
         Parameters
         ----------
@@ -789,9 +792,6 @@ class NMDCMetadataGenerator(ABC):
             The client ID for the NMDC API.
         CLIENT_SECRET : str
             The client secret for the NMDC API.
-        Returns
-        -------
-        Tuple
 
         """
         parser = MetadataParser()
@@ -849,7 +849,7 @@ class NMDCMetadataGenerator(ABC):
         self, biosamp_metadata: Dict, CLIENT_ID: str, CLIENT_SECRET: str
     ) -> nmdc.Biosample:
         """
-        Generate a biosample from the given metadata.
+        Mint a biosample id from the given metadata and create a biosample instance.
 
         Parameters
         ----------
