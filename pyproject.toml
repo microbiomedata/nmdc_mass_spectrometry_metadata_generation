@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nmdc_mass_spectrometry_metadata_generation"
+version = "1.0.0"
+description = "A Python library for metdata generation for mass spectrometry data as it relates to the NMDC Schema."
+authors = [
+    { name = "Olivia Hess", email = "olivia.hess@pnnl.gov" }, { name= "Katherine Heal", email = "katherine.heal@pnnl.gov"}
+]
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "nmdc-schema~=11.4.0",
+    "requests~=2.32.3",
+    "requests-oauthlib~=2.0.0",
+    "linkml-runtime~=1.8.2",
+    "pyyaml~=6.0.2",
+    "tqdm~=4.66.5",
+    "pandas~=2.2.3",
+    "python-dotenv==1.0.1",
+    "typing-inspect~=0.9.0",
+    "nmdc_api_utilities>=0.3.5",
+    "toml~=0.10.2"
+]
+license = { file = "LICENSE" }
