@@ -899,8 +899,9 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
         Base URL for the raw data files.
     process_data_url : str
         Base URL for the processed data files.
-    minting_config_creds : str
-        Path to the configuration file containing the client ID and secret for minting NMDC IDs.
+    minting_config_creds : str, OPTIONAL
+        Path to the configuration file containing the client ID and client secret for minting NMDC IDs. It can also include the bio ontology API key if generating biosample ids is needed.
+        If not provided, the CLIENT_ID, CLIENT_SECRET, and BIO_API_KEY environment variables will be used.
 
     Attributes
     ----------
