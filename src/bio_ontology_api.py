@@ -5,14 +5,6 @@ import os
 from pathlib import Path
 import requests
 
-load_dotenv()
-
-BIO_API_KEY = os.getenv("BIO_API_KEY")
-from dotenv import load_dotenv
-
-load_dotenv()
-import os
-
 # set the cwd to /src/
 if "src" not in Path.cwd().name:
     os.chdir(Path.cwd() / "src")
@@ -41,8 +33,8 @@ class BioOntologyInfoRetriever:
     {'ENVO:00002042': 'surface water'}
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, bio_api_key: str):
+        self.BIO_API_KEY = bio_api_key
 
     def get_envo_terms(self, envo_id: dict):
         """
@@ -77,7 +69,7 @@ class BioOntologyInfoRetriever:
         """
 
         url = f"http://data.bioontology.org/ontologies/ENVO/classes/{envo_id}"
-        headers = {"Authorization": f"apikey token={BIO_API_KEY}"}
+        headers = {"Authorization": f"apikey token={self.BIO_API_KEY}"}
 
         response = requests.get(url, headers=headers)
         response.raise_for_status()

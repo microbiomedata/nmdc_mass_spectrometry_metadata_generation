@@ -257,13 +257,51 @@ class NMDCMetadataGenerator(ABC):
                     raise ValueError(f"Config file {config_file} not found.")
                 except toml.TomlDecodeError:
                     raise ValueError("Error decoding TOML from the config file.")
+                except KeyError:
+                    raise ValueError(
+                        "Config file must contain CLIENT_ID and CLIENT_SECRET. If generating biosample ids BIO_API_KEY is required."
+                    )
 
         if not client_id or not client_secret:
             raise ValueError(
-                "Client ID and Secret must be set either in environment variables or passed in the config file.\nThey must be named CLIENT_ID and CLIENT_SECRET respectively."
+                "CLIENT_ID and CLIENT_SECRET must be set either in environment variables or passed in the config file.\nThey must be named CLIENT_ID and CLIENT_SECRET respectively."
             )
 
         return client_id, client_secret
+
+    def load_bio_credentials(self, config_file: str = None):
+        """
+        Load bio ontology API key from the environment or a configuration file.
+        params:
+            config_file: str
+                The path to the configuration file.
+        returns:
+            bio_api_key: str
+                The bio ontology API key.
+        """
+        BIO_API_KEY = os.getenv("BIO_API_KEY")
+
+        if not BIO_API_KEY:
+            if config_file:
+                config_file = Path(config_file)
+                try:
+                    config = toml.load(config_file)
+                    bio_api_key = config.get("BIO_API_KEY")
+                except FileNotFoundError:
+                    raise ValueError(f"Config file {config_file} not found.")
+                except toml.TomlDecodeError:
+                    raise ValueError("Error decoding TOML from the config file.")
+                except KeyError:
+                    raise ValueError(
+                        "Config file must contain BIO_API_KEY to generate biosample ids."
+                    )
+
+        if not BIO_API_KEY:
+            raise ValueError(
+                "BIO_API_KEY must be set either in environment variable or passed in the config file.\It must be named BIO_API_KEY."
+            )
+
+        return BIO_API_KEY
 
     def start_nmdc_database(self) -> nmdc.Database:
         """
@@ -788,8 +826,13 @@ class NMDCMetadataGenerator(ABC):
                     raise ValueError(
                         f"The following required columns are missing from the DataFrame: {', '.join(missing_columns)}"
                     )
+                bio_api_key = self.load_bio_credentials(
+                    config_file=self.minting_config_creds
+                )
                 # Generate biosamples if no biosample_id in spreadsheet
-                biosample_metadata = parser.dynam_parse_biosample_metadata(row)
+                biosample_metadata = parser.dynam_parse_biosample_metadata(
+                    row=row, bio_api_key=bio_api_key
+                )
                 biosample = self.generate_biosample(
                     biosamp_metadata=biosample_metadata,
                     CLIENT_ID=CLIENT_ID,
