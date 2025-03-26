@@ -37,7 +37,7 @@ GC/MS Metabolomics Metadata Generator Subclass
 
 NOM Metadata Generator Subclass
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. autoclass:: src.nom_metadata_generator.NOMMetadataGenerator
+.. autoclass:: src.nom_metadata_generation.NOMMetadataGenerator
    :members:
    :undoc-members:
    :show-inheritance:
