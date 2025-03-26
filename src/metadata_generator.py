@@ -298,7 +298,7 @@ class NMDCMetadataGenerator(ABC):
 
         if not BIO_API_KEY:
             raise ValueError(
-                "BIO_API_KEY must be set either in environment variable or passed in the config file.\It must be named BIO_API_KEY."
+                "BIO_API_KEY must be set either in environment variable or passed in the config file. It must be named BIO_API_KEY."
             )
 
         return BIO_API_KEY
