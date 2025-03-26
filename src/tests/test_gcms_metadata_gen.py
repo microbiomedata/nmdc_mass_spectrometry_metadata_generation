@@ -48,6 +48,7 @@ def test_gcms_biosample_gen():
         database_dump_json_path=output_file,
         raw_data_url="https://example_raw_data_url/",
         process_data_url="https://example_processed_data_url/",
+        minting_config_creds="src/config.toml",
     )
 
     # Run the metadata generation process

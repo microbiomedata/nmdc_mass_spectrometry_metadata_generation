@@ -6,6 +6,7 @@ Welcome to NMDC Mass Spectrometry Metadata Generation documentation. This packag
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+
    functions
 
 Indices and tables

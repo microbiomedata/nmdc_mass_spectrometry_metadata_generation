@@ -138,18 +138,19 @@ class MetadataParser:
             )
         return False
 
-    def dynam_parse_biosample_metadata(self, row: pd.Series) -> Dict:
+    def dynam_parse_biosample_metadata(self, row: pd.Series, bio_api_key: str) -> Dict:
         """
         Function to parse the metadata row if it includes biosample information.
         This pulls the most recent version of the ontology terms from the API and compares them to the values in the given row.
         Different parsing is done on different types of fields, such as lists, controlled identified terms, and text values to ensure the correct format is used.
         params:
             row: pd.Series - A row from the DataFrame containing metadata.
+            bio_api_key: str - The API key to access the Bio Ontology API
         returns:
             Dict
             The metadata dictionary.
         """
-        envo_retriever = BioOntologyInfoRetriever()
+        envo_retriever = BioOntologyInfoRetriever(bio_api_key)
 
         metadata = {}
         for field_name, field_data in Biosample.__dataclass_fields__.items():
