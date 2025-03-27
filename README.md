@@ -6,4 +6,5 @@ Documentation about available functions and helpful usage notes can be found at 
 
 # Installation
 To install run the following pip command ` pip install -e git+https://github.com/microbiomedata/nmdc_mass_spectrometry_metadata_generation.git#egg=src `
-This will install the package through the git repository.
+This will install the package through the git repository. Each module can be accessed through its name. For example:
+`import metadata_generator `
