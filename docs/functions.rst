@@ -23,14 +23,14 @@ Metadata Generator Base Class
 
 LC/MS Lipidomics Metadata Generator Subclass
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. autoclass:: src.metadata_generator.LCMSLipidomicsMetadataGenerator
+.. autoclass:: src.lcms_metadata_generator.LCMSLipidomicsMetadataGenerator
    :members:
    :undoc-members:
    :show-inheritance:
 
 GC/MS Metabolomics Metadata Generator Subclass
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. autoclass:: src.metadata_generator.GCMSMetabolomicsMetadataGenerator
+.. autoclass:: src.gcms_metadata_generator.GCMSMetabolomicsMetadataGenerator
    :members:
    :undoc-members:
    :show-inheritance:
