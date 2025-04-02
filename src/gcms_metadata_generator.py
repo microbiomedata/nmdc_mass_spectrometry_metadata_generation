@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from metadata_generator import NMDCMetadataGenerator
+from src.metadata_generator import NMDCMetadataGenerator
 from tqdm import tqdm
 from pathlib import Path
 from datetime import datetime
