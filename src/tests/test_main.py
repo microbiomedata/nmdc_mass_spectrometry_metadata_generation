@@ -3,9 +3,11 @@ from pytest_console_scripts import ScriptRunner
 from datetime import datetime
 import os
 
+os.chdir("nmdc-nmdc_mass_spectrometry_metadata_generation/")
+
 
 def test_cli():
-    sc = ScriptRunner(launch_mode="subprocess", rootdir="./src")
+    sc = ScriptRunner(launch_mode="subprocess", rootdir=".")
     current_directory = os.path.dirname(__file__)
     csv_file_path = os.path.join(
         current_directory, "test_data", "test_metadata_file_lipid.csv"
@@ -19,7 +21,7 @@ def test_cli():
     ret = sc.run(
         [
             "python",
-            "main.py",
+            "../main.py",
             "--generator",
             "lcms",
             "--metadata_file",
