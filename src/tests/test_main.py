@@ -3,8 +3,6 @@ from pytest_console_scripts import ScriptRunner
 from datetime import datetime
 import os
 
-os.chdir("nmdc_mass_spectrometry_metadata_generation/")
-
 
 def test_cli():
     sc = ScriptRunner(launch_mode="subprocess", rootdir=".")
