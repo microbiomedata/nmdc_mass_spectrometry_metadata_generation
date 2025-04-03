@@ -19,7 +19,7 @@ def test_cli():
     ret = sc.run(
         [
             "python",
-            "../main.py",
+            "./main.py",
             "--generator",
             "lcms_lipid",
             "--metadata_file",
@@ -30,8 +30,6 @@ def test_cli():
             "https://example.com/raw/",
             "--process_data_url",
             "https://example.com/results/",
-            "--minting_config_creds",
-            "tests/config_creds.toml",
         ]
     )
     # Verify it exits with a status code of zero
