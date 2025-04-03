@@ -10,6 +10,7 @@ import hashlib
 import nmdc_schema.nmdc as nmdc
 from linkml_runtime.dumpers import json_dumper
 from src.metadata_parser import MetadataParser
+from src.data_classes import NmdcTypes
 from nmdc_api_utilities.instrument_search import InstrumentSearch
 from nmdc_api_utilities.configuration_search import ConfigurationSearch
 from nmdc_api_utilities.biosample_search import BiosampleSearch
@@ -26,38 +27,6 @@ logging.basicConfig(
 )
 
 # TODO: Update script to for Sample Processing - has_input for MassSpectrometry will have to be changed to be a processed sample id - not biosample id
-
-
-@dataclass
-class NmdcTypes:
-    """
-    Data class holding NMDC type constants.
-
-    Attributes
-    ----------
-    Biosample : str
-        NMDC type for Biosample.
-    MassSpectrometry : str
-        NMDC type for Mass Spectrometry.
-    MetabolomicsAnalysis : str
-        NMDC type for Metabolomics Analysis.
-    DataObject : str
-        NMDC type for Data Object.
-    """
-
-    Biosample: str = "nmdc:Biosample"
-    MassSpectrometry: str = "nmdc:MassSpectrometry"
-    MetabolomicsAnalysis: str = "nmdc:MetabolomicsAnalysis"
-    DataObject: str = "nmdc:DataObject"
-    CalibrationInformation: str = "nmdc:CalibrationInformation"
-    MetaboliteIdentification: str = "nmdc:MetaboliteIdentification"
-    NomAnalysis: str = "nmdc:NomAnalysis"
-    OntologyClass: str = "nmdc:OntologyClass"
-    ControlledIdentifiedTermValue: str = "nmdc:ControlledIdentifiedTermValue"
-    TextValue: str = "nmdc:TextValue"
-    GeolocationValue: str = "nmdc:GeolocationValue"
-    TimeStampValue: str = "nmdc:TimestampValue"
-    QuantityValue: str = "nmdc:QuantityValue"
 
 
 class NMDCMetadataGenerator(ABC):

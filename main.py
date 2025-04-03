@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import argparse
-from src.gcms_metadata_generator import GCMSMetabolomicsMetadataGenerator
-from src.lcms_metadata_generator import LCMSLipidomicsMetadataGenerator
+from src.gcms_metab_metadata_generator import GCMSMetabolomicsMetadataGenerator
+from src.lcms_lipid_metadata_generator import LCMSLipidomicsMetadataGenerator
 from src.nom_metadata_generator import NOMMetadataGenerator
 
 
