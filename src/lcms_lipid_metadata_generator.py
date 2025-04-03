@@ -4,34 +4,10 @@ from tqdm import tqdm
 from pathlib import Path
 from datetime import datetime
 import logging
-from dataclasses import dataclass
 from nmdc_api_utilities.metadata import Metadata
 import ast
 import pandas as pd
 from src.data_classes import LCMSLipidWorkflowMetadata
-
-
-@dataclass
-class GroupedMetadata:
-    """
-    Data class for holding grouped metadata information.
-
-    Attributes
-    ----------
-    biosample_id : str
-        Identifier for the biosample.
-    processing_type : str
-        Type of processing applied to the data.
-    processing_institution : str
-        Institution responsible for processing the data.
-    nmdc_study : float
-        Identifier for the NMDC study associated with the data.
-    """
-
-    biosample_id: str
-    processing_type: str
-    processing_institution: str
-    nmdc_study: float
 
 
 class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
@@ -188,17 +164,15 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
             total=metadata_df.shape[0],
             desc="Processing LCMS biosamples",
         ):
-            group_metadata_obj = self.create_grouped_metadata(data)
-
             workflow_metadata = self.create_workflow_metadata(data)
 
             mass_spec = self.generate_mass_spectrometry(
                 file_path=Path(workflow_metadata.raw_data_file),
                 instrument_name=workflow_metadata.instrument_used,
-                sample_id=group_metadata_obj.biosample_id,
+                sample_id=data["biosample_id"],
                 raw_data_id="nmdc:placeholder",
-                study_id=group_metadata_obj.nmdc_study,
-                processing_institution=group_metadata_obj.processing_institution,
+                study_id=ast.literal_eval(data["biosample.associated_studies"]),
+                processing_institution=data["processing_institution"],
                 mass_spec_config_name=workflow_metadata.mass_spec_config_name,
                 lc_config_name=workflow_metadata.lc_config_name,
                 start_date=workflow_metadata.instrument_analysis_start_date,
@@ -225,7 +199,7 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
                 data_gen_id=mass_spec.id,
                 processed_data_id="nmdc:placeholder",
                 parameter_data_id="nmdc:placeholder",
-                processing_institution=group_metadata_obj.processing_institution,
+                processing_institution=data["processing_institution"],
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
             )
@@ -353,31 +327,6 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
         api_metadata = Metadata()
         api_metadata.validate_json(self.database_dump_json_path)
         logging.info("Metadata processing completed.")
-
-    def create_grouped_metadata(self, row: pd.Series) -> GroupedMetadata:
-        """
-        Construct a GroupedMetadata object from a DataFrame row.
-
-        Parameters
-        ----------
-        row : pd.Series
-            A row from the grouped metadata DataFrame.
-
-        Returns
-        -------
-        GroupedMetadata
-            A GroupedMetadata object populated with data from the input row.
-
-        Notes
-        -----
-        """
-
-        return GroupedMetadata(
-            biosample_id=row["biosample_id"],
-            nmdc_study=ast.literal_eval(row["biosample.associated_studies"]),
-            processing_type=row["material_processing_type"],
-            processing_institution=row["processing_institution"],
-        )
 
     def create_workflow_metadata(
         self, row: dict[str, str]
