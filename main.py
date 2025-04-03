@@ -124,7 +124,7 @@ def main():
             process_data_url=args.process_data_url,
             minting_config_creds=args.minting_config_creds,
             calibration_standard=args.calibration_standard,
-            configuration_file=args.configuration_file,
+            configuration_file_name=args.configuration_file,
         )
     elif args.generator == "nom":
         generator = NOMMetadataGenerator(

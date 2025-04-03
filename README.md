@@ -14,10 +14,10 @@ To utilize the CLI, first download the source code. Then run the script with the
 
 
 ```bash
-python3 /path/to/main.py --metadata_file /path/to/csv --database_dump_json_path /path/to/dump --raw_data_url https://example.com/raw/ --process_data_url https://example.com/results/
+python3 /path/to/main.py --generator lcms_lipid --metadata_file /path/to/csv --database_dump_json_path /path/to/dump --raw_data_url https://example.com/raw/ --process_data_url https://example.com/results/
 ```
 
 To use the CLI with toml credentials:
 ```bash
-python3 /path/to/main.py --metadata_file /path/to/csv --database_dump_json_path /path/to/dump --raw_data_url https://example.com/raw/ --process_data_url https://example.com/results/ --minting_config_creds path/to/config_creds.toml
+python3 /path/to/main.py --generator lcms_lipid --metadata_file /path/to/csv --database_dump_json_path /path/to/dump --raw_data_url https://example.com/raw/ --process_data_url https://example.com/results/ --minting_config_creds path/to/config_creds.toml
 ```

@@ -19,7 +19,7 @@ def test_cli():
     ret = sc.run(
         [
             "python",
-            "./main.py",
+            "../main.py",
             "--generator",
             "lcms_lipid",
             "--metadata_file",
