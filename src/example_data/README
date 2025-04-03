@@ -5,6 +5,7 @@ This directory contains example CSV files that serve as templates for the minimu
 ## Files
 
 - `biosample_creation_required_info.csv`: This file contains the basic template for the REQUIRED columns needed when generating new Biosample IDs.
+- `config_example.toml`: This file is used to demonstrate the format of a toml file that holds credentials. The credential variables must follow the nomenclature in this file. If using `env` variables, the contents of the file will be same.
 
 ## Usage
 

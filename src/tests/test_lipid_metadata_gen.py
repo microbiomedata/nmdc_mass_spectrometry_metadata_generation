@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # This script will serve as a test for the lipdomics metadata generation script.
 from datetime import datetime
-from src.metadata_generator import LCMSLipidomicsMetadataGenerator
+from src.lcms_lipid_metadata_generator import LCMSLipidomicsMetadataGenerator
 from dotenv import load_dotenv
 
 load_dotenv()

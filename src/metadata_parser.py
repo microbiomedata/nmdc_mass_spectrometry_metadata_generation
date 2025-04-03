@@ -16,22 +16,7 @@ from nmdc_schema.nmdc import (
     TimestampValue,
 )
 import ast
-
-
-@dataclass
-class NmdcTypes:
-    Biosample: str = "nmdc:Biosample"
-    MassSpectrometry: str = "nmdc:MassSpectrometry"
-    NomAnalysis: str = "nmdc:NomAnalysis"
-    DataObject: str = "nmdc:DataObject"
-    OntologyClass: str = "nmdc:OntologyClass"
-    ControlledIdentifiedTermValue: str = "nmdc:ControlledIdentifiedTermValue"
-    TextValue: str = "nmdc:TextValue"
-    GeolocationValue: str = "nmdc:GeolocationValue"
-    TimeStampValue: str = "nmdc:TimestampValue"
-    QuantityValue: str = "nmdc:QuantityValue"
-    CalibrationInformation: str = "nmdc:CalibrationInformation"
-    MetaboliteIdentification: str = "nmdc:MetaboliteIdentification"
+from src.data_classes import NmdcTypes
 
 
 class MetadataParser:
