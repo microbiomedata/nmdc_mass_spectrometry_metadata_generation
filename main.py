@@ -54,6 +54,9 @@ def main():
     --configuration_file : str
         Path to the configuration file for the GCMS metadata generator.
         Default: 'emsl_gcms_corems_params.toml'.
+    --minting_config_creds : str
+        Path to the config file with credentials for minting IDs.
+        OPTIONAL: uses .env variables for credentials.
 
     Notes
     -----
@@ -86,14 +89,17 @@ def main():
     )
     parser.add_argument(
         "--minting_config_creds",
+        required=False,
         help="Path to the config file with credentials for minting IDs. Default uses .env variables for credentials",
     )
     parser.add_argument(
         "--calibration_standard",
+        required=False,
         help="Calibration standard to use for the GCMS metadata generation. Must be a value from the NMDC Schema. Default is 'fames'.",
     )
     parser.add_argument(
         "--configuration_file",
+        required=False,
         help="Path to the configuration file for the GCMS metadata generator. Default is 'emsl_gcms_corems_params.toml'.",
     )
 
