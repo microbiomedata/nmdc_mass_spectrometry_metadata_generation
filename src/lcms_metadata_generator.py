@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from nmdc_api_utilities.metadata import Metadata
 import ast
 import pandas as pd
+from src.data_classes import LCMSLipidWorkflowMetadata
 
 
 @dataclass
@@ -31,41 +32,6 @@ class GroupedMetadata:
     processing_type: str
     processing_institution: str
     nmdc_study: float
-
-
-@dataclass
-class LCMSLipidWorkflowMetadata:
-    """
-    Data class for holding LC-MS lipidomics workflow metadata information.
-
-    Attributes
-    ----------
-    processed_data_dir : str
-        Directory containing processed data files.
-    raw_data_file : str
-        Path or name of the raw data file.
-    mass_spec_config_name : str
-        Name of the mass spectrometry configuration used.
-    lc_config_name : str
-        Name of the liquid chromatography configuration used.
-    instrument_used : str
-        Name of the instrument used for analysis.
-    instrument_analysis_start_date : str
-        Start date of the instrument analysis.
-    instrument_analysis_end_date : str
-        End date of the instrument analysis.
-    execution_resource : float
-        Identifier for the execution resource.
-    """
-
-    processed_data_dir: str
-    raw_data_file: str
-    mass_spec_config_name: str
-    lc_config_name: str
-    instrument_used: str
-    instrument_analysis_start_date: str
-    instrument_analysis_end_date: str
-    execution_resource: float
 
 
 class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
