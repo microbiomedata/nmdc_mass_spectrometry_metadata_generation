@@ -8,6 +8,7 @@ Welcome to NMDC Mass Spectrometry Metadata Generation documentation. This packag
    :caption: Contents:
 
    functions
+   usage
 
 Indices and tables
 ==================

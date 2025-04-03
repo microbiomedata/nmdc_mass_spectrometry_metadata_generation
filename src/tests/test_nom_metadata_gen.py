@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # This script will serve as a test for the lipdomics metadata generation script.
 from datetime import datetime
-from src.nom_metadata_generation import NOMMetadataGenerator
+from src.nom_metadata_generator import NOMMetadataGenerator
 from dotenv import load_dotenv
 import json
 import pytest

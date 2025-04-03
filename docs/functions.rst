@@ -56,3 +56,10 @@ NOM Metadata Generator Subclass
    :members:
    :undoc-members:
    :show-inheritance:
+
+Main CLI Class
+~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: main
+   :members:
+   :undoc-members:
+   :show-inheritance:
