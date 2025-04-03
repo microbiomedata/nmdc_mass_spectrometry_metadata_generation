@@ -30,8 +30,8 @@ def main():
     --generator : str
         The name of the metadata generator to use.
         Options:
-        lcms for 'LipidomicsMetadataGenerator'
-        gcms 'GCMSMetabolomicsMetadataGenerator'
+        lcms_lipid for 'LipidomicsMetadataGenerator'
+        gcms_metab 'GCMSMetabolomicsMetadataGenerator'
         nom for 'NOMMetadataGenerator'.
     --metadata_file : str
         Path to the input CSV metadata file.
@@ -64,7 +64,9 @@ def main():
         description="Generate NMDC metadata from input files"
     )
     parser.add_argument(
-        "--generator", required=True, help="Metadata generator to use (lcms, gcms, nom)"
+        "--generator",
+        required=True,
+        help="Metadata generator to use (lcms_lipid, gcms_metab, nom)",
     )
     parser.add_argument(
         "--metadata_file", required=True, help="Path to the input CSV metadata file"
@@ -96,11 +98,11 @@ def main():
     )
 
     args = parser.parse_args()
-    if args.generator not in ["lcms", "gcms", "nom"]:
+    if args.generator not in ["lcms_lipid", "gcms_metab", "nom"]:
         raise ValueError(
-            "Invalid generator specified. Choose from 'lcms', 'gcms', or 'nom'."
+            "Invalid generator specified. Choose from 'lcms_lipid', 'gcms_metab', or 'nom'."
         )
-    if args.generator == "lcms":
+    if args.generator == "lcms_lipid":
         generator = LCMSLipidomicsMetadataGenerator(
             metadata_file=args.metadata_file,
             database_dump_json_path=args.database_dump_json_path,
@@ -108,7 +110,7 @@ def main():
             process_data_url=args.process_data_url,
             minting_config_creds=args.minting_config_creds,
         )
-    elif args.generator == "gcms":
+    elif args.generator == "gcms_metab":
         generator = GCMSMetabolomicsMetadataGenerator(
             metadata_file=args.metadata_file,
             database_dump_json_path=args.database_dump_json_path,

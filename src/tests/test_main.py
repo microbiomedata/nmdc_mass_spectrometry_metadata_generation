@@ -21,7 +21,7 @@ def test_cli():
             "python",
             "../main.py",
             "--generator",
-            "lcms",
+            "lcms_lipid",
             "--metadata_file",
             csv_file_path,
             "--database_dump_json_path",
@@ -31,7 +31,7 @@ def test_cli():
             "--process_data_url",
             "https://example.com/results/",
             "--minting_config_creds",
-            "tests/config_creds.json",
+            "tests/config_creds.toml",
         ]
     )
     # Verify it exits with a status code of zero

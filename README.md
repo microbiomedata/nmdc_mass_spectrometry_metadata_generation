@@ -8,3 +8,16 @@ Documentation about available functions and helpful usage notes can be found at 
 To install run the following pip command ` pip install -e git+https://github.com/microbiomedata/nmdc_mass_spectrometry_metadata_generation.git#egg=src `
 This will install the package through the git repository. Each module can be accessed through its name. For example:
 `import metadata_generator `
+
+# CLI Usage
+To utilize the CLI, first download the source code. Then run the script with the required flags. More details on the flags can be found in the [documentation](https://microbiomedata.github.io/nmdc_mass_spectrometry_metadata_generation/functions.html#main-cli). Credentials to reach the NMDC API for necessary functions can either be passed in a .toml file OR read in from .env variables. Examples on format for these can be found under src/example_data.
+
+
+```bash
+python3 /path/to/main.py --metadata_file /path/to/csv --database_dump_json_path /path/to/dump --raw_data_url https://example.com/raw/ --process_data_url https://example.com/results/
+```
+
+To use the CLI with toml credentials:
+```bash
+python3 /path/to/main.py --metadata_file /path/to/csv --database_dump_json_path /path/to/dump --raw_data_url https://example.com/raw/ --process_data_url https://example.com/results/ --minting_config_creds path/to/config_creds.toml
+```
