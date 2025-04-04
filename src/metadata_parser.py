@@ -196,6 +196,12 @@ class MetadataParser:
                     if self.get_value(row, field_name)
                     else None
                 )
+            elif self.is_type(field_data.type, TimestampValue):
+                metadata[field_name] = (
+                    self.create_timestamp_value(self.get_value(row, field_name))
+                    if self.get_value(row, field_name)
+                    else None
+                )
             # format ControlledIdentifiedTermValue dict
             elif self.is_type(
                 field_data.type, ControlledIdentifiedTermValue
@@ -244,6 +250,27 @@ class MetadataParser:
                     else None
                 )
         return metadata
+
+    def create_timestamp_value(self, raw_value: str):
+        """
+        Create a timestamp value representation.
+
+        Parameters
+        ----------
+        raw_value : str
+            The raw value to convert to a timestamp.
+
+        Returns
+        -------
+        dict
+            A dictionary representing the timestamp value.
+        """
+        nmdc_timestamp_value = {
+            "has_raw_value": raw_value,
+            "type": NmdcTypes.TimeStampValue,
+        }
+
+        return nmdc_timestamp_value
 
     def create_quantity_value(
         self,
