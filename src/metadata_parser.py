@@ -183,7 +183,6 @@ class MetadataParser:
                 metadata[field_name] = (
                     self.create_geo_loc_value(
                         self.get_value(row, field_name),
-                        self.get_value(row, field_name),
                     )
                     if self.get_value(row, field_name)
                     else None
@@ -285,7 +284,7 @@ class MetadataParser:
 
         return nmdc_quant_value
 
-    def create_geo_loc_value(self, raw_value: str, lat_value: str, long_value: str):
+    def create_geo_loc_value(self, raw_value: str):
         """
         Create a geolocation value representation.
 
@@ -303,7 +302,7 @@ class MetadataParser:
         dict
             A dictionary representing the geolocation value.
         """
-
+        lat_value, long_value = raw_value.split(" ", 1)
         nmdc_geo_loc_value = {
             "has_raw_value": raw_value,
             "latitude": lat_value,
