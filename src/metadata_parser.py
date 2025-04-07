@@ -43,10 +43,37 @@ class MetadataParser:
         -------
         The value associated with the key, or default if not found.
         """
+        type = None
         # if the value passed in is a Biosample field, we need to add the biosample prefix
-        for field, _ in Biosample.__dataclass_fields__.items():
+        for field, data in Biosample.__dataclass_fields__.items():
             if field == key:
                 key = "biosample." + key
+                type = data.type
+                break
+        if self.is_type(type, QuantityValue):
+            # if the value is a quantity value, we need to extract all columns that could be associated with it
+            # and create a dict with the values
+            value = {
+                "has_numeric_value": row.get(key + ".has_numeric_value", default),
+                "has_minimum_numeric_value": row.get(
+                    key + ".has_minimum_numeric_value", default
+                ),
+                "has_maximum_numeric_value": row.get(
+                    key + ".has_maximum_numeric_value", default
+                ),
+                "has_unit": row.get(key + ".has_unit", default),
+                "has_raw_value": row.get(key + ".has_raw_value", default),
+            }
+            # remove any keys with None values
+            value = {
+                k: float(v) if isinstance(v, np.int_) else v
+                for k, v in value.items()
+                if v is not None
+            }
+            # if the value is empty, return the default value
+            if not value:
+                return default
+            return value
         value = row.get(key, default)
         if isinstance(value, float) and np.isnan(value):
             return default
@@ -166,7 +193,7 @@ class MetadataParser:
                             )
                         elif self.is_type(field_data.type, QuantityValue):
                             metadata[field_name].append(
-                                self.create_quantity_value(raw_value=item)
+                                self.create_quantity_value(value_dict=item)
                             )
                         else:
                             metadata[field_name].append(item)
@@ -183,7 +210,6 @@ class MetadataParser:
                 metadata[field_name] = (
                     self.create_geo_loc_value(
                         self.get_value(row, field_name),
-                        self.get_value(row, field_name),
                     )
                     if self.get_value(row, field_name)
                     else None
@@ -192,8 +218,14 @@ class MetadataParser:
             elif self.is_type(field_data.type, QuantityValue):
                 metadata[field_name] = (
                     self.create_quantity_value(
-                        raw_value=self.get_value(row, field_name)
+                        value_dict=self.get_value(row, field_name)
                     )
+                    if self.get_value(row, field_name)
+                    else None
+                )
+            elif self.is_type(field_data.type, TimestampValue):
+                metadata[field_name] = (
+                    self.create_timestamp_value(self.get_value(row, field_name))
                     if self.get_value(row, field_name)
                     else None
                 )
@@ -246,46 +278,59 @@ class MetadataParser:
                 )
         return metadata
 
-    def create_quantity_value(
-        self,
-        num_value: str = None,
-        min_num_value: str = None,
-        max_num_value: str = None,
-        unit_value: str = None,
-        raw_value: str = None,
-    ):
+    def create_timestamp_value(self, raw_value: str):
         """
-        Create a quantity value representation.
+        Create a timestamp value representation.
 
         Parameters
         ----------
         raw_value : str
-            The raw value to convert to a quantity.
+            The raw value to convert to a timestamp.
+
+        Returns
+        -------
+        dict
+            A dictionary representing the timestamp value.
+        """
+        nmdc_timestamp_value = {
+            "has_raw_value": raw_value,
+            "type": NmdcTypes.TimeStampValue,
+        }
+
+        return nmdc_timestamp_value
+
+    def create_quantity_value(
+        self,
+        value_dict: dict = None,
+    ):
+        """
+        Create a quantity value representation. Since a dictionary is passed in, we need to check if any of the values are None and remove them if so. Also adds the Quantity value type.
+
+        Parameters
+        ----------
+        value_dict : dict
+            A dictionary containing the raw value and other attributes gathered from the metadata. This is a dict of the form:
+            {
+                "has_numeric_value": float,
+                "has_minimum_numeric_value": float,
+                "has_maximum_numeric_value": float,
+                "has_unit": str,
+                "has_raw_value": str
+            }
+            The keys in the dictionary are the attributes of the QuantityValue class.
+            They may be passed in as None if they are not present in the metadata.
 
         Returns
         -------
         dict
             A dictionary representing the quantity value.
         """
+        if value_dict:
+            value_dict = {k: v for k, v in value_dict.items() if v is not None}
+        value_dict["type"] = NmdcTypes.QuantityValue
+        return value_dict
 
-        nmdc_quant_value = {"type": NmdcTypes.QuantityValue}
-
-        if num_value:
-            nmdc_quant_value["has_numeric_value"] = num_value
-        if min_num_value:
-            nmdc_quant_value["has_minimum_numeric_value"] = min_num_value
-        if max_num_value:
-            nmdc_quant_value["has_maximum_numeric_value"] = max_num_value
-        if unit_value:
-            nmdc_quant_value["has_unit"] = unit_value
-        if num_value and unit_value:
-            nmdc_quant_value["has_raw_value"] = str(num_value) + str(unit_value)
-        if raw_value:
-            nmdc_quant_value["has_raw_value"] = raw_value
-
-        return nmdc_quant_value
-
-    def create_geo_loc_value(self, raw_value: str, lat_value: str, long_value: str):
+    def create_geo_loc_value(self, raw_value: str):
         """
         Create a geolocation value representation.
 
@@ -303,7 +348,7 @@ class MetadataParser:
         dict
             A dictionary representing the geolocation value.
         """
-
+        lat_value, long_value = raw_value.split(" ", 1)
         nmdc_geo_loc_value = {
             "has_raw_value": raw_value,
             "latitude": lat_value,

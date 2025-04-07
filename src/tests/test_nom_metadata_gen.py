@@ -15,6 +15,10 @@ if python_path:
 
 
 def test_nom_metadata_gen():
+    """
+    Test the NOM metadata generation script.
+    Test case does not include generating a biosample
+    """
     # Set up output file with datetime stame
     output_file = (
         "tests/test_data/test_database_nom_"
@@ -35,7 +39,41 @@ def test_nom_metadata_gen():
     assert os.path.exists(output_file)
 
 
-def test_nom_biosample_gen():
+def test_nom_biosample_gen_more_fields():
+    """
+    Test the NOM metadata generation script.
+    Test case includes generating a biosample with more than the required fields
+    """
+    # Set up output file with datetime stame
+    output_file = (
+        "tests/test_data/test_database_nom_no_biosample_weird_data_"
+        + datetime.now().strftime("%Y%m%d%H%M%S")
+        + ".json"
+    )
+
+    # Start the metadata generation setup
+    generator = NOMMetadataGenerator(
+        metadata_file="tests/test_data/test_metadata_file_nom_no_biosample_id_weird_data.csv",
+        database_dump_json_path=output_file,
+        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/",
+        process_data_url="https://example_processed_data_url/",
+    )
+
+    # Run the metadata generation process
+    generator.run()
+    assert os.path.exists(output_file)
+
+    file = open(output_file, "r")
+    working_data = json.load(file)
+    file.close()
+    assert len(working_data["biosample_set"]) == 2
+
+
+def test_nom_biosample_gen_no_biosample():
+    """
+    Test the NOM metadata generation script.
+    Test case includes generating a biosample with no biosample id
+    """
     # Set up output file with datetime stame
     output_file = (
         "tests/test_data/test_database_nom_no_biosample_"
@@ -80,6 +118,10 @@ def test_has_input():
 
 
 def test_config_file():
+    """
+    Test the NOM metadata generation script.
+    Test purpose is to test the config file
+    """
     # Set up output file with datetime stame
     output_file = (
         "tests/test_data/test_database_nom_"
