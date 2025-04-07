@@ -15,6 +15,7 @@ from nmdc_api_utilities.instrument_search import InstrumentSearch
 from nmdc_api_utilities.configuration_search import ConfigurationSearch
 from nmdc_api_utilities.biosample_search import BiosampleSearch
 from nmdc_api_utilities.study_search import StudySearch
+from nmdc_api_utilities.data_object_search import DataObjectSearch
 from nmdc_api_utilities.minter import Minter
 import ast
 import numpy as np
@@ -708,6 +709,28 @@ class NMDCMetadataGenerator(ABC):
                     "biosample_id",
                 ] = biosample_id
                 nmdc_database_inst.biosample_set.append(biosample)
+
+    def check_doj_urls(self, urls: List) -> None:
+        """
+        Check if the URLs in the input list already exist in the database.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        ValueError
+            If any URL in the metadata DataFrame is invalid or inaccessible.
+        """
+        doj_client = DataObjectSearch()
+        resp = doj_client.get_batch_records(
+            id_list=urls, search_field="url", fields="id"
+        )
+        if resp:
+            raise ValueError(
+                f"The following URLs already exist in the database: {', '.join(resp)}"
+            )
 
     def generate_biosample(
         self, biosamp_metadata: Dict, CLIENT_ID: str, CLIENT_SECRET: str
