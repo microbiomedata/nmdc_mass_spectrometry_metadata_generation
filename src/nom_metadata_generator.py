@@ -72,6 +72,26 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             CLIENT_ID=client_id,
             CLIENT_SECRET=client_secret,
         )
+        processed_data_paths = [
+            list(Path(x).glob("**/*"))
+            for x in metadata_df["processed_data_directory"].to_list()
+        ]
+        # Add a check that the processed data directory is not empty
+        if not any(processed_data_paths):
+            raise FileNotFoundError(
+                f"No files found in processed data directory: "
+                f"{metadata_df['processed_data']}"
+            )
+        processed_data_paths = [
+            file for sublist in processed_data_paths for file in sublist
+        ]
+        raw_data_paths = [Path(x) for x in metadata_df["raw_data_directory"].to_list()]
+        urls = [self.process_data_url + str(x.name) for x in processed_data_paths] + [
+            self.raw_data_url + str(x.name) for x in raw_data_paths
+        ]
+        # check for duplicate doj urls in the database
+        self.check_doj_urls(urls=urls)
+
         # Iterate through each row in df to generate metadata
         for _, row in tqdm(
             metadata_df.iterrows(),
@@ -122,9 +142,6 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
             )
-
-            ### we will have processed data object AFTER the workflow is ran. Since this is how the lipidomics and gcms work, that is how this will function as well.
-
             processed_data_paths = list(
                 Path(row["processed_data_directory"]).glob("**/*")
             )
@@ -135,6 +152,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                     f"{row['processed_data']}"
                 )
             processed_data_paths = [x for x in processed_data_paths if x.is_file()]
+            ### we will have processed data object AFTER the workflow is ran. Since this is how the lipidomics and gcms work, that is how this will function as well.
             for file in processed_data_paths:
                 if file.suffix == ".csv":
                     # this is the .csv file of the processed data
