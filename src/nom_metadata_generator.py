@@ -45,7 +45,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         )
         self.workflow_param_data_category = "workflow_parameter_data"
         self.workflow_param_data_object_type = "Analysis Tool Parameter File"
-        self.unique_columns = ["raw_data_directory", "processed_data_directory"]
+        self.unique_columns = ["raw_data_file", "processed_data_directory"]
         self.mass_spec_desc = "ultra high resolution mass spectrum"
         self.mass_spec_eluent_intro = "direct_infusion_autosampler"
         self.processing_institution = "EMSL"
@@ -72,26 +72,8 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             CLIENT_ID=client_id,
             CLIENT_SECRET=client_secret,
         )
-        processed_data_paths = [
-            list(Path(x).glob("**/*"))
-            for x in metadata_df["processed_data_directory"].to_list()
-        ]
-        # Add a check that the processed data directory is not empty
-        if not any(processed_data_paths):
-            raise FileNotFoundError(
-                f"No files found in processed data directory: "
-                f"{metadata_df['processed_data']}"
-            )
-        processed_data_paths = [
-            file for sublist in processed_data_paths for file in sublist
-        ]
-        raw_data_paths = [Path(x) for x in metadata_df["raw_data_directory"].to_list()]
-        urls = [self.process_data_url + str(x.name) for x in processed_data_paths] + [
-            self.raw_data_url + str(x.name) for x in raw_data_paths
-        ]
         # check for duplicate doj urls in the database
-        self.check_doj_urls(urls=urls)
-
+        self.check_doj_urls(metadata_df=metadata_df, url_columns=self.unique_columns)
         # Iterate through each row in df to generate metadata
         for _, row in tqdm(
             metadata_df.iterrows(),
@@ -119,7 +101,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                 f"Raw {emsl_metadata['instrument_used']} {eluent_intro_pretty} data."
             )
             raw_data_object = self.generate_data_object(
-                file_path=Path(row["raw_data_directory"]),
+                file_path=Path(row["raw_data_file"]),
                 data_category=self.raw_data_category,
                 data_object_type=self.raw_data_object_type,
                 description=raw_data_object_desc,
@@ -132,7 +114,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             started_at_time = row["start_date"] + " " + row["started_at_time"]
             eneded_at_time = row["end_date"] + " " + row["ended_at_time"]
             nom_analysis = self.generate_nom_analysis(
-                file_path=Path(row["raw_data_directory"]),
+                file_path=Path(row["raw_data_file"]),
                 ref_calibration_path=Path(row["ref_calibration_path"]),
                 raw_data_id=raw_data_object.id,
                 data_gen_id=mass_spec.id,

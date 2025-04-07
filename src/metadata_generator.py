@@ -710,7 +710,7 @@ class NMDCMetadataGenerator(ABC):
                 ] = biosample_id
                 nmdc_database_inst.biosample_set.append(biosample)
 
-    def check_doj_urls(self, urls: List) -> None:
+    def check_doj_urls(self, metadata_df: pd.DataFrame, url_columns: List) -> None:
         """
         Check if the URLs in the input list already exist in the database.
 
@@ -723,6 +723,37 @@ class NMDCMetadataGenerator(ABC):
         ValueError
             If any URL in the metadata DataFrame is invalid or inaccessible.
         """
+        urls = []
+        for col in url_columns:
+            if "directory" in col:
+                # if its a directory, we need to gather all the files in the directory
+                dir_data_paths = [
+                    list(Path(x).glob("**/*")) for x in metadata_df[col].to_list()
+                ]
+                # Add a check that the processed data directory is not empty
+                if not any(dir_data_paths):
+                    raise FileNotFoundError(
+                        f"No files found in {col}: " f"{metadata_df[col]}"
+                    )
+                dir_data_paths = [
+                    file for sublist in dir_data_paths for file in sublist
+                ]
+                if "process" in col:
+                    urls += [
+                        self.process_data_url + str(x.name) for x in dir_data_paths
+                    ]
+                elif "raw" in col:
+                    urls += [self.raw_data_url + str(x.name) for x in dir_data_paths]
+            else:
+                # if its a file, we need to gather the file paths
+                file_data_paths = [Path(x) for x in metadata_df[col].to_list()]
+                if "process" in col:
+                    urls += [
+                        self.process_data_url + str(x.name) for x in file_data_paths
+                    ]
+                elif "raw" in col:
+                    urls += [self.raw_data_url + str(x.name) for x in file_data_paths]
+
         doj_client = DataObjectSearch()
         resp = doj_client.get_batch_records(
             id_list=urls, search_field="url", fields="id"

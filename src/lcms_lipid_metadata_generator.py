@@ -160,24 +160,7 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
             CLIENT_SECRET=client_secret,
         )
         # check for duplicate doj urls in the database
-        processed_data_paths = [
-            list(Path(x).glob("**/*"))
-            for x in metadata_df["processed_data_directory"].to_list()
-        ]
-        # Add a check that the processed data directory is not empty
-        if not any(processed_data_paths):
-            raise FileNotFoundError(
-                f"No files found in processed data directory: "
-                f"{metadata_df['processed_data']}"
-            )
-        processed_data_paths = [
-            file for sublist in processed_data_paths for file in sublist
-        ]
-        raw_data_paths = [Path(x) for x in metadata_df["raw_data_file"].to_list()]
-        urls = [self.process_data_url + str(x.name) for x in processed_data_paths] + [
-            self.raw_data_url + str(x.name) for x in raw_data_paths
-        ]
-        self.check_doj_urls(urls=urls)
+        self.check_doj_urls(metadata_df=metadata_df, url_columns=self.unique_columns)
 
         for _, data in tqdm(
             metadata_df.iterrows(),

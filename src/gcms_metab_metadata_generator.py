@@ -162,14 +162,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             CLIENT_ID=client_id,
             CLIENT_SECRET=client_secret,
         )
-        processed_data_paths = [
-            Path(x) for x in metadata_df["processed_data_file"].to_list()
-        ]
-        raw_data_paths = [Path(x) for x in metadata_df["raw_data_file"].to_list()]
-        urls = [self.process_data_url + str(x.name) for x in processed_data_paths] + [
-            self.raw_data_url + str(x.name) for x in raw_data_paths
-        ]
-        self.check_doj_urls(urls=urls)
+        self.check_doj_urls(metadata_df=metadata_df, url_columns=self.unique_columns)
         # Get the configuration file data object id and add it to the metadata_df
         do_client = DataObjectSearch()
         config_do_id = do_client.get_record_by_attribute(
