@@ -21,6 +21,7 @@ import ast
 import numpy as np
 import toml
 import os
+import requests
 
 # Configure logging
 logging.basicConfig(
@@ -744,6 +745,16 @@ class NMDCMetadataGenerator(ABC):
                     ]
                 elif "raw" in col:
                     urls += [self.raw_data_url + str(x.name) for x in dir_data_paths]
+                # check if the urls are valid
+                for url in urls[
+                    :5
+                ]:  # Check up to 5 URLs, or fewer if the list is shorter
+                    try:
+                        response = requests.head(url)
+                        if response.status_code != 200:
+                            raise ValueError(f"URL {url} is not accessible.")
+                    except requests.RequestException as e:
+                        raise ValueError(f"URL {url} is not accessible. Error: {e}")
             else:
                 # if its a file, we need to gather the file paths
                 file_data_paths = [Path(x) for x in metadata_df[col].to_list()]
@@ -753,6 +764,16 @@ class NMDCMetadataGenerator(ABC):
                     ]
                 elif "raw" in col:
                     urls += [self.raw_data_url + str(x.name) for x in file_data_paths]
+                # check if the urls are valid
+                for url in urls[
+                    :5
+                ]:  # Check up to 5 URLs, or fewer if the list is shorter
+                    try:
+                        response = requests.head(url)
+                        if response.status_code != 200:
+                            raise ValueError(f"URL {url} is not accessible.")
+                    except requests.RequestException as e:
+                        raise ValueError(f"URL {url} is not accessible. Error: {e}")
 
         doj_client = DataObjectSearch()
         resp = doj_client.get_batch_records(
