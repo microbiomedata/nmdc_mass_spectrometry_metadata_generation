@@ -13,14 +13,14 @@ if python_path:
     os.environ["PYTHONPATH"] = python_path
 
 
-def test_lipid_metadata_gen():
+def test_lcms_lipid_metadata_gen():
     current_directory = os.path.dirname(__file__)
     csv_file_path = os.path.join(
-        current_directory, "test_data", "test_metadata_file_lipid.csv"
+        current_directory, "test_data", "test_metadata_file_lcms_lipid.csv"
     )
     # Set up output file with datetime stame
     output_file = (
-        "tests/test_data/test_database_lipid_"
+        "tests/test_data/test_database_lcms_lipid_"
         + datetime.now().strftime("%Y%m%d%H%M%S")
         + ".json"
     )
@@ -36,14 +36,16 @@ def test_lipid_metadata_gen():
     assert os.path.exists(output_file)
 
 
-def test_lipid_biosample_gen():
+def test_lcms_lipid_biosample_gen():
     current_directory = os.path.dirname(__file__)
     csv_file_path = os.path.join(
-        current_directory, "test_data", "test_metadata_file_lipid_no_biosample_id.csv"
+        current_directory,
+        "test_data",
+        "test_metadata_file_lcms_lipid_no_biosample_id.csv",
     )
     # Set up output file with datetime stame
     output_file = (
-        "tests/test_data/test_database_lipid_no_biosample_"
+        "tests/test_data/test_database_lcms_lipid_no_biosample_"
         + datetime.now().strftime("%Y%m%d%H%M%S")
         + ".json"
     )
