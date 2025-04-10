@@ -240,7 +240,9 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
                             data_category=self.wf_config_process_data_category,
                             data_object_type=self.wf_config_process_data_obj_type,
                             description=self.wf_config_process_data_description,
-                            base_url=self.process_data_url,
+                            base_url=self.process_data_url
+                            + Path(workflow_metadata.processed_data_dir).name
+                            + "/",
                             CLIENT_ID=client_id,
                             CLIENT_SECRET=client_secret,
                             was_generated_by=metab_analysis.id,
@@ -257,7 +259,9 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
                             data_category=self.no_config_process_data_category,
                             data_object_type=self.no_config_process_data_obj_type,
                             description=self.csv_process_data_description,
-                            base_url=self.process_data_url,
+                            base_url=self.process_data_url
+                            + Path(workflow_metadata.processed_data_dir).name
+                            + "/",
                             CLIENT_ID=client_id,
                             CLIENT_SECRET=client_secret,
                             was_generated_by=metab_analysis.id,
@@ -274,7 +278,9 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
                             data_category=self.no_config_process_data_category,
                             data_object_type=self.hdf5_process_data_obj_type,
                             description=self.hdf5_process_data_description,
-                            base_url=self.process_data_url,
+                            base_url=self.process_data_url
+                            + Path(workflow_metadata.processed_data_dir).name
+                            + "/",
                             CLIENT_ID=client_id,
                             CLIENT_SECRET=client_secret,
                             was_generated_by=metab_analysis.id,

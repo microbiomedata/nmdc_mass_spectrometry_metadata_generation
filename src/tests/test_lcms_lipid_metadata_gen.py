@@ -28,8 +28,8 @@ def test_lcms_lipid_metadata_gen():
     generator = LCMSLipidomicsMetadataGenerator(
         metadata_file=csv_file_path,
         database_dump_json_path=output_file,
-        raw_data_url="https://example_raw_data_url/",
-        process_data_url="https://example_processed_data_url/",
+        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/lipidomics/test_data/test_raw_lcms_lipid/",
+        process_data_url="https://nmdcdemo.emsl.pnnl.gov/lipidomics/test_data/test_processed_lcms_lipid/",
     )
     # Run the metadata generation process
     generator.run()
@@ -53,8 +53,8 @@ def test_lcms_lipid_biosample_gen():
     generator = LCMSLipidomicsMetadataGenerator(
         metadata_file=csv_file_path,
         database_dump_json_path=output_file,
-        raw_data_url="https://example_raw_data_url/",
-        process_data_url="https://example_processed_data_url/",
+        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/lipidomics/test_data/test_raw_lcms_lipid/",
+        process_data_url="https://nmdcdemo.emsl.pnnl.gov/lipidomics/test_data/test_processed_lcms_lipid/",
     )
     # Run the metadata generation process
     generator.run()

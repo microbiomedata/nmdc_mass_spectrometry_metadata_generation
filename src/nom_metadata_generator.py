@@ -131,7 +131,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             if not any(processed_data_paths):
                 raise FileNotFoundError(
                     f"No files found in processed data directory: "
-                    f"{row['processed_data']}"
+                    f"{row['processed_data_directory']}"
                 )
             processed_data_paths = [x for x in processed_data_paths if x.is_file()]
             ### we will have processed data object AFTER the workflow is ran. Since this is how the lipidomics and gcms work, that is how this will function as well.
@@ -147,7 +147,9 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                         data_category=self.workflow_param_data_category,
                         data_object_type=self.workflow_param_data_object_type,
                         description=processed_data_object_desc,
-                        base_url=self.process_data_url,
+                        base_url=self.process_data_url
+                        + Path(row["processed_data_directory"]).name
+                        + "/",
                         CLIENT_ID=client_id,
                         CLIENT_SECRET=client_secret,
                         was_generated_by=nom_analysis.id,
@@ -164,7 +166,9 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                         data_category=self.workflow_param_data_category,
                         data_object_type=self.workflow_param_data_object_type,
                         description=workflow_param_data_object_desc,
-                        base_url=self.process_data_url,
+                        base_url=self.process_data_url
+                        + Path(row["processed_data_directory"]).name
+                        + "/",
                         was_generated_by=nom_analysis.id,
                         CLIENT_ID=client_id,
                         CLIENT_SECRET=client_secret,
@@ -256,6 +260,9 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             )[0]["id"]
         except ValueError as e:
             print(f"Calibration object does not exist: {e}")
+            calibration_id = None
+        except IndexError as e:
+            print(f"Calibration object not found: {e}")
             calibration_id = None
         except Exception as e:
             print(f"An error occurred: {e}")

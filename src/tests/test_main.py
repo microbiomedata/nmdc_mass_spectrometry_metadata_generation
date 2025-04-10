@@ -27,9 +27,9 @@ def test_cli():
             "--database_dump_json_path",
             output_file,
             "--raw_data_url",
-            "https://example.com/raw/",
+            "https://nmdcdemo.emsl.pnnl.gov/metabolomics/test_data/test_raw_lcms_lipid/",
             "--process_data_url",
-            "https://example.com/results/",
+            "https://nmdcdemo.emsl.pnnl.gov/metabolomics/test_data/test_processed_lcms_lipid/",
         ]
     )
     # Verify it exits with a status code of zero

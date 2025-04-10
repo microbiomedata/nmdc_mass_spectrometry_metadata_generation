@@ -25,8 +25,8 @@ def test_gcms_metadata_gen():
     generator = GCMSMetabolomicsMetadataGenerator(
         metadata_file="tests/test_data/test_metadata_file_gcms.csv",
         database_dump_json_path=output_file,
-        raw_data_url="https://example_raw_data_url/",
-        process_data_url="https://example_processed_data_url/",
+        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/metabolomics/test_data/test_raw_gcms_metab/",
+        process_data_url="https://nmdcdemo.emsl.pnnl.gov/metabolomics/test_data/test_processed_gcms_metab/",
     )
 
     # Run the metadata generation process
@@ -46,8 +46,8 @@ def test_gcms_biosample_gen():
     generator = GCMSMetabolomicsMetadataGenerator(
         metadata_file="tests/test_data/test_metadata_file_gcms_no_biosample_id.csv",
         database_dump_json_path=output_file,
-        raw_data_url="https://example_raw_data_url/",
-        process_data_url="https://example_processed_data_url/",
+        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/metabolomics/test_data/test_raw_gcms_metab/",
+        process_data_url="https://nmdcdemo.emsl.pnnl.gov/metabolomics/test_data/test_processed_gcms_metab/",
         minting_config_creds="src/config.toml",
     )
 
@@ -76,8 +76,8 @@ def test_gcms_calibration_exists():
     generator = GCMSMetabolomicsMetadataGenerator(
         metadata_file="tests/test_data/test_metadata_file_gcms_calibration_id.csv",
         database_dump_json_path=output_file,
-        raw_data_url="https://example_raw_data_url/",
-        process_data_url="https://example_processed_data_url/",
+        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/metabolomics/test_data/test_raw_gcms_metab/",
+        process_data_url="https://nmdcdemo.emsl.pnnl.gov/metabolomics/test_data/test_processed_gcms_metab/",
     )
 
     # Run the metadata generation process

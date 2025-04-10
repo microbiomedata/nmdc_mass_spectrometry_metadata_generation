@@ -30,8 +30,8 @@ def test_nom_metadata_gen():
     generator = NOMMetadataGenerator(
         metadata_file="tests/test_data/test_metadata_file_nom.csv",
         database_dump_json_path=output_file,
-        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/",
-        process_data_url="https://example_processed_data_url/",
+        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_raw_nom/",
+        process_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_nom/",
     )
 
     # Run the metadata generation process
@@ -55,8 +55,8 @@ def test_nom_biosample_gen_more_fields():
     generator = NOMMetadataGenerator(
         metadata_file="tests/test_data/test_metadata_file_nom_no_biosample_id_weird_data.csv",
         database_dump_json_path=output_file,
-        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/",
-        process_data_url="https://example_processed_data_url/",
+        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_raw_nom/",
+        process_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_nom/",
     )
 
     # Run the metadata generation process
@@ -85,8 +85,8 @@ def test_nom_biosample_gen_no_biosample():
     generator = NOMMetadataGenerator(
         metadata_file="tests/test_data/test_metadata_file_nom_no_biosample_id.csv",
         database_dump_json_path=output_file,
-        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/",
-        process_data_url="https://example_processed_data_url/",
+        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_raw_nom/",
+        process_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_nom/",
     )
 
     # Run the metadata generation process
@@ -133,8 +133,8 @@ def test_config_file():
     generator = NOMMetadataGenerator(
         metadata_file="tests/test_data/test_metadata_file_nom.csv",
         database_dump_json_path=output_file,
-        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/",
-        process_data_url="https://example_processed_data_url/",
+        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_raw_nom/",
+        process_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_nom/",
         minting_config_creds="/Users/hess887/Projects/NMDC/nmdc_mass_spectrometry_metadata_generation/src/config.toml",
     )
 
