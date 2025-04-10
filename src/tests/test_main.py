@@ -8,7 +8,7 @@ def test_cli():
     sc = ScriptRunner(launch_mode="subprocess", rootdir=".")
     current_directory = os.path.dirname(__file__)
     csv_file_path = os.path.join(
-        current_directory, "test_data", "test_metadata_file_lipid.csv"
+        current_directory, "test_data", "test_metadata_file_lcms_lipid.csv"
     )
     # Command to be tested
     output_file = (
