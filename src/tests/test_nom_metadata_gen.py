@@ -99,24 +99,6 @@ def test_nom_biosample_gen_no_biosample():
     assert len(working_data["biosample_set"]) == 2
 
 
-@pytest.mark.skip(reason="Test relies on a specific file that may not be present")
-def test_has_input():
-    working = "tests/test_data/test_database_nom_20250219123935.json"
-    testing = "tests/test_data/test_database_nom_20250220105753.json"
-
-    file = open(working, "r")
-    working_data = json.load(file)
-    file.close()
-    file = open(testing, "r")
-    testing_data = json.load(file)
-    file.close()
-    for i in range(len(working_data["data_generation_set"])):
-        assert (
-            working_data["data_generation_set"][i]["has_input"]
-            == testing_data["data_generation_set"][i]["has_input"]
-        )
-
-
 def test_config_file():
     """
     Test the NOM metadata generation script.
