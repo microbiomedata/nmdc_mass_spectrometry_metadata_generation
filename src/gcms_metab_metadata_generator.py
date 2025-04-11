@@ -162,7 +162,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             CLIENT_ID=client_id,
             CLIENT_SECRET=client_secret,
         )
-
+        self.check_doj_urls(metadata_df=metadata_df, url_columns=self.unique_columns)
         # Get the configuration file data object id and add it to the metadata_df
         do_client = DataObjectSearch()
         config_do_id = do_client.get_record_by_attribute(

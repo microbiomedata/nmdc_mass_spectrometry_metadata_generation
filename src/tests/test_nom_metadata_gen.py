@@ -30,8 +30,8 @@ def test_nom_metadata_gen():
     generator = NOMMetadataGenerator(
         metadata_file="tests/test_data/test_metadata_file_nom.csv",
         database_dump_json_path=output_file,
-        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/",
-        process_data_url="https://example_processed_data_url/",
+        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_raw_nom/",
+        process_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_nom/",
     )
 
     # Run the metadata generation process
@@ -55,8 +55,8 @@ def test_nom_biosample_gen_more_fields():
     generator = NOMMetadataGenerator(
         metadata_file="tests/test_data/test_metadata_file_nom_no_biosample_id_weird_data.csv",
         database_dump_json_path=output_file,
-        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/",
-        process_data_url="https://example_processed_data_url/",
+        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_raw_nom/",
+        process_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_nom/",
     )
 
     # Run the metadata generation process
@@ -85,8 +85,8 @@ def test_nom_biosample_gen_no_biosample():
     generator = NOMMetadataGenerator(
         metadata_file="tests/test_data/test_metadata_file_nom_no_biosample_id.csv",
         database_dump_json_path=output_file,
-        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/",
-        process_data_url="https://example_processed_data_url/",
+        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_raw_nom/",
+        process_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_nom/",
     )
 
     # Run the metadata generation process
@@ -97,24 +97,6 @@ def test_nom_biosample_gen_no_biosample():
     working_data = json.load(file)
     file.close()
     assert len(working_data["biosample_set"]) == 2
-
-
-@pytest.mark.skip(reason="Test relies on a specific file that may not be present")
-def test_has_input():
-    working = "tests/test_data/test_database_nom_20250219123935.json"
-    testing = "tests/test_data/test_database_nom_20250220105753.json"
-
-    file = open(working, "r")
-    working_data = json.load(file)
-    file.close()
-    file = open(testing, "r")
-    testing_data = json.load(file)
-    file.close()
-    for i in range(len(working_data["data_generation_set"])):
-        assert (
-            working_data["data_generation_set"][i]["has_input"]
-            == testing_data["data_generation_set"][i]["has_input"]
-        )
 
 
 def test_config_file():
@@ -133,8 +115,8 @@ def test_config_file():
     generator = NOMMetadataGenerator(
         metadata_file="tests/test_data/test_metadata_file_nom.csv",
         database_dump_json_path=output_file,
-        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/",
-        process_data_url="https://example_processed_data_url/",
+        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_raw_nom/",
+        process_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_nom/",
         minting_config_creds="/Users/hess887/Projects/NMDC/nmdc_mass_spectrometry_metadata_generation/src/config.toml",
     )
 

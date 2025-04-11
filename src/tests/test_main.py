@@ -8,7 +8,7 @@ def test_cli():
     sc = ScriptRunner(launch_mode="subprocess", rootdir=".")
     current_directory = os.path.dirname(__file__)
     csv_file_path = os.path.join(
-        current_directory, "test_data", "test_metadata_file_lipid.csv"
+        current_directory, "test_data", "test_metadata_file_lcms_lipid.csv"
     )
     # Command to be tested
     output_file = (
@@ -27,9 +27,9 @@ def test_cli():
             "--database_dump_json_path",
             output_file,
             "--raw_data_url",
-            "https://example.com/raw/",
+            "https://nmdcdemo.emsl.pnnl.gov/lipidomics/test_data/test_raw_lcms_lipid/",
             "--process_data_url",
-            "https://example.com/results/",
+            "https://nmdcdemo.emsl.pnnl.gov/lipidomics/test_data/test_processed_lcms_lipid/",
         ]
     )
     # Verify it exits with a status code of zero
