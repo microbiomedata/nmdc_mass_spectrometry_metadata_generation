@@ -96,7 +96,7 @@ class MetadataParser:
 
         # Initialize the metadata dictionary
         metadata_dict = {
-            "raw_data_directory": Path(self.get_value(row, "raw_data_directory")),
+            "raw_data_file": Path(self.get_value(row, "raw_data_file")),
             "processed_data_directory": Path(
                 self.get_value(row, "processed_data_directory")
             ),
