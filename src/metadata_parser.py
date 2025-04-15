@@ -409,3 +409,51 @@ class MetadataParser:
         }
 
         return nmdc_controlled_term_slot
+
+    def generate_csv(self):
+        """
+        Function to generate a an example csv file from available NMDCSchema fields.
+        """
+        # Get all fields from the Biosample dataclass
+        biosample_fields = Biosample.__dataclass_fields__.keys()
+        biosample_fields = [
+            "biosample." + field
+            for field in biosample_fields
+            if field != "_inherited_slots"
+        ]
+        # Create a DataFrame with the fields as columns and an empty row
+        df = pd.DataFrame(columns=biosample_fields)
+        #  Add data based on the type of column
+        for field in biosample_fields:
+            if self.is_type(
+                Biosample.__dataclass_fields__[field].type,
+                ControlledIdentifiedTermValue,
+            ):
+                df[field] = ""
+            elif self.is_type(Biosample.__dataclass_fields__[field].type, TextValue):
+                df[field] = ""
+            elif self.is_type(
+                Biosample.__dataclass_fields__[field].type, QuantityValue
+            ):
+                df[field] = ""
+            elif self.is_type(
+                Biosample.__dataclass_fields__[field].type, GeolocationValue
+            ):
+                df[field] = ""
+            elif self.is_type(
+                Biosample.__dataclass_fields__[field].type, TimestampValue
+            ):
+                df[field] = ""
+            # Otherwise, set it to None
+            else:
+                df[field] = [None]
+
+        # Save the DataFrame to a CSV file
+        df.to_csv("example_biosample_metadata.csv", index=False)
+        print("df", df)
+
+
+if __name__ == "__main__":
+    # Example usage
+    metadata_parser = MetadataParser()
+    metadata_parser.generate_csv()
