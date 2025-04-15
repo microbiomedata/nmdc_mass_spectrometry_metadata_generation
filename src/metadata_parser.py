@@ -410,7 +410,9 @@ class MetadataParser:
 
         return nmdc_controlled_term_slot
 
-    def generate_csv(self):
+    def generate_example_biosample_csv(
+        self, file_path: str = "example_biosample_metadata.csv"
+    ):
         """
         Function to generate a an example csv file from available NMDCSchema Biosample fields.
         """
@@ -464,4 +466,4 @@ class MetadataParser:
                 df[field] = ""
 
         # Save the DataFrame to a CSV file
-        df.to_csv("example_biosample_metadata.csv", index=False)
+        df.to_csv(file_path, index=False)
