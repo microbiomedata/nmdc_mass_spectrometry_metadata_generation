@@ -409,3 +409,61 @@ class MetadataParser:
         }
 
         return nmdc_controlled_term_slot
+
+    def generate_example_biosample_csv(
+        self, file_path: str = "example_biosample_metadata.csv"
+    ):
+        """
+        Function to generate a an example csv file from available NMDCSchema Biosample fields.
+        """
+        # Get all fields from the Biosample dataclass
+        biosample_fields = Biosample.__dataclass_fields__.keys()
+        biosample_fields = [
+            "biosample." + field
+            for field in biosample_fields
+            if field != "_inherited_slots"
+        ]
+        # Create a DataFrame with the fields as columns and an empty row
+        df = pd.DataFrame(columns=biosample_fields)
+        #  Add data based on the type of column
+        for field in biosample_fields:
+            if self.is_type(
+                Biosample.__dataclass_fields__[field.split(".")[-1]].type,
+                ControlledIdentifiedTermValue,
+            ):
+                df[field] = ["ENVO:00000000"]
+            elif self.is_type(
+                Biosample.__dataclass_fields__[field.split(".")[-1]].type, TextValue
+            ):
+                df[field] = "textValue"
+            elif self.is_type(
+                Biosample.__dataclass_fields__[field.split(".")[-1]].type, QuantityValue
+            ):
+                # create new columns for each of the needed fields
+                quantity_df = pd.DataFrame(
+                    {
+                        field + ".has_maximum_numeric_value": ["85"],
+                        field + ".has_minimum_numeric_value": ["85"],
+                        field + ".has_numeric_value": ["85"],
+                        field + ".has_unit": ["celcius"],
+                        field + ".has_raw_value": ["85"],
+                    }
+                )
+                df = pd.concat([df, quantity_df], axis=1)
+                df.drop(field, axis=1, inplace=True)
+            elif self.is_type(
+                Biosample.__dataclass_fields__[field.split(".")[-1]].type,
+                GeolocationValue,
+            ):
+                df[field] = ["46.37228379 -119.2717467"]
+            elif self.is_type(
+                Biosample.__dataclass_fields__[field.split(".")[-1]].type,
+                TimestampValue,
+            ):
+                df[field] = ["2014-11-25"]
+            # Otherwise, set it to blank
+            else:
+                df[field] = ""
+
+        # Save the DataFrame to a CSV file
+        df.to_csv(file_path, index=False)
