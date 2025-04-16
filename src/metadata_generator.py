@@ -265,6 +265,7 @@ class NMDCMetadataGenerator(ABC):
         CLIENT_SECRET: str,
         lc_config_name: str = None,
         calibration_id: str = None,
+        rerun: bool = False,
     ) -> nmdc.DataGeneration:
         """
         Create an NMDC DataGeneration object for mass spectrometry and mint an NMDC ID.
@@ -541,11 +542,12 @@ class NMDCMetadataGenerator(ABC):
 
     def update_outputs(
         self,
-        mass_spec_obj: object,
         analysis_obj: object,
-        raw_data_obj: object,
+        raw_data_obj_id: object,
         parameter_data_id: list,
         processed_data_id_list: list,
+        mass_spec_obj: object = None,
+        rerun: bool = False,
     ) -> None:
         """
         Update output references for Mass Spectrometry and Workflow Analysis objects.
@@ -579,7 +581,8 @@ class NMDCMetadataGenerator(ABC):
         - Sets `mass_spec_obj.has_output` to [raw_data_obj.id].
         - Sets `analysis_obj.has_output` to `processed_data_id_list`.
         """
-        mass_spec_obj.has_output = [raw_data_obj.id]
+        if not rerun:
+            mass_spec_obj.has_output = [raw_data_obj_id]
         analysis_obj.has_input = parameter_data_id
         analysis_obj.has_output = processed_data_id_list
 

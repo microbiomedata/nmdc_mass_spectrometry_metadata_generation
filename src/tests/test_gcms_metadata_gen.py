@@ -34,6 +34,27 @@ def test_gcms_metadata_gen():
     assert os.path.exists(output_file)
 
 
+def test_gcms_metadata_rerun_gen():
+    # Set up output file with datetime stame
+    output_file = (
+        "tests/test_data/test_database_gcms_rerun_"
+        + datetime.now().strftime("%Y%m%d%H%M%S")
+        + ".json"
+    )
+
+    # Start the metadata generation setup
+    generator = GCMSMetabolomicsMetadataGenerator(
+        metadata_file="tests/test_data/test_metadata_file_gcms.csv",
+        database_dump_json_path=output_file,
+        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/metabolomics/test_data/test_raw_gcms_metab/",
+        process_data_url="https://nmdcdemo.emsl.pnnl.gov/metabolomics/test_data/test_processed_gcms_metab/",
+    )
+
+    # Run the metadata generation process
+    generator.rerun()
+    assert os.path.exists(output_file)
+
+
 def test_gcms_biosample_gen():
     # Set up output file with datetime stame
     output_file = (
@@ -83,3 +104,6 @@ def test_gcms_calibration_exists():
     # Run the metadata generation process
     generator.run()
     assert os.path.exists(output_file)
+
+
+test_gcms_metadata_rerun_gen()

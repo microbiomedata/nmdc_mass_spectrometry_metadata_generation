@@ -8,10 +8,12 @@ from nmdc_api_utilities.metadata import Metadata
 import ast
 import pandas as pd
 from nmdc_api_utilities.data_object_search import DataObjectSearch
+from nmdc_api_utilities.workflow_execution_search import WorkflowExecutionSearch
 import nmdc_schema.nmdc as nmdc
 from nmdc_api_utilities.minter import Minter
 from typing import List
 from src.data_classes import NmdcTypes, GCMSMetabWorkflowMetadata
+import re
 
 
 class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
@@ -93,7 +95,6 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
 
         # Workflow Configuration attributes
         self.configuration_file_name = configuration_file_name
-
         # Metadata attributes
         self.unique_columns = ["raw_data_file", "processed_data_file"]
 
@@ -122,6 +123,136 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         self.processed_data_object_type = "GC-MS Metabolomics Results"
         self.processed_data_object_description = "Metabolomics annotations as a result of a GC/MS metabolomics workflow activity."
 
+    def rerun(self) -> bool:
+        """
+        Execute a re run of the metadata generation process for GC/MS metabolomics data.
+
+        This method performs the following steps:
+        1. Initialize an NMDC Database instance.
+        2. Generate calibration information and data objects for each calibration file.
+        3. Load and process metadata to create NMDC objects.
+        4. Generate Mass Spectrometry (including metabolite identifications), Raw Data, Metabolomics Analysis, and
+        Processed Data objects.
+        5. Update outputs for Mass Spectrometry and Metabolomics Analysis objects.
+        6. Append generated objects to the NMDC Database.
+        7. Dump the NMDC Database to a JSON file.
+        8. Validate the JSON file using the NMDC API.
+
+        Returns
+        -------
+
+        Notes
+        -----
+        This method uses tqdm to display progress bars for the processing of calibration information and
+        mass spectrometry metadata.
+        """
+        wf_client = WorkflowExecutionSearch()
+        client_id, client_secret = self.load_credentials(
+            config_file=self.minting_config_creds
+        )
+
+        if self.calibration_standard != "fames":
+            raise ValueError("Only FAMES calibration is supported at this time.")
+
+        # Start NMDC database and make metadata dataframe
+        nmdc_database_inst = self.start_nmdc_database()
+        df = self.load_metadata()
+        metadata_df = df.apply(lambda x: x.reset_index(drop=True))
+        self.check_for_biosamples(
+            metadata_df=metadata_df,
+            nmdc_database_inst=nmdc_database_inst,
+            CLIENT_ID=client_id,
+            CLIENT_SECRET=client_secret,
+        )
+        # Get the configuration file data object id and add it to the metadata_df
+        do_client = DataObjectSearch()
+        config_do_id = do_client.get_record_by_attribute(
+            attribute_name="name",
+            attribute_value=self.configuration_file_name,
+            fields="id",
+            exact_match=True,
+        )[0]["id"]
+        # This is the ID for the parameters toml file
+        parameter_data_id = "nmdc:dobj-11-5tax4f20"
+        metadata_df["corems_config_file"] = config_do_id
+
+        # check if there is an existing calibration_id in the metadata. If not, we need to generate them
+        if (
+            "calibration_id" not in metadata_df.columns
+            or metadata_df["calibration_id"].isnull().all()
+        ):
+            self.generate_calibration_id(
+                metadata_df=metadata_df,
+                nmdc_database_inst=nmdc_database_inst,
+                CLIENT_ID=client_id,
+                CLIENT_SECRET=client_secret,
+            )
+
+        # process workflow metadata
+        for _, data in tqdm(
+            metadata_df.iterrows(),
+            total=metadata_df.shape[0],
+            desc="Processing Remaining Metadata",
+        ):
+            workflow_metadata_obj = self.create_workflow_metadata(data)
+            raw_data_object_id = do_client.get_record_by_attribute(
+                attribute_name="url",
+                attribute_value=self.raw_data_url
+                + Path(workflow_metadata_obj.raw_data_file).name,
+                fields="id",
+                exact_match=True,
+            )[0]["id"]
+            # find the mass spec object
+            metab_analysis = wf_client.get_record_by_filter(
+                filter=f'{{"has_input":{raw_data_object_id}, {"type":"nmdc:MetabolomicsAnalysis"}}}',
+                fields="id",
+                exact_match=True,
+            )[0]["id"]
+            # increment the metab_id, find the last .digit group with a regex
+            # and increment it by 1
+            regex = r"(\.d+)$"
+            metab_analysis_id = re.sub(
+                regex,
+                lambda x: str(int(x.group(1)) + 1),
+                metab_analysis,
+            )
+
+            # Generate processed data object
+            processed_data_object = self.generate_data_object(
+                file_path=Path(workflow_metadata_obj.processed_data_file),
+                data_category=self.processed_data_category,
+                data_object_type=self.processed_data_object_type,
+                description=self.processed_data_object_description,
+                base_url=self.process_data_url,
+                CLIENT_ID=client_id,
+                CLIENT_SECRET=client_secret,
+                was_generated_by=metab_analysis_id,
+            )
+
+            # Update MetabolomicsAnalysis times based on processed data file
+            processed_file = Path(workflow_metadata_obj.processed_data_file)
+            metab_analysis.started_at_time = datetime.fromtimestamp(
+                processed_file.stat().st_ctime
+            ).strftime("%Y-%m-%d %H:%M:%S")
+            metab_analysis.ended_at_time = datetime.fromtimestamp(
+                processed_file.stat().st_mtime
+            ).strftime("%Y-%m-%d %H:%M:%S")
+            has_inputs = [parameter_data_id, raw_data_object_id]
+            self.update_outputs(
+                analysis_obj=metab_analysis,
+                raw_data_obj_id=raw_data_object_id,
+                parameter_data_id=has_inputs,
+                processed_data_id_list=[processed_data_object.id],
+                rerun=True,
+            )
+
+            nmdc_database_inst.data_object_set.append(processed_data_object)
+
+        self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
+        api_metadata = Metadata()
+        api_metadata.validate_json(self.database_dump_json_path)
+        logging.info("Metadata processing re run completed.")
+
     def run(self):
         """
         Execute the metadata generation process for GC/MS metabolomics data.
@@ -145,6 +276,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         This method uses tqdm to display progress bars for the processing of calibration information and
         mass spectrometry metadata.
         """
+
         client_id, client_secret = self.load_credentials(
             config_file=self.minting_config_creds
         )
@@ -211,7 +343,6 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
                 CLIENT_SECRET=client_secret,
                 calibration_id=workflow_metadata_obj.calibration_id,
             )
-
             # Generate raw data object
             raw_data_object = self.generate_data_object(
                 file_path=Path(workflow_metadata_obj.raw_data_file),
@@ -223,7 +354,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
                 CLIENT_SECRET=client_secret,
                 was_generated_by=mass_spec.id,
             )
-
+            raw_data_object_id = raw_data_object.id
             # Generate metabolite identifications
             metabolite_identifications = self.generate_metab_identifications(
                 processed_data_file=workflow_metadata_obj.processed_data_file
@@ -233,7 +364,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             metab_analysis = self.generate_metabolomics_analysis(
                 cluster_name=workflow_metadata_obj.execution_resource,
                 raw_data_name=Path(workflow_metadata_obj.raw_data_file).name,
-                raw_data_id=raw_data_object.id,
+                raw_data_id=raw_data_object_id,
                 data_gen_id=mass_spec.id,
                 processed_data_id="nmdc:placeholder",
                 parameter_data_id=parameter_data_id,
@@ -264,11 +395,11 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             metab_analysis.ended_at_time = datetime.fromtimestamp(
                 processed_file.stat().st_mtime
             ).strftime("%Y-%m-%d %H:%M:%S")
-            has_inputs = [parameter_data_id, raw_data_object.id]
+            has_inputs = [parameter_data_id, raw_data_object_id]
             self.update_outputs(
                 mass_spec_obj=mass_spec,
                 analysis_obj=metab_analysis,
-                raw_data_obj=raw_data_object,
+                raw_data_obj_id=raw_data_object_id,
                 parameter_data_id=has_inputs,
                 processed_data_id_list=[processed_data_object.id],
             )
