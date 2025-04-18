@@ -129,11 +129,9 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
 
         This method performs the following steps:
         1. Initialize an NMDC Database instance.
-        2. Generate calibration information and data objects for each calibration file.
         3. Load and process metadata to create NMDC objects.
-        4. Generate Mass Spectrometry (including metabolite identifications), Raw Data, Metabolomics Analysis, and
-        Processed Data objects.
-        5. Update outputs for Mass Spectrometry and Metabolomics Analysis objects.
+        4. Generate Metabolomics Analysis and Processed Data objects.
+        5. Update outputs for the Metabolomics Analysis object.
         6. Append generated objects to the NMDC Database.
         7. Dump the NMDC Database to a JSON file.
         8. Validate the JSON file using the NMDC API.
@@ -180,7 +178,6 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             total=metadata_df.shape[0],
             desc="Processing Remaining Metadata",
         ):
-            # workflow_metadata_obj = self.create_workflow_metadata(data)
             raw_data_object_id = do_client.get_record_by_attribute(
                 attribute_name="url",
                 attribute_value=self.raw_data_url + Path(data["raw_data_file"]).name,
