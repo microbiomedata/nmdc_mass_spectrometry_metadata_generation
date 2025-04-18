@@ -33,6 +33,8 @@ def main():
         lcms_lipid for 'LipidomicsMetadataGenerator'
         gcms_metab 'GCMSMetabolomicsMetadataGenerator'
         nom for 'NOMMetadataGenerator'.
+    --rerun : bool
+        If True, this will indicate the run is a rerun. Default is False.
     --metadata_file : str
         Path to the input CSV metadata file.
         Example: See example_metadata_file.csv in this directory.
@@ -70,6 +72,12 @@ def main():
         "--generator",
         required=True,
         help="Metadata generator to use (lcms_lipid, gcms_metab, nom)",
+    )
+    parser.add_argument(
+        "--rerun",
+        help="Is this a rerun? (True/False)",
+        type=bool,
+        default=False,
     )
     parser.add_argument(
         "--metadata_file", required=True, help="Path to the input CSV metadata file"
@@ -134,8 +142,10 @@ def main():
             process_data_url=args.process_data_url,
             minting_config_creds=args.minting_config_creds,
         )
-
-    generator.run()
+    if args.rerun:
+        generator.rerun()
+    else:
+        generator.run()
 
 
 if __name__ == "__main__":
