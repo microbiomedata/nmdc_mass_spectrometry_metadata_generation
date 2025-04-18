@@ -5,10 +5,13 @@ from tqdm import tqdm
 from pathlib import Path
 from nmdc_api_utilities.data_object_search import DataObjectSearch
 from nmdc_api_utilities.calibration_search import CalibrationSearch
+from nmdc_api_utilities.workflow_execution_search import WorkflowExecutionSearch
 from nmdc_api_utilities.minter import Minter
 from nmdc_api_utilities.metadata import Metadata
 import nmdc_schema.nmdc as nmdc
 import hashlib
+import pandas as pd
+import re
 
 
 class NOMMetadataGenerator(NMDCMetadataGenerator):
@@ -51,6 +54,137 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         self.processing_institution = "EMSL"
         self.workflow_git_url = "https://github.com/microbiomedata/enviroMS"
         self.workflow_version = "4.3.1"
+
+    def rerun(self):
+        """
+        Execute a rerun of the metadata generation process.
+
+        This method processes the metadata file, generates biosamples (if needed)
+        and metadata, and manages the workflow for generating NOM analysis data.
+        """
+        do_client = DataObjectSearch()
+        wf_client = WorkflowExecutionSearch()
+        client_id, client_secret = self.load_credentials(
+            config_file=self.minting_config_creds
+        )
+        nmdc_database_inst = self.start_nmdc_database()
+        try:
+            df = pd.read_csv(self.metadata_file)
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Metadata file not found: {self.metadata_file}")
+        metadata_df = df.apply(lambda x: x.reset_index(drop=True))
+        tqdm.write("\033[92mStarting metadata processing...\033[0m")
+
+        # check for duplicate doj urls in the database
+        self.check_doj_urls(
+            metadata_df=metadata_df, url_columns=["processed_data_directory"]
+        )
+        # Iterate through each row in df to generate metadata
+        for _, row in tqdm(
+            metadata_df.iterrows(),
+            total=metadata_df.shape[0],
+            desc="Processing NOM rows",
+        ):
+            raw_data_object_id = do_client.get_record_by_attribute(
+                attribute_name="url",
+                attribute_value=self.raw_data_url + Path(row["raw_data_file"]).name,
+                fields="id",
+                exact_match=True,
+            )[0]["id"]
+            # find the MetabolomicsAnalysis object - this is the old one
+            prev_metab_analysis = wf_client.get_record_by_filter(
+                filter=f'{{"has_input":"{raw_data_object_id}","type":"{NmdcTypes.MetabolomicsAnalysis}"}}',
+                fields="id,uses_calibration,execution_resource,processing_institution,was_informed_by",
+            )[0]
+            # increment the metab_id, find the last .digit group with a regex
+            regex = r"(\d+)$"
+            metab_analysis_id = re.sub(
+                regex,
+                lambda x: str(int(x.group(1)) + 1),
+                prev_metab_analysis["id"],
+            )
+            processed_data = []
+            # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
+            started_at_time = row["start_date"] + " " + row["started_at_time"]
+            eneded_at_time = row["end_date"] + " " + row["ended_at_time"]
+            nom_analysis = self.generate_nom_analysis(
+                file_path=Path(row["raw_data_file"]),
+                ref_calibration_path=Path(row["ref_calibration_path"]),
+                raw_data_id=raw_data_object_id,
+                data_gen_id=prev_metab_analysis["was_informed_by"],
+                processed_data_id="nmdc:placeholder",
+                started_at_time=started_at_time,
+                ended_at_time=eneded_at_time,
+                CLIENT_ID=client_id,
+                CLIENT_SECRET=client_secret,
+            )
+            processed_data_paths = list(
+                Path(row["processed_data_directory"]).glob("**/*")
+            )
+            # Add a check that the processed data directory is not empty
+            if not any(processed_data_paths):
+                raise FileNotFoundError(
+                    f"No files found in processed data directory: "
+                    f"{row['processed_data_directory']}"
+                )
+            processed_data_paths = [x for x in processed_data_paths if x.is_file()]
+            ### we will have processed data object AFTER the workflow is ran. Since this is how the lipidomics and gcms work, that is how this will function as well.
+            for file in processed_data_paths:
+                if file.suffix == ".csv":
+                    # this is the .csv file of the processed data
+                    processed_data_object_desc = (
+                        f"EnviroMS {row['instrument_used']} "
+                        "natural organic matter workflow molecular formula assignment output details"
+                    )
+                    processed_data_object = self.generate_data_object(
+                        file_path=file,
+                        data_category=self.workflow_param_data_category,
+                        data_object_type=self.workflow_param_data_object_type,
+                        description=processed_data_object_desc,
+                        base_url=self.process_data_url
+                        + Path(row["processed_data_directory"]).name
+                        + "/",
+                        CLIENT_ID=client_id,
+                        CLIENT_SECRET=client_secret,
+                        was_generated_by=nom_analysis.id,
+                        alternative_id=None,
+                    )
+                    processed_data.append(processed_data_object.id)
+                if file.suffix == ".json":
+                    # Generate workflow parameter data object
+                    # this is the .json file of processed data
+                    workflow_param_data_object_desc = f"CoreMS processing parameters for natural organic matter analysis used to generate {nom_analysis.id}"
+
+                    workflow_data_object = self.generate_data_object(
+                        file_path=file,
+                        data_category=self.workflow_param_data_category,
+                        data_object_type=self.workflow_param_data_object_type,
+                        description=workflow_param_data_object_desc,
+                        base_url=self.process_data_url
+                        + Path(row["processed_data_directory"]).name
+                        + "/",
+                        was_generated_by=nom_analysis.id,
+                        CLIENT_ID=client_id,
+                        CLIENT_SECRET=client_secret,
+                        alternative_id=None,
+                    )
+            has_input = [workflow_data_object.id, raw_data_object_id]
+            # Update the outputs for mass_spectrometry and nom_analysis
+            self.update_outputs(
+                analysis_obj=nom_analysis,
+                raw_data_obj_id=raw_data_object_id,
+                parameter_data_id=has_input,
+                processed_data_id_list=processed_data,
+                rerun=True,
+            )
+            nmdc_database_inst.data_object_set.append(processed_data_object)
+            nmdc_database_inst.data_object_set.append(workflow_data_object)
+            nmdc_database_inst.workflow_execution_set.append(nom_analysis)
+            processed_data = []
+
+        self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
+        api_metadata = Metadata()
+        api_metadata.validate_json(self.database_dump_json_path)
 
     def run(self):
         """
@@ -179,7 +313,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             self.update_outputs(
                 mass_spec_obj=mass_spec,
                 analysis_obj=nom_analysis,
-                raw_data_obj=raw_data_object,
+                raw_data_obj_id=raw_data_object,
                 parameter_data_id=has_input,
                 processed_data_id_list=processed_data,
             )
