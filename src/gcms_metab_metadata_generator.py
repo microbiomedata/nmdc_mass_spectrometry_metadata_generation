@@ -151,18 +151,16 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             config_file=self.minting_config_creds
         )
 
-        if self.calibration_standard != "fames":
-            raise ValueError("Only FAMES calibration is supported at this time.")
-
         # Start NMDC database and make metadata dataframe
         nmdc_database_inst = self.start_nmdc_database()
-        df = self.load_metadata()
+        try:
+            df = pd.read_csv(self.metadata_file)
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Metadata file not found: {self.metadata_file}")
         metadata_df = df.apply(lambda x: x.reset_index(drop=True))
-        self.check_for_biosamples(
-            metadata_df=metadata_df,
-            nmdc_database_inst=nmdc_database_inst,
-            CLIENT_ID=client_id,
-            CLIENT_SECRET=client_secret,
+        # just check the process data urls
+        self.check_doj_urls(
+            metadata_df=metadata_df, url_columns=["processed_data_file"]
         )
         # Get the configuration file data object id and add it to the metadata_df
         do_client = DataObjectSearch()
@@ -176,50 +174,35 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         parameter_data_id = "nmdc:dobj-11-5tax4f20"
         metadata_df["corems_config_file"] = config_do_id
 
-        # check if there is an existing calibration_id in the metadata. If not, we need to generate them
-        if (
-            "calibration_id" not in metadata_df.columns
-            or metadata_df["calibration_id"].isnull().all()
-        ):
-            self.generate_calibration_id(
-                metadata_df=metadata_df,
-                nmdc_database_inst=nmdc_database_inst,
-                CLIENT_ID=client_id,
-                CLIENT_SECRET=client_secret,
-            )
-
         # process workflow metadata
         for _, data in tqdm(
             metadata_df.iterrows(),
             total=metadata_df.shape[0],
             desc="Processing Remaining Metadata",
         ):
-            workflow_metadata_obj = self.create_workflow_metadata(data)
+            # workflow_metadata_obj = self.create_workflow_metadata(data)
             raw_data_object_id = do_client.get_record_by_attribute(
                 attribute_name="url",
-                attribute_value=self.raw_data_url
-                + Path(workflow_metadata_obj.raw_data_file).name,
+                attribute_value=self.raw_data_url + Path(data["raw_data_file"]).name,
                 fields="id",
                 exact_match=True,
             )[0]["id"]
-            # find the mass spec object
-            metab_analysis = wf_client.get_record_by_filter(
-                filter=f'{{"has_input":{raw_data_object_id}, {"type":"nmdc:MetabolomicsAnalysis"}}}',
-                fields="id",
-                exact_match=True,
-            )[0]["id"]
+            # find the MetabolomicsAnalysis object - this is the old one
+            prev_metab_analysis = wf_client.get_record_by_filter(
+                filter=f'{{"has_input":"{raw_data_object_id}","type":"{NmdcTypes.MetabolomicsAnalysis}"}}',
+                fields="id,uses_calibration,execution_resource,processing_institution,was_informed_by",
+            )[0]
             # increment the metab_id, find the last .digit group with a regex
-            # and increment it by 1
-            regex = r"(\.d+)$"
+            regex = r"(\d+)$"
             metab_analysis_id = re.sub(
                 regex,
                 lambda x: str(int(x.group(1)) + 1),
-                metab_analysis,
+                prev_metab_analysis["id"],
             )
 
             # Generate processed data object
             processed_data_object = self.generate_data_object(
-                file_path=Path(workflow_metadata_obj.processed_data_file),
+                file_path=Path(data["processed_data_file"]),
                 data_category=self.processed_data_category,
                 data_object_type=self.processed_data_object_type,
                 description=self.processed_data_object_description,
@@ -228,9 +211,22 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
                 CLIENT_SECRET=client_secret,
                 was_generated_by=metab_analysis_id,
             )
-
+            # need to generate a new metabolomics analysis object with the newly incremented id
+            metab_analysis = self.generate_metabolomics_analysis(
+                cluster_name=prev_metab_analysis["execution_resource"],
+                raw_data_name=Path(data["raw_data_file"]).name,
+                raw_data_id=raw_data_object_id,
+                data_gen_id=prev_metab_analysis["was_informed_by"],
+                processed_data_id=processed_data_object.id,
+                parameter_data_id=parameter_data_id,
+                processing_institution=prev_metab_analysis["processing_institution"],
+                incremeneted_id=metab_analysis_id,
+                CLIENT_ID=client_id,
+                CLIENT_SECRET=client_secret,
+                calibration_id=prev_metab_analysis["uses_calibration"],
+            )
             # Update MetabolomicsAnalysis times based on processed data file
-            processed_file = Path(workflow_metadata_obj.processed_data_file)
+            processed_file = Path(data["processed_data_file"])
             metab_analysis.started_at_time = datetime.fromtimestamp(
                 processed_file.stat().st_ctime
             ).strftime("%Y-%m-%d %H:%M:%S")
@@ -245,8 +241,8 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
                 processed_data_id_list=[processed_data_object.id],
                 rerun=True,
             )
-
             nmdc_database_inst.data_object_set.append(processed_data_object)
+            nmdc_database_inst.workflow_execution_set.append(metab_analysis)
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
         api_metadata = Metadata()

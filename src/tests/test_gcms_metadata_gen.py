@@ -44,9 +44,9 @@ def test_gcms_metadata_rerun_gen():
 
     # Start the metadata generation setup
     generator = GCMSMetabolomicsMetadataGenerator(
-        metadata_file="tests/test_data/test_metadata_file_gcms.csv",
+        metadata_file="tests/test_data/test_metadata_file_gcms_rerun.csv",
         database_dump_json_path=output_file,
-        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/metabolomics/test_data/test_raw_gcms_metab/",
+        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/metabolomics/blanchard_11_8ws97026/raw/",
         process_data_url="https://nmdcdemo.emsl.pnnl.gov/metabolomics/test_data/test_processed_gcms_metab/",
     )
 
@@ -104,6 +104,3 @@ def test_gcms_calibration_exists():
     # Run the metadata generation process
     generator.run()
     assert os.path.exists(output_file)
-
-
-test_gcms_metadata_rerun_gen()

@@ -454,6 +454,7 @@ class NMDCMetadataGenerator(ABC):
         CLIENT_ID: str,
         CLIENT_SECRET: str,
         calibration_id: str = None,
+        incremeneted_id: str = None,
         metabolite_identifications: List[nmdc.MetaboliteIdentification] = None,
         type: str = NmdcTypes.MetabolomicsAnalysis,
     ) -> nmdc.MetabolomicsAnalysis:
@@ -501,20 +502,20 @@ class NMDCMetadataGenerator(ABC):
         placeholder values and should be updated with actual timestamps later
         when the processed files are iterated over in the run method.
         """
-        mint = Minter()
-        nmdc_id = (
-            mint.mint(
-                nmdc_type=NmdcTypes.MetabolomicsAnalysis,
-                client_id=CLIENT_ID,
-                client_secret=CLIENT_SECRET,
+        if incremeneted_id is None:
+            # If no incremented id is provided, mint a new one
+            mint = Minter()
+            nmdc_id = (
+                mint.mint(
+                    nmdc_type=NmdcTypes.MetabolomicsAnalysis,
+                    client_id=CLIENT_ID,
+                    client_secret=CLIENT_SECRET,
+                )
+                + ".1"
             )
-            + ".1"
-        )
-
-        # TODO: Update the minting to handle versioning in the future
 
         data_dict = {
-            "id": nmdc_id,
+            "id": incremeneted_id if incremeneted_id is not None else nmdc_id,
             "name": f"{self.workflow_analysis_name} for {raw_data_name}",
             "description": self.workflow_description,
             "processing_institution": processing_institution,
