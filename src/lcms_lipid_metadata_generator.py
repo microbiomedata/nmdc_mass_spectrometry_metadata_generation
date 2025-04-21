@@ -519,10 +519,10 @@ class LCMSLipidomicsMetadataGenerator(NMDCMetadataGenerator):
             self.update_outputs(
                 mass_spec_obj=mass_spec,
                 analysis_obj=metab_analysis,
-                raw_data_obj_id=raw_data_object,
+                raw_data_obj_id=raw_data_object.id,
                 parameter_data_id=has_input,
                 processed_data_id_list=processed_data,
-                rerun=True,
+                rerun=False,
             )
 
             nmdc_database_inst.data_generation_set.append(mass_spec)
