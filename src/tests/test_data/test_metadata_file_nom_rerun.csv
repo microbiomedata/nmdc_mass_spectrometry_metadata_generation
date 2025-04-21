@@ -1,2 +1,2 @@
-raw_data_file,processed_data_directory
-tests/test_data/test_raw_nom/Blanchard_MeOHExt_C-12-AB-M_22Feb18_000001.zip,tests/test_data/test_processed_nom/nom_sample_1
+raw_data_file,processed_data_directory,start_date,end_date,started_at_time,ended_at_time
+tests/test_data/test_raw_nom/Blanchard_MeOHExt_H-17-AB-M_20Feb18_000001.zip,tests/test_data/test_processed_nom/nom_sample_1,2018-02-20,2018-02-20,00:00:01,00:00:01

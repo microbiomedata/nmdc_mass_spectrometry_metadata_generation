@@ -39,28 +39,28 @@ def test_nom_metadata_gen():
     assert os.path.exists(output_file)
 
 
-def test_nom_metadata_gen():
+def test_nom_metadata_gen_rerun():
     """
     Test the NOM metadata generation script.
     Test case does not include generating a biosample
     """
     # Set up output file with datetime stame
     output_file = (
-        "tests/test_data/test_database_nom_"
+        "tests/test_data/test_database_nom_rerun_"
         + datetime.now().strftime("%Y%m%d%H%M%S")
         + ".json"
     )
 
     # Start the metadata generation setup
     generator = NOMMetadataGenerator(
-        metadata_file="tests/test_data/test_metadata_file_nom.csv",
+        metadata_file="tests/test_data/test_metadata_file_nom_rerun.csv",
         database_dump_json_path=output_file,
         raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/blanchard/raw/",
         process_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_nom/",
     )
 
     # Run the metadata generation process
-    generator.run()
+    generator.rerun()
     assert os.path.exists(output_file)
 
 

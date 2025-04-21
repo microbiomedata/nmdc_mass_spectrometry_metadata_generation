@@ -85,36 +85,48 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             total=metadata_df.shape[0],
             desc="Processing NOM rows",
         ):
-            raw_data_object_id = do_client.get_record_by_attribute(
-                attribute_name="url",
-                attribute_value=self.raw_data_url + Path(row["raw_data_file"]).name,
-                fields="id",
-                exact_match=True,
-            )[0]["id"]
-            # find the MetabolomicsAnalysis object - this is the old one
-            prev_metab_analysis = wf_client.get_record_by_filter(
-                filter=f'{{"has_input":"{raw_data_object_id}","type":"{NmdcTypes.MetabolomicsAnalysis}"}}',
-                fields="id,uses_calibration,execution_resource,processing_institution,was_informed_by",
-            )[0]
-            # increment the metab_id, find the last .digit group with a regex
-            regex = r"(\d+)$"
-            metab_analysis_id = re.sub(
-                regex,
-                lambda x: str(int(x.group(1)) + 1),
-                prev_metab_analysis["id"],
-            )
+            try:
+                raw_data_object_id = do_client.get_record_by_attribute(
+                    attribute_name="url",
+                    attribute_value=self.raw_data_url + Path(row["raw_data_file"]).name,
+                    fields="id",
+                    exact_match=True,
+                )[0]["id"]
+            except Exception as e:
+                raise ValueError(
+                    f"Raw data object not found for URL: {self.raw_data_url + Path(row['raw_data_file']).name}"
+                ) from e
+            try:
+                # find the MetabolomicsAnalysis object - this is the old one
+                prev_metab_analysis = wf_client.get_record_by_filter(
+                    filter=f'{{"has_input":"{raw_data_object_id}","type":"{NmdcTypes.NomAnalysis}"}}',
+                    fields="id,uses_calibration,execution_resource,processing_institution,was_informed_by",
+                )[0]
+                # increment the metab_id, find the last .digit group with a regex
+                regex = r"(\d+)$"
+                metab_analysis_id = re.sub(
+                    regex,
+                    lambda x: str(int(x.group(1)) + 1),
+                    prev_metab_analysis["id"],
+                )
+            except Exception as e:
+                raise IndexError(
+                    f"MetabolomicsAnalysis object not found for raw data object ID: {raw_data_object_id}"
+                )
             processed_data = []
+            # grab the calibration_id from the previous metabolomics analysis
             # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
             started_at_time = row["start_date"] + " " + row["started_at_time"]
             eneded_at_time = row["end_date"] + " " + row["ended_at_time"]
             nom_analysis = self.generate_nom_analysis(
                 file_path=Path(row["raw_data_file"]),
-                ref_calibration_path=Path(row["ref_calibration_path"]),
                 raw_data_id=raw_data_object_id,
                 data_gen_id=prev_metab_analysis["was_informed_by"],
                 processed_data_id="nmdc:placeholder",
                 started_at_time=started_at_time,
                 ended_at_time=eneded_at_time,
+                calibration_id=prev_metab_analysis["uses_calibration"],
+                incremented_id=metab_analysis_id,
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
             )
@@ -132,10 +144,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             for file in processed_data_paths:
                 if file.suffix == ".csv":
                     # this is the .csv file of the processed data
-                    processed_data_object_desc = (
-                        f"EnviroMS {row['instrument_used']} "
-                        "natural organic matter workflow molecular formula assignment output details"
-                    )
+                    processed_data_object_desc = "EnviroMS natural organic matter workflow molecular formula assignment output details"
                     processed_data_object = self.generate_data_object(
                         file_path=file,
                         data_category=self.workflow_param_data_category,
@@ -247,9 +256,12 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
             started_at_time = row["start_date"] + " " + row["started_at_time"]
             eneded_at_time = row["end_date"] + " " + row["ended_at_time"]
+            calibration_id = self.get_calibration_id(
+                calibration_path=Path(row["ref_calibration_path"])
+            )
             nom_analysis = self.generate_nom_analysis(
                 file_path=Path(row["raw_data_file"]),
-                ref_calibration_path=Path(row["ref_calibration_path"]),
+                calibration_id=calibration_id,
                 raw_data_id=raw_data_object.id,
                 data_gen_id=mass_spec.id,
                 processed_data_id="nmdc:placeholder",
@@ -313,9 +325,10 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             self.update_outputs(
                 mass_spec_obj=mass_spec,
                 analysis_obj=nom_analysis,
-                raw_data_obj_id=raw_data_object,
+                raw_data_obj_id=raw_data_object.id,
                 parameter_data_id=has_input,
                 processed_data_id_list=processed_data,
+                rerun=False,
             )
             nmdc_database_inst.data_generation_set.append(mass_spec)
             nmdc_database_inst.data_object_set.append(raw_data_object)
@@ -328,55 +341,27 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         api_metadata = Metadata()
         api_metadata.validate_json(self.database_dump_json_path)
 
-    def generate_nom_analysis(
+    def get_calibration_id(
         self,
-        file_path: Path,
-        ref_calibration_path: str,
-        raw_data_id: str,
-        data_gen_id: str,
-        processed_data_id: str,
-        started_at_time: str,
-        ended_at_time: str,
-        CLIENT_ID: str,
-        CLIENT_SECRET: str,
-    ) -> nmdc.MetabolomicsAnalysis:
+        calibration_path: str,
+    ) -> str:
         """
-        Generate a metabolomics analysis object from the provided file information.
-
+        Get the calibration ID from the NMDC API using the md5 checksum of the calibration file.
         Parameters
         ----------
-        file_path : Path
-            The file path of the metabolomics analysis data file.
-        ref_calibration_path : str
-            The file path of the calibration file used for the analysis
-        raw_data_id : str
-            The ID of the raw data associated with the analysis.
-        data_gen_id : str
-            The ID of the data generation process that informed this analysis.
-        processed_data_id : str
-            The ID of the processed data resulting from this analysis.
-        started_at_time : str
-            The start time of the analysis.
-        ended_at_time : str
-            The end time of the analysis.
+        calibration_path : str
+            The file path of the calibration file.
         CLIENT_ID : str
             The client ID for the NMDC API.
         CLIENT_SECRET : str
             The client secret for the NMDC API.
         Returns
         -------
-        nmdc.MetabolomicsAnalysis
-            The generated metabolomics analysis object.
+        str
+            The calibration ID if found, otherwise None.
         """
-        mint = Minter()
-        nmdc_id = mint.mint(
-            nmdc_type=NmdcTypes.NomAnalysis,
-            client_id=CLIENT_ID,
-            client_secret=CLIENT_SECRET,
-        )
-
-        # Lookup calibration id by md5 checksum of ref_calibration_path file
-        calib_md5 = hashlib.md5(ref_calibration_path.open("rb").read()).hexdigest()
+        # Lookup calibration id by md5 checksum of calibration_path file
+        calib_md5 = hashlib.md5(calibration_path.open("rb").read()).hexdigest()
         do_client = DataObjectSearch()
         cs_client = CalibrationSearch()
         try:
@@ -400,9 +385,60 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             calibration_id = None
         except Exception as e:
             print(f"An error occurred: {e}")
+        return calibration_id
+
+    def generate_nom_analysis(
+        self,
+        file_path: Path,
+        raw_data_id: str,
+        data_gen_id: str,
+        processed_data_id: str,
+        started_at_time: str,
+        ended_at_time: str,
+        CLIENT_ID: str,
+        CLIENT_SECRET: str,
+        calibration_id: str = None,
+        incremented_id: str = None,
+    ) -> nmdc.MetabolomicsAnalysis:
+        """
+        Generate a metabolomics analysis object from the provided file information.
+
+        Parameters
+        ----------
+        file_path : Path
+            The file path of the metabolomics analysis data file.
+        raw_data_id : str
+            The ID of the raw data associated with the analysis.
+        data_gen_id : str
+            The ID of the data generation process that informed this analysis.
+        processed_data_id : str
+            The ID of the processed data resulting from this analysis.
+        started_at_time : str
+            The start time of the analysis.
+        ended_at_time : str
+            The end time of the analysis.
+        CLIENT_ID : str
+            The client ID for the NMDC API.
+        CLIENT_SECRET : str
+            The client secret for the NMDC API.
+        incremented_id : str, optional
+            The incremented ID for the metabolomics analysis. If None, a new ID will be minted.
+        Returns
+        -------
+        nmdc.MetabolomicsAnalysis
+            The generated metabolomics analysis object.
+        """
+        if incremented_id is None:
+            mint = Minter()
+            nmdc_id = mint.mint(
+                nmdc_type=NmdcTypes.NomAnalysis,
+                client_id=CLIENT_ID,
+                client_secret=CLIENT_SECRET,
+            )
+            incremented_id = nmdc_id + ".1"
 
         data_dict = {
-            "id": f"{nmdc_id}.1",
+            "id": incremented_id,
             "name": f"{self.workflow_analysis_name} for {file_path.name}",
             "description": self.workflow_description,
             "uses_calibration": calibration_id,
