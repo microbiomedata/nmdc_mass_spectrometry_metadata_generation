@@ -188,7 +188,10 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             prev_metab_analysis = wf_client.get_record_by_filter(
                 filter=f'{{"has_input":"{raw_data_object_id}","type":"{NmdcTypes.MetabolomicsAnalysis}"}}',
                 fields="id,uses_calibration,execution_resource,processing_institution,was_informed_by",
-            )[0]
+                all_pages=True,
+            )
+            # find the most recent metabolomics analysis object by the max id
+            prev_metab_analysis = max(prev_metab_analysis, key=lambda x: x["id"])
             # increment the metab_id, find the last .digit group with a regex
             regex = r"(\d+)$"
             metab_analysis_id = re.sub(

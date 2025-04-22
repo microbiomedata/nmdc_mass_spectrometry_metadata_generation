@@ -12,6 +12,7 @@ import nmdc_schema.nmdc as nmdc
 import hashlib
 import pandas as pd
 import re
+from datetime import datetime
 
 
 class NOMMetadataGenerator(NMDCMetadataGenerator):
@@ -61,6 +62,8 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
 
         This method processes the metadata file, generates biosamples (if needed)
         and metadata, and manages the workflow for generating NOM analysis data.
+
+        Assumes raw data for NOM are on minio and that the raw data object URL field is populated.
         """
         do_client = DataObjectSearch()
         wf_client = WorkflowExecutionSearch()
@@ -98,16 +101,20 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                 ) from e
             try:
                 # find the MetabolomicsAnalysis object - this is the old one
-                prev_metab_analysis = wf_client.get_record_by_filter(
+                prev_nom_analysis = wf_client.get_record_by_filter(
                     filter=f'{{"has_input":"{raw_data_object_id}","type":"{NmdcTypes.NomAnalysis}"}}',
                     fields="id,uses_calibration,execution_resource,processing_institution,was_informed_by",
-                )[0]
+                    all_pages=True,
+                )
+                # find the most recent metabolomics analysis object by the max id
+                prev_nom_analysis = max(prev_nom_analysis, key=lambda x: x["id"])
+
                 # increment the metab_id, find the last .digit group with a regex
                 regex = r"(\d+)$"
                 metab_analysis_id = re.sub(
                     regex,
                     lambda x: str(int(x.group(1)) + 1),
-                    prev_metab_analysis["id"],
+                    prev_nom_analysis["id"],
                 )
             except Exception as e:
                 raise IndexError(
@@ -116,16 +123,12 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             processed_data = []
             # grab the calibration_id from the previous metabolomics analysis
             # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
-            started_at_time = row["start_date"] + " " + row["started_at_time"]
-            eneded_at_time = row["end_date"] + " " + row["ended_at_time"]
             nom_analysis = self.generate_nom_analysis(
                 file_path=Path(row["raw_data_file"]),
                 raw_data_id=raw_data_object_id,
-                data_gen_id=prev_metab_analysis["was_informed_by"],
+                data_gen_id=prev_nom_analysis["was_informed_by"],
                 processed_data_id="nmdc:placeholder",
-                started_at_time=started_at_time,
-                ended_at_time=eneded_at_time,
-                calibration_id=prev_metab_analysis["uses_calibration"],
+                calibration_id=prev_nom_analysis["uses_calibration"],
                 incremented_id=metab_analysis_id,
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
@@ -159,6 +162,13 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                         alternative_id=None,
                     )
                     processed_data.append(processed_data_object.id)
+                    # Update NomAnalysis times based on csv file
+                    nom_analysis.started_at_time = datetime.fromtimestamp(
+                        file.stat().st_ctime
+                    ).strftime("%Y-%m-%d %H:%M:%S")
+                    nom_analysis.ended_at_time = datetime.fromtimestamp(
+                        file.stat().st_mtime
+                    ).strftime("%Y-%m-%d %H:%M:%S")
                 if file.suffix == ".json":
                     # Generate workflow parameter data object
                     # this is the .json file of processed data
@@ -233,8 +243,8 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                 study_id=emsl_metadata["associated_studies"],
                 processing_institution=self.processing_institution,
                 mass_spec_config_name=emsl_metadata["mass_spec_config"],
-                start_date=row["start_date"],
-                end_date=row["end_date"],
+                start_date=row["instrument_analysis_start_date"],
+                end_date=row["instrument_analysis_end_date"],
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
             )
@@ -254,8 +264,6 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                 was_generated_by=mass_spec.id,
             )
             # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
-            started_at_time = row["start_date"] + " " + row["started_at_time"]
-            eneded_at_time = row["end_date"] + " " + row["ended_at_time"]
             calibration_id = self.get_calibration_id(
                 calibration_path=Path(row["ref_calibration_path"])
             )
@@ -265,8 +273,6 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                 raw_data_id=raw_data_object.id,
                 data_gen_id=mass_spec.id,
                 processed_data_id="nmdc:placeholder",
-                started_at_time=started_at_time,
-                ended_at_time=eneded_at_time,
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
             )
@@ -302,6 +308,13 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                         alternative_id=None,
                     )
                     processed_data.append(processed_data_object.id)
+                    # Update NomAnalysis times based on csv file
+                    nom_analysis.started_at_time = datetime.fromtimestamp(
+                        file.stat().st_ctime
+                    ).strftime("%Y-%m-%d %H:%M:%S")
+                    nom_analysis.ended_at_time = datetime.fromtimestamp(
+                        file.stat().st_mtime
+                    ).strftime("%Y-%m-%d %H:%M:%S")
                 if file.suffix == ".json":
                     # Generate workflow parameter data object
                     # this is the .json file of processed data
@@ -393,8 +406,6 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         raw_data_id: str,
         data_gen_id: str,
         processed_data_id: str,
-        started_at_time: str,
-        ended_at_time: str,
         CLIENT_ID: str,
         CLIENT_SECRET: str,
         calibration_id: str = None,
@@ -413,10 +424,6 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             The ID of the data generation process that informed this analysis.
         processed_data_id : str
             The ID of the processed data resulting from this analysis.
-        started_at_time : str
-            The start time of the analysis.
-        ended_at_time : str
-            The end time of the analysis.
         CLIENT_ID : str
             The client ID for the NMDC API.
         CLIENT_SECRET : str
@@ -449,8 +456,8 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             "was_informed_by": data_gen_id,
             "has_input": [raw_data_id],
             "has_output": [processed_data_id],
-            "started_at_time": started_at_time,
-            "ended_at_time": ended_at_time,
+            "started_at_time": "placeholder",
+            "ended_at_time": "placeholder",
             "type": NmdcTypes.NomAnalysis,
         }
         self.clean_dict(data_dict)

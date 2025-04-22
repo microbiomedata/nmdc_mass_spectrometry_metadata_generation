@@ -148,3 +148,6 @@ def test_config_file():
     # Run the metadata generation process
     generator.run()
     assert os.path.exists(output_file)
+
+
+test_nom_metadata_gen_rerun()
