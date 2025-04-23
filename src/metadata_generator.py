@@ -487,6 +487,9 @@ class NMDCMetadataGenerator(ABC):
         calibration_id : str, optional
             ID of the calibration information used for the analysis.
             Default is None, indicating no calibration information.
+        incremeneted_id : str, optional
+            An optional incremented ID for the MetabolomicsAnalysis object.
+            If not provided, a new NMDC ID will be minted.
         metabolite_identifications : List[nmdc.MetaboliteIdentification], optional
             List of MetaboliteIdentification objects associated with the analysis.
             Default is None, which indicates no metabolite identifications.
@@ -560,19 +563,21 @@ class NMDCMetadataGenerator(ABC):
 
         Parameters
         ----------
-        mass_spec_obj : object
-            The Mass Spectrometry object to update.
+        mass_spec_obj : object , optional
+            The Mass Spectrometry object to update. Optional for rerun cases.
         analysis_obj : object
             The Workflow Execution Analysis object to update
             (e.g., MetabolomicsAnalysis).
         parameter_data_id : str
             ID of the data object representing the parameter data used for the analysis.
-        raw_data_obj : object
+         : object
             The Raw Data Object associated with the Mass Spectrometry.
         processed_data_id_list : list
             List of IDs representing processed data objects associated with
             the Workflow Execution.
-
+        rerun : bool, optional
+            If True, this indicates the run is a rerun, and the method will not set `mass_spec_obj.has_output` because there is not one.
+            Default is False.
         Returns
         -------
         None
@@ -583,6 +588,7 @@ class NMDCMetadataGenerator(ABC):
         - Sets `analysis_obj.has_output` to `processed_data_id_list`.
         """
         if not rerun:
+            # if it is not a rerun, set the mass spec object, otherwise there will not be a mass spec object
             mass_spec_obj.has_output = [raw_data_obj_id]
         analysis_obj.has_input = parameter_data_id
         analysis_obj.has_output = processed_data_id_list

@@ -1,2 +1,2 @@
-material_processing_type,raw_data_file,processed_data_file
-MPLEX,tests/test_data/test_raw_gcms_metab/Blanch_Nat_Met_C_7_AB_M_07.cdf,tests/test_data/test_processed_gcms_metab/gcms_metab_sample_1.csv
+raw_data_file,processed_data_file
+tests/test_data/test_raw_gcms_metab/Blanch_Nat_Met_C_7_AB_M_07.cdf,tests/test_data/test_processed_gcms_metab/gcms_metab_sample_1.csv
