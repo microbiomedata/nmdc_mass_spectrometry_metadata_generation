@@ -100,7 +100,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                     f"Raw data object not found for URL: {self.raw_data_url + Path(row['raw_data_file']).name}"
                 ) from e
             try:
-                # find the MetabolomicsAnalysis object - this is the old one
+                # find the NomAnalysis object - this is the old one
                 prev_nom_analysis = wf_client.get_record_by_filter(
                     filter=f'{{"has_input":"{raw_data_object_id}","type":"{NmdcTypes.NomAnalysis}"}}',
                     fields="id,uses_calibration,execution_resource,processing_institution,was_informed_by",
@@ -118,7 +118,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                 )
             except Exception as e:
                 raise IndexError(
-                    f"MetabolomicsAnalysis object not found for raw data object ID: {raw_data_object_id}"
+                    f"NomAnalysis object not found for raw data object ID: {raw_data_object_id}"
                 )
             processed_data = []
             # grab the calibration_id from the previous metabolomics analysis
@@ -410,7 +410,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         CLIENT_SECRET: str,
         calibration_id: str = None,
         incremented_id: str = None,
-    ) -> nmdc.MetabolomicsAnalysis:
+    ) -> nmdc.NomAnalysis:
         """
         Generate a metabolomics analysis object from the provided file information.
 
@@ -432,7 +432,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             The incremented ID for the metabolomics analysis. If None, a new ID will be minted.
         Returns
         -------
-        nmdc.MetabolomicsAnalysis
+        nmdc.NomAnalysis
             The generated metabolomics analysis object.
         """
         if incremented_id is None:
