@@ -265,6 +265,7 @@ class NMDCMetadataGenerator(ABC):
         CLIENT_SECRET: str,
         lc_config_name: str = None,
         calibration_id: str = None,
+        rerun: bool = False,
     ) -> nmdc.DataGeneration:
         """
         Create an NMDC DataGeneration object for mass spectrometry and mint an NMDC ID.
@@ -453,6 +454,7 @@ class NMDCMetadataGenerator(ABC):
         CLIENT_ID: str,
         CLIENT_SECRET: str,
         calibration_id: str = None,
+        incremeneted_id: str = None,
         metabolite_identifications: List[nmdc.MetaboliteIdentification] = None,
         type: str = NmdcTypes.MetabolomicsAnalysis,
     ) -> nmdc.MetabolomicsAnalysis:
@@ -485,6 +487,9 @@ class NMDCMetadataGenerator(ABC):
         calibration_id : str, optional
             ID of the calibration information used for the analysis.
             Default is None, indicating no calibration information.
+        incremeneted_id : str, optional
+            An optional incremented ID for the MetabolomicsAnalysis object.
+            If not provided, a new NMDC ID will be minted.
         metabolite_identifications : List[nmdc.MetaboliteIdentification], optional
             List of MetaboliteIdentification objects associated with the analysis.
             Default is None, which indicates no metabolite identifications.
@@ -500,20 +505,20 @@ class NMDCMetadataGenerator(ABC):
         placeholder values and should be updated with actual timestamps later
         when the processed files are iterated over in the run method.
         """
-        mint = Minter()
-        nmdc_id = (
-            mint.mint(
-                nmdc_type=NmdcTypes.MetabolomicsAnalysis,
-                client_id=CLIENT_ID,
-                client_secret=CLIENT_SECRET,
+        if incremeneted_id is None:
+            # If no incremented id is provided, mint a new one
+            mint = Minter()
+            nmdc_id = (
+                mint.mint(
+                    nmdc_type=NmdcTypes.MetabolomicsAnalysis,
+                    client_id=CLIENT_ID,
+                    client_secret=CLIENT_SECRET,
+                )
+                + ".1"
             )
-            + ".1"
-        )
-
-        # TODO: Update the minting to handle versioning in the future
 
         data_dict = {
-            "id": nmdc_id,
+            "id": incremeneted_id if incremeneted_id is not None else nmdc_id,
             "name": f"{self.workflow_analysis_name} for {raw_data_name}",
             "description": self.workflow_description,
             "processing_institution": processing_institution,
@@ -541,11 +546,12 @@ class NMDCMetadataGenerator(ABC):
 
     def update_outputs(
         self,
-        mass_spec_obj: object,
         analysis_obj: object,
-        raw_data_obj: object,
+        raw_data_obj_id: object,
         parameter_data_id: list,
         processed_data_id_list: list,
+        mass_spec_obj: object = None,
+        rerun: bool = False,
     ) -> None:
         """
         Update output references for Mass Spectrometry and Workflow Analysis objects.
@@ -557,19 +563,21 @@ class NMDCMetadataGenerator(ABC):
 
         Parameters
         ----------
-        mass_spec_obj : object
-            The Mass Spectrometry object to update.
+        mass_spec_obj : object , optional
+            The Mass Spectrometry object to update. Optional for rerun cases.
         analysis_obj : object
             The Workflow Execution Analysis object to update
             (e.g., MetabolomicsAnalysis).
         parameter_data_id : str
             ID of the data object representing the parameter data used for the analysis.
-        raw_data_obj : object
+         : object
             The Raw Data Object associated with the Mass Spectrometry.
         processed_data_id_list : list
             List of IDs representing processed data objects associated with
             the Workflow Execution.
-
+        rerun : bool, optional
+            If True, this indicates the run is a rerun, and the method will not set `mass_spec_obj.has_output` because there is not one.
+            Default is False.
         Returns
         -------
         None
@@ -579,7 +587,9 @@ class NMDCMetadataGenerator(ABC):
         - Sets `mass_spec_obj.has_output` to [raw_data_obj.id].
         - Sets `analysis_obj.has_output` to `processed_data_id_list`.
         """
-        mass_spec_obj.has_output = [raw_data_obj.id]
+        if not rerun:
+            # if it is not a rerun, set the mass spec object, otherwise there will not be a mass spec object
+            mass_spec_obj.has_output = [raw_data_obj_id]
         analysis_obj.has_input = parameter_data_id
         analysis_obj.has_output = processed_data_id_list
 
