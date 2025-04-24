@@ -168,9 +168,6 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             fields="id",
             exact_match=True,
         )[0]["id"]
-        # This is the ID for the parameters toml file
-        parameter_data_id = "nmdc:dobj-11-5tax4f20"
-        metadata_df["corems_config_file"] = config_do_id
 
         # process workflow metadata
         for _, data in tqdm(
@@ -218,7 +215,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
                 raw_data_id=raw_data_object_id,
                 data_gen_id=prev_metab_analysis["was_informed_by"],
                 processed_data_id=processed_data_object.id,
-                parameter_data_id=parameter_data_id,
+                parameter_data_id=config_do_id,
                 processing_institution=prev_metab_analysis["processing_institution"],
                 incremeneted_id=metab_analysis_id,
                 CLIENT_ID=client_id,
@@ -233,7 +230,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             metab_analysis.ended_at_time = datetime.fromtimestamp(
                 processed_file.stat().st_mtime
             ).strftime("%Y-%m-%d %H:%M:%S")
-            has_inputs = [parameter_data_id, raw_data_object_id]
+            has_inputs = [config_do_id, raw_data_object_id]
             self.update_outputs(
                 analysis_obj=metab_analysis,
                 raw_data_obj_id=raw_data_object_id,
@@ -299,9 +296,6 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             fields="id",
             exact_match=True,
         )[0]["id"]
-        # This is the ID for the parameters toml file
-        parameter_data_id = "nmdc:dobj-11-5tax4f20"
-        metadata_df["corems_config_file"] = config_do_id
 
         # check if there is an existing calibration_id in the metadata. If not, we need to generate them
         if (
@@ -363,7 +357,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
                 raw_data_id=raw_data_object_id,
                 data_gen_id=mass_spec.id,
                 processed_data_id="nmdc:placeholder",
-                parameter_data_id=parameter_data_id,
+                parameter_data_id=config_do_id,
                 processing_institution=workflow_metadata_obj.processing_institution,
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
@@ -391,7 +385,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             metab_analysis.ended_at_time = datetime.fromtimestamp(
                 processed_file.stat().st_mtime
             ).strftime("%Y-%m-%d %H:%M:%S")
-            has_inputs = [parameter_data_id, raw_data_object_id]
+            has_inputs = [config_do_id, raw_data_object_id]
             self.update_outputs(
                 mass_spec_obj=mass_spec,
                 analysis_obj=metab_analysis,
