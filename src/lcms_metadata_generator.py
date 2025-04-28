@@ -37,9 +37,6 @@ class LCMSMetadataGenerator(NMDCMetadataGenerator):
             raw_data_url=raw_data_url,
             process_data_url=process_data_url,
         )
-        self.client_id, self.client_secret = self.load_credentials(
-            config_file=self.minting_config_creds
-        )
 
     def run(self):
         """
@@ -64,6 +61,9 @@ class LCMSMetadataGenerator(NMDCMetadataGenerator):
         This method uses tqdm to display progress bars for the processing of
         biosamples and mass spectrometry metadata.
         """
+        client_id, client_secret = self.load_credentials(
+            config_file=self.minting_config_creds
+        )
         client_id, client_secret = self.load_credentials(
             config_file=self.minting_config_creds
         )
@@ -276,6 +276,9 @@ class LCMSMetadataGenerator(NMDCMetadataGenerator):
         This method uses tqdm to display progress bars for the processing of
         biosamples and mass spectrometry metadata.
         """
+        client_id, client_secret = self.load_credentials(
+            config_file=self.minting_config_creds
+        )
         wf_client = WorkflowExecutionSearch()
         do_client = DataObjectSearch()
         client_id, client_secret = self.load_credentials(
