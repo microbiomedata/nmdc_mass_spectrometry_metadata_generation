@@ -13,7 +13,7 @@ if python_path:
     os.environ["PYTHONPATH"] = python_path
 
 
-def test_lcms_lipid_metadata_gen():
+def test_lcms_metab_metadata_gen():
     current_directory = os.path.dirname(__file__)
     csv_file_path = os.path.join(
         current_directory, "test_data", "test_metadata_file_lcms_lipid.csv"
@@ -36,7 +36,7 @@ def test_lcms_lipid_metadata_gen():
     assert os.path.exists(output_file)
 
 
-def test_lcms_lipid_metadata_gen_rerun():
+def test_lcms_metab_metadata_gen_rerun():
     current_directory = os.path.dirname(__file__)
     csv_file_path = os.path.join(
         current_directory, "test_data", "test_metadata_file_lcms_lipid_rerun.csv"
@@ -59,7 +59,7 @@ def test_lcms_lipid_metadata_gen_rerun():
     assert os.path.exists(output_file)
 
 
-def test_lcms_lipid_biosample_gen():
+def test_lcms_metab_biosample_gen():
     current_directory = os.path.dirname(__file__)
     csv_file_path = os.path.join(
         current_directory,

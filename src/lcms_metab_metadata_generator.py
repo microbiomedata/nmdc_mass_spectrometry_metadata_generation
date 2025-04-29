@@ -123,7 +123,7 @@ class LCMSMetabMetadataGenerator(LCMSMetadataGenerator):
             "CoreMS parameters used for metabolomics workflow."
         )
         self.no_config_process_data_category = "processed_data"
-        self.no_config_process_data_obj_type = "LC-MS metabolomics Results"
+        self.no_config_process_data_obj_type = "LC-MS Metabolomics Results"
         self.csv_process_data_description = (
             "Lipid annotations as a result of a metabolomics workflow activity."
         )
@@ -136,39 +136,3 @@ class LCMSMetabMetadataGenerator(LCMSMetadataGenerator):
 
     def run(self):
         super().run()
-
-    def create_workflow_metadata(
-        self, row: dict[str, str]
-    ) -> LCMSLipidWorkflowMetadata:
-        """
-        Create a LCMSLipidWorkflowMetadata object from a dictionary of workflow metadata.
-
-        Parameters
-        ----------
-        row : dict[str, str]
-            Dictionary containing metadata for a workflow. This is typically
-            a row from the input metadata CSV file.
-
-        Returns
-        -------
-        LCMSLipidWorkflowMetadata
-            A LCMSLipidWorkflowMetadata object populated with data from the input dictionary.
-
-        Notes
-        -----
-        The input dictionary is expected to contain the following keys:
-        'Processed Data Directory', 'Raw Data File', 'Raw Data Object Alt Id',
-        'mass spec configuration name', 'lc config name', 'instrument used',
-        'instrument analysis start date', 'instrument analysis end date',
-        'execution resource'.
-        """
-        return LCMSLipidWorkflowMetadata(
-            processed_data_dir=row["processed_data_directory"],
-            raw_data_file=row["raw_data_file"],
-            mass_spec_config_name=row["mass_spec_configuration_name"],
-            lc_config_name=row["chromat_configuration_name"],
-            instrument_used=row["instrument_used"],
-            instrument_analysis_start_date=row["instrument_analysis_start_date"],
-            instrument_analysis_end_date=row["instrument_analysis_end_date"],
-            execution_resource=row["execution_resource"],
-        )

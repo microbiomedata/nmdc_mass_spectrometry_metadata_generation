@@ -29,7 +29,6 @@ class LCMSMetadataGenerator(NMDCMetadataGenerator):
         database_dump_json_path: str,
         raw_data_url: str,
         process_data_url: str,
-        minting_config_creds: str = None,
     ):
         super().__init__(
             metadata_file=metadata_file,
@@ -462,3 +461,39 @@ class LCMSMetadataGenerator(NMDCMetadataGenerator):
         api_metadata = Metadata()
         api_metadata.validate_json(self.database_dump_json_path)
         logging.info("Metadata processing completed.")
+
+    def create_workflow_metadata(
+        self, row: dict[str, str]
+    ) -> LCMSLipidWorkflowMetadata:
+        """
+        Create a LCMSLipidWorkflowMetadata object from a dictionary of workflow metadata.
+
+        Parameters
+        ----------
+        row : dict[str, str]
+            Dictionary containing metadata for a workflow. This is typically
+            a row from the input metadata CSV file.
+
+        Returns
+        -------
+        LCMSLipidWorkflowMetadata
+            A LCMSLipidWorkflowMetadata object populated with data from the input dictionary.
+
+        Notes
+        -----
+        The input dictionary is expected to contain the following keys:
+        'Processed Data Directory', 'Raw Data File', 'Raw Data Object Alt Id',
+        'mass spec configuration name', 'lc config name', 'instrument used',
+        'instrument analysis start date', 'instrument analysis end date',
+        'execution resource'.
+        """
+        return LCMSLipidWorkflowMetadata(
+            processed_data_dir=row["processed_data_directory"],
+            raw_data_file=row["raw_data_file"],
+            mass_spec_config_name=row["mass_spec_configuration_name"],
+            lc_config_name=row["chromat_configuration_name"],
+            instrument_used=row["instrument_used"],
+            instrument_analysis_start_date=row["instrument_analysis_start_date"],
+            instrument_analysis_end_date=row["instrument_analysis_end_date"],
+            execution_resource=row["execution_resource"],
+        )
