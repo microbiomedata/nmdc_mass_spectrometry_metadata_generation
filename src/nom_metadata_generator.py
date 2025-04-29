@@ -35,39 +35,55 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
 
     Attributes
     ----------
-    mass_spec_desc : str
-        Description of the mass spectrometry analysis.
-    mass_spec_eluent_intro : str
-        Eluent introduction category for mass spectrometry.
+    raw_data_object_type : str
+        The type of the raw data object.
+    processed_data_object_type : str
+        The type of the processed data object.
+    processed_data_category : str
+        The category of the processed data.
+    execution_resource : str
+        The execution resource for the workflow.
     analyte_category : str
-        Category of the analyte.
-    raw_data_category : str
-        Category of the raw data.
-    raw_data_obj_type : str
-        Type of the raw data object.
-    raw_data_obj_desc : str
-        Description of the raw data object.
+        The category of the analyte.
     workflow_analysis_name : str
-        Name of the workflow analysis.
+        The name of the workflow analysis.
     workflow_description : str
-        Description of the workflow.
-    workflow_git_url : str
-        URL of the workflow's Git repository.
-    workflow_version : str
-        Version of the workflow.
+        The description of the workflow.
     workflow_param_data_category : str
-        Category of the workflow parameter data.
+        The category of the workflow parameter data.
     workflow_param_data_object_type : str
-        Type of the workflow parameter data object.
-    unique_columns : list
-        List of columns that should be unique in the metadata file.
+        The type of the workflow parameter data object.
+    unique_columns : list[str]
+        List of unique columns in the metadata file.
     mass_spec_desc : str
-        Description of the mass spectrometry analysis.
+        The description of the mass spectrometry data.
     mass_spec_eluent_intro : str
-        Eluent introduction category for mass spectrometry.
+        The introduction to the mass spectrometry eluent.
     processing_institution : str
-        Institution responsible for processing the data.
+        The institution responsible for processing the data.
+    workflow_git_url : str
+        The URL of the workflow Git repository.
+    workflow_version : str
+        The version of the workflow.
     """
+
+    raw_data_object_type: str = "Direct Infusion FT ICR-MS Raw Data"
+    processed_data_object_type: str = "FT ICR-MS Analysis Results"
+    processed_data_category: str = "processed_data"
+    execution_resource: str = "EMSL-RZR"
+    analyte_category: str = "nom"
+    workflow_analysis_name: str = "NOM Analysis"
+    workflow_description: str = (
+        "Natural Organic Matter analysis of raw mass spectrometry data."
+    )
+    workflow_param_data_category: str = "workflow_parameter_data"
+    workflow_param_data_object_type: str = "Analysis Tool Parameter File"
+    unique_columns: list[str] = ["raw_data_file", "processed_data_directory"]
+    mass_spec_desc: str = "ultra high resolution mass spectrum"
+    mass_spec_eluent_intro: str = "direct_infusion_autosampler"
+    processing_institution: str = "EMSL"
+    workflow_git_url: str = "https://github.com/microbiomedata/enviroMS"
+    workflow_version: str = "4.3.1"
 
     def __init__(
         self,
@@ -84,23 +100,6 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             process_data_url=process_data_url,
         )
         self.minting_config_creds = minting_config_creds
-        self.raw_data_object_type = "Direct Infusion FT ICR-MS Raw Data"
-        self.processed_data_object_type = "FT ICR-MS Analysis Results"
-        self.processed_data_category = "processed_data"
-        self.execution_resource = "EMSL-RZR"
-        self.analyte_category = "nom"
-        self.workflow_analysis_name = "NOM Analysis"
-        self.workflow_description = (
-            "Natural Organic Matter analysis of raw mass spectrometry data."
-        )
-        self.workflow_param_data_category = "workflow_parameter_data"
-        self.workflow_param_data_object_type = "Analysis Tool Parameter File"
-        self.unique_columns = ["raw_data_file", "processed_data_directory"]
-        self.mass_spec_desc = "ultra high resolution mass spectrum"
-        self.mass_spec_eluent_intro = "direct_infusion_autosampler"
-        self.processing_institution = "EMSL"
-        self.workflow_git_url = "https://github.com/microbiomedata/enviroMS"
-        self.workflow_version = "4.3.1"
 
     def rerun(self):
         """
@@ -410,10 +409,6 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         ----------
         calibration_path : str
             The file path of the calibration file.
-        CLIENT_ID : str
-            The client ID for the NMDC API.
-        CLIENT_SECRET : str
-            The client secret for the NMDC API.
         Returns
         -------
         str
@@ -474,6 +469,8 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             The client ID for the NMDC API.
         CLIENT_SECRET : str
             The client secret for the NMDC API.
+        calibration_id : str, optional
+            The ID of the calibration object used in the analysis. If None, no calibration is used.
         incremented_id : str, optional
             The incremented ID for the metabolomics analysis. If None, a new ID will be minted.
         Returns

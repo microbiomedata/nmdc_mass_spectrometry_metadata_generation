@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from src.lcms_metadata_generator import LCMSMetadataGenerator
+from typing import List
 
 
 class LCMSLipidomicsMetadataGenerator(LCMSMetadataGenerator):
@@ -19,20 +20,20 @@ class LCMSLipidomicsMetadataGenerator(LCMSMetadataGenerator):
         Base URL for the raw data files.
     process_data_url : str
         Base URL for the processed data files.
-    minting_config_creds : str, OPTIONAL
+    minting_config_creds : str, optional
         Path to the configuration file containing the client ID and client secret for minting NMDC IDs. It can also include the bio ontology API key if generating biosample ids is needed.
         If not provided, the CLIENT_ID, CLIENT_SECRET, and BIO_API_KEY environment variables will be used.
 
     Attributes
     ----------
+    unique_columns : List[str]
+        List of unique columns in the metadata file.
     mass_spec_desc : str
         Description of the mass spectrometry analysis.
     mass_spec_eluent_intro : str
         Eluent introduction category for mass spectrometry.
     analyte_category : str
         Category of the analyte.
-    raw_data_category : str
-        Category of the raw data.
     raw_data_obj_type : str
         Type of the raw data object.
     raw_data_obj_desc : str
@@ -45,6 +46,8 @@ class LCMSLipidomicsMetadataGenerator(LCMSMetadataGenerator):
         URL of the workflow's Git repository.
     workflow_version : str
         Version of the workflow.
+    workflow_category : str
+        Category of the workflow.
     wf_config_process_data_category : str
         Category of the workflow configuration process data.
     wf_config_process_data_obj_type : str
@@ -63,6 +66,44 @@ class LCMSLipidomicsMetadataGenerator(LCMSMetadataGenerator):
         Description of HDF5 processed data.
     """
 
+    unique_columns: List[str] = ["raw_data_file", "processed_data_directory"]
+    # Data Generation attributes
+    mass_spec_desc: str = (
+        "Generation of mass spectrometry data for the analysis of lipids."
+    )
+    mass_spec_eluent_intro: str = "liquid_chromatography"
+    analyte_category: str = "lipidome"
+    raw_data_obj_type: str = "LC-DDA-MS/MS Raw Data"
+    raw_data_obj_desc: str = "LC-DDA-MS/MS raw data for lipidomics data acquisition."
+
+    # Workflow attributes
+    workflow_analysis_name: str = "Lipidomics analysis"
+    workflow_description: str = (
+        "Analysis of raw mass spectrometry data for the annotation of lipids."
+    )
+    workflow_git_url: str = (
+        "https://github.com/microbiomedata/metaMS/wdl/metaMS_lipidomics.wdl"
+    )
+    workflow_version: str = "1.0.0"
+    workflow_category: str = "lc_ms_lipidomics"
+
+    # Processed data attributes
+    wf_config_process_data_category: str = "workflow_parameter_data"
+    wf_config_process_data_obj_type: str = "Configuration toml"
+    wf_config_process_data_description: str = (
+        "CoreMS parameters used for Lipidomics workflow."
+    )
+    no_config_process_data_category: str = "processed_data"
+    no_config_process_data_obj_type: str = "LC-MS Lipidomics Results"
+    csv_process_data_description: str = (
+        "Lipid annotations as a result of a lipidomics workflow activity."
+    )
+
+    hdf5_process_data_obj_type: str = "LC-MS Lipidomics Processed Data"
+    hdf5_process_data_description: str = (
+        "CoreMS hdf5 file representing a lipidomics data file including annotations."
+    )
+
     def __init__(
         self,
         metadata_file: str,
@@ -78,44 +119,7 @@ class LCMSLipidomicsMetadataGenerator(LCMSMetadataGenerator):
             process_data_url=process_data_url,
         )
 
-        self.unique_columns = ["raw_data_file", "processed_data_directory"]
         self.minting_config_creds = minting_config_creds
-        # Data Generation attributes
-        self.mass_spec_desc = (
-            "Generation of mass spectrometry data for the analysis of lipids."
-        )
-        self.mass_spec_eluent_intro = "liquid_chromatography"
-        self.analyte_category = "lipidome"
-        self.raw_data_obj_type = "LC-DDA-MS/MS Raw Data"
-        self.raw_data_obj_desc = (
-            "LC-DDA-MS/MS raw data for lipidomics data acquisition."
-        )
-
-        # Workflow attributes
-        self.workflow_analysis_name = "Lipidomics analysis"
-        self.workflow_description = (
-            "Analysis of raw mass spectrometry data for the annotation of lipids."
-        )
-        self.workflow_git_url = (
-            "https://github.com/microbiomedata/metaMS/wdl/metaMS_lipidomics.wdl"
-        )
-        self.workflow_version = "1.0.0"
-        self.workflow_category = "lc_ms_lipidomics"
-
-        # Processed data attributes
-        self.wf_config_process_data_category = "workflow_parameter_data"
-        self.wf_config_process_data_obj_type = "Configuration toml"
-        self.wf_config_process_data_description = (
-            "CoreMS parameters used for Lipidomics workflow."
-        )
-        self.no_config_process_data_category = "processed_data"
-        self.no_config_process_data_obj_type = "LC-MS Lipidomics Results"
-        self.csv_process_data_description = (
-            "Lipid annotations as a result of a lipidomics workflow activity."
-        )
-
-        self.hdf5_process_data_obj_type = "LC-MS Lipidomics Processed Data"
-        self.hdf5_process_data_description = "CoreMS hdf5 file representing a lipidomics data file including annotations."
 
     def rerun(self):
         super().rerun()

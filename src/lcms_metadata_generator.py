@@ -37,7 +37,7 @@ class LCMSMetadataGenerator(NMDCMetadataGenerator):
             process_data_url=process_data_url,
         )
 
-    def run(self):
+    def run(self) -> None:
         """
         Execute the metadata generation process for lipidomics data.
 
@@ -54,6 +54,13 @@ class LCMSMetadataGenerator(NMDCMetadataGenerator):
         Returns
         -------
         None
+
+        Raises
+        ------
+        FileNotFoundError
+            If the processed data directory is empty or not found.
+        ValueError
+            If the number of files in the processed data directory is not as expected
 
         Notes
         -----
@@ -253,7 +260,7 @@ class LCMSMetadataGenerator(NMDCMetadataGenerator):
         api_metadata.validate_json(self.database_dump_json_path)
         logging.info("Metadata processing completed.")
 
-    def rerun(self):
+    def rerun(self) -> None:
         """
         Execute a rerun of the metadata generation process for metabolomics data.
 
@@ -269,6 +276,13 @@ class LCMSMetadataGenerator(NMDCMetadataGenerator):
         Returns
         -------
         None
+
+        Raises
+        ------
+        FileNotFoundError
+            If the processed data directory is empty or not found.
+        ValueError
+            If the number of files in the processed data directory is not as expected.
 
         Notes
         -----

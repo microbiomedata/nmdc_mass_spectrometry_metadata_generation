@@ -18,7 +18,8 @@ class BioOntologyInfoRetriever:
 
     Parameters
     ----------
-
+    bio_api_key : str
+        The BioPortal BioOntology API key for authentication.
     Notes
     -----
     The configuration file should contain an 'api_key' field with a valid
@@ -35,13 +36,13 @@ class BioOntologyInfoRetriever:
     def __init__(self, bio_api_key: str):
         self.BIO_API_KEY = bio_api_key
 
-    def get_envo_terms(self, envo_id: dict):
+    def get_envo_terms(self, envo_id: dict) -> dict:
         """
         Look up an ENVO term label using BioPortal API.
 
         Parameters
         ----------
-        envo_id : str
+        envo_id : dict
             The ENVO identifier to look up (e.g., 'ENVO:00002042')
 
         Returns
@@ -49,17 +50,6 @@ class BioOntologyInfoRetriever:
         dict
             Dictionary with envo_id as key and term label as value
             Example: {'ENVO:00002042': 'surface water'}
-
-        Raises
-        ------
-        requests.exceptions.RequestException
-            If the API request fails
-        KeyError
-            If the response doesn't contain expected data format
-        yaml.YAMLError
-            If the config file cannot be parsed
-        FileNotFoundError
-            If the config file is not found
 
         Notes
         -----

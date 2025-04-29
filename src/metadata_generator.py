@@ -35,17 +35,6 @@ class NMDCMetadataGenerator(ABC):
     """
     Abstract class for generating NMDC metadata objects using provided metadata files and configuration.
 
-    Attributes
-    ----------
-    metadata_file : str
-        Path to the CSV file containing the metadata about a sample data lifecycle.
-    database_dump_json_path : str
-        Path to the output JSON file for dumping the NMDC database results.
-    raw_data_url : str
-        Base URL for raw data files.
-    process_data_url : str
-        Base URL for processed data files.
-
     Parameters
     ----------
     metadata_file : str
@@ -65,30 +54,6 @@ class NMDCMetadataGenerator(ABC):
         raw_data_url: str,
         process_data_url: str,
     ):
-        """
-        Initialize the MetadataGenerator with required file paths and configuration.
-
-        Parameters
-        ----------
-        metadata_file : str
-            Path to the input CSV metadata file.
-        database_dump_json_path : str
-            Path where the output database dump JSON file will be saved.
-        raw_data_url : str
-            Base URL for the raw data files.
-        process_data_url : str
-            Base URL for the processed data files.
-
-        Returns
-        -------
-        None
-
-        Notes
-        -----
-        This method sets up various attributes used throughout the class,
-        including file paths, URLs, and predefined values for different
-        data categories and descriptions.
-        """
         self.metadata_file = metadata_file
         self.database_dump_json_path = database_dump_json_path
         self.raw_data_url = raw_data_url
@@ -194,8 +159,8 @@ class NMDCMetadataGenerator(ABC):
 
         Returns
         -------
-        pd.core.groupby.DataFrameGroupBy
-            DataFrame grouped by biosample ID.
+        pd.core.frame.DataFrame
+            A DataFrame containing the loaded and grouped metadata.
 
         Raises
         ------
@@ -274,7 +239,6 @@ class NMDCMetadataGenerator(ABC):
         CLIENT_SECRET: str,
         lc_config_name: str = None,
         calibration_id: str = None,
-        rerun: bool = False,
     ) -> nmdc.DataGeneration:
         """
         Create an NMDC DataGeneration object for mass spectrometry and mint an NMDC ID.
@@ -295,12 +259,16 @@ class NMDCMetadataGenerator(ABC):
             Name of the processing institution.
         mass_spec_config_name : str
             Name of the mass spectrometry configuration.
-        lc_config_name : str
-            Name of the liquid chromatography configuration.
         start_date : str
             Start date of the data generation.
         end_date : str
             End date of the data generation.
+        CLIENT_ID : str
+            The client ID for the NMDC API.
+        CLIENT_SECRET : str
+            The client secret for the NMDC API.
+        lc_config_name : str
+            Name of the liquid chromatography configuration.
         calibration_id : str, optional
             ID of the calibration information generated with the data.
             Default is None, indicating no calibration information.
@@ -502,6 +470,8 @@ class NMDCMetadataGenerator(ABC):
         metabolite_identifications : List[nmdc.MetaboliteIdentification], optional
             List of MetaboliteIdentification objects associated with the analysis.
             Default is None, which indicates no metabolite identifications.
+        type : str, optional
+            The type of the analysis. Default is NmdcTypes.MetabolomicsAnalysis.
 
         Returns
         -------
@@ -556,8 +526,8 @@ class NMDCMetadataGenerator(ABC):
     def update_outputs(
         self,
         analysis_obj: object,
-        raw_data_obj_id: object,
-        parameter_data_id: list,
+        raw_data_obj_id: str,
+        parameter_data_id: str,
         processed_data_id_list: list,
         mass_spec_obj: object = None,
         rerun: bool = False,
@@ -572,29 +542,31 @@ class NMDCMetadataGenerator(ABC):
 
         Parameters
         ----------
-        mass_spec_obj : object , optional
-            The Mass Spectrometry object to update. Optional for rerun cases.
         analysis_obj : object
             The Workflow Execution Analysis object to update
             (e.g., MetabolomicsAnalysis).
+        raw_data_obj_id : str
+            The Raw Data Object associated with the Mass Spectrometry.
         parameter_data_id : str
             ID of the data object representing the parameter data used for the analysis.
-         : object
-            The Raw Data Object associated with the Mass Spectrometry.
         processed_data_id_list : list
             List of IDs representing processed data objects associated with
             the Workflow Execution.
+        mass_spec_obj : object , optional
+            The Mass Spectrometry object to update. Optional for rerun cases.
         rerun : bool, optional
             If True, this indicates the run is a rerun, and the method will not set `mass_spec_obj.has_output` because there is not one.
             Default is False.
+
         Returns
         -------
         None
 
-        Side Effects
-        ------------
+        Notes
+        ------
         - Sets `mass_spec_obj.has_output` to [raw_data_obj.id].
         - Sets `analysis_obj.has_output` to `processed_data_id_list`.
+
         """
         if not rerun:
             # if it is not a rerun, set the mass spec object, otherwise there will not be a mass spec object
@@ -636,7 +608,7 @@ class NMDCMetadataGenerator(ABC):
         Parameters
         ----------
         row : pd.Series
-        A row from the metadata DataFrame containing biosample information
+            A row from the metadata DataFrame containing biosample information
 
         Returns
         -------
@@ -646,8 +618,6 @@ class NMDCMetadataGenerator(ABC):
                 Parsed metadata from input csv row
             - biosample_id : str
                 The ID of the biosample (existing or newly generated)
-            - biosample : Biosample or None
-                The generated biosample object if new, None if existing
 
         """
         parser = MetadataParser()
@@ -679,6 +649,15 @@ class NMDCMetadataGenerator(ABC):
         CLIENT_SECRET : str
             The client secret for the NMDC API. Used to mint a biosmaple id if one does not exist.
 
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        ValueError
+            If the 'biosample.name' column is missing and 'biosample_id' is empty.
+            If any required columns for biosample generation are missing.
         """
         parser = MetadataParser()
         metadata_df["biosample_id"] = metadata_df["biosample_id"].astype("object")
@@ -734,6 +713,12 @@ class NMDCMetadataGenerator(ABC):
     def check_doj_urls(self, metadata_df: pd.DataFrame, url_columns: List) -> None:
         """
         Check if the URLs in the input list already exist in the database.
+        Parameters
+        ----------
+        metadata_df : pd.DataFrame
+            The DataFrame containing the metadata information.
+        url_columns : List
+            The list of columns in the DataFrame that contain URLs to check.
 
         Returns
         -------
@@ -743,6 +728,8 @@ class NMDCMetadataGenerator(ABC):
         ------
         ValueError
             If any URL in the metadata DataFrame is invalid or inaccessible.
+        FileNotFoundError
+            If no files are found in the specified directory columns.
         """
         urls = []
         for col in url_columns:
@@ -806,14 +793,14 @@ class NMDCMetadataGenerator(ABC):
             )
 
     def generate_biosample(
-        self, biosamp_metadata: Dict, CLIENT_ID: str, CLIENT_SECRET: str
+        self, biosamp_metadata: dict, CLIENT_ID: str, CLIENT_SECRET: str
     ) -> nmdc.Biosample:
         """
         Mint a biosample id from the given metadata and create a biosample instance.
 
         Parameters
         ----------
-        biosamp_metadata : object
+        biosamp_metadata : dict
             The metadata object containing biosample information.
         CLIENT_ID : str
             The client ID for the NMDC API.
@@ -821,7 +808,7 @@ class NMDCMetadataGenerator(ABC):
             The client secret for the NMDC API.
         Returns
         -------
-        object
+        nmdc.Biosample
             The generated biosample instance.
         """
         mint = Minter()

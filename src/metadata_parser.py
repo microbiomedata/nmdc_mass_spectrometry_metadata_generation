@@ -26,7 +26,7 @@ class MetadataParser:
         pass
 
     # Helper function to handle missing or NaN values
-    def get_value(self, row: pd.Series, key: str, default=None):
+    def get_value(self, row: pd.Series, key: str, default: str = None) -> str:
         """
         Retrieve a value from a row, handling missing or NaN values.
 
@@ -36,12 +36,13 @@ class MetadataParser:
             A row from the DataFrame.
         key : str
             The key to retrieve the value for.
-        default : optional
+        default : str, optional
             Default value to return if the key does not exist or is NaN.
 
         Returns
         -------
-        The value associated with the key, or default if not found.
+        str
+            The value associated with the key, or default if not found.
         """
         type = None
         # if the value passed in is a Biosample field, we need to add the biosample prefix
@@ -279,7 +280,7 @@ class MetadataParser:
                 )
         return metadata
 
-    def create_timestamp_value(self, raw_value: str):
+    def create_timestamp_value(self, raw_value: str) -> dict:
         """
         Create a timestamp value representation.
 
@@ -303,7 +304,7 @@ class MetadataParser:
     def create_quantity_value(
         self,
         value_dict: dict = None,
-    ):
+    ) -> dict:
         """
         Create a quantity value representation. Since a dictionary is passed in, we need to check if any of the values are None and remove them if so. Also adds the Quantity value type.
 
@@ -332,7 +333,7 @@ class MetadataParser:
         value_dict["type"] = NmdcTypes.QuantityValue
         return value_dict
 
-    def create_geo_loc_value(self, raw_value: str):
+    def create_geo_loc_value(self, raw_value: str) -> dict:
         """
         Create a geolocation value representation.
 
@@ -340,10 +341,6 @@ class MetadataParser:
         ----------
         raw_value : str
             The raw value associated with geolocation.
-        lat_value : str
-            The latitude value.
-        long_value : str
-            The longitude value.
 
         Returns
         -------
@@ -360,7 +357,7 @@ class MetadataParser:
 
         return nmdc_geo_loc_value
 
-    def create_text_value(self, row_value: str, is_list: bool) -> Dict:
+    def create_text_value(self, row_value: str, is_list: bool) -> dict:
         """
         Create a text value representation.
 
@@ -383,16 +380,16 @@ class MetadataParser:
 
     def create_controlled_identified_term_value(
         self, row_value: str, slot_enum_dict: dict
-    ) -> Dict:
+    ) -> dict:
         """
         Create a controlled identified term value.
 
         Parameters
         ----------
-        raw_value : str
+        row_value : str
             The raw value to be converted.
-        control_terms : dict
-            A mapping of controlled terms.
+        slot_enum_dict : dict
+            A dictionary mapping the raw value to its corresponding term.
 
         Returns
         -------

@@ -63,6 +63,12 @@ class GCMSMetabWorkflowMetadata:
 
     Attributes
     ----------
+    biosample_id: str
+        Identifier for the biosample.s
+    nmdc_study : str
+        Identifier for the NMDC study.
+    processing_institution : str
+        Name of the institution processing the data.
     processed_data_file : str
         Path or name of the processed data file.
     raw_data_file : str
