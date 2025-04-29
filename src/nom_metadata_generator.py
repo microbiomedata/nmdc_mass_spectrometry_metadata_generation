@@ -19,8 +19,54 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
     """
     A class for generating NMDC metadata objects using provided metadata files and configuration
     for Natural Organic Matter (NOM) data.
+    Parameters
+    ----------
+    metadata_file : str
+        Path to the input CSV metadata file.
+    database_dump_json_path : str
+        Path where the output database dump JSON file will be saved.
+    raw_data_url : str
+        Base URL for the raw data files.
+    process_data_url : str
+        Base URL for the processed data files.
+    minting_config_creds : str, optional
+        Path to the configuration file containing the client ID and client secret for minting NMDC IDs. It can also include the bio ontology API key if generating biosample ids is needed.
+        If not provided, the CLIENT_ID, CLIENT_SECRET, and BIO_API_KEY environment variables will be used.
+
     Attributes
     ----------
+    mass_spec_desc : str
+        Description of the mass spectrometry analysis.
+    mass_spec_eluent_intro : str
+        Eluent introduction category for mass spectrometry.
+    analyte_category : str
+        Category of the analyte.
+    raw_data_category : str
+        Category of the raw data.
+    raw_data_obj_type : str
+        Type of the raw data object.
+    raw_data_obj_desc : str
+        Description of the raw data object.
+    workflow_analysis_name : str
+        Name of the workflow analysis.
+    workflow_description : str
+        Description of the workflow.
+    workflow_git_url : str
+        URL of the workflow's Git repository.
+    workflow_version : str
+        Version of the workflow.
+    workflow_param_data_category : str
+        Category of the workflow parameter data.
+    workflow_param_data_object_type : str
+        Type of the workflow parameter data object.
+    unique_columns : list
+        List of columns that should be unique in the metadata file.
+    mass_spec_desc : str
+        Description of the mass spectrometry analysis.
+    mass_spec_eluent_intro : str
+        Eluent introduction category for mass spectrometry.
+    processing_institution : str
+        Institution responsible for processing the data.
     """
 
     def __init__(

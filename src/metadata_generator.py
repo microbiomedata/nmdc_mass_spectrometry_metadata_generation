@@ -137,11 +137,12 @@ class NMDCMetadataGenerator(ABC):
         """
         Load bio ontology API key from the environment or a configuration file.
         params:
-            config_file: str
-                The path to the configuration file.
+        config_file: str
+            The path to the configuration file.
         returns:
-            bio_api_key: str
-                The bio ontology API key.
+        bio_api_key: str
+            The bio ontology API key.
+
         """
         BIO_API_KEY = os.getenv("BIO_API_KEY")
 
@@ -244,9 +245,17 @@ class NMDCMetadataGenerator(ABC):
 
     def clean_dict(self, dict: Dict) -> Dict:
         """
-        Clean the dictionary of empty values.
+        Clean the dictionary by removing keys with empty or None values.
+
+        Parameters
+        ----------
         dict : Dict
-            The dictionary to clean.
+            The dictionary to be cleaned.
+        Returns
+        -------
+        Dict
+            A new dictionary with keys removed where the values are None, an empty string, or a string with only whitespace.
+
         """
         return {k: v for k, v in dict.items() if v not in [None, "", ""]}
 
@@ -627,7 +636,7 @@ class NMDCMetadataGenerator(ABC):
         Parameters
         ----------
         row : pd.Series
-            A row from the metadata DataFrame containing biosample information
+        A row from the metadata DataFrame containing biosample information
 
         Returns
         -------
@@ -639,6 +648,7 @@ class NMDCMetadataGenerator(ABC):
                 The ID of the biosample (existing or newly generated)
             - biosample : Biosample or None
                 The generated biosample object if new, None if existing
+
         """
         parser = MetadataParser()
         emsl_metadata = parser.parse_biosample_metadata(row)

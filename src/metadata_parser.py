@@ -161,6 +161,7 @@ class MetadataParser:
         returns:
             Dict
             The metadata dictionary.
+
         """
         envo_retriever = BioOntologyInfoRetriever(bio_api_key)
 
@@ -324,6 +325,7 @@ class MetadataParser:
         -------
         dict
             A dictionary representing the quantity value.
+
         """
         if value_dict:
             value_dict = {k: v for k, v in value_dict.items() if v is not None}

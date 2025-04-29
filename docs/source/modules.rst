@@ -1,7 +1,7 @@
-nmdc_notebook_tools
+nmdc_mass_spectrometry_metadata_generation
 ===================
 
 .. toctree::
    :maxdepth: 4
 
-   nmdc_notebook_tools
+   nmdc_mass_spectrometry_metadata_generation
