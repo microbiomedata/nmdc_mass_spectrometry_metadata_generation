@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # This script will serve as a test for the lipdomics metadata generation script.
 from datetime import datetime
-from src.lcms_metab_metadata_generator import LCMSMetabMetadataGenerator
+from src.lcms_metab_metadata_generator import LCMSMetabolomicsMetadataGenerator
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -25,7 +25,7 @@ def test_lcms_metab_metadata_gen():
         + ".json"
     )
     # Start the metadata generation setup
-    generator = LCMSMetabMetadataGenerator(
+    generator = LCMSMetabolomicsMetadataGenerator(
         metadata_file=csv_file_path,
         database_dump_json_path=output_file,
         raw_data_url="https://nmdcdemo.emsl.pnnl.gov/lipidomics/test_data/test_raw_lcms_lipid/",
@@ -48,7 +48,7 @@ def test_lcms_metab_metadata_gen_rerun():
         + ".json"
     )
     # Start the metadata generation setup
-    generator = LCMSMetabMetadataGenerator(
+    generator = LCMSMetabolomicsMetadataGenerator(
         metadata_file=csv_file_path,
         database_dump_json_path=output_file,
         raw_data_url="https://nmdcdemo.emsl.pnnl.gov/lipidomics/blanchard_11_8ws97026/",
@@ -73,7 +73,7 @@ def test_lcms_metab_biosample_gen():
         + ".json"
     )
     # Start the metadata generation setup
-    generator = LCMSMetabMetadataGenerator(
+    generator = LCMSMetabolomicsMetadataGenerator(
         metadata_file=csv_file_path,
         database_dump_json_path=output_file,
         raw_data_url="https://nmdcdemo.emsl.pnnl.gov/lipidomics/test_data/test_raw_lcms_lipid/",

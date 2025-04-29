@@ -1,21 +1,8 @@
 # -*- coding: utf-8 -*-
-from src.metadata_generator import NMDCMetadataGenerator
 from src.lcms_metadata_generator import LCMSMetadataGenerator
-from tqdm import tqdm
-from pathlib import Path
-from datetime import datetime
-import logging
-from nmdc_api_utilities.metadata import Metadata
-import ast
-import pandas as pd
-from src.data_classes import LCMSLipidWorkflowMetadata
-from nmdc_api_utilities.workflow_execution_search import WorkflowExecutionSearch
-from nmdc_api_utilities.data_object_search import DataObjectSearch
-from src.data_classes import NmdcTypes
-import re
 
 
-class LCMSMetabMetadataGenerator(LCMSMetadataGenerator):
+class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
     """
     A class for generating NMDC metadata objects using provided metadata files and configuration
     for LC-MS metabolomics data.
