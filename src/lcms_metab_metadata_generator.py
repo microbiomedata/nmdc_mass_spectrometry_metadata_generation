@@ -96,7 +96,7 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
     no_config_process_data_category: str = "processed_data"
     no_config_process_data_obj_type: str = "LC-MS Metabolomics Results"
     csv_process_data_description: str = (
-        "Lipid annotations as a result of a metabolomics workflow activity."
+        "Metabolite annotations as a result of a metabolomics workflow activity."
     )
 
     hdf5_process_data_obj_type: str = "LC-MS Metabolomics Processed Data"
