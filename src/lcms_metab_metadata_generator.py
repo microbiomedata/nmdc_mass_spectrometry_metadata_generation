@@ -78,7 +78,7 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
     # Workflow attributes
     workflow_analysis_name: str = "Metabolomics analysis"
     workflow_description: str = (
-        "Analysis of raw mass spectrometry data for the annotation of metabolomics."
+        "Analysis of raw mass spectrometry data for the annotation of metabolites."
     )
     # TODO
     workflow_git_url: str = (
