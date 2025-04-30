@@ -21,6 +21,7 @@ class LCMSMetadataGenerator(NMDCMetadataGenerator):
 
     This class processes input metadata files, generates various NMDC objects, and produces
     a database dump in JSON format.
+
     """
 
     def __init__(
@@ -66,6 +67,7 @@ class LCMSMetadataGenerator(NMDCMetadataGenerator):
         -----
         This method uses tqdm to display progress bars for the processing of
         biosamples and mass spectrometry metadata.
+
         """
         client_id, client_secret = self.load_credentials(
             config_file=self.minting_config_creds
@@ -288,6 +290,7 @@ class LCMSMetadataGenerator(NMDCMetadataGenerator):
         -----
         This method uses tqdm to display progress bars for the processing of
         biosamples and mass spectrometry metadata.
+
         """
         client_id, client_secret = self.load_credentials(
             config_file=self.minting_config_creds
@@ -500,6 +503,7 @@ class LCMSMetadataGenerator(NMDCMetadataGenerator):
         'mass spec configuration name', 'lc config name', 'instrument used',
         'instrument analysis start date', 'instrument analysis end date',
         'execution resource'.
+
         """
         return LCMSLipidWorkflowMetadata(
             processed_data_dir=row["processed_data_directory"],

@@ -4,10 +4,6 @@ import os
 from pathlib import Path
 import requests
 
-# set the cwd to /src/
-if "src" not in Path.cwd().name:
-    os.chdir(Path.cwd() / "src")
-
 
 class BioOntologyInfoRetriever:
     """
@@ -20,6 +16,7 @@ class BioOntologyInfoRetriever:
     ----------
     bio_api_key : str
         The BioPortal BioOntology API key for authentication.
+
     Notes
     -----
     The configuration file should contain an 'api_key' field with a valid
@@ -31,6 +28,7 @@ class BioOntologyInfoRetriever:
     >>> envo_terms = retriever.get_envo_terms('ENVO:00002042')
     >>> print(envo_terms)
     {'ENVO:00002042': 'surface water'}
+
     """
 
     def __init__(self, bio_api_key: str):
@@ -55,6 +53,7 @@ class BioOntologyInfoRetriever:
         -----
         Makes an authenticated request to BioPortal API to retrieve the
         preferred label (prefLabel) for the given ENVO term.
+
         """
 
         url = f"http://data.bioontology.org/ontologies/ENVO/classes/{envo_id}"

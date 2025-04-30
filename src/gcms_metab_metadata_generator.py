@@ -69,6 +69,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
     processed_data_object_type : str
         Type of the processed data object.
     processed_data_object_description : str
+
     """
 
     # Metadata attributes
@@ -150,6 +151,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         -----
         This method uses tqdm to display progress bars for the processing of calibration information and
         mass spectrometry metadata.
+
         """
         wf_client = WorkflowExecutionSearch()
         client_id, client_secret = self.load_credentials(
@@ -281,6 +283,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         -----
         This method uses tqdm to display progress bars for the processing of calibration information and
         mass spectrometry metadata.
+
         """
 
         client_id, client_secret = self.load_credentials(
@@ -426,6 +429,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
     ) -> None:
         """
         Generate calibration information and data objects for each calibration file.
+
         Parameters
         ----------
         metadata_df : pd.DataFrame
@@ -436,6 +440,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             The client ID for the NMDC API.
         CLIENT_SECRET : str
             The client secret for the NMDC API.
+
         Returns
         -------
         None
@@ -510,6 +515,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         ------
         ValueError
             If the calibration type is not supported.
+
         """
         mint = Minter()
         if fames and not internal:
@@ -561,6 +567,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         'mass spec configuration name', 'lc config name', 'instrument used',
         'instrument analysis start date', 'instrument analysis end date',
         'execution resource'.
+
         """
         return GCMSMetabWorkflowMetadata(
             biosample_id=row["biosample_id"],
@@ -597,6 +604,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         -----
         This method reads in the processed data file and generates MetaboliteIdentification objects,
         pulling out the best hit for each peak based on the highest "Similarity Score".
+
         """
         # Open the file and read in the data as a pandas dataframe
         processed_data = pd.read_csv(processed_data_file)

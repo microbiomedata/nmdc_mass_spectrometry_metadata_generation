@@ -43,6 +43,7 @@ class MetadataParser:
         -------
         str
             The value associated with the key, or default if not found.
+
         """
         type = None
         # if the value passed in is a Biosample field, we need to add the biosample prefix
@@ -156,6 +157,7 @@ class MetadataParser:
         Function to parse the metadata row if it includes biosample information.
         This pulls the most recent version of the ontology terms from the API and compares them to the values in the given row.
         Different parsing is done on different types of fields, such as lists, controlled identified terms, and text values to ensure the correct format is used.
+
         Parameters
         ----------
             row: pd.Series
@@ -297,6 +299,7 @@ class MetadataParser:
         -------
         dict
             A dictionary representing the timestamp value.
+
         """
         nmdc_timestamp_value = {
             "has_raw_value": raw_value,
@@ -332,6 +335,7 @@ class MetadataParser:
             A dictionary representing the quantity value.
 
         """
+
         if value_dict:
             value_dict = {k: v for k, v in value_dict.items() if v is not None}
         value_dict["type"] = NmdcTypes.QuantityValue
@@ -350,6 +354,7 @@ class MetadataParser:
         -------
         dict
             A dictionary representing the geolocation value.
+
         """
         lat_value, long_value = raw_value.split(" ", 1)
         nmdc_geo_loc_value = {
@@ -376,6 +381,7 @@ class MetadataParser:
         -------
         dict
             A dictionary representing the text value.
+
         """
 
         nmdc_text_value = {"has_raw_value": row_value, "type": NmdcTypes.TextValue}
@@ -399,6 +405,7 @@ class MetadataParser:
         -------
         dict
             A dictionary representing the controlled identified term.
+
         """
 
         nmdc_controlled_term_slot = {
@@ -417,7 +424,17 @@ class MetadataParser:
         self, file_path: str = "example_biosample_metadata.csv"
     ):
         """
-        Function to generate a an example csv file from available NMDCSchema Biosample fields.
+        Function to generate an example csv file from available NMDCSchema Biosample fields. Saves the file to the given path.
+
+        Parameters
+        ----------
+        file_path : str
+            The path to save the example CSV file. Default is "example_biosample_metadata.csv".
+
+        Returns
+        -------
+        None
+
         """
         # Get all fields from the Biosample dataclass
         biosample_fields = Biosample.__dataclass_fields__.keys()

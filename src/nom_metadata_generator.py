@@ -405,10 +405,12 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
     ) -> str:
         """
         Get the calibration ID from the NMDC API using the md5 checksum of the calibration file.
+
         Parameters
         ----------
         calibration_path : str
             The file path of the calibration file.
+
         Returns
         -------
         str
@@ -473,6 +475,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             The ID of the calibration object used in the analysis. If None, no calibration is used.
         incremented_id : str, optional
             The incremented ID for the metabolomics analysis. If None, a new ID will be minted.
+
         Returns
         -------
         nmdc.NomAnalysis

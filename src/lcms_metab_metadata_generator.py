@@ -63,13 +63,12 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
         Type of HDF5 processed data object.
     hdf5_process_data_description : str
         Description of HDF5 processed data.
+
     """
 
     unique_columns: list[str] = ["raw_data_file", "processed_data_directory"]
     # Data Generation attributes
-    mass_spec_desc: str = (
-        "Generation of mass spectrometry data for the analysis of metabolomics using liquid chromatography."
-    )
+    mass_spec_desc: str = "Generation of mass spectrometry data for the analysis of metabolomics using liquid chromatography."
     mass_spec_eluent_intro: str = "liquid_chromatography"
     analyte_category: str = "metabolome"
     raw_data_obj_type: str = "LC-DDA-MS/MS Raw Data"

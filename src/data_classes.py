@@ -39,6 +39,7 @@ class NmdcTypes:
         NMDC type for Timestamp Value.
     QuantityValue : str
         NMDC type for Quantity Value.
+
     """
 
     Biosample: str = "nmdc:Biosample"
@@ -87,6 +88,7 @@ class GCMSMetabWorkflowMetadata:
         Identifier for the execution resource.
     calibration_id : str
         Identifier for the calibration information used.
+
     """
 
     biosample_id: str
@@ -126,6 +128,7 @@ class LCMSLipidWorkflowMetadata:
         End date of the instrument analysis.
     execution_resource : float
         Identifier for the execution resource.
+
     """
 
     processed_data_dir: str

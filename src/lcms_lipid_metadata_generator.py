@@ -64,6 +64,7 @@ class LCMSLipidomicsMetadataGenerator(LCMSMetadataGenerator):
         Type of HDF5 processed data object.
     hdf5_process_data_description : str
         Description of HDF5 processed data.
+
     """
 
     unique_columns: List[str] = ["raw_data_file", "processed_data_directory"]
