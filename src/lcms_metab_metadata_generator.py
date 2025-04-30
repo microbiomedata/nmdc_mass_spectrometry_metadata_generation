@@ -82,7 +82,7 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
     )
     # TODO
     workflow_git_url: str = (
-        "https://github.com/microbiomedata/metaMS/wdl/metaMS_lipidomics.wdl"
+        "https://github.com/microbiomedata/metaMS/wdl/metaMS_lcms_metabolomics.wdl"
     )
     workflow_version: str = "1.0.0"
     workflow_category: str = "lc_ms_metabolomics"
