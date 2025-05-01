@@ -60,17 +60,20 @@ class NMDCMetadataGenerator(ABC):
         self.process_data_url = process_data_url
         self.raw_data_category = "instrument_data"
 
-    def load_credentials(self, config_file: str = None):
+    def load_credentials(self, config_file: str = None) -> tuple:
         """
         Load the client ID and secret from the environment or a configuration file.
-        params:
-            config_file: str
-                The path to the configuration file.
-        returns:
-            client_id: str
-                The client ID for the NMDC API.
-            client_secret: str
-                The client secret for the NMDC API.
+
+        Parameters
+        ----------
+        config_file: str
+            The path to the configuration file.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the client ID and client secret.
+
         """
         client_id = os.getenv("CLIENT_ID")
         client_secret = os.getenv("CLIENT_SECRET")
@@ -98,15 +101,26 @@ class NMDCMetadataGenerator(ABC):
 
         return client_id, client_secret
 
-    def load_bio_credentials(self, config_file: str = None):
+    def load_bio_credentials(self, config_file: str = None) -> str:
         """
         Load bio ontology API key from the environment or a configuration file.
-        params:
+
+        Parameters
+        ----------
         config_file: str
             The path to the configuration file.
-        returns:
-        bio_api_key: str
+
+        Returns
+        -------
+        str
             The bio ontology API key.
+
+        Raises
+        ------
+        FileNotFoundError
+            If the configuration file is not found, and the API key is not set in the environment.
+        ValueError
+            If the configuration file is not valid or does not contain the API key.
 
         """
         BIO_API_KEY = os.getenv("BIO_API_KEY")
@@ -116,9 +130,9 @@ class NMDCMetadataGenerator(ABC):
                 config_file = Path(config_file)
                 try:
                     config = toml.load(config_file)
-                    bio_api_key = config.get("BIO_API_KEY")
+                    BIO_API_KEY = config.get("BIO_API_KEY")
                 except FileNotFoundError:
-                    raise ValueError(f"Config file {config_file} not found.")
+                    raise FileNotFoundError(f"Config file {config_file} not found.")
                 except toml.TomlDecodeError:
                     raise ValueError("Error decoding TOML from the config file.")
                 except KeyError:
@@ -147,6 +161,7 @@ class NMDCMetadataGenerator(ABC):
         This method simply creates and returns a new instance of the NMDC
         Database. It does not perform any additional initialization or
         configuration.
+
         """
         return nmdc.Database()
 
@@ -282,6 +297,7 @@ class NMDCMetadataGenerator(ABC):
         -----
         This method uses the nmdc_api_utilities package to fetch IDs for the instrument
         and configurations. It also mints a new NMDC ID for the DataGeneration object.
+
         """
 
         is_client = InstrumentSearch()
@@ -392,6 +408,7 @@ class NMDCMetadataGenerator(ABC):
         -----
         This method calculates the MD5 checksum of the file, which may be
         time-consuming for large files.
+
         """
         mint = Minter()
         nmdc_id = mint.mint(
@@ -483,6 +500,7 @@ class NMDCMetadataGenerator(ABC):
         The 'started_at_time' and 'ended_at_time' fields are initialized with
         placeholder values and should be updated with actual timestamps later
         when the processed files are iterated over in the run method.
+
         """
         if incremeneted_id is None:
             # If no incremented id is provided, mint a new one
@@ -658,6 +676,7 @@ class NMDCMetadataGenerator(ABC):
         ValueError
             If the 'biosample.name' column is missing and 'biosample_id' is empty.
             If any required columns for biosample generation are missing.
+
         """
         parser = MetadataParser()
         metadata_df["biosample_id"] = metadata_df["biosample_id"].astype("object")
@@ -713,6 +732,7 @@ class NMDCMetadataGenerator(ABC):
     def check_doj_urls(self, metadata_df: pd.DataFrame, url_columns: List) -> None:
         """
         Check if the URLs in the input list already exist in the database.
+
         Parameters
         ----------
         metadata_df : pd.DataFrame
@@ -730,6 +750,7 @@ class NMDCMetadataGenerator(ABC):
             If any URL in the metadata DataFrame is invalid or inaccessible.
         FileNotFoundError
             If no files are found in the specified directory columns.
+
         """
         urls = []
         for col in url_columns:
@@ -806,10 +827,12 @@ class NMDCMetadataGenerator(ABC):
             The client ID for the NMDC API.
         CLIENT_SECRET : str
             The client secret for the NMDC API.
+
         Returns
         -------
         nmdc.Biosample
             The generated biosample instance.
+
         """
         mint = Minter()
 
