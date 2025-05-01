@@ -38,6 +38,12 @@ repos:
     hooks:
       - id: black
 
+  - repo: https://github.com/jsh9/pydoclint
+    rev: 0.6.6
+    hooks:
+      - id: pydoclint 
+        args: [--style=sphinx]
+
   # - repo: https://github.com/thclark/pre-commit-sphinx
   #   rev: 0.0.1
   #   hooks:

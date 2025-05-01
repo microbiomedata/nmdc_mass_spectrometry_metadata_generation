@@ -42,8 +42,6 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
 
     Attributes
     ----------
-    calibration_standard : str
-        Name of the calibration standard used for the data.
     unique_columns : List[str]
         List of columns used to check for uniqueness in the metadata before processing.
     mass_spec_desc : str
@@ -71,7 +69,38 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
     processed_data_object_type : str
         Type of the processed data object.
     processed_data_object_description : str
+
     """
+
+    # Metadata attributes
+    unique_columns: List[str] = ["raw_data_file", "processed_data_file"]
+
+    # Data Generation attributes
+    mass_spec_desc: str = (
+        "Generation of mass spectrometry data by GC/MS for the analysis of metabolites."
+    )
+    mass_spec_eluent_intro: str = "gas_chromatography"
+    analyte_category: str = "metabolome"
+    raw_data_obj_type: str = "GC-MS Raw Data"
+    raw_data_obj_desc: str = (
+        "GC/MS low resolution raw data for metabolomics data acquisition."
+    )
+
+    # Workflow metadata
+    workflow_analysis_name: str = "GC/MS Metabolomics analysis"
+    workflow_description: str = (
+        "Analysis of raw mass spectrometry data for the annotation of metabolites."
+    )
+    workflow_git_url: str = (
+        "https://github.com/microbiomedata/metaMS/wdl/metaMS_gcms.wdl"
+    )
+    workflow_version: str = "3.0.0"
+    workflow_category: str = "gc_ms_metabolomics"
+
+    # Processed data attributes
+    processed_data_category: str = "processed_data"
+    processed_data_object_type: str = "GC-MS Metabolomics Results"
+    processed_data_object_description: str = "Metabolomics annotations as a result of a GC/MS metabolomics workflow activity."
 
     def __init__(
         self,
@@ -95,35 +124,8 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
 
         # Workflow Configuration attributes
         self.configuration_file_name = configuration_file_name
-        # Metadata attributes
-        self.unique_columns = ["raw_data_file", "processed_data_file"]
 
-        # Data Generation attributes
-        self.mass_spec_desc = "Generation of mass spectrometry data by GC/MS for the analysis of metabolites."
-        self.mass_spec_eluent_intro = "gas_chromatography"
-        self.analyte_category = "metabolome"
-        self.raw_data_obj_type = "GC-MS Raw Data"
-        self.raw_data_obj_desc = (
-            "GC/MS low resolution raw data for metabolomics data acquisition."
-        )
-
-        # Workflow metadata
-        self.workflow_analysis_name = "GC/MS Metabolomics analysis"
-        self.workflow_description = (
-            "Analysis of raw mass spectrometry data for the annotation of metabolites."
-        )
-        self.workflow_git_url = (
-            "https://github.com/microbiomedata/metaMS/wdl/metaMS_gcms.wdl"
-        )
-        self.workflow_version = "3.0.0"
-        self.workflow_category = "gc_ms_metabolomics"
-
-        # Processed data attributes
-        self.processed_data_category = "processed_data"
-        self.processed_data_object_type = "GC-MS Metabolomics Results"
-        self.processed_data_object_description = "Metabolomics annotations as a result of a GC/MS metabolomics workflow activity."
-
-    def rerun(self) -> bool:
+    def rerun(self) -> None:
         """
         Execute a re run of the metadata generation process for GC/MS metabolomics data.
 
@@ -138,11 +140,18 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
 
         Returns
         -------
+        None
+
+        Raises
+        ------
+        FileNotFoundError
+            If the metadata file is not found.
 
         Notes
         -----
         This method uses tqdm to display progress bars for the processing of calibration information and
         mass spectrometry metadata.
+
         """
         wf_client = WorkflowExecutionSearch()
         client_id, client_secret = self.load_credentials(
@@ -246,7 +255,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         api_metadata.validate_json(self.database_dump_json_path)
         logging.info("Metadata processing re run completed.")
 
-    def run(self):
+    def run(self) -> None:
         """
         Execute the metadata generation process for GC/MS metabolomics data.
 
@@ -263,11 +272,18 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
 
         Returns
         -------
+        None
+
+        Raises
+        ------
+        ValueError
+            If the calibration standard is not supported.
 
         Notes
         -----
         This method uses tqdm to display progress bars for the processing of calibration information and
         mass spectrometry metadata.
+
         """
 
         client_id, client_secret = self.load_credentials(
@@ -413,6 +429,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
     ) -> None:
         """
         Generate calibration information and data objects for each calibration file.
+
         Parameters
         ----------
         metadata_df : pd.DataFrame
@@ -423,6 +440,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             The client ID for the NMDC API.
         CLIENT_SECRET : str
             The client secret for the NMDC API.
+
         Returns
         -------
         None
@@ -497,6 +515,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         ------
         ValueError
             If the calibration type is not supported.
+
         """
         mint = Minter()
         if fames and not internal:
@@ -548,6 +567,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         'mass spec configuration name', 'lc config name', 'instrument used',
         'instrument analysis start date', 'instrument analysis end date',
         'execution resource'.
+
         """
         return GCMSMetabWorkflowMetadata(
             biosample_id=row["biosample_id"],
@@ -565,7 +585,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         )
 
     def generate_metab_identifications(
-        self, processed_data_file
+        self, processed_data_file: str
     ) -> List[nmdc.MetaboliteIdentification]:
         """
         Generate MetaboliteIdentification objects from processed data file.
@@ -584,6 +604,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         -----
         This method reads in the processed data file and generates MetaboliteIdentification objects,
         pulling out the best hit for each peak based on the highest "Similarity Score".
+
         """
         # Open the file and read in the data as a pandas dataframe
         processed_data = pd.read_csv(processed_data_file)

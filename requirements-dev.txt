@@ -2,7 +2,7 @@ pre-commit
 sphinx
 sphinx_rtd_theme
 pytest
-nmdc-schema~=11.4.0
+nmdc-schema~=11.6.1
 requests~=2.32.3
 requests-oauthlib~=2.0.0
 linkml-runtime~=1.8.2
@@ -14,3 +14,4 @@ typing-inspect~=0.9.0
 nmdc_api_utilities>=0.3.7
 toml~=0.10.2
 pytest-console-scripts
+pydoclint
