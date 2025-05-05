@@ -119,6 +119,7 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
             process_data_url=process_data_url,
         )
         # Set the workflow version, prioritizing user input, then fetching from the Git URL, and finally using a default.
+        # TODO remove default, use correct version
         self.workflow_version = (
             workflow_version
             or self.get_workflow_version(
