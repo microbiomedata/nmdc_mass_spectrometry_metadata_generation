@@ -877,14 +877,3 @@ class NMDCMetadataGenerator(ABC):
                 f"Failed to fetch the workflow version from the Git repository {workflow_version_git_url}"
             )
         return None
-
-
-if __name__ == "__main__":
-    # Example usage
-    metadata_generator = NMDCMetadataGenerator(
-        metadata_file="path/to/metadata.csv",
-        database_dump_json_path="path/to/dump.json",
-        raw_data_url="http://example.com/raw/",
-        process_data_url="http://example.com/processed/",
-    )
-    metadata_generator.get_workflow_version()
