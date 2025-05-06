@@ -94,7 +94,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
     workflow_git_url: str = (
         "https://github.com/microbiomedata/metaMS/wdl/metaMS_gcms.wdl"
     )
-    workflow_version: str = "3.0.0"
+    workflow_version: str
     workflow_category: str = "gc_ms_metabolomics"
 
     # Processed data attributes
@@ -109,6 +109,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         raw_data_url: str,
         process_data_url: str,
         minting_config_creds: str = None,
+        workflow_version: str = None,
         calibration_standard: str = "fames",
         configuration_file_name: str = "emsl_gcms_corems_params.toml",
     ):
@@ -118,6 +119,11 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             raw_data_url=raw_data_url,
             process_data_url=process_data_url,
         )
+        # Set the workflow version, prioritizing user input, then fetching from the Git URL, and finally using a default.
+        self.workflow_version = workflow_version or self.get_workflow_version(
+            workflow_version_git_url="https://github.com/microbiomedata/metaMS/blob/master/.bumpversion.cfg"
+        )
+
         self.minting_config_creds = minting_config_creds
         # Calibration attributes
         self.calibration_standard = calibration_standard

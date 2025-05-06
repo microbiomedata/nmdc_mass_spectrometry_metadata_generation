@@ -83,7 +83,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
     mass_spec_eluent_intro: str = "direct_infusion_autosampler"
     processing_institution: str = "EMSL"
     workflow_git_url: str = "https://github.com/microbiomedata/enviroMS"
-    workflow_version: str = "4.3.1"
+    workflow_version: str
 
     def __init__(
         self,
@@ -92,6 +92,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         raw_data_url: str,
         process_data_url: str,
         minting_config_creds: str = None,
+        workflow_version: str = None,
     ):
         super().__init__(
             metadata_file=metadata_file,
@@ -100,6 +101,10 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             process_data_url=process_data_url,
         )
         self.minting_config_creds = minting_config_creds
+        # Set the workflow version, prioritizing user input, then fetching from the Git URL, and finally using a default.
+        self.workflow_version = workflow_version or self.get_workflow_version(
+            workflow_version_git_url="https://github.com/microbiomedata/enviroMS/blob/master/.bumpversion.cfg"
+        )
 
     def rerun(self):
         """

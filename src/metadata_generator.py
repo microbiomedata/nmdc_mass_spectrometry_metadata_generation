@@ -2,7 +2,7 @@
 import logging
 from pathlib import Path
 from datetime import datetime
-from dataclasses import dataclass
+import re
 from typing import List, Dict
 from abc import ABC
 import pandas as pd
@@ -850,3 +850,30 @@ class NMDCMetadataGenerator(ABC):
         biosample_object = nmdc.Biosample(**biosamp_dict)
 
         return biosample_object
+
+    def get_workflow_version(self, workflow_version_git_url: str) -> str:
+        """
+        Get the version of the workflow from the git repository.
+
+        Parameters
+        ----------
+        repo_link : str
+            The URL of the git repository containing the workflow version.
+
+        Returns
+        -------
+        str
+            The version of the workflow.
+        """
+        resp = requests.get(workflow_version_git_url)
+        if resp.status_code == 200:
+            # Regular expression to find the current_version
+            match = re.search(r"current_version\s*=\s*([\d.]+)", resp.text)
+            if match:
+                current_version = match.group(1)
+            return current_version
+        else:
+            logging.warning(
+                f"Failed to fetch the workflow version from the Git repository {workflow_version_git_url}"
+            )
+        return None

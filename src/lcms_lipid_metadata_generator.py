@@ -85,7 +85,7 @@ class LCMSLipidomicsMetadataGenerator(LCMSMetadataGenerator):
     workflow_git_url: str = (
         "https://github.com/microbiomedata/metaMS/wdl/metaMS_lipidomics.wdl"
     )
-    workflow_version: str = "1.0.0"
+    workflow_version: str
     workflow_category: str = "lc_ms_lipidomics"
 
     # Processed data attributes
@@ -112,6 +112,7 @@ class LCMSLipidomicsMetadataGenerator(LCMSMetadataGenerator):
         raw_data_url: str,
         process_data_url: str,
         minting_config_creds: str = None,
+        workflow_version: str = None,
     ):
         super().__init__(
             metadata_file=metadata_file,
@@ -119,7 +120,10 @@ class LCMSLipidomicsMetadataGenerator(LCMSMetadataGenerator):
             raw_data_url=raw_data_url,
             process_data_url=process_data_url,
         )
-
+        # Set the workflow version, prioritizing user input, then fetching from the Git URL, and finally using a default.
+        self.workflow_version = workflow_version or self.get_workflow_version(
+            workflow_version_git_url="https://github.com/microbiomedata/metaMS/blob/master/.bumpversion_lipid.cfg"
+        )
         self.minting_config_creds = minting_config_creds
 
     def rerun(self):
