@@ -68,7 +68,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
     """
 
     raw_data_object_type: str = "Direct Infusion FT ICR-MS Raw Data"
-    processed_data_object_type: str = "FT ICR-MS Analysis Results"
+    processed_data_object_type: str = "Direct Infusion FT-ICR MS Analysis Results"
     processed_data_category: str = "processed_data"
     execution_resource: str = "EMSL-RZR"
     analyte_category: str = "nom"
