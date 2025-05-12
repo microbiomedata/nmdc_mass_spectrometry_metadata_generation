@@ -200,8 +200,8 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                     processed_data_object_desc = "EnviroMS natural organic matter workflow molecular formula assignment output details"
                     processed_data_object = self.generate_data_object(
                         file_path=file,
-                        data_category=self.workflow_param_data_category,
-                        data_object_type=self.workflow_param_data_object_type,
+                        data_category=self.processed_data_category,
+                        data_object_type=self.processed_data_object_type,
                         description=processed_data_object_desc,
                         base_url=self.process_data_url
                         + Path(row["processed_data_directory"]).name
@@ -346,8 +346,8 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                     )
                     processed_data_object = self.generate_data_object(
                         file_path=file,
-                        data_category=self.workflow_param_data_category,
-                        data_object_type=self.workflow_param_data_object_type,
+                        data_category=self.processed_data_category,
+                        data_object_type=self.processed_data_object_type,
                         description=processed_data_object_desc,
                         base_url=self.process_data_url
                         + Path(row["processed_data_directory"]).name
