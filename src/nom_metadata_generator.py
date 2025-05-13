@@ -13,6 +13,11 @@ import hashlib
 import pandas as pd
 import re
 from datetime import datetime
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+ENV = os.getenv("NMDC_ENV", "prod")
 
 
 class NOMMetadataGenerator(NMDCMetadataGenerator):
@@ -115,8 +120,8 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
 
         Assumes raw data for NOM are on minio and that the raw data object URL field is populated.
         """
-        do_client = DataObjectSearch()
-        wf_client = WorkflowExecutionSearch()
+        do_client = DataObjectSearch(env=ENV)
+        wf_client = WorkflowExecutionSearch(env=ENV)
         client_id, client_secret = self.load_credentials(
             config_file=self.minting_config_creds
         )
@@ -252,7 +257,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             processed_data = []
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
-        api_metadata = Metadata()
+        api_metadata = Metadata(env=ENV)
         api_metadata.validate_json(self.database_dump_json_path)
 
     def run(self):
@@ -277,6 +282,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         )
         # check for duplicate doj urls in the database
         self.check_doj_urls(metadata_df=metadata_df, url_columns=self.unique_columns)
+        print(f"ENV: {ENV}")
         # Iterate through each row in df to generate metadata
         for _, row in tqdm(
             metadata_df.iterrows(),
@@ -401,7 +407,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             processed_data = []
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
-        api_metadata = Metadata()
+        api_metadata = Metadata(env=ENV)
         api_metadata.validate_json(self.database_dump_json_path)
 
     def get_calibration_id(
@@ -423,8 +429,8 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         """
         # Lookup calibration id by md5 checksum of calibration_path file
         calib_md5 = hashlib.md5(calibration_path.open("rb").read()).hexdigest()
-        do_client = DataObjectSearch()
-        cs_client = CalibrationSearch()
+        do_client = DataObjectSearch(env=ENV)
+        cs_client = CalibrationSearch(env=ENV)
         try:
             calib_do_id = do_client.get_record_by_attribute(
                 attribute_name="md5_checksum",
@@ -487,7 +493,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             The generated metabolomics analysis object.
         """
         if incremented_id is None:
-            mint = Minter()
+            mint = Minter(env=ENV)
             nmdc_id = mint.mint(
                 nmdc_type=NmdcTypes.NomAnalysis,
                 client_id=CLIENT_ID,

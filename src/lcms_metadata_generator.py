@@ -12,6 +12,11 @@ from nmdc_api_utilities.workflow_execution_search import WorkflowExecutionSearch
 from nmdc_api_utilities.data_object_search import DataObjectSearch
 from src.data_classes import NmdcTypes
 import re
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+ENV = os.getenv("NMDC_ENV", "prod")
 
 
 class LCMSMetadataGenerator(NMDCMetadataGenerator):
@@ -258,7 +263,7 @@ class LCMSMetadataGenerator(NMDCMetadataGenerator):
             )
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
-        api_metadata = Metadata()
+        api_metadata = Metadata(env=ENV)
         api_metadata.validate_json(self.database_dump_json_path)
         logging.info("Metadata processing completed.")
 
@@ -295,8 +300,8 @@ class LCMSMetadataGenerator(NMDCMetadataGenerator):
         client_id, client_secret = self.load_credentials(
             config_file=self.minting_config_creds
         )
-        wf_client = WorkflowExecutionSearch()
-        do_client = DataObjectSearch()
+        wf_client = WorkflowExecutionSearch(env=ENV)
+        do_client = DataObjectSearch(env=ENV)
         client_id, client_secret = self.load_credentials(
             config_file=self.minting_config_creds
         )
@@ -475,7 +480,7 @@ class LCMSMetadataGenerator(NMDCMetadataGenerator):
             )
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
-        api_metadata = Metadata()
+        api_metadata = Metadata(env=ENV)
         api_metadata.validate_json(self.database_dump_json_path)
         logging.info("Metadata processing completed.")
 
