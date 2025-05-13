@@ -20,8 +20,12 @@ from nmdc_api_utilities.minter import Minter
 import ast
 import numpy as np
 import toml
-import os
 import requests
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+ENV = os.getenv("NMDC_ENV", "prod")
 
 # Configure logging
 logging.basicConfig(
@@ -203,7 +207,7 @@ class NMDCMetadataGenerator(ABC):
 
         # Check that all biosamples exist
         biosample_ids = metadata_df["biosample_id"].unique()
-        bs_client = BiosampleSearch()
+        bs_client = BiosampleSearch(env=ENV)
         if pd.isna(biosample_ids)[0] == np.False_:
             if not bs_client.check_ids_exist(list(biosample_ids)):
                 raise ValueError("Biosample IDs do not exist in the collection.")
@@ -217,7 +221,7 @@ class NMDCMetadataGenerator(ABC):
                 )
             except SyntaxError:
                 study_ids = [metadata_df["biosample.associated_studies"].iloc[0]]
-            ss_client = StudySearch()
+            ss_client = StudySearch(env=ENV)
             if not ss_client.check_ids_exist(study_ids):
                 raise ValueError("Study IDs do not exist in the collection.")
 
@@ -300,9 +304,9 @@ class NMDCMetadataGenerator(ABC):
 
         """
 
-        is_client = InstrumentSearch()
-        cs_client = ConfigurationSearch()
-        minter = Minter()
+        is_client = InstrumentSearch(env=ENV)
+        cs_client = ConfigurationSearch(env=ENV)
+        minter = Minter(env=ENV)
         nmdc_id = minter.mint(
             nmdc_type=NmdcTypes.MassSpectrometry,
             client_id=CLIENT_ID,
@@ -410,7 +414,7 @@ class NMDCMetadataGenerator(ABC):
         time-consuming for large files.
 
         """
-        mint = Minter()
+        mint = Minter(env=ENV)
         nmdc_id = mint.mint(
             nmdc_type=NmdcTypes.DataObject,
             client_id=CLIENT_ID,
@@ -504,7 +508,7 @@ class NMDCMetadataGenerator(ABC):
         """
         if incremeneted_id is None:
             # If no incremented id is provided, mint a new one
-            mint = Minter()
+            mint = Minter(env=ENV)
             nmdc_id = (
                 mint.mint(
                     nmdc_type=NmdcTypes.MetabolomicsAnalysis,
@@ -804,7 +808,7 @@ class NMDCMetadataGenerator(ABC):
                     except requests.RequestException as e:
                         raise ValueError(f"URL {url} is not accessible. Error: {e}")
 
-        doj_client = DataObjectSearch()
+        doj_client = DataObjectSearch(env=ENV)
         resp = doj_client.get_batch_records(
             id_list=urls, search_field="url", fields="id"
         )
@@ -834,7 +838,7 @@ class NMDCMetadataGenerator(ABC):
             The generated biosample instance.
 
         """
-        mint = Minter()
+        mint = Minter(env=ENV)
 
         # If no biosample id in spreadsheet, mint biosample ids
         if biosamp_metadata["id"] is None:
