@@ -71,8 +71,8 @@ class LCMSNOMMetadataGenerator(LCMSMetadataGenerator):
     mass_spec_desc: str = "Generation of mass spectrometry data for the analysis of nom using liquid chromatography."
     mass_spec_eluent_intro: str = "liquid_chromatography"
     analyte_category: str = "nom"
-    raw_data_obj_type: str = "LC-DDA-MS/MS Raw Data"
-    raw_data_obj_desc: str = "LC-DDA-MS/MS raw data for nom data acquisition."
+    raw_data_obj_type: str = "LC FT-ICR MS Raw Data"
+    raw_data_obj_desc: str = "LC FT-ICR MS Raw Data raw data for NOM data acquisition."
 
     # Workflow attributes
     workflow_analysis_name: str = "LCMS NOM Analysis"
@@ -90,19 +90,15 @@ class LCMSNOMMetadataGenerator(LCMSMetadataGenerator):
     # Processed data attributes
     wf_config_process_data_category: str = "workflow_parameter_data"
     wf_config_process_data_obj_type: str = "Configuration toml"
-    wf_config_process_data_description: str = (
-        "CoreMS parameters used for metabolomics workflow."
-    )
+    wf_config_process_data_description: str = "CoreMS parameters used for NOM workflow."
     no_config_process_data_category: str = "processed_data"
-    no_config_process_data_obj_type: str = "LC-MS Metabolomics Results"
+    no_config_process_data_obj_type: str = "LC FT-ICR MS Analysis Results"
     csv_process_data_description: str = (
-        "NOM annotations as a result of a nom workflow activity."
+        "NOM annotations as a result of a NOM workflow activity."
     )
-
-    hdf5_process_data_obj_type: str = "LC-MS Metabolomics Processed Data"
-    hdf5_process_data_description: str = (
-        "CoreMS hdf5 file representing a nom data file including annotations."
-    )
+    # TODO - this looking right?
+    qc_process_data_obj_type: str = "LC FT-ICR MS QC Plots"
+    qc_process_data_description: str = "CoreMS QC file representing a NOM."
 
     def __init__(
         self,
