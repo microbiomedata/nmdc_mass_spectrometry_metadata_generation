@@ -60,8 +60,6 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         The type of the workflow parameter data object.
     unique_columns : list[str]
         List of unique columns in the metadata file.
-    mass_spec_desc : str
-        The description of the mass spectrometry data.
     mass_spec_eluent_intro : str
         The introduction to the mass spectrometry eluent.
     processing_institution : str
@@ -75,7 +73,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
     raw_data_object_type: str = "Direct Infusion FT ICR-MS Raw Data"
     processed_data_object_type: str = "Direct Infusion FT-ICR MS Analysis Results"
     processed_data_category: str = "processed_data"
-    execution_resource: str = "EMSL-RZR"
+    execution_resource: str = "EMSL"
     analyte_category: str = "nom"
     workflow_analysis_name: str = "NOM Analysis"
     workflow_description: str = (
@@ -84,7 +82,6 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
     workflow_param_data_category: str = "workflow_parameter_data"
     workflow_param_data_object_type: str = "Analysis Tool Parameter File"
     unique_columns: list[str] = ["raw_data_file", "processed_data_directory"]
-    mass_spec_desc: str = "ultra high resolution mass spectrum"
     mass_spec_eluent_intro: str = "direct_infusion_autosampler"
     processing_institution: str = "EMSL"
     workflow_git_url: str = "https://github.com/microbiomedata/enviroMS"
