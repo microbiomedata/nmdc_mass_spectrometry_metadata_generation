@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from src.metadata_generator import NMDCMetadataGenerator
-from src.metadata_parser import NmdcTypes
+from src.data_classes import NmdcTypes
 from tqdm import tqdm
 from pathlib import Path
 from nmdc_api_utilities.data_object_search import DataObjectSearch
@@ -16,6 +16,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 import os
 import ast
+from abc import abstractmethod
 
 load_dotenv()
 ENV = os.getenv("NMDC_ENV", "prod")
@@ -25,72 +26,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
     """
     A class for generating NMDC metadata objects using provided metadata files and configuration
     for Natural Organic Matter (NOM) data.
-    Parameters
-    ----------
-    metadata_file : str
-        Path to the input CSV metadata file.
-    database_dump_json_path : str
-        Path where the output database dump JSON file will be saved.
-    raw_data_url : str
-        Base URL for the raw data files.
-    process_data_url : str
-        Base URL for the processed data files.
-    minting_config_creds : str, optional
-        Path to the configuration file containing the client ID and client secret for minting NMDC IDs. It can also include the bio ontology API key if generating biosample ids is needed.
-        If not provided, the CLIENT_ID, CLIENT_SECRET, and BIO_API_KEY environment variables will be used.
-
-    Attributes
-    ----------
-    raw_data_object_type : str
-        The type of the raw data object.
-    processed_data_object_type : str
-        The type of the processed data object.
-    processed_data_category : str
-        The category of the processed data.
-    execution_resource : str
-        The execution resource for the workflow.
-    analyte_category : str
-        The category of the analyte.
-    workflow_analysis_name : str
-        The name of the workflow analysis.
-    workflow_description : str
-        The description of the workflow.
-    workflow_param_data_category : str
-        The category of the workflow parameter data.
-    workflow_param_data_object_type : str
-        The type of the workflow parameter data object.
-    unique_columns : list[str]
-        List of unique columns in the metadata file.
-    mass_spec_eluent_intro : str
-        The introduction to the mass spectrometry eluent.
-    processing_institution : str
-        The institution responsible for processing the data.
-    workflow_git_url : str
-        The URL of the workflow Git repository.
-    workflow_version : str
-        The version of the workflow.
     """
-
-    raw_data_object_type: str = "Direct Infusion FT ICR-MS Raw Data"
-    processed_data_object_type: str = "Direct Infusion FT-ICR MS Analysis Results"
-    processed_data_object_desc = "EnviroMS natural organic matter workflow molecular formula assignment output details"
-    processed_data_category: str = "processed_data"
-    execution_resource: str = "EMSL"
-    analyte_category: str = "nom"
-    workflow_analysis_name: str = "NOM Analysis"
-    workflow_description: str = (
-        "Natural Organic Matter analysis of raw mass spectrometry data."
-    )
-    workflow_param_data_category: str = "workflow_parameter_data"
-    workflow_param_data_object_type: str = "Analysis Tool Parameter File"
-    workflow_param_data_object_desc = (
-        f"EnviroMS processing parameters for natural organic matter analysis."
-    )
-    unique_columns: list[str] = ["raw_data_file", "processed_data_directory"]
-    mass_spec_eluent_intro: str = "direct_infusion_autosampler"
-    processing_institution: str = "EMSL"
-    workflow_git_url: str = "https://github.com/microbiomedata/enviroMS"
-    workflow_version: str
 
     def __init__(
         self,
@@ -98,19 +34,12 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         database_dump_json_path: str,
         raw_data_url: str,
         process_data_url: str,
-        minting_config_creds: str = None,
-        workflow_version: str = None,
     ):
         super().__init__(
             metadata_file=metadata_file,
             database_dump_json_path=database_dump_json_path,
             raw_data_url=raw_data_url,
             process_data_url=process_data_url,
-        )
-        self.minting_config_creds = minting_config_creds
-        # Set the workflow version, prioritizing user input, then fetching from the Git URL, and finally using a default.
-        self.workflow_version = workflow_version or self.get_workflow_version(
-            workflow_version_git_url="https://github.com/microbiomedata/enviroMS/blob/master/.bumpversion.cfg"
         )
 
     def rerun(self):
@@ -190,57 +119,16 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
             )
-            processed_data_paths = list(
-                Path(row["processed_data_directory"]).glob("**/*")
+            (
+                processed_data_object,
+                workflow_data_object,
+            ) = self.create_proccesed_data_objects(
+                row=row,
+                client_id=client_id,
+                client_secret=client_secret,
+                nom_analysis=nom_analysis,
             )
-            # Add a check that the processed data directory is not empty
-            if not any(processed_data_paths):
-                raise FileNotFoundError(
-                    f"No files found in processed data directory: "
-                    f"{row['processed_data_directory']}"
-                )
-            processed_data_paths = [x for x in processed_data_paths if x.is_file()]
-            for file in processed_data_paths:
-                if file.suffix == ".csv":
-                    # this is the .csv file of the processed data
-
-                    processed_data_object = self.generate_data_object(
-                        file_path=file,
-                        data_category=self.processed_data_category,
-                        data_object_type=self.processed_data_object_type,
-                        description=self.processed_data_object_desc,
-                        base_url=self.process_data_url
-                        + Path(row["processed_data_directory"]).name
-                        + "/",
-                        CLIENT_ID=client_id,
-                        CLIENT_SECRET=client_secret,
-                        was_generated_by=nom_analysis.id,
-                        alternative_id=None,
-                    )
-                    processed_data.append(processed_data_object.id)
-                    # Update NomAnalysis times based on csv file
-                    nom_analysis.started_at_time = datetime.fromtimestamp(
-                        file.stat().st_ctime
-                    ).strftime("%Y-%m-%d %H:%M:%S")
-                    nom_analysis.ended_at_time = datetime.fromtimestamp(
-                        file.stat().st_mtime
-                    ).strftime("%Y-%m-%d %H:%M:%S")
-                if file.suffix == ".json":
-                    # Generate workflow parameter data object
-
-                    workflow_data_object = self.generate_data_object(
-                        file_path=file,
-                        data_category=self.workflow_param_data_category,
-                        data_object_type=self.workflow_param_data_object_type,
-                        description=self.workflow_param_data_object_desc,
-                        base_url=self.process_data_url
-                        + Path(row["processed_data_directory"]).name
-                        + "/",
-                        was_generated_by=nom_analysis.id,
-                        CLIENT_ID=client_id,
-                        CLIENT_SECRET=client_secret,
-                        alternative_id=None,
-                    )
+            processed_data.append(processed_data_object.id)
             has_input = [workflow_data_object.id, raw_data_object_id]
             # Update the outputs for mass_spectrometry and nom_analysis
             self.update_outputs(
@@ -331,56 +219,17 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
             )
-            processed_data_paths = list(
-                Path(row["processed_data_directory"]).glob("**/*")
+            (
+                processed_data_object,
+                workflow_data_object,
+            ) = self.create_proccesed_data_objects(
+                row=row,
+                client_id=client_id,
+                client_secret=client_secret,
+                nom_analysis=nom_analysis,
             )
-            # Add a check that the processed data directory is not empty
-            if not any(processed_data_paths):
-                raise FileNotFoundError(
-                    f"No files found in processed data directory: "
-                    f"{row['processed_data_directory']}"
-                )
-            processed_data_paths = [x for x in processed_data_paths if x.is_file()]
-            ### we will have processed data object AFTER the workflow is ran. Since this is how the lipidomics and gcms work, that is how this will function as well.
-            for file in processed_data_paths:
-                if file.suffix == ".csv":
-                    # this is the .csv file of the processed data
-                    processed_data_object = self.generate_data_object(
-                        file_path=file,
-                        data_category=self.processed_data_category,
-                        data_object_type=self.processed_data_object_type,
-                        description=self.processed_data_object_desc,
-                        base_url=self.process_data_url
-                        + Path(row["processed_data_directory"]).name
-                        + "/",
-                        CLIENT_ID=client_id,
-                        CLIENT_SECRET=client_secret,
-                        was_generated_by=nom_analysis.id,
-                        alternative_id=None,
-                    )
-                    processed_data.append(processed_data_object.id)
-                    # Update NomAnalysis times based on csv file
-                    nom_analysis.started_at_time = datetime.fromtimestamp(
-                        file.stat().st_ctime
-                    ).strftime("%Y-%m-%d %H:%M:%S")
-                    nom_analysis.ended_at_time = datetime.fromtimestamp(
-                        file.stat().st_mtime
-                    ).strftime("%Y-%m-%d %H:%M:%S")
-                if file.suffix == ".json":
-                    # Generate workflow parameter data object
-                    workflow_data_object = self.generate_data_object(
-                        file_path=file,
-                        data_category=self.workflow_param_data_category,
-                        data_object_type=self.workflow_param_data_object_type,
-                        description=self.workflow_param_data_object_desc,
-                        base_url=self.process_data_url
-                        + Path(row["processed_data_directory"]).name
-                        + "/",
-                        was_generated_by=nom_analysis.id,
-                        CLIENT_ID=client_id,
-                        CLIENT_SECRET=client_secret,
-                        alternative_id=None,
-                    )
+            processed_data.append(processed_data_object.id)
+
             has_input = [workflow_data_object.id, raw_data_object.id]
             # Update the outputs for mass_spectrometry and nom_analysis
             self.update_outputs(
@@ -552,3 +401,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         }
 
         return metadata_dict
+
+    @abstractmethod
+    def create_proccesed_data_objects():
+        pass
