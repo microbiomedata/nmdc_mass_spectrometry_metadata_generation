@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 # This script will serve as a test for the lipdomics metadata generation script.
 from datetime import datetime
-from src.nom_metadata_generator import NOMMetadataGenerator
+from src.di_nom_metadata_generator import DINOMMetaDataGenerator
 from dotenv import load_dotenv
 import json
-import pytest
 
 load_dotenv()
 import os
@@ -27,7 +26,7 @@ def test_nom_metadata_gen():
     )
 
     # Start the metadata generation setup
-    generator = NOMMetadataGenerator(
+    generator = DINOMMetaDataGenerator(
         metadata_file="tests/test_data/test_metadata_file_nom.csv",
         database_dump_json_path=output_file,
         raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_raw_nom/",
@@ -52,7 +51,7 @@ def test_nom_metadata_gen_rerun():
     )
 
     # Start the metadata generation setup
-    generator = NOMMetadataGenerator(
+    generator = DINOMMetaDataGenerator(
         metadata_file="tests/test_data/test_metadata_file_nom_rerun.csv",
         database_dump_json_path=output_file,
         raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/blanchard/raw/",
@@ -77,7 +76,7 @@ def test_nom_biosample_gen_more_fields():
     )
 
     # Start the metadata generation setup
-    generator = NOMMetadataGenerator(
+    generator = DINOMMetaDataGenerator(
         metadata_file="tests/test_data/test_metadata_file_nom_no_biosample_id_weird_data.csv",
         database_dump_json_path=output_file,
         raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_raw_nom/",
@@ -107,7 +106,7 @@ def test_nom_biosample_gen_no_biosample():
     )
 
     # Start the metadata generation setup
-    generator = NOMMetadataGenerator(
+    generator = DINOMMetaDataGenerator(
         metadata_file="tests/test_data/test_metadata_file_nom_no_biosample_id.csv",
         database_dump_json_path=output_file,
         raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_raw_nom/",
@@ -137,7 +136,7 @@ def test_config_file():
     )
 
     # Start the metadata generation setup
-    generator = NOMMetadataGenerator(
+    generator = DINOMMetaDataGenerator(
         metadata_file="tests/test_data/test_metadata_file_nom.csv",
         database_dump_json_path=output_file,
         raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_raw_nom/",
@@ -148,6 +147,3 @@ def test_config_file():
     # Run the metadata generation process
     generator.run()
     assert os.path.exists(output_file)
-
-
-test_nom_metadata_gen_rerun()
