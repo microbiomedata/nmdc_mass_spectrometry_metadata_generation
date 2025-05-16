@@ -73,6 +73,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
 
     raw_data_object_type: str = "Direct Infusion FT ICR-MS Raw Data"
     processed_data_object_type: str = "Direct Infusion FT-ICR MS Analysis Results"
+    processed_data_object_desc = "EnviroMS natural organic matter workflow molecular formula assignment output details"
     processed_data_category: str = "processed_data"
     execution_resource: str = "EMSL"
     analyte_category: str = "nom"
@@ -82,6 +83,9 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
     )
     workflow_param_data_category: str = "workflow_parameter_data"
     workflow_param_data_object_type: str = "Analysis Tool Parameter File"
+    workflow_param_data_object_desc = (
+        f"EnviroMS processing parameters for natural organic matter analysis."
+    )
     unique_columns: list[str] = ["raw_data_file", "processed_data_directory"]
     mass_spec_eluent_intro: str = "direct_infusion_autosampler"
     processing_institution: str = "EMSL"
@@ -199,12 +203,12 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             for file in processed_data_paths:
                 if file.suffix == ".csv":
                     # this is the .csv file of the processed data
-                    processed_data_object_desc = "EnviroMS natural organic matter workflow molecular formula assignment output details"
+
                     processed_data_object = self.generate_data_object(
                         file_path=file,
                         data_category=self.processed_data_category,
                         data_object_type=self.processed_data_object_type,
-                        description=processed_data_object_desc,
+                        description=self.processed_data_object_desc,
                         base_url=self.process_data_url
                         + Path(row["processed_data_directory"]).name
                         + "/",
@@ -223,13 +227,12 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                     ).strftime("%Y-%m-%d %H:%M:%S")
                 if file.suffix == ".json":
                     # Generate workflow parameter data object
-                    workflow_param_data_object_desc = f"CoreMS processing parameters for natural organic matter analysis used to generate {nom_analysis.id}"
 
                     workflow_data_object = self.generate_data_object(
                         file_path=file,
                         data_category=self.workflow_param_data_category,
                         data_object_type=self.workflow_param_data_object_type,
-                        description=workflow_param_data_object_desc,
+                        description=self.workflow_param_data_object_desc,
                         base_url=self.process_data_url
                         + Path(row["processed_data_directory"]).name
                         + "/",
@@ -342,15 +345,11 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             for file in processed_data_paths:
                 if file.suffix == ".csv":
                     # this is the .csv file of the processed data
-                    processed_data_object_desc = (
-                        f"EnviroMS {emsl_metadata['instrument_used']} "
-                        "natural organic matter workflow molecular formula assignment output details"
-                    )
                     processed_data_object = self.generate_data_object(
                         file_path=file,
                         data_category=self.processed_data_category,
                         data_object_type=self.processed_data_object_type,
-                        description=processed_data_object_desc,
+                        description=self.processed_data_object_desc,
                         base_url=self.process_data_url
                         + Path(row["processed_data_directory"]).name
                         + "/",
@@ -369,14 +368,11 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                     ).strftime("%Y-%m-%d %H:%M:%S")
                 if file.suffix == ".json":
                     # Generate workflow parameter data object
-                    # this is the .json file of processed data
-                    workflow_param_data_object_desc = f"EnviroMS processing parameters for natural organic matter analysis used to generate {nom_analysis.id}"
-
                     workflow_data_object = self.generate_data_object(
                         file_path=file,
                         data_category=self.workflow_param_data_category,
                         data_object_type=self.workflow_param_data_object_type,
-                        description=workflow_param_data_object_desc,
+                        description=self.workflow_param_data_object_desc,
                         base_url=self.process_data_url
                         + Path(row["processed_data_directory"]).name
                         + "/",

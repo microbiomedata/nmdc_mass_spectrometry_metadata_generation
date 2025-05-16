@@ -28,51 +28,25 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
 
     """
 
-    # unique_columns: list[str] = ["raw_data_file", "processed_data_directory"]
-    # # Data Generation attributes
-    # mass_spec_desc: str = "Generation of mass spectrometry data for the analysis of nom using liquid chromatography."
-    # mass_spec_eluent_intro: str = "liquid_chromatography"
-    # analyte_category: str = "nom"
-    # raw_data_obj_type: str = "LC FT-ICR MS Raw Data"
-    # raw_data_obj_desc: str = "LC FT-ICR MS Raw Data raw data for NOM data acquisition."
-
-    # # Workflow attributes
-    # workflow_analysis_name: str = "LC FT-ICR MS NOM Analysis"
-    # workflow_description: str = (
-    #    "Natural Organic Matter analysis of raw mass spectrometry data when aquired by liquid chromatography."
-    # )
-    # # TODO
-    # workflow_git_url: str = (
-    #     "https://github.com/microbiomedata/EnviroMS/"
-    # )
-    # workflow_version: str
-
-    # # Processed data attributes
-    # wf_config_process_data_category: str = "workflow_parameter_data"
-    # wf_config_process_data_obj_type: str = "Configuration toml"
-    # wf_config_process_data_description: str = "EnviroMS parameters used for NOM workflow."
-    # no_config_process_data_category: str = "processed_data"
-    # no_config_process_data_obj_type: str = "LC FT-ICR MS Analysis Results"
-    # csv_process_data_description: str = (
-    #     "NOM annotations as a result of a NOM workflow activity."
-    # )
-
+    processed_data_object_desc: str = (
+        "NOM annotations as a result of a NOM workflow activity."
+    )
     qc_process_data_obj_type: str = "LC FT-ICR MS QC Plots"
     qc_process_data_description: str = "EnviroMS QC file representing a NOM."
-    ##### from nom
+
     raw_data_object_type: str = "LC FT-ICR MS Raw Data"
+    raw_data_obj_desc: str = "LC FT-ICR MS Raw Data raw data for NOM data acquisition."
     processed_data_object_type: str = "LC FT-ICR MS Analysis Results"
     processed_data_category: str = "processed_data"
     execution_resource: str = "EMSL"
     analyte_category: str = "nom"
-    workflow_analysis_name: str = "NOM Analysis"
-    workflow_description: str = (
-        "Natural Organic Matter analysis of raw mass spectrometry data."
-    )
+    workflow_analysis_name: str = "LC FT-ICR MS NOM Analysis"
+    workflow_param_data_object_desc: str = "Natural Organic Matter analysis of raw mass spectrometry data when aquired by liquid chromatography."
     workflow_param_data_category: str = "workflow_parameter_data"
     workflow_param_data_object_type: str = "Analysis Tool Parameter File"
     unique_columns: list[str] = ["raw_data_file", "processed_data_directory"]
     mass_spec_eluent_intro: str = "liquid_chromatography"
+    mass_spec_desc: str = "Generation of mass spectrometry data for the analysis of nom using liquid chromatography."
     processing_institution: str = "EMSL"
     workflow_git_url: str = "https://github.com/microbiomedata/enviroMS"
     workflow_version: str
@@ -103,9 +77,3 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
             or "1.0.0"
         )
         self.minting_config_creds = minting_config_creds
-
-    def rerun(self):
-        super().rerun()
-
-    def run(self):
-        super().run()
