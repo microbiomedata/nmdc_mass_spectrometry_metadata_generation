@@ -620,33 +620,6 @@ class NMDCMetadataGenerator(ABC):
         json_dumper.dump(nmdc_database, self.database_dump_json_path)
         logging.info("Database successfully dumped in %s", self.database_dump_json_path)
 
-    def handle_biosample(self, row: pd.Series) -> tuple:
-        """
-        Process biosample information from metadata row.
-
-        Checks if a biosample ID exists in the row. If it does, returns the existing
-        biosample information. If not, generates a new biosample.
-
-        Parameters
-        ----------
-        row : pd.Series
-            A row from the metadata DataFrame containing biosample information
-
-        Returns
-        -------
-        tuple
-            A tuple containing:
-            - emsl_metadata : Dict
-                Parsed metadata from input csv row
-            - biosample_id : str
-                The ID of the biosample (existing or newly generated)
-
-        """
-        parser = MetadataParser()
-        emsl_metadata = parser.parse_biosample_metadata(row)
-        biosample_id = emsl_metadata["biosample_id"]
-        return emsl_metadata, biosample_id
-
     def check_for_biosamples(
         self,
         metadata_df: pd.DataFrame,

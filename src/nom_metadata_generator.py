@@ -15,6 +15,7 @@ import re
 from datetime import datetime
 from dotenv import load_dotenv
 import os
+import ast
 
 load_dotenv()
 ENV = os.getenv("NMDC_ENV", "prod")
@@ -195,7 +196,6 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                     f"{row['processed_data_directory']}"
                 )
             processed_data_paths = [x for x in processed_data_paths if x.is_file()]
-            ### we will have processed data object AFTER the workflow is ran. Since this is how the lipidomics and gcms work, that is how this will function as well.
             for file in processed_data_paths:
                 if file.suffix == ".csv":
                     # this is the .csv file of the processed data
@@ -223,7 +223,6 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                     ).strftime("%Y-%m-%d %H:%M:%S")
                 if file.suffix == ".json":
                     # Generate workflow parameter data object
-                    # this is the .json file of processed data
                     workflow_param_data_object_desc = f"CoreMS processing parameters for natural organic matter analysis used to generate {nom_analysis.id}"
 
                     workflow_data_object = self.generate_data_object(
@@ -286,12 +285,12 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             total=metadata_df.shape[0],
             desc="Processing NOM rows",
         ):
-            emsl_metadata, biosample_id = self.handle_biosample(row)
+            emsl_metadata = self.create_nom_metatdata(row=row)
             # Generate MassSpectrometry record
             mass_spec = self.generate_mass_spectrometry(
-                file_path=Path(emsl_metadata["data_path"]),
+                file_path=Path(emsl_metadata["raw_data_file"]),
                 instrument_name=emsl_metadata["instrument_used"],
-                sample_id=biosample_id,
+                sample_id=emsl_metadata["biosample_id"],
                 raw_data_id="nmdc:placeholder",
                 study_id=emsl_metadata["associated_studies"],
                 processing_institution=self.processing_institution,
@@ -371,7 +370,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                 if file.suffix == ".json":
                     # Generate workflow parameter data object
                     # this is the .json file of processed data
-                    workflow_param_data_object_desc = f"CoreMS processing parameters for natural organic matter analysis used to generate {nom_analysis.id}"
+                    workflow_param_data_object_desc = f"EnviroMS processing parameters for natural organic matter analysis used to generate {nom_analysis.id}"
 
                     workflow_data_object = self.generate_data_object(
                         file_path=file,
@@ -518,3 +517,42 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         nomAnalysis = nmdc.NomAnalysis(**data_dict)
 
         return nomAnalysis
+
+    def create_nom_metatdata(self, row: pd.Series) -> dict:
+        """
+        Parse the metadata row to get non-biosample class information.
+
+        Parameters
+        ----------
+        row : pd.Series
+            A row from the DataFrame containing metadata.
+
+        Returns
+        -------
+        Dict
+
+        """
+
+        # Initialize the metadata dictionary
+        metadata_dict = {
+            "raw_data_file": Path(self.get_value(row, "raw_data_file")),
+            "processed_data_directory": Path(
+                self.get_value(row, "processed_data_directory")
+            ),
+            "associated_studies": ast.literal_eval(
+                self.get_value(row, "associated_studies")
+            )
+            if self.get_value(row, "associated_studies")
+            else None,
+            "biosample_id": self.get_value(row, "biosample_id")
+            if self.get_value(row, "biosample_id") or self.get_value(row, "id")
+            else None,
+            "instrument_used": self.get_value(row, "instrument_used")
+            if self.get_value(row, "instrument_used")
+            else None,
+            "mass_spec_config": self.get_value(row, "mass_spec_config")
+            if self.get_value(row, "mass_spec_config")
+            else None,
+        }
+
+        return metadata_dict
