@@ -21,3 +21,6 @@ To use the CLI with toml credentials:
 ```bash
 python3 /path/to/main.py --generator lcms_lipid --metadata_file /path/to/csv --database_dump_json_path /path/to/dump --raw_data_url https://example.com/raw/ --process_data_url https://example.com/results/ --minting_config_creds path/to/config_creds.toml
 ```
+
+# Development Environment
+To run scripts in the dev NMDC API environment, set NMDC_ENV='dev' in .env file. Default will run in production.

@@ -14,6 +14,11 @@ from nmdc_api_utilities.minter import Minter
 from typing import List
 from src.data_classes import NmdcTypes, GCMSMetabWorkflowMetadata
 import re
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+ENV = os.getenv("NMDC_ENV", "prod")
 
 
 class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
@@ -159,7 +164,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         mass spectrometry metadata.
 
         """
-        wf_client = WorkflowExecutionSearch()
+        wf_client = WorkflowExecutionSearch(env=ENV)
         client_id, client_secret = self.load_credentials(
             config_file=self.minting_config_creds
         )
@@ -176,7 +181,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             metadata_df=metadata_df, url_columns=["processed_data_file"]
         )
         # Get the configuration file data object id and add it to the metadata_df
-        do_client = DataObjectSearch()
+        do_client = DataObjectSearch(env=ENV)
         config_do_id = do_client.get_record_by_attribute(
             attribute_name="name",
             attribute_value=self.configuration_file_name,
@@ -257,7 +262,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             nmdc_database_inst.workflow_execution_set.append(metab_analysis)
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
-        api_metadata = Metadata()
+        api_metadata = Metadata(env=ENV)
         api_metadata.validate_json(self.database_dump_json_path)
         logging.info("Metadata processing re run completed.")
 
@@ -311,7 +316,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
         )
         self.check_doj_urls(metadata_df=metadata_df, url_columns=self.unique_columns)
         # Get the configuration file data object id and add it to the metadata_df
-        do_client = DataObjectSearch()
+        do_client = DataObjectSearch(env=ENV)
         config_do_id = do_client.get_record_by_attribute(
             attribute_name="name",
             attribute_value=self.configuration_file_name,
@@ -422,7 +427,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             nmdc_database_inst.workflow_execution_set.append(metab_analysis)
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
-        api_metadata = Metadata()
+        api_metadata = Metadata(env=ENV)
         api_metadata.validate_json(self.database_dump_json_path)
         logging.info("Metadata processing completed.")
 
@@ -523,7 +528,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             If the calibration type is not supported.
 
         """
-        mint = Minter()
+        mint = Minter(env=ENV)
         if fames and not internal:
             nmdc_id = mint.mint(
                 nmdc_type=NmdcTypes.CalibrationInformation,
