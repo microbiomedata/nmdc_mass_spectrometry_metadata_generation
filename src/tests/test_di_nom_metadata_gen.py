@@ -13,9 +13,9 @@ if python_path:
     os.environ["PYTHONPATH"] = python_path
 
 
-def test_nom_metadata_gen():
+def test_di_nom_metadata_gen():
     """
-    Test the NOM metadata generation script.
+    Test the DI NOM metadata generation script.
     Test case does not include generating a biosample
     """
     # Set up output file with datetime stame
@@ -38,9 +38,9 @@ def test_nom_metadata_gen():
     assert os.path.exists(output_file)
 
 
-def test_nom_metadata_gen_rerun():
+def test_di_nom_metadata_gen_rerun():
     """
-    Test the NOM metadata generation script.
+    Test the DI NOM metadata generation script.
     Test case does not include generating a biosample
     """
     # Set up output file with datetime stame
@@ -63,9 +63,9 @@ def test_nom_metadata_gen_rerun():
     assert os.path.exists(output_file)
 
 
-def test_nom_biosample_gen_more_fields():
+def test_di_nom_biosample_gen_more_fields():
     """
-    Test the NOM metadata generation script.
+    Test the DI NOM metadata generation script.
     Test case includes generating a biosample with more than the required fields
     """
     # Set up output file with datetime stame
@@ -93,9 +93,9 @@ def test_nom_biosample_gen_more_fields():
     assert len(working_data["biosample_set"]) == 2
 
 
-def test_nom_biosample_gen_no_biosample():
+def test_di_nom_biosample_gen_no_biosample():
     """
-    Test the NOM metadata generation script.
+    Test the DI NOM metadata generation script.
     Test case includes generating a biosample with no biosample id
     """
     # Set up output file with datetime stame
@@ -123,9 +123,9 @@ def test_nom_biosample_gen_no_biosample():
     assert len(working_data["biosample_set"]) == 2
 
 
-def test_config_file():
+def test_di_nom_config_file():
     """
-    Test the NOM metadata generation script.
+    Test the DI NOM metadata generation script.
     Test purpose is to test the config file
     """
     # Set up output file with datetime stame

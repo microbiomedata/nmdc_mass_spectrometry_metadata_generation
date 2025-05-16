@@ -17,6 +17,7 @@ from dotenv import load_dotenv
 import os
 import ast
 from abc import abstractmethod
+from src.metadata_parser import MetadataParser
 
 load_dotenv()
 ENV = os.getenv("NMDC_ENV", "prod")
@@ -377,26 +378,26 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         Dict
 
         """
-
+        parser = MetadataParser()
         # Initialize the metadata dictionary
         metadata_dict = {
-            "raw_data_file": Path(self.get_value(row, "raw_data_file")),
+            "raw_data_file": Path(parser.get_value(row, "raw_data_file")),
             "processed_data_directory": Path(
-                self.get_value(row, "processed_data_directory")
+                parser.get_value(row, "processed_data_directory")
             ),
             "associated_studies": ast.literal_eval(
-                self.get_value(row, "associated_studies")
+                parser.get_value(row, "associated_studies")
             )
-            if self.get_value(row, "associated_studies")
+            if parser.get_value(row, "associated_studies")
             else None,
-            "biosample_id": self.get_value(row, "biosample_id")
-            if self.get_value(row, "biosample_id") or self.get_value(row, "id")
+            "biosample_id": parser.get_value(row, "biosample_id")
+            if parser.get_value(row, "biosample_id") or parser.get_value(row, "id")
             else None,
-            "instrument_used": self.get_value(row, "instrument_used")
-            if self.get_value(row, "instrument_used")
+            "instrument_used": parser.get_value(row, "instrument_used")
+            if parser.get_value(row, "instrument_used")
             else None,
-            "mass_spec_config": self.get_value(row, "mass_spec_config")
-            if self.get_value(row, "mass_spec_config")
+            "mass_spec_config": parser.get_value(row, "mass_spec_config")
+            if parser.get_value(row, "mass_spec_config")
             else None,
         }
 

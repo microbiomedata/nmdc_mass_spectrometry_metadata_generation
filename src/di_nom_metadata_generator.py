@@ -75,6 +75,7 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
     )
     unique_columns: list[str] = ["raw_data_file", "processed_data_directory"]
     mass_spec_eluent_intro: str = "direct_infusion_autosampler"
+    mass_spec_desc: str = "ultra high resolution mass spectrum"
     processing_institution: str = "EMSL"
     workflow_git_url: str = "https://github.com/microbiomedata/enviroMS"
     workflow_version: str
