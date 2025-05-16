@@ -114,7 +114,7 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
         nom_analysis: nmdc.NomAnalysis,
     ) -> tuple:
         """
-        Create processed data objects for DI NOM metadata generation.
+        Create processed data objects for DI NOM metadata generation. This process expects a csv and json processed output.
 
         Parameters
         ----------
@@ -126,10 +126,12 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
             The client secret for minting NMDC IDs.
         nom_analysis : nmdc.NomAnalysis
             The NomAnalysis object to which the processed data objects will be associated.
+
         Returns
         -------
         tuple
             A tuple containing the processed data object and the workflow parameter data object.
+
         """
         processed_data_paths = list(Path(row["processed_data_directory"]).glob("**/*"))
         # Add a check that the processed data directory is not empty
