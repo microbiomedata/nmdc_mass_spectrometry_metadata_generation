@@ -15,6 +15,7 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
 
     This class processes input metadata files, generates various NMDC objects, and produces
     a database dump in JSON format.
+
     Parameters
     ----------
     metadata_file : str
@@ -74,13 +75,8 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
             process_data_url=process_data_url,
         )
         # Set the workflow version, prioritizing user input, then fetching from the Git URL, and finally using a default.
-        # TODO remove default, use correct version
-        self.workflow_version = (
-            workflow_version
-            or self.get_workflow_version(
-                workflow_version_git_url="https://github.com/microbiomedata/EnviroMS/"
-            )
-            or "1.0.0"
+        self.workflow_version = workflow_version or self.get_workflow_version(
+            workflow_version_git_url="https://github.com/microbiomedata/enviroMS/blob/master/.bumpversion.cfg"
         )
         self.minting_config_creds = minting_config_creds
 
@@ -98,7 +94,7 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
         nom_analysis: nmdc.NomAnalysis,
     ) -> tuple:
         """
-        Create processed data objects for DI NOM metadata generation. This process expects two zip files.
+        Create processed data objects for LCMS NOM metadata generation. This process expects two zip files.
         The first zip file should contain 2 csv files with the processed data and the second zip file should contain png images.
 
         Parameters

@@ -179,6 +179,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
         ):
             emsl_metadata = self.create_nom_metatdata(row=row)
             # Generate MassSpectrometry record
+
             mass_spec = self.generate_mass_spectrometry(
                 file_path=Path(emsl_metadata["raw_data_file"]),
                 instrument_name=emsl_metadata["instrument_used"],
@@ -189,6 +190,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                 mass_spec_config_name=emsl_metadata["mass_spec_config"],
                 start_date=row["instrument_analysis_start_date"],
                 end_date=row["instrument_analysis_end_date"],
+                lc_config_name=emsl_metadata["lc_config_name"],
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
             )
@@ -399,6 +401,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             "mass_spec_config": parser.get_value(row, "mass_spec_config")
             if parser.get_value(row, "mass_spec_config")
             else None,
+            "lc_config_name": parser.get_value(row, "chromat_configuration_name"),
         }
 
         return metadata_dict
