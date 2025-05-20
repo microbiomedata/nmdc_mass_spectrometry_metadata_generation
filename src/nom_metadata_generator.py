@@ -107,7 +107,6 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                 raise IndexError(
                     f"NomAnalysis object not found for raw data object ID: {raw_data_object_id}"
                 )
-            processed_data = []
             # grab the calibration_id from the previous metabolomics analysis
             # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
             nom_analysis = self.generate_nom_analysis(
@@ -121,28 +120,27 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                 CLIENT_SECRET=client_secret,
             )
             (
-                processed_data_object,
+                processed_ids,
                 workflow_data_object,
             ) = self.create_proccesed_data_objects(
                 row=row,
                 client_id=client_id,
                 client_secret=client_secret,
                 nom_analysis=nom_analysis,
+                nmdc_database_inst=nmdc_database_inst,
             )
-            processed_data.append(processed_data_object.id)
+
             has_input = [workflow_data_object.id, raw_data_object_id]
             # Update the outputs for mass_spectrometry and nom_analysis
             self.update_outputs(
                 analysis_obj=nom_analysis,
                 raw_data_obj_id=raw_data_object_id,
                 parameter_data_id=has_input,
-                processed_data_id_list=processed_data,
+                processed_data_id_list=processed_ids,
                 rerun=True,
             )
-            nmdc_database_inst.data_object_set.append(processed_data_object)
             nmdc_database_inst.data_object_set.append(workflow_data_object)
             nmdc_database_inst.workflow_execution_set.append(nom_analysis)
-            processed_data = []
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
         api_metadata = Metadata(env=ENV)
@@ -223,15 +221,15 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                 CLIENT_SECRET=client_secret,
             )
             (
-                processed_data_object,
+                processed_data_id_list,
                 workflow_data_object,
             ) = self.create_proccesed_data_objects(
                 row=row,
                 client_id=client_id,
                 client_secret=client_secret,
                 nom_analysis=nom_analysis,
+                nmdc_database_inst=nmdc_database_inst,
             )
-            processed_data.append(processed_data_object.id)
 
             has_input = [workflow_data_object.id, raw_data_object.id]
             # Update the outputs for mass_spectrometry and nom_analysis
@@ -240,15 +238,13 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
                 analysis_obj=nom_analysis,
                 raw_data_obj_id=raw_data_object.id,
                 parameter_data_id=has_input,
-                processed_data_id_list=processed_data,
+                processed_data_id_list=processed_data_id_list,
                 rerun=False,
             )
             nmdc_database_inst.data_generation_set.append(mass_spec)
             nmdc_database_inst.data_object_set.append(raw_data_object)
-            nmdc_database_inst.data_object_set.append(processed_data_object)
             nmdc_database_inst.data_object_set.append(workflow_data_object)
             nmdc_database_inst.workflow_execution_set.append(nom_analysis)
-            processed_data = []
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
         api_metadata = Metadata(env=ENV)

@@ -57,6 +57,7 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
     processing_institution: str = "EMSL"
     workflow_git_url: str = "https://github.com/microbiomedata/enviroMS"
     workflow_version: str
+    workflow_description: str = "Natural Organic Matter analysis of raw mass spectrometry data when aquired by liquid chromatography."
     # on the mass spec records, you will need to add has_chromatograohy_configuration - created in parent metadata gen class
 
     def __init__(
@@ -92,6 +93,7 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
         client_id: str,
         client_secret: str,
         nom_analysis: nmdc.NomAnalysis,
+        nmdc_database_inst: nmdc.Database,
     ) -> tuple:
         """
         Create processed data objects for LCMS NOM metadata generation. This process expects two zip files.
@@ -107,6 +109,8 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
             The client secret for minting NMDC IDs.
         nom_analysis : nmdc.NomAnalysis
             The NomAnalysis object to which the processed data objects will be associated.
+        nmdc_database_inst : nmdc.Database
+            The NMDC database instance to which the processed data objects will be added.
 
         Returns
         -------
@@ -114,6 +118,7 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
             A tuple containing the processed data object and the workflow parameter data object.
 
         """
+        processed_ids = []
         processed_data_paths = list(Path(row["processed_data_directory"]).glob("**/*"))
         # Add a check that the processed data directory is not empty
         if not any(processed_data_paths):
@@ -126,16 +131,16 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
         for file in processed_data_paths:
             # check what file extensions are in the zip file
             if file.suffix == ".zip":
-                with zipfile.ZipFile(processed_data_paths, "r") as z:
+                with zipfile.ZipFile(file, "r") as z:
                     # Get a list of all file names in the zip
                     file_names = z.namelist()
                     # Extract the file extensions
-                    extensions = {
+                    extensions = [
                         os.path.splitext(file_name)[1]
                         for file_name in file_names
                         if os.path.splitext(file_name)[1]
-                    }
-                    if "csv" in extensions:
+                    ]
+                    if ".csv" in extensions:
                         # this is the .csv file of the processed data
                         processed_data_object = self.generate_data_object(
                             file_path=file,
@@ -157,10 +162,13 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
                         nom_analysis.ended_at_time = datetime.fromtimestamp(
                             file.stat().st_mtime
                         ).strftime("%Y-%m-%d %H:%M:%S")
-                    # if the zip
-                    elif "png" in extensions:
-                        # Generate workflow parameter data object
-                        workflow_data_object = self.generate_data_object(
+                        # add to the nmdc database
+                        nmdc_database_inst.data_object_set.append(processed_data_object)
+                        # add id to the processed id list
+                        processed_ids.append(processed_data_object.id)
+                    elif ".png" in extensions:
+                        # Generate QC plots processed data object
+                        qc_data_object = self.generate_data_object(
                             file_path=file,
                             data_category=self.processed_data_category,
                             data_object_type=self.qc_process_data_obj_type,
@@ -173,6 +181,10 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
                             CLIENT_SECRET=client_secret,
                             alternative_id=None,
                         )
+                        # add to the nmdc database
+                        nmdc_database_inst.data_object_set.append(qc_data_object)
+                        # add id to the processed id list
+                        processed_ids.append(qc_data_object.id)
             elif file.suffix == ".toml":
                 # Generate workflow parameter data object
                 workflow_data_object = self.generate_data_object(
@@ -189,4 +201,4 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
                     alternative_id=None,
                 )
 
-        return processed_data_object, workflow_data_object
+        return processed_ids, workflow_data_object

@@ -319,12 +319,17 @@ class NMDCMetadataGenerator(ABC):
             exact_match=True,
         )[0]["id"]
         if lc_config_name:
-            lc_config_id = cs_client.get_record_by_attribute(
-                attribute_name="name",
-                attribute_value=lc_config_name,
-                fields="id",
-                exact_match=True,
-            )[0]["id"]
+            try:
+                lc_config_id = cs_client.get_record_by_attribute(
+                    attribute_name="name",
+                    attribute_value=lc_config_name,
+                    fields="id",
+                    exact_match=True,
+                )[0]["id"]
+            except IndexError:
+                raise ValueError(
+                    f"Configuration '{lc_config_name}' not found in the database."
+                )
         else:
             lc_config_id = ""
         mass_spec_id = cs_client.get_record_by_attribute(
@@ -741,14 +746,25 @@ class NMDCMetadataGenerator(ABC):
                     raise FileNotFoundError(
                         f"No files found in {col}: " f"{metadata_df[col]}"
                     )
+                # line to flatten the list of lists
                 file_data_paths = [
                     file for sublist in file_data_paths for file in sublist
                 ]
                 if "process" in col:
-                    urls += [
-                        self.process_data_url + str(x.relative_to(Path(x).parents[1]))
-                        for x in file_data_paths
-                    ]
+                    urls += []
+                    for x in file_data_paths:
+                        # Get the base directory from the metadata
+                        base_dir = Path(metadata_df[col].iloc[0])
+
+                        # Check if the file is in a subdirectory of the base directory
+                        try:
+                            # If the file is in a subdirectory, include that in the URL
+                            rel_path = x.relative_to(base_dir)
+                            urls.append(self.process_data_url + str(rel_path))
+                        except ValueError:
+                            # If the file is not in the base directory (or we can't determine the relative path),
+                            # fall back to just using the filename
+                            urls.append(self.process_data_url + x.name)
                 elif "raw" in col:
                     urls += [self.raw_data_url + str(x.name) for x in file_data_paths]
                 # check if the urls are valid

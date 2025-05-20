@@ -113,6 +113,7 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
         client_id: str,
         client_secret: str,
         nom_analysis: nmdc.NomAnalysis,
+        nmdc_database_inst: nmdc.Database,
     ) -> tuple:
         """
         Create processed data objects for DI NOM metadata generation. This process expects a csv and json processed output.
@@ -127,6 +128,8 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
             The client secret for minting NMDC IDs.
         nom_analysis : nmdc.NomAnalysis
             The NomAnalysis object to which the processed data objects will be associated.
+        nmdc_database_inst : nmdc.Database
+            The NMDC database instance to which the processed data objects will be added.
 
         Returns
         -------
@@ -134,6 +137,7 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
             A tuple containing the processed data object and the workflow parameter data object.
 
         """
+        processed_ids = []
         processed_data_paths = list(Path(row["processed_data_directory"]).glob("**/*"))
         # Add a check that the processed data directory is not empty
         if not any(processed_data_paths):
@@ -166,6 +170,10 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
                 nom_analysis.ended_at_time = datetime.fromtimestamp(
                     file.stat().st_mtime
                 ).strftime("%Y-%m-%d %H:%M:%S")
+                # Add the processed data object to the NMDC database
+                nmdc_database_inst.data_object_set.append(processed_data_object)
+                # add the processed data object id to the list
+                processed_ids.append(processed_data_object.id)
             if file.suffix == ".json":
                 # Generate workflow parameter data object
                 workflow_data_object = self.generate_data_object(
@@ -181,4 +189,4 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
                     CLIENT_SECRET=client_secret,
                     alternative_id=None,
                 )
-        return processed_data_object, workflow_data_object
+        return processed_ids, workflow_data_object
