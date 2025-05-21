@@ -750,23 +750,18 @@ class NMDCMetadataGenerator(ABC):
                 file_data_paths = [
                     file for sublist in file_data_paths for file in sublist
                 ]
-                if "process" in col:
-                    urls += []
-                    for x in file_data_paths:
-                        # Get the base directory from the metadata
-                        base_dir = Path(metadata_df[col].iloc[0])
 
-                        # Check if the file is in a subdirectory of the base directory
-                        try:
-                            # If the file is in a subdirectory, include that in the URL
-                            rel_path = x.relative_to(base_dir)
-                            urls.append(self.process_data_url + str(rel_path))
-                        except ValueError:
-                            # If the file is not in the base directory (or we can't determine the relative path),
-                            # fall back to just using the filename
-                            urls.append(self.process_data_url + x.name)
+                # if it is a directory, we need to grab the directory from the metadata file path
+                if "process" in col:
+                    urls += [
+                        self.process_data_url + str(x.parent.name) + "/" + str(x.name)
+                        for x in file_data_paths
+                    ]
                 elif "raw" in col:
-                    urls += [self.raw_data_url + str(x.name) for x in file_data_paths]
+                    urls += [
+                        self.raw_data_url + str(x.parent.name) + "/" + str(x.name)
+                        for x in file_data_paths
+                    ]
                 # check if the urls are valid
                 for url in urls[
                     :5
