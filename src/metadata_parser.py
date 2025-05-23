@@ -81,51 +81,6 @@ class MetadataParser:
             return default
         return value
 
-    def parse_biosample_metadata(self, row: pd.Series) -> Dict:
-        """
-        Parse the metadata row to get non-biosample class information.
-
-        Parameters
-        ----------
-        row : pd.Series
-            A row from the DataFrame containing metadata.
-
-        Returns
-        -------
-        Dict
-
-        """
-
-        # Initialize the metadata dictionary
-        metadata_dict = {
-            "raw_data_file": Path(self.get_value(row, "raw_data_file")),
-            "processed_data_directory": Path(
-                self.get_value(row, "processed_data_directory")
-            ),
-            "data_path": Path(self.get_value(row, "LC-MS filename")),
-            "dms_dataset_id": self.get_value(row, "DMS Dataset ID"),
-            "myemsl_link": self.get_value(row, "MyEMSL link"),
-            "associated_studies": ast.literal_eval(
-                self.get_value(row, "associated_studies")
-            )
-            if self.get_value(row, "associated_studies")
-            else None,
-            "biosample_id": self.get_value(row, "biosample_id")
-            if self.get_value(row, "biosample_id") or self.get_value(row, "id")
-            else None,
-            "instrument_used": self.get_value(row, "instrument_used")
-            if self.get_value(row, "instrument_used")
-            else None,
-            "mass_spec_config": self.get_value(row, "mass_spec_config")
-            if self.get_value(row, "mass_spec_config")
-            else None,
-        }
-
-        # Create and return the EmslMetadata instance
-        metadata = metadata_dict
-
-        return metadata
-
     def is_type(self, type_hint, type_to_search_for) -> bool:
         """Recursively check if a type hint is or contains input type."""
         if not type_to_search_for:
