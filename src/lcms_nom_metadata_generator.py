@@ -53,7 +53,7 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
     workflow_param_data_object_type: str = "Analysis Tool Parameter File"
     unique_columns: list[str] = ["raw_data_file", "processed_data_directory"]
     mass_spec_eluent_intro: str = "liquid_chromatography"
-    mass_spec_desc: str = "Generation of mass spectrometry data for the analysis of nom using liquid chromatography."
+    mass_spec_desc: str = "Generation of mass spectrometry data for the analysis of NOM when acquired using liquid chromatography."
     processing_institution: str = "EMSL"
     workflow_git_url: str = "https://github.com/microbiomedata/enviroMS"
     workflow_version: str
