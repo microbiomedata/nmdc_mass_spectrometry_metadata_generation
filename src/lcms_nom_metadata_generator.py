@@ -39,7 +39,7 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
         "NOM annotations as a result of a NOM workflow activity."
     )
     qc_process_data_obj_type: str = "LC FT-ICR MS QC Plots"
-    qc_process_data_description: str = "EnviroMS QC file representing a NOM."
+    qc_process_data_description: str = "EnviroMS QC plots representing a NOM analysis."
 
     raw_data_object_type: str = "LC FT-ICR MS Raw Data"
     raw_data_obj_desc: str = "LC FT-ICR MS Raw Data raw data for NOM data acquisition."
