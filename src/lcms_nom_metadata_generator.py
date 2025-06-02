@@ -48,7 +48,7 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
     execution_resource: str = "EMSL"
     analyte_category: str = "nom"
     workflow_analysis_name: str = "LC FT-ICR MS NOM Analysis"
-    workflow_param_data_object_desc: str = "Natural Organic Matter analysis of raw mass spectrometry data when aquired by liquid chromatography."
+    workflow_param_data_object_desc: str = "EnviroMS processing parameters for natural organic matter analysis when acquired using liquid chromatography."
     workflow_param_data_category: str = "workflow_parameter_data"
     workflow_param_data_object_type: str = "Analysis Tool Parameter File"
     unique_columns: list[str] = ["raw_data_file", "processed_data_directory"]
