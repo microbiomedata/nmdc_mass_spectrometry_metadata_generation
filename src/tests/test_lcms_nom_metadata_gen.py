@@ -20,7 +20,7 @@ def test_lcms_nom_metadata_gen():
     """
     # Set up output file with datetime stame
     output_file = (
-        "tests/test_data/test_database_nom_"
+        "tests/test_data/test_database_lcms_nom_"
         + datetime.now().strftime("%Y%m%d%H%M%S")
         + ".json"
     )
@@ -45,7 +45,7 @@ def test_lcms_nom_metadata_gen_rerun():
     """
     # Set up output file with datetime stame
     output_file = (
-        "tests/test_data/test_database_nom_rerun_"
+        "tests/test_data/test_database_lcms_nom_rerun_"
         + datetime.now().strftime("%Y%m%d%H%M%S")
         + ".json"
     )

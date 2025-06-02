@@ -66,7 +66,7 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
     analyte_category: str = "nom"
     workflow_analysis_name: str = "NOM Analysis"
     workflow_description: str = (
-        "Natural Organic Matter analysis of raw mass spectrometry data."
+        "Processing of raw DI FT-ICR MS data for natural organic matter identification"
     )
     workflow_param_data_category: str = "workflow_parameter_data"
     workflow_param_data_object_type: str = "Analysis Tool Parameter File"

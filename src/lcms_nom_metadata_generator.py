@@ -57,7 +57,7 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
     processing_institution: str = "EMSL"
     workflow_git_url: str = "https://github.com/microbiomedata/enviroMS"
     workflow_version: str
-    workflow_description: str = "Natural Organic Matter analysis of raw mass spectrometry data when aquired by liquid chromatography."
+    workflow_description: str = "Processing of raw liquid chromatography FT-ICR MS data for natural organic matter identification."
     # on the mass spec records, you will need to add has_chromatograohy_configuration - created in parent metadata gen class
 
     def __init__(
