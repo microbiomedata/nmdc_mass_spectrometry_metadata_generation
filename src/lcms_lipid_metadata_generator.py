@@ -10,6 +10,7 @@ class LCMSLipidomicsMetadataGenerator(LCMSMetadataGenerator):
 
     This class processes input metadata files, generates various NMDC objects, and produces
     a database dump in JSON format.
+
     Parameters
     ----------
     metadata_file : str
