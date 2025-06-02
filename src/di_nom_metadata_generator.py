@@ -77,7 +77,9 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
     mass_spec_eluent_intro: str = "direct_infusion_autosampler"
     mass_spec_desc: str = "ultra high resolution mass spectrum"
     processing_institution: str = "EMSL"
-    workflow_git_url: str = "https://github.com/microbiomedata/enviroMS"
+    workflow_git_url: str = (
+        "https://github.com/microbiomedata/enviroMS/blob/master/wdl/enviroMS.wdl"
+    )
     workflow_version: str
 
     def __init__(
