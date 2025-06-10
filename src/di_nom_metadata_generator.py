@@ -78,7 +78,7 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
     mass_spec_desc: str = "ultra high resolution mass spectrum"
     processing_institution: str = "EMSL"
     workflow_git_url: str = (
-        "https://github.com/microbiomedata/enviroMS/blob/master/wdl/enviroMS.wdl"
+        "https://github.com/microbiomedata/enviroMS/blob/master/wdl/di_fticr_ms.wdl"
     )
     workflow_version: str
 
