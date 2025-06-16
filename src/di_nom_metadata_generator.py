@@ -97,7 +97,7 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
             raw_data_url=raw_data_url,
             process_data_url=process_data_url,
         )
-        # Set the workflow version, prioritizing user input, then fetching from the Git URL, and finally using a default.
+        # Set the workflow version, prioritizing user input, then fetching from the Git URL.
         self.workflow_version = workflow_version or self.get_workflow_version(
             workflow_version_git_url="https://github.com/microbiomedata/enviroMS/blob/master/.bumpversion.cfg"
         )
