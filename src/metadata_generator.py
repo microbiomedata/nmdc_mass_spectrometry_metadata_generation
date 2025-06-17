@@ -319,12 +319,17 @@ class NMDCMetadataGenerator(ABC):
             exact_match=True,
         )[0]["id"]
         if lc_config_name:
-            lc_config_id = cs_client.get_record_by_attribute(
-                attribute_name="name",
-                attribute_value=lc_config_name,
-                fields="id",
-                exact_match=True,
-            )[0]["id"]
+            try:
+                lc_config_id = cs_client.get_record_by_attribute(
+                    attribute_name="name",
+                    attribute_value=lc_config_name,
+                    fields="id",
+                    exact_match=True,
+                )[0]["id"]
+            except IndexError:
+                raise ValueError(
+                    f"Configuration '{lc_config_name}' not found in the database."
+                )
         else:
             lc_config_id = ""
         mass_spec_id = cs_client.get_record_by_attribute(
@@ -620,33 +625,6 @@ class NMDCMetadataGenerator(ABC):
         json_dumper.dump(nmdc_database, self.database_dump_json_path)
         logging.info("Database successfully dumped in %s", self.database_dump_json_path)
 
-    def handle_biosample(self, row: pd.Series) -> tuple:
-        """
-        Process biosample information from metadata row.
-
-        Checks if a biosample ID exists in the row. If it does, returns the existing
-        biosample information. If not, generates a new biosample.
-
-        Parameters
-        ----------
-        row : pd.Series
-            A row from the metadata DataFrame containing biosample information
-
-        Returns
-        -------
-        tuple
-            A tuple containing:
-            - emsl_metadata : Dict
-                Parsed metadata from input csv row
-            - biosample_id : str
-                The ID of the biosample (existing or newly generated)
-
-        """
-        parser = MetadataParser()
-        emsl_metadata = parser.parse_biosample_metadata(row)
-        biosample_id = emsl_metadata["biosample_id"]
-        return emsl_metadata, biosample_id
-
     def check_for_biosamples(
         self,
         metadata_df: pd.DataFrame,
@@ -768,16 +746,22 @@ class NMDCMetadataGenerator(ABC):
                     raise FileNotFoundError(
                         f"No files found in {col}: " f"{metadata_df[col]}"
                     )
+                # line to flatten the list of lists
                 file_data_paths = [
                     file for sublist in file_data_paths for file in sublist
                 ]
+
+                # if it is a directory, we need to grab the directory from the metadata file path
                 if "process" in col:
                     urls += [
-                        self.process_data_url + str(x.relative_to(Path(x).parents[1]))
+                        self.process_data_url + str(x.parent.name) + "/" + str(x.name)
                         for x in file_data_paths
                     ]
                 elif "raw" in col:
-                    urls += [self.raw_data_url + str(x.name) for x in file_data_paths]
+                    urls += [
+                        self.raw_data_url + str(x.parent.name) + "/" + str(x.name)
+                        for x in file_data_paths
+                    ]
                 # check if the urls are valid
                 for url in urls[
                     :5
