@@ -262,9 +262,9 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             nmdc_database_inst.workflow_execution_set.append(metab_analysis)
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
-        api_metadata = Metadata(env=ENV)
-        api_metadata.validate_json(self.database_dump_json_path)
-        logging.info("Metadata processing re run completed.")
+        self.validate_nmdc_database(
+            json_path=self.database_dump_json_path
+            )
 
     def run(self) -> None:
         """
@@ -427,8 +427,9 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             nmdc_database_inst.workflow_execution_set.append(metab_analysis)
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
-        api_metadata = Metadata(env=ENV)
-        api_metadata.validate_json(self.database_dump_json_path)
+        self.validate_nmdc_database(
+            json_path=self.database_dump_json_path
+        )
         logging.info("Metadata processing completed.")
 
     def generate_calibration_id(

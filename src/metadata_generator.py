@@ -16,6 +16,7 @@ from nmdc_api_utilities.configuration_search import ConfigurationSearch
 from nmdc_api_utilities.biosample_search import BiosampleSearch
 from nmdc_api_utilities.study_search import StudySearch
 from nmdc_api_utilities.data_object_search import DataObjectSearch
+from nmdc_api_utilities.metadata import Metadata
 from nmdc_api_utilities.minter import Minter
 import ast
 import numpy as np
@@ -35,9 +36,7 @@ logging.basicConfig(
 # TODO: Update script to for Sample Processing - has_input for MassSpectrometry will have to be changed to be a processed sample id - not biosample id
 class NMDCMetadataGenerator:
     """
-    Generic class for generating NMDC metadata objects.
-
-    #TODO KRH: update docstrings
+    Generic base class for generating select NMDC metadata objects.
     """
     def __init__(self):
         pass
@@ -268,6 +267,31 @@ class NMDCMetadataGenerator:
         """
         json_dumper.dump(nmdc_database, json_path)
         logging.info("Database successfully dumped in %s", json_path)
+
+    def validate_nmdc_database(self, json_path: Path) -> None:
+        """
+        Validate the NMDC database JSON file against the NMDC schema.
+
+        This method checks if the provided JSON file conforms to the NMDC schema.
+        If the validation fails, it raises an exception.
+
+        Parameters
+        ----------
+        json_path : Path
+            The path to the JSON file to validate.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        ValueError
+            If the JSON file does not conform to the NMDC schema.
+        """
+        api_metadata = Metadata(env=ENV)
+        api_metadata.validate_json(json_path)
+
 class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
     """
     Abstract class for generating NMDC metadata objects using provided metadata files and configuration.
