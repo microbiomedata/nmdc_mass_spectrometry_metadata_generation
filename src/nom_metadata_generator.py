@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from src.metadata_generator import NMDCMetadataGenerator
+from src.metadata_generator import NMDCWorkflowMetadataGenerator
 from src.data_classes import NmdcTypes
 from tqdm import tqdm
 from pathlib import Path
@@ -23,7 +23,7 @@ load_dotenv()
 ENV = os.getenv("NMDC_ENV", "prod")
 
 
-class NOMMetadataGenerator(NMDCMetadataGenerator):
+class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
     """
     A class for generating NMDC metadata objects using provided metadata files and configuration
     for Natural Organic Matter (NOM) data.
