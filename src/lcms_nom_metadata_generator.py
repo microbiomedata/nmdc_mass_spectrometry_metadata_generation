@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from src.nom_metadata_generator import NOMMetadataGenerator
+from src.nom_metadata_generator import NMDCWorkflowMetadataGenerator
 import pandas as pd
 from pathlib import Path
 from datetime import datetime
@@ -8,7 +8,7 @@ import os
 import zipfile
 
 
-class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
+class LCMSNOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
     """
     A class for generating NMDC metadata objects using provided metadata files and configuration
     for LC FT-ICR MS NOM data.

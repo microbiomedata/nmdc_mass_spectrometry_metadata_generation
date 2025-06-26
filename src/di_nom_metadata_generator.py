@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from src.nom_metadata_generator import NOMMetadataGenerator
+from src.nom_metadata_generator import NMDCWorkflowMetadataGenerator
 import pandas as pd
 from pathlib import Path
 from datetime import datetime
 import nmdc_schema.nmdc as nmdc
 
 
-class DINOMMetaDataGenerator(NOMMetadataGenerator):
+class DINOMMetaDataGenerator(NMDCWorkflowMetadataGenerator):
     """
     This class is responsible for generating metadata for the DI NOM model.
     This class processes input metadata files, generates various NMDC objects, and produces

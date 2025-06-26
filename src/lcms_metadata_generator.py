@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from src.metadata_generator import NMDCMetadataGenerator
+from src.metadata_generator import NMDCWorkflowMetadataGenerator
 from tqdm import tqdm
 from pathlib import Path
 from datetime import datetime
@@ -19,7 +19,7 @@ load_dotenv()
 ENV = os.getenv("NMDC_ENV", "prod")
 
 
-class LCMSMetadataGenerator(NMDCMetadataGenerator):
+class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
     """
     A class for generating NMDC metadata objects using provided metadata files and configuration
     for LC-MS data.
