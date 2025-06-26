@@ -242,6 +242,32 @@ class NMDCMetadataGenerator:
         data_object = nmdc.DataObject(**data_dict)
 
         return data_object
+    
+    def dump_nmdc_database(self, nmdc_database: nmdc.Database, json_path: Path) -> None:
+        """
+        Dump the NMDC database to a JSON file.
+
+        This method serializes the NMDC Database instance to a JSON file
+        at the specified path.
+
+        Parameters
+        ----------
+        nmdc_database : nmdc.Database
+            The NMDC Database instance to dump.
+        json_path : Path
+            The file path where the JSON dump will be saved.
+
+        Returns
+        -------
+        None
+
+        Side Effects
+        ------------
+        Writes the database content to the file specified by
+        `json_path`.
+        """
+        json_dumper.dump(nmdc_database, json_path)
+        logging.info("Database successfully dumped in %s", json_path)
 class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
     """
     Abstract class for generating NMDC metadata objects using provided metadata files and configuration.
@@ -628,7 +654,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         Writes the database content to the file specified by
         `self.database_dump_json_path`.
         """
-        json_dumper.dump(nmdc_database, self.database_dump_json_path)
+        super().dump_nmdc_database(nmdc_database, nmdc_database, self.database_dump_json_path)
         logging.info("Database successfully dumped in %s", self.database_dump_json_path)
 
     def check_for_biosamples(
