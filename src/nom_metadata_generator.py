@@ -7,7 +7,6 @@ from nmdc_api_utilities.data_object_search import DataObjectSearch
 from nmdc_api_utilities.calibration_search import CalibrationSearch
 from nmdc_api_utilities.workflow_execution_search import WorkflowExecutionSearch
 from nmdc_api_utilities.minter import Minter
-from nmdc_api_utilities.metadata import Metadata
 import nmdc_schema.nmdc as nmdc
 import hashlib
 import pandas as pd

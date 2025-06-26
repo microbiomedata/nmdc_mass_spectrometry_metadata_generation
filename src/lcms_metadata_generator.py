@@ -4,7 +4,6 @@ from tqdm import tqdm
 from pathlib import Path
 from datetime import datetime
 import logging
-from nmdc_api_utilities.metadata import Metadata
 import ast
 import pandas as pd
 from src.data_classes import LCMSLipidWorkflowMetadata

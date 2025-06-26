@@ -36,7 +36,7 @@ logging.basicConfig(
 # TODO: Update script to for Sample Processing - has_input for MassSpectrometry will have to be changed to be a processed sample id - not biosample id
 class NMDCMetadataGenerator:
     """
-    Generic base class for generating select NMDC metadata objects.
+    Generic base class for generating and validating NMDC metadata
     """
     def __init__(self):
         pass
