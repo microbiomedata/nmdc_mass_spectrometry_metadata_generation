@@ -33,36 +33,14 @@ logging.basicConfig(
 )
 
 # TODO: Update script to for Sample Processing - has_input for MassSpectrometry will have to be changed to be a processed sample id - not biosample id
-
-
-class NMDCWorkflowMetadataGenerator(ABC):
+class NMDCMetadataGenerator:
     """
-    Abstract class for generating NMDC metadata objects using provided metadata files and configuration.
+    Generic class for generating NMDC metadata objects.
 
-    Parameters
-    ----------
-    metadata_file : str
-        Path to the input CSV metadata file.
-    database_dump_json_path : str
-        Path where the output database dump JSON file will be saved.
-    raw_data_url : str
-        Base URL for the raw data files.
-    process_data_url : str
-        Base URL for the processed data files.
+    #TODO KRH: update docstrings
     """
-
-    def __init__(
-        self,
-        metadata_file: str,
-        database_dump_json_path: str,
-        raw_data_url: str,
-        process_data_url: str,
-    ):
-        self.metadata_file = metadata_file
-        self.database_dump_json_path = database_dump_json_path
-        self.raw_data_url = raw_data_url
-        self.process_data_url = process_data_url
-        self.raw_data_category = "instrument_data"
+    def __init__(self):
+        pass
 
     def load_credentials(self, config_file: str = None) -> tuple:
         """
@@ -104,6 +82,24 @@ class NMDCWorkflowMetadataGenerator(ABC):
             )
 
         return client_id, client_secret
+    
+    def start_nmdc_database(self) -> nmdc.Database:
+        """
+        Initialize and return a new NMDC Database instance.
+
+        Returns
+        -------
+        nmdc.Database
+            A new instance of an NMDC Database.
+
+        Notes
+        -----
+        This method simply creates and returns a new instance of the NMDC
+        Database. It does not perform any additional initialization or
+        configuration.
+
+        """
+        return nmdc.Database()
 
     def load_bio_credentials(self, config_file: str = None) -> str:
         """
@@ -150,24 +146,130 @@ class NMDCWorkflowMetadataGenerator(ABC):
             )
 
         return BIO_API_KEY
-
-    def start_nmdc_database(self) -> nmdc.Database:
+    
+    def clean_dict(self, dict: Dict) -> Dict:
         """
-        Initialize and return a new NMDC Database instance.
+        Clean the dictionary by removing keys with empty or None values.
+
+        Parameters
+        ----------
+        dict : Dict
+            The dictionary to be cleaned.
+        Returns
+        -------
+        Dict
+            A new dictionary with keys removed where the values are None, an empty string, or a string with only whitespace.
+
+        """
+        return {k: v for k, v in dict.items() if v not in [None, "", ""]}
+
+    def generate_data_object(
+        self,
+        file_path: Path,
+        data_category: str,
+        data_object_type: str,
+        description: str,
+        base_url: str,
+        CLIENT_ID: str,
+        CLIENT_SECRET: str,
+        was_generated_by: str = None,
+        alternative_id: str = None,
+    ) -> nmdc.DataObject:
+        """
+        Create an NMDC DataObject with metadata from the specified file and details.
+
+        This method generates an NMDC DataObject and assigns it a unique NMDC ID.
+        The DataObject is populated with metadata derived from the provided file
+        and input parameters.
+
+        Parameters
+        ----------
+        file_path : Path
+            Path to the file representing the data object. The file's name is
+            used as the `name` attribute.
+        data_category : str
+            Category of the data object (e.g., 'instrument_data').
+        data_object_type : str
+            Type of the data object (e.g., 'LC-DDA-MS/MS Raw Data').
+        description : str
+            Description of the data object.
+        base_url : str
+            Base URL for accessing the data object, to which the file name is
+            appended to form the complete URL.
+        CLIENT_ID : str
+            The client ID for the NMDC API.
+        CLIENT_SECRET : str
+            The client secret for the NMDC API.
+        was_generated_by : str, optional
+            ID of the process or entity that generated the data object
+            (e.g., the DataGeneration id or the MetabolomicsAnalysis id).
+        alternative_id : str, optional
+            An optional alternative identifier for the data object.
 
         Returns
         -------
-        nmdc.Database
-            A new instance of an NMDC Database.
+        nmdc.DataObject
+            An NMDC DataObject instance with the specified metadata.
 
         Notes
         -----
-        This method simply creates and returns a new instance of the NMDC
-        Database. It does not perform any additional initialization or
-        configuration.
+        This method calculates the MD5 checksum of the file, which may be
+        time-consuming for large files.
 
         """
-        return nmdc.Database()
+        mint = Minter(env=ENV)
+        nmdc_id = mint.mint(
+            nmdc_type=NmdcTypes.DataObject,
+            client_id=CLIENT_ID,
+            client_secret=CLIENT_SECRET,
+        )
+        data_dict = {
+            "id": nmdc_id,
+            "data_category": data_category,
+            "data_object_type": data_object_type,
+            "name": file_path.name,
+            "description": description,
+            "file_size_bytes": file_path.stat().st_size,
+            "md5_checksum": hashlib.md5(file_path.open("rb").read()).hexdigest(),
+            "url": base_url + str(file_path.name),
+            "type": NmdcTypes.DataObject,
+            "was_generated_by": was_generated_by,
+            "alternative_identifiers": alternative_id,
+        }
+
+        # If any of the data_dict values are None or empty strings, remove them
+        data_dict = self.clean_dict(data_dict)
+        data_object = nmdc.DataObject(**data_dict)
+
+        return data_object
+class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
+    """
+    Abstract class for generating NMDC metadata objects using provided metadata files and configuration.
+
+    Parameters
+    ----------
+    metadata_file : str
+        Path to the input CSV metadata file.
+    database_dump_json_path : str
+        Path where the output database dump JSON file will be saved.
+    raw_data_url : str
+        Base URL for the raw data files.
+    process_data_url : str
+        Base URL for the processed data files.
+    """
+
+    def __init__(
+        self,
+        metadata_file: str,
+        database_dump_json_path: str,
+        raw_data_url: str,
+        process_data_url: str,
+    ):
+        self.metadata_file = metadata_file
+        self.database_dump_json_path = database_dump_json_path
+        self.raw_data_url = raw_data_url
+        self.process_data_url = process_data_url
+        self.raw_data_category = "instrument_data"
 
     def load_metadata(self) -> pd.core.frame.DataFrame:
         """
@@ -226,22 +328,6 @@ class NMDCWorkflowMetadataGenerator(ABC):
                 raise ValueError("Study IDs do not exist in the collection.")
 
         return metadata_df
-
-    def clean_dict(self, dict: Dict) -> Dict:
-        """
-        Clean the dictionary by removing keys with empty or None values.
-
-        Parameters
-        ----------
-        dict : Dict
-            The dictionary to be cleaned.
-        Returns
-        -------
-        Dict
-            A new dictionary with keys removed where the values are None, an empty string, or a string with only whitespace.
-
-        """
-        return {k: v for k, v in dict.items() if v not in [None, "", ""]}
 
     def generate_mass_spectrometry(
         self,
@@ -364,86 +450,6 @@ class NMDCWorkflowMetadataGenerator(ABC):
         mass_spectrometry = nmdc.DataGeneration(**data_dict)
 
         return mass_spectrometry
-
-    def generate_data_object(
-        self,
-        file_path: Path,
-        data_category: str,
-        data_object_type: str,
-        description: str,
-        base_url: str,
-        CLIENT_ID: str,
-        CLIENT_SECRET: str,
-        was_generated_by: str = None,
-        alternative_id: str = None,
-    ) -> nmdc.DataObject:
-        """
-        Create an NMDC DataObject with metadata from the specified file and details.
-
-        This method generates an NMDC DataObject and assigns it a unique NMDC ID.
-        The DataObject is populated with metadata derived from the provided file
-        and input parameters.
-
-        Parameters
-        ----------
-        file_path : Path
-            Path to the file representing the data object. The file's name is
-            used as the `name` attribute.
-        data_category : str
-            Category of the data object (e.g., 'instrument_data').
-        data_object_type : str
-            Type of the data object (e.g., 'LC-DDA-MS/MS Raw Data').
-        description : str
-            Description of the data object.
-        base_url : str
-            Base URL for accessing the data object, to which the file name is
-            appended to form the complete URL.
-        CLIENT_ID : str
-            The client ID for the NMDC API.
-        CLIENT_SECRET : str
-            The client secret for the NMDC API.
-        was_generated_by : str, optional
-            ID of the process or entity that generated the data object
-            (e.g., the DataGeneration id or the MetabolomicsAnalysis id).
-        alternative_id : str, optional
-            An optional alternative identifier for the data object.
-
-        Returns
-        -------
-        nmdc.DataObject
-            An NMDC DataObject instance with the specified metadata.
-
-        Notes
-        -----
-        This method calculates the MD5 checksum of the file, which may be
-        time-consuming for large files.
-
-        """
-        mint = Minter(env=ENV)
-        nmdc_id = mint.mint(
-            nmdc_type=NmdcTypes.DataObject,
-            client_id=CLIENT_ID,
-            client_secret=CLIENT_SECRET,
-        )
-        data_dict = {
-            "id": nmdc_id,
-            "data_category": data_category,
-            "data_object_type": data_object_type,
-            "name": file_path.name,
-            "description": description,
-            "file_size_bytes": file_path.stat().st_size,
-            "md5_checksum": hashlib.md5(file_path.open("rb").read()).hexdigest(),
-            "url": base_url + str(file_path.name),
-            "type": NmdcTypes.DataObject,
-            "was_generated_by": was_generated_by,
-            "alternative_identifiers": alternative_id,
-        }
-
-        # If any of the data_dict values are None or empty strings, remove them
-        data_dict = self.clean_dict(data_dict)
-        data_object = nmdc.DataObject(**data_dict)
-
-        return data_object
 
     def generate_metabolomics_analysis(
         self,
