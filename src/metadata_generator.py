@@ -678,7 +678,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         Writes the database content to the file specified by
         `self.database_dump_json_path`.
         """
-        super().dump_nmdc_database(nmdc_database, nmdc_database, self.database_dump_json_path)
+        super().dump_nmdc_database(nmdc_database, self.database_dump_json_path)
         logging.info("Database successfully dumped in %s", self.database_dump_json_path)
 
     def check_for_biosamples(
