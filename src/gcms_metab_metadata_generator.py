@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from src.metadata_generator import NMDCMetadataGenerator
+from src.metadata_generator import NMDCWorkflowMetadataGenerator
 from tqdm import tqdm
 from pathlib import Path
 from datetime import datetime
@@ -21,7 +21,7 @@ load_dotenv()
 ENV = os.getenv("NMDC_ENV", "prod")
 
 
-class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
+class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
     """
     A class for generating NMDC metadata objects related to GC/MS metabolomics data.
 
