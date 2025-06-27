@@ -1,0 +1,1093 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.metadata_generator &mdash; nmdc_mass_spectrometry_metadata_generation 3/1/2025 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=1e0eaa87"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            nmdc_mass_spectrometry_metadata_generation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html">Bio Ontology API Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#metadata-parser-base-class">Metadata Parser Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#metadata-generator-base-class">Metadata Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#metadata-workflow-generator-base-class">Metadata Workflow Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#lc-ms-metadata-generator-base-class">LC/MS Metadata Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#data-class">Data Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#lc-ms-lipidomics-metadata-generator-subclass">LC/MS Lipidomics Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#lc-ms-metabolomics-metadata-generator-subclass">LC/MS Metabolomics Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#gc-ms-metabolomics-metadata-generator-subclass">GC/MS Metabolomics Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#direct-infusion-nom-metadata-generator-subclass">Direct Infusion NOM Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#lc-nom-metadata-generator-subclass">LC NOM Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#main-cli-class">Main CLI Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">nmdc_mass_spectrometry_metadata_generation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.metadata_generator</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.metadata_generator</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
+<span class="kn">import</span> <span class="nn">nmdc_schema.nmdc</span> <span class="k">as</span> <span class="nn">nmdc</span>
+<span class="kn">from</span> <span class="nn">linkml_runtime.dumpers</span> <span class="kn">import</span> <span class="n">json_dumper</span>
+<span class="kn">from</span> <span class="nn">src.metadata_parser</span> <span class="kn">import</span> <span class="n">MetadataParser</span>
+<span class="kn">from</span> <span class="nn">src.data_classes</span> <span class="kn">import</span> <span class="n">NmdcTypes</span>
+<span class="kn">from</span> <span class="nn">nmdc_api_utilities.instrument_search</span> <span class="kn">import</span> <span class="n">InstrumentSearch</span>
+<span class="kn">from</span> <span class="nn">nmdc_api_utilities.configuration_search</span> <span class="kn">import</span> <span class="n">ConfigurationSearch</span>
+<span class="kn">from</span> <span class="nn">nmdc_api_utilities.biosample_search</span> <span class="kn">import</span> <span class="n">BiosampleSearch</span>
+<span class="kn">from</span> <span class="nn">nmdc_api_utilities.study_search</span> <span class="kn">import</span> <span class="n">StudySearch</span>
+<span class="kn">from</span> <span class="nn">nmdc_api_utilities.data_object_search</span> <span class="kn">import</span> <span class="n">DataObjectSearch</span>
+<span class="kn">from</span> <span class="nn">nmdc_api_utilities.metadata</span> <span class="kn">import</span> <span class="n">Metadata</span>
+<span class="kn">from</span> <span class="nn">nmdc_api_utilities.minter</span> <span class="kn">import</span> <span class="n">Minter</span>
+<span class="kn">import</span> <span class="nn">ast</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">toml</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">dotenv</span> <span class="kn">import</span> <span class="n">load_dotenv</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">load_dotenv</span><span class="p">()</span>
+<span class="n">ENV</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;NMDC_ENV&quot;</span><span class="p">,</span> <span class="s2">&quot;prod&quot;</span><span class="p">)</span>
+
+<span class="c1"># Configure logging</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
+    <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2"> - </span><span class="si">%(levelname)s</span><span class="s2"> - </span><span class="si">%(message)s</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+
+
+<span class="c1"># TODO: Update script to for Sample Processing - has_input for MassSpectrometry will have to be changed to be a processed sample id - not biosample id</span>
+<div class="viewcode-block" id="NMDCMetadataGenerator">
+<a class="viewcode-back" href="../../functions.html#src.metadata_generator.NMDCMetadataGenerator">[docs]</a>
+<span class="k">class</span> <span class="nc">NMDCMetadataGenerator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generic base class for generating and validating NMDC metadata</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="NMDCMetadataGenerator.load_credentials">
+<a class="viewcode-back" href="../../functions.html#src.metadata_generator.NMDCMetadataGenerator.load_credentials">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_credentials</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load the client ID and secret from the environment or a configuration file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config_file: str</span>
+<span class="sd">            The path to the configuration file.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            A tuple containing the client ID and client secret.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">client_id</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;CLIENT_ID&quot;</span><span class="p">)</span>
+        <span class="n">client_secret</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;CLIENT_SECRET&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">client_id</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">client_secret</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">config_file</span><span class="p">:</span>
+                <span class="n">config_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">config</span> <span class="o">=</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+                    <span class="n">client_id</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;CLIENT_ID&quot;</span><span class="p">)</span>
+                    <span class="n">client_secret</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;CLIENT_SECRET&quot;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Config file </span><span class="si">{</span><span class="n">config_file</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">toml</span><span class="o">.</span><span class="n">TomlDecodeError</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Error decoding TOML from the config file.&quot;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;Config file must contain CLIENT_ID and CLIENT_SECRET. If generating biosample ids BIO_API_KEY is required.&quot;</span>
+                    <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">client_id</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">client_secret</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;CLIENT_ID and CLIENT_SECRET must be set either in environment variables or passed in the config file.</span><span class="se">\n</span><span class="s2">They must be named CLIENT_ID and CLIENT_SECRET respectively.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">client_id</span><span class="p">,</span> <span class="n">client_secret</span></div>
+
+
+<div class="viewcode-block" id="NMDCMetadataGenerator.start_nmdc_database">
+<a class="viewcode-back" href="../../functions.html#src.metadata_generator.NMDCMetadataGenerator.start_nmdc_database">[docs]</a>
+    <span class="k">def</span> <span class="nf">start_nmdc_database</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">nmdc</span><span class="o">.</span><span class="n">Database</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize and return a new NMDC Database instance.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        nmdc.Database</span>
+<span class="sd">            A new instance of an NMDC Database.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This method simply creates and returns a new instance of the NMDC</span>
+<span class="sd">        Database. It does not perform any additional initialization or</span>
+<span class="sd">        configuration.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">nmdc</span><span class="o">.</span><span class="n">Database</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="NMDCMetadataGenerator.load_bio_credentials">
+<a class="viewcode-back" href="../../functions.html#src.metadata_generator.NMDCMetadataGenerator.load_bio_credentials">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_bio_credentials</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load bio ontology API key from the environment or a configuration file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config_file: str</span>
+<span class="sd">            The path to the configuration file.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The bio ontology API key.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        FileNotFoundError</span>
+<span class="sd">            If the configuration file is not found, and the API key is not set in the environment.</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the configuration file is not valid or does not contain the API key.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">BIO_API_KEY</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;BIO_API_KEY&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">BIO_API_KEY</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">config_file</span><span class="p">:</span>
+                <span class="n">config_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">config</span> <span class="o">=</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+                    <span class="n">BIO_API_KEY</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;BIO_API_KEY&quot;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Config file </span><span class="si">{</span><span class="n">config_file</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">toml</span><span class="o">.</span><span class="n">TomlDecodeError</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Error decoding TOML from the config file.&quot;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;Config file must contain BIO_API_KEY to generate biosample ids.&quot;</span>
+                    <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">BIO_API_KEY</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;BIO_API_KEY must be set either in environment variable or passed in the config file. It must be named BIO_API_KEY.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">BIO_API_KEY</span></div>
+
+
+<div class="viewcode-block" id="NMDCMetadataGenerator.clean_dict">
+<a class="viewcode-back" href="../../functions.html#src.metadata_generator.NMDCMetadataGenerator.clean_dict">[docs]</a>
+    <span class="k">def</span> <span class="nf">clean_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Clean the dictionary by removing keys with empty or None values.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dict : Dict</span>
+<span class="sd">            The dictionary to be cleaned.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Dict</span>
+<span class="sd">            A new dictionary with keys removed where the values are None, an empty string, or a string with only whitespace.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">]}</span></div>
+
+
+<div class="viewcode-block" id="NMDCMetadataGenerator.generate_data_object">
+<a class="viewcode-back" href="../../functions.html#src.metadata_generator.NMDCMetadataGenerator.generate_data_object">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_data_object</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+        <span class="n">data_category</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">data_object_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">base_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">CLIENT_ID</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">CLIENT_SECRET</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">was_generated_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">alternative_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">nmdc</span><span class="o">.</span><span class="n">DataObject</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create an NMDC DataObject with metadata from the specified file and details.</span>
+
+<span class="sd">        This method generates an NMDC DataObject and assigns it a unique NMDC ID.</span>
+<span class="sd">        The DataObject is populated with metadata derived from the provided file</span>
+<span class="sd">        and input parameters.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path : Path</span>
+<span class="sd">            Path to the file representing the data object. The file&#39;s name is</span>
+<span class="sd">            used as the `name` attribute.</span>
+<span class="sd">        data_category : str</span>
+<span class="sd">            Category of the data object (e.g., &#39;instrument_data&#39;).</span>
+<span class="sd">        data_object_type : str</span>
+<span class="sd">            Type of the data object (e.g., &#39;LC-DDA-MS/MS Raw Data&#39;).</span>
+<span class="sd">        description : str</span>
+<span class="sd">            Description of the data object.</span>
+<span class="sd">        base_url : str</span>
+<span class="sd">            Base URL for accessing the data object, to which the file name is</span>
+<span class="sd">            appended to form the complete URL.</span>
+<span class="sd">        CLIENT_ID : str</span>
+<span class="sd">            The client ID for the NMDC API.</span>
+<span class="sd">        CLIENT_SECRET : str</span>
+<span class="sd">            The client secret for the NMDC API.</span>
+<span class="sd">        was_generated_by : str, optional</span>
+<span class="sd">            ID of the process or entity that generated the data object</span>
+<span class="sd">            (e.g., the DataGeneration id or the MetabolomicsAnalysis id).</span>
+<span class="sd">        alternative_id : str, optional</span>
+<span class="sd">            An optional alternative identifier for the data object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        nmdc.DataObject</span>
+<span class="sd">            An NMDC DataObject instance with the specified metadata.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This method calculates the MD5 checksum of the file, which may be</span>
+<span class="sd">        time-consuming for large files.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mint</span> <span class="o">=</span> <span class="n">Minter</span><span class="p">(</span><span class="n">env</span><span class="o">=</span><span class="n">ENV</span><span class="p">)</span>
+        <span class="n">nmdc_id</span> <span class="o">=</span> <span class="n">mint</span><span class="o">.</span><span class="n">mint</span><span class="p">(</span>
+            <span class="n">nmdc_type</span><span class="o">=</span><span class="n">NmdcTypes</span><span class="o">.</span><span class="n">DataObject</span><span class="p">,</span>
+            <span class="n">client_id</span><span class="o">=</span><span class="n">CLIENT_ID</span><span class="p">,</span>
+            <span class="n">client_secret</span><span class="o">=</span><span class="n">CLIENT_SECRET</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">data_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">nmdc_id</span><span class="p">,</span>
+            <span class="s2">&quot;data_category&quot;</span><span class="p">:</span> <span class="n">data_category</span><span class="p">,</span>
+            <span class="s2">&quot;data_object_type&quot;</span><span class="p">:</span> <span class="n">data_object_type</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">file_path</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">description</span><span class="p">,</span>
+            <span class="s2">&quot;file_size_bytes&quot;</span><span class="p">:</span> <span class="n">file_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span><span class="p">,</span>
+            <span class="s2">&quot;md5_checksum&quot;</span><span class="p">:</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">file_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">(),</span>
+            <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">base_url</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">file_path</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">NmdcTypes</span><span class="o">.</span><span class="n">DataObject</span><span class="p">,</span>
+            <span class="s2">&quot;was_generated_by&quot;</span><span class="p">:</span> <span class="n">was_generated_by</span><span class="p">,</span>
+            <span class="s2">&quot;alternative_identifiers&quot;</span><span class="p">:</span> <span class="n">alternative_id</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="c1"># If any of the data_dict values are None or empty strings, remove them</span>
+        <span class="n">data_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clean_dict</span><span class="p">(</span><span class="n">data_dict</span><span class="p">)</span>
+        <span class="n">data_object</span> <span class="o">=</span> <span class="n">nmdc</span><span class="o">.</span><span class="n">DataObject</span><span class="p">(</span><span class="o">**</span><span class="n">data_dict</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">data_object</span></div>
+
+
+<div class="viewcode-block" id="NMDCMetadataGenerator.dump_nmdc_database">
+<a class="viewcode-back" href="../../functions.html#src.metadata_generator.NMDCMetadataGenerator.dump_nmdc_database">[docs]</a>
+    <span class="k">def</span> <span class="nf">dump_nmdc_database</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nmdc_database</span><span class="p">:</span> <span class="n">nmdc</span><span class="o">.</span><span class="n">Database</span><span class="p">,</span> <span class="n">json_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Dump the NMDC database to a JSON file.</span>
+
+<span class="sd">        This method serializes the NMDC Database instance to a JSON file</span>
+<span class="sd">        at the specified path.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nmdc_database : nmdc.Database</span>
+<span class="sd">            The NMDC Database instance to dump.</span>
+<span class="sd">        json_path : Path</span>
+<span class="sd">            The file path where the JSON dump will be saved.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+
+<span class="sd">        Side Effects</span>
+<span class="sd">        ------------</span>
+<span class="sd">        Writes the database content to the file specified by</span>
+<span class="sd">        `json_path`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">json_dumper</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">nmdc_database</span><span class="p">,</span> <span class="n">json_path</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Database successfully dumped in </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">json_path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="NMDCMetadataGenerator.validate_nmdc_database">
+<a class="viewcode-back" href="../../functions.html#src.metadata_generator.NMDCMetadataGenerator.validate_nmdc_database">[docs]</a>
+    <span class="k">def</span> <span class="nf">validate_nmdc_database</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate the NMDC database JSON file against the NMDC schema.</span>
+
+<span class="sd">        This method checks if the provided JSON file conforms to the NMDC schema.</span>
+<span class="sd">        If the validation fails, it raises an exception.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        json_path : Path</span>
+<span class="sd">            The path to the JSON file to validate.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the JSON file does not conform to the NMDC schema.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">api_metadata</span> <span class="o">=</span> <span class="n">Metadata</span><span class="p">(</span><span class="n">env</span><span class="o">=</span><span class="n">ENV</span><span class="p">)</span>
+        <span class="n">api_metadata</span><span class="o">.</span><span class="n">validate_json</span><span class="p">(</span><span class="n">json_path</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="NMDCWorkflowMetadataGenerator">
+<a class="viewcode-back" href="../../functions.html#src.metadata_generator.NMDCWorkflowMetadataGenerator">[docs]</a>
+<span class="k">class</span> <span class="nc">NMDCWorkflowMetadataGenerator</span><span class="p">(</span><span class="n">NMDCMetadataGenerator</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract class for generating NMDC metadata objects using provided metadata files and configuration.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    metadata_file : str</span>
+<span class="sd">        Path to the input CSV metadata file.</span>
+<span class="sd">    database_dump_json_path : str</span>
+<span class="sd">        Path where the output database dump JSON file will be saved.</span>
+<span class="sd">    raw_data_url : str</span>
+<span class="sd">        Base URL for the raw data files.</span>
+<span class="sd">    process_data_url : str</span>
+<span class="sd">        Base URL for the processed data files.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">metadata_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">database_dump_json_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">raw_data_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">process_data_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata_file</span> <span class="o">=</span> <span class="n">metadata_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">database_dump_json_path</span> <span class="o">=</span> <span class="n">database_dump_json_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw_data_url</span> <span class="o">=</span> <span class="n">raw_data_url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process_data_url</span> <span class="o">=</span> <span class="n">process_data_url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw_data_category</span> <span class="o">=</span> <span class="s2">&quot;instrument_data&quot;</span>
+
+<div class="viewcode-block" id="NMDCWorkflowMetadataGenerator.load_metadata">
+<a class="viewcode-back" href="../../functions.html#src.metadata_generator.NMDCWorkflowMetadataGenerator.load_metadata">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load and group workflow metadata from a CSV file.</span>
+
+<span class="sd">        This method reads the metadata CSV file, checks for uniqueness in</span>
+<span class="sd">        specified columns, checks that biosamples exist, and groups the data by biosample ID.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.core.frame.DataFrame</span>
+<span class="sd">            A DataFrame containing the loaded and grouped metadata.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        FileNotFoundError</span>
+<span class="sd">            If the `metadata_file` does not exist.</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If values in columns &#39;Raw Data File&#39;,</span>
+<span class="sd">            and &#39;Processed Data Directory&#39; are not unique.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        See example_metadata_file.csv in this directory for an example of</span>
+<span class="sd">        the expected input file format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">metadata_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata_file</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Metadata file not found: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Check for uniqueness in specified columns</span>
+        <span class="n">columns_to_check</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unique_columns</span>
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns_to_check</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">metadata_df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">is_unique</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Duplicate values found in column &#39;</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Check that all biosamples exist</span>
+        <span class="n">biosample_ids</span> <span class="o">=</span> <span class="n">metadata_df</span><span class="p">[</span><span class="s2">&quot;biosample_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="n">bs_client</span> <span class="o">=</span> <span class="n">BiosampleSearch</span><span class="p">(</span><span class="n">env</span><span class="o">=</span><span class="n">ENV</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">biosample_ids</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">False_</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">bs_client</span><span class="o">.</span><span class="n">check_ids_exist</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">biosample_ids</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Biosample IDs do not exist in the collection.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Check that all studies exist</span>
+        <span class="k">if</span> <span class="s2">&quot;biosample.associated_studies&quot;</span> <span class="ow">in</span> <span class="n">metadata_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="c1"># Convert string to list, make sure the values are unique, conmvert</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">study_ids</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span>
+                    <span class="n">metadata_df</span><span class="p">[</span><span class="s2">&quot;biosample.associated_studies&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="ne">SyntaxError</span><span class="p">:</span>
+                <span class="n">study_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">metadata_df</span><span class="p">[</span><span class="s2">&quot;biosample.associated_studies&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">ss_client</span> <span class="o">=</span> <span class="n">StudySearch</span><span class="p">(</span><span class="n">env</span><span class="o">=</span><span class="n">ENV</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ss_client</span><span class="o">.</span><span class="n">check_ids_exist</span><span class="p">(</span><span class="n">study_ids</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Study IDs do not exist in the collection.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">metadata_df</span></div>
+
+
+<div class="viewcode-block" id="NMDCWorkflowMetadataGenerator.generate_mass_spectrometry">
+<a class="viewcode-back" href="../../functions.html#src.metadata_generator.NMDCWorkflowMetadataGenerator.generate_mass_spectrometry">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_mass_spectrometry</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+        <span class="n">instrument_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">sample_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">raw_data_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">study_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">processing_institution</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">mass_spec_config_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">start_date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">CLIENT_ID</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">CLIENT_SECRET</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">lc_config_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">calibration_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">nmdc</span><span class="o">.</span><span class="n">DataGeneration</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create an NMDC DataGeneration object for mass spectrometry and mint an NMDC ID.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path : Path</span>
+<span class="sd">            File path of the mass spectrometry data.</span>
+<span class="sd">        instrument_name : str</span>
+<span class="sd">            Name of the instrument used for data generation.</span>
+<span class="sd">        sample_id : str</span>
+<span class="sd">            ID of the input sample associated with the data generation.</span>
+<span class="sd">        raw_data_id : str</span>
+<span class="sd">            ID of the raw data object associated with the data generation.</span>
+<span class="sd">        study_id : str</span>
+<span class="sd">            ID of the study associated with the data generation.</span>
+<span class="sd">        processing_institution : str</span>
+<span class="sd">            Name of the processing institution.</span>
+<span class="sd">        mass_spec_config_name : str</span>
+<span class="sd">            Name of the mass spectrometry configuration.</span>
+<span class="sd">        start_date : str</span>
+<span class="sd">            Start date of the data generation.</span>
+<span class="sd">        end_date : str</span>
+<span class="sd">            End date of the data generation.</span>
+<span class="sd">        CLIENT_ID : str</span>
+<span class="sd">            The client ID for the NMDC API.</span>
+<span class="sd">        CLIENT_SECRET : str</span>
+<span class="sd">            The client secret for the NMDC API.</span>
+<span class="sd">        lc_config_name : str</span>
+<span class="sd">            Name of the liquid chromatography configuration.</span>
+<span class="sd">        calibration_id : str, optional</span>
+<span class="sd">            ID of the calibration information generated with the data.</span>
+<span class="sd">            Default is None, indicating no calibration information.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        nmdc.DataGeneration</span>
+<span class="sd">            An NMDC DataGeneration object with the provided metadata.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This method uses the nmdc_api_utilities package to fetch IDs for the instrument</span>
+<span class="sd">        and configurations. It also mints a new NMDC ID for the DataGeneration object.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">is_client</span> <span class="o">=</span> <span class="n">InstrumentSearch</span><span class="p">(</span><span class="n">env</span><span class="o">=</span><span class="n">ENV</span><span class="p">)</span>
+        <span class="n">cs_client</span> <span class="o">=</span> <span class="n">ConfigurationSearch</span><span class="p">(</span><span class="n">env</span><span class="o">=</span><span class="n">ENV</span><span class="p">)</span>
+        <span class="n">minter</span> <span class="o">=</span> <span class="n">Minter</span><span class="p">(</span><span class="n">env</span><span class="o">=</span><span class="n">ENV</span><span class="p">)</span>
+        <span class="n">nmdc_id</span> <span class="o">=</span> <span class="n">minter</span><span class="o">.</span><span class="n">mint</span><span class="p">(</span>
+            <span class="n">nmdc_type</span><span class="o">=</span><span class="n">NmdcTypes</span><span class="o">.</span><span class="n">MassSpectrometry</span><span class="p">,</span>
+            <span class="n">client_id</span><span class="o">=</span><span class="n">CLIENT_ID</span><span class="p">,</span>
+            <span class="n">client_secret</span><span class="o">=</span><span class="n">CLIENT_SECRET</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">instrument_id</span> <span class="o">=</span> <span class="n">is_client</span><span class="o">.</span><span class="n">get_record_by_attribute</span><span class="p">(</span>
+            <span class="n">attribute_name</span><span class="o">=</span><span class="s2">&quot;name&quot;</span><span class="p">,</span>
+            <span class="n">attribute_value</span><span class="o">=</span><span class="n">instrument_name</span><span class="p">,</span>
+            <span class="n">fields</span><span class="o">=</span><span class="s2">&quot;id&quot;</span><span class="p">,</span>
+            <span class="n">exact_match</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">lc_config_name</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">lc_config_id</span> <span class="o">=</span> <span class="n">cs_client</span><span class="o">.</span><span class="n">get_record_by_attribute</span><span class="p">(</span>
+                    <span class="n">attribute_name</span><span class="o">=</span><span class="s2">&quot;name&quot;</span><span class="p">,</span>
+                    <span class="n">attribute_value</span><span class="o">=</span><span class="n">lc_config_name</span><span class="p">,</span>
+                    <span class="n">fields</span><span class="o">=</span><span class="s2">&quot;id&quot;</span><span class="p">,</span>
+                    <span class="n">exact_match</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Configuration &#39;</span><span class="si">{</span><span class="n">lc_config_name</span><span class="si">}</span><span class="s2">&#39; not found in the database.&quot;</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lc_config_id</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">mass_spec_id</span> <span class="o">=</span> <span class="n">cs_client</span><span class="o">.</span><span class="n">get_record_by_attribute</span><span class="p">(</span>
+            <span class="n">attribute_name</span><span class="o">=</span><span class="s2">&quot;name&quot;</span><span class="p">,</span>
+            <span class="n">attribute_value</span><span class="o">=</span><span class="n">mass_spec_config_name</span><span class="p">,</span>
+            <span class="n">fields</span><span class="o">=</span><span class="s2">&quot;id&quot;</span><span class="p">,</span>
+            <span class="n">exact_match</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+
+        <span class="n">data_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">nmdc_id</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">file_path</span><span class="o">.</span><span class="n">stem</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass_spec_desc</span><span class="p">,</span>
+            <span class="s2">&quot;add_date&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;eluent_introduction_category&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass_spec_eluent_intro</span><span class="p">,</span>
+            <span class="s2">&quot;has_mass_spectrometry_configuration&quot;</span><span class="p">:</span> <span class="n">mass_spec_id</span><span class="p">,</span>
+            <span class="s2">&quot;has_chromatography_configuration&quot;</span><span class="p">:</span> <span class="n">lc_config_id</span><span class="p">,</span>
+            <span class="s2">&quot;analyte_category&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">analyte_category</span><span class="p">,</span>
+            <span class="s2">&quot;instrument_used&quot;</span><span class="p">:</span> <span class="n">instrument_id</span><span class="p">,</span>
+            <span class="s2">&quot;has_input&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">sample_id</span><span class="p">],</span>
+            <span class="s2">&quot;has_output&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">raw_data_id</span><span class="p">],</span>
+            <span class="s2">&quot;associated_studies&quot;</span><span class="p">:</span> <span class="n">study_id</span><span class="p">,</span>
+            <span class="s2">&quot;processing_institution&quot;</span><span class="p">:</span> <span class="n">processing_institution</span><span class="p">,</span>
+            <span class="s2">&quot;start_date&quot;</span><span class="p">:</span> <span class="n">start_date</span><span class="p">,</span>
+            <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="n">end_date</span><span class="p">,</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">NmdcTypes</span><span class="o">.</span><span class="n">MassSpectrometry</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">calibration_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data_dict</span><span class="p">[</span><span class="s2">&quot;generates_calibration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">calibration_id</span>
+        <span class="n">data_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clean_dict</span><span class="p">(</span><span class="n">data_dict</span><span class="p">)</span>
+        <span class="n">mass_spectrometry</span> <span class="o">=</span> <span class="n">nmdc</span><span class="o">.</span><span class="n">DataGeneration</span><span class="p">(</span><span class="o">**</span><span class="n">data_dict</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">mass_spectrometry</span></div>
+
+
+<div class="viewcode-block" id="NMDCWorkflowMetadataGenerator.generate_metabolomics_analysis">
+<a class="viewcode-back" href="../../functions.html#src.metadata_generator.NMDCWorkflowMetadataGenerator.generate_metabolomics_analysis">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_metabolomics_analysis</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">cluster_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">raw_data_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">raw_data_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">data_gen_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">processed_data_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">parameter_data_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">processing_institution</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">CLIENT_ID</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">CLIENT_SECRET</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">calibration_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">incremeneted_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">metabolite_identifications</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">nmdc</span><span class="o">.</span><span class="n">MetaboliteIdentification</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">NmdcTypes</span><span class="o">.</span><span class="n">MetabolomicsAnalysis</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">nmdc</span><span class="o">.</span><span class="n">MetabolomicsAnalysis</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create an NMDC MetabolomicsAnalysis object with metadata for a workflow analysis.</span>
+
+<span class="sd">        This method generates an NMDC MetabolomicsAnalysis object, including details</span>
+<span class="sd">        about the analysis, the processing institution, and relevant workflow information.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cluster_name : str</span>
+<span class="sd">            Name of the cluster or computing resource used for the analysis.</span>
+<span class="sd">        raw_data_name : str</span>
+<span class="sd">            Name of the raw data file that was analyzed.</span>
+<span class="sd">        raw_data_id : str</span>
+<span class="sd">            ID of the raw data object that was analyzed.</span>
+<span class="sd">        data_gen_id : str</span>
+<span class="sd">            ID of the DataGeneration object that generated the raw data.</span>
+<span class="sd">        processed_data_id : str</span>
+<span class="sd">            ID of the processed data resulting from the analysis.</span>
+<span class="sd">        parameter_data_id : str</span>
+<span class="sd">            ID of the parameter data object used for the analysis.</span>
+<span class="sd">        processing_institution : str</span>
+<span class="sd">            Name of the institution where the analysis was performed.</span>
+<span class="sd">        CLIENT_ID : str</span>
+<span class="sd">            The client ID for the NMDC API.</span>
+<span class="sd">        CLIENT_SECRET : str</span>
+<span class="sd">            The client secret for the NMDC API.</span>
+<span class="sd">        calibration_id : str, optional</span>
+<span class="sd">            ID of the calibration information used for the analysis.</span>
+<span class="sd">            Default is None, indicating no calibration information.</span>
+<span class="sd">        incremeneted_id : str, optional</span>
+<span class="sd">            An optional incremented ID for the MetabolomicsAnalysis object.</span>
+<span class="sd">            If not provided, a new NMDC ID will be minted.</span>
+<span class="sd">        metabolite_identifications : List[nmdc.MetaboliteIdentification], optional</span>
+<span class="sd">            List of MetaboliteIdentification objects associated with the analysis.</span>
+<span class="sd">            Default is None, which indicates no metabolite identifications.</span>
+<span class="sd">        type : str, optional</span>
+<span class="sd">            The type of the analysis. Default is NmdcTypes.MetabolomicsAnalysis.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        nmdc.MetabolomicsAnalysis</span>
+<span class="sd">            An NMDC MetabolomicsAnalysis instance with the provided metadata.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The &#39;started_at_time&#39; and &#39;ended_at_time&#39; fields are initialized with</span>
+<span class="sd">        placeholder values and should be updated with actual timestamps later</span>
+<span class="sd">        when the processed files are iterated over in the run method.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">incremeneted_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># If no incremented id is provided, mint a new one</span>
+            <span class="n">mint</span> <span class="o">=</span> <span class="n">Minter</span><span class="p">(</span><span class="n">env</span><span class="o">=</span><span class="n">ENV</span><span class="p">)</span>
+            <span class="n">nmdc_id</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">mint</span><span class="o">.</span><span class="n">mint</span><span class="p">(</span>
+                    <span class="n">nmdc_type</span><span class="o">=</span><span class="n">NmdcTypes</span><span class="o">.</span><span class="n">MetabolomicsAnalysis</span><span class="p">,</span>
+                    <span class="n">client_id</span><span class="o">=</span><span class="n">CLIENT_ID</span><span class="p">,</span>
+                    <span class="n">client_secret</span><span class="o">=</span><span class="n">CLIENT_SECRET</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="o">+</span> <span class="s2">&quot;.1&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">data_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">incremeneted_id</span> <span class="k">if</span> <span class="n">incremeneted_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">nmdc_id</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">workflow_analysis_name</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">raw_data_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">workflow_description</span><span class="p">,</span>
+            <span class="s2">&quot;processing_institution&quot;</span><span class="p">:</span> <span class="n">processing_institution</span><span class="p">,</span>
+            <span class="s2">&quot;execution_resource&quot;</span><span class="p">:</span> <span class="n">cluster_name</span><span class="p">,</span>
+            <span class="s2">&quot;git_url&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">workflow_git_url</span><span class="p">,</span>
+            <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">workflow_version</span><span class="p">,</span>
+            <span class="s2">&quot;was_informed_by&quot;</span><span class="p">:</span> <span class="n">data_gen_id</span><span class="p">,</span>
+            <span class="s2">&quot;has_input&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">raw_data_id</span><span class="p">,</span> <span class="n">parameter_data_id</span><span class="p">],</span>
+            <span class="s2">&quot;has_output&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">processed_data_id</span><span class="p">],</span>
+            <span class="s2">&quot;started_at_time&quot;</span><span class="p">:</span> <span class="s2">&quot;placeholder&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ended_at_time&quot;</span><span class="p">:</span> <span class="s2">&quot;placeholder&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="nb">type</span><span class="p">,</span>
+            <span class="s2">&quot;metabolomics_analysis_category&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">workflow_category</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">calibration_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data_dict</span><span class="p">[</span><span class="s2">&quot;uses_calibration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">calibration_id</span>
+
+        <span class="k">if</span> <span class="n">metabolite_identifications</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data_dict</span><span class="p">[</span><span class="s2">&quot;has_metabolite_identifications&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">metabolite_identifications</span>
+        <span class="n">data_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clean_dict</span><span class="p">(</span><span class="n">data_dict</span><span class="p">)</span>
+        <span class="n">metab_analysis</span> <span class="o">=</span> <span class="n">nmdc</span><span class="o">.</span><span class="n">MetabolomicsAnalysis</span><span class="p">(</span><span class="o">**</span><span class="n">data_dict</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">metab_analysis</span></div>
+
+
+<div class="viewcode-block" id="NMDCWorkflowMetadataGenerator.update_outputs">
+<a class="viewcode-back" href="../../functions.html#src.metadata_generator.NMDCWorkflowMetadataGenerator.update_outputs">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_outputs</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">analysis_obj</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+        <span class="n">raw_data_obj_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">parameter_data_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">processed_data_id_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+        <span class="n">mass_spec_obj</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">rerun</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update output references for Mass Spectrometry and Workflow Analysis objects.</span>
+
+<span class="sd">        This method assigns the output references for a Mass Spectrometry object</span>
+<span class="sd">        and a Workflow Execution Analysis object. It sets `mass_spec_obj.has_output`</span>
+<span class="sd">        to the ID of `raw_data_obj` and `analysis_obj.has_output` to a list of</span>
+<span class="sd">        processed data IDs.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        analysis_obj : object</span>
+<span class="sd">            The Workflow Execution Analysis object to update</span>
+<span class="sd">            (e.g., MetabolomicsAnalysis).</span>
+<span class="sd">        raw_data_obj_id : str</span>
+<span class="sd">            The Raw Data Object associated with the Mass Spectrometry.</span>
+<span class="sd">        parameter_data_id : str</span>
+<span class="sd">            ID of the data object representing the parameter data used for the analysis.</span>
+<span class="sd">        processed_data_id_list : list</span>
+<span class="sd">            List of IDs representing processed data objects associated with</span>
+<span class="sd">            the Workflow Execution.</span>
+<span class="sd">        mass_spec_obj : object , optional</span>
+<span class="sd">            The Mass Spectrometry object to update. Optional for rerun cases.</span>
+<span class="sd">        rerun : bool, optional</span>
+<span class="sd">            If True, this indicates the run is a rerun, and the method will not set `mass_spec_obj.has_output` because there is not one.</span>
+<span class="sd">            Default is False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        ------</span>
+<span class="sd">        - Sets `mass_spec_obj.has_output` to [raw_data_obj.id].</span>
+<span class="sd">        - Sets `analysis_obj.has_output` to `processed_data_id_list`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">rerun</span><span class="p">:</span>
+            <span class="c1"># if it is not a rerun, set the mass spec object, otherwise there will not be a mass spec object</span>
+            <span class="n">mass_spec_obj</span><span class="o">.</span><span class="n">has_output</span> <span class="o">=</span> <span class="p">[</span><span class="n">raw_data_obj_id</span><span class="p">]</span>
+        <span class="n">analysis_obj</span><span class="o">.</span><span class="n">has_input</span> <span class="o">=</span> <span class="n">parameter_data_id</span>
+        <span class="n">analysis_obj</span><span class="o">.</span><span class="n">has_output</span> <span class="o">=</span> <span class="n">processed_data_id_list</span></div>
+
+
+<div class="viewcode-block" id="NMDCWorkflowMetadataGenerator.dump_nmdc_database">
+<a class="viewcode-back" href="../../functions.html#src.metadata_generator.NMDCWorkflowMetadataGenerator.dump_nmdc_database">[docs]</a>
+    <span class="k">def</span> <span class="nf">dump_nmdc_database</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nmdc_database</span><span class="p">:</span> <span class="n">nmdc</span><span class="o">.</span><span class="n">Database</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Dump the NMDC database to a JSON file.</span>
+
+<span class="sd">        This method serializes the NMDC Database instance to a JSON file</span>
+<span class="sd">        at the specified path.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nmdc_database : nmdc.Database</span>
+<span class="sd">            The NMDC Database instance to dump.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+
+<span class="sd">        Side Effects</span>
+<span class="sd">        ------------</span>
+<span class="sd">        Writes the database content to the file specified by</span>
+<span class="sd">        `self.database_dump_json_path`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">dump_nmdc_database</span><span class="p">(</span><span class="n">nmdc_database</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">database_dump_json_path</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Database successfully dumped in </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">database_dump_json_path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="NMDCWorkflowMetadataGenerator.check_for_biosamples">
+<a class="viewcode-back" href="../../functions.html#src.metadata_generator.NMDCWorkflowMetadataGenerator.check_for_biosamples">[docs]</a>
+    <span class="k">def</span> <span class="nf">check_for_biosamples</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">metadata_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">nmdc_database_inst</span><span class="p">:</span> <span class="n">nmdc</span><span class="o">.</span><span class="n">Database</span><span class="p">,</span>
+        <span class="n">CLIENT_ID</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">CLIENT_SECRET</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method verifies the presence of the &#39;biosample_id&#39; in the provided metadata DataFrame. It will loop over each row to verify the presence of the &#39;biosample_id&#39;, giving the option for some rows to need generation and some to already exist.</span>
+<span class="sd">        If the &#39;biosample_id&#39; is missing, it checks for the presence of required columns to generate a new biosample_id using the NMDC API. If they are all there, the function calls the dynam_parse_biosample_metadata method from the MetadataParser class to create the JSON for the biosample.</span>
+<span class="sd">        If the required columns are missing and there is no biosample_id - it raises a ValueError.</span>
+<span class="sd">        After the biosample_id is generated,it updates the DataFrame row with the newly minted biosample_id and the NMDC database instance with the new biosample JSON.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        metadata_df : pd.DataFrame</span>
+<span class="sd">            the dataframe containing the metadata information.</span>
+<span class="sd">        nmdc_database_inst : nmdc.Database</span>
+<span class="sd">            The NMDC Database instance to add the biosample to if one needs to be generated.</span>
+<span class="sd">        CLIENT_ID : str</span>
+<span class="sd">            The client ID for the NMDC API. Used to mint a biosmaple id if one does not exist.</span>
+<span class="sd">        CLIENT_SECRET : str</span>
+<span class="sd">            The client secret for the NMDC API. Used to mint a biosmaple id if one does not exist.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the &#39;biosample.name&#39; column is missing and &#39;biosample_id&#39; is empty.</span>
+<span class="sd">            If any required columns for biosample generation are missing.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">MetadataParser</span><span class="p">()</span>
+        <span class="n">metadata_df</span><span class="p">[</span><span class="s2">&quot;biosample_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">metadata_df</span><span class="p">[</span><span class="s2">&quot;biosample_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;object&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;biosample.name&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">metadata_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="c1"># if biosample.name does not exists check if biosample_id is empty. biosample_id should not be empty if biosample.name does not exist</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">metadata_df</span><span class="p">[</span><span class="s2">&quot;biosample_id&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span>
+                <span class="n">metadata_df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;biosample_id&quot;</span><span class="p">])</span>
+            <span class="p">):</span>
+                <span class="k">return</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;biosample.name column is missing from the metadata file. Please provide biosample.name or biosample_id for each row. biosample.name is required to generate new biosample_id.&quot;</span>
+                <span class="p">)</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">metadata_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;biosample.name&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;biosample_id&quot;</span><span class="p">)):</span>
+                <span class="n">required_columns</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="s2">&quot;biosample.name&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;biosample.associated_studies&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;biosample.env_broad_scale&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;biosample.env_local_scale&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;biosample.env_medium&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="c1"># Check for the existence of all required columns</span>
+                <span class="n">missing_columns</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">required_columns</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">metadata_df</span><span class="o">.</span><span class="n">columns</span>
+                <span class="p">]</span>
+                <span class="k">if</span> <span class="n">missing_columns</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;The following required columns are missing from the DataFrame: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing_columns</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+                <span class="n">bio_api_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_bio_credentials</span><span class="p">(</span>
+                    <span class="n">config_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">minting_config_creds</span>
+                <span class="p">)</span>
+                <span class="c1"># Generate biosamples if no biosample_id in spreadsheet</span>
+                <span class="n">biosample_metadata</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">dynam_parse_biosample_metadata</span><span class="p">(</span>
+                    <span class="n">row</span><span class="o">=</span><span class="n">row</span><span class="p">,</span> <span class="n">bio_api_key</span><span class="o">=</span><span class="n">bio_api_key</span>
+                <span class="p">)</span>
+                <span class="n">biosample</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_biosample</span><span class="p">(</span>
+                    <span class="n">biosamp_metadata</span><span class="o">=</span><span class="n">biosample_metadata</span><span class="p">,</span>
+                    <span class="n">CLIENT_ID</span><span class="o">=</span><span class="n">CLIENT_ID</span><span class="p">,</span>
+                    <span class="n">CLIENT_SECRET</span><span class="o">=</span><span class="n">CLIENT_SECRET</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">biosample_id</span> <span class="o">=</span> <span class="n">biosample</span><span class="o">.</span><span class="n">id</span>
+                <span class="n">metadata_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                    <span class="n">metadata_df</span><span class="p">[</span><span class="s2">&quot;biosample.name&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;biosample.name&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;biosample_id&quot;</span><span class="p">,</span>
+                <span class="p">]</span> <span class="o">=</span> <span class="n">biosample_id</span>
+                <span class="n">nmdc_database_inst</span><span class="o">.</span><span class="n">biosample_set</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">biosample</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="NMDCWorkflowMetadataGenerator.check_doj_urls">
+<a class="viewcode-back" href="../../functions.html#src.metadata_generator.NMDCWorkflowMetadataGenerator.check_doj_urls">[docs]</a>
+    <span class="k">def</span> <span class="nf">check_doj_urls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">url_columns</span><span class="p">:</span> <span class="n">List</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if the URLs in the input list already exist in the database.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        metadata_df : pd.DataFrame</span>
+<span class="sd">            The DataFrame containing the metadata information.</span>
+<span class="sd">        url_columns : List</span>
+<span class="sd">            The list of columns in the DataFrame that contain URLs to check.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If any URL in the metadata DataFrame is invalid or inaccessible.</span>
+<span class="sd">        FileNotFoundError</span>
+<span class="sd">            If no files are found in the specified directory columns.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">urls</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">url_columns</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;directory&quot;</span> <span class="ow">in</span> <span class="n">col</span><span class="p">:</span>
+                <span class="c1"># if its a directory, we need to gather all the files in the directory</span>
+                <span class="n">file_data_paths</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="nb">list</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;**/*&quot;</span><span class="p">))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">metadata_df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+                <span class="p">]</span>
+                <span class="c1"># Add a check that the processed data directory is not empty</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">file_data_paths</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;No files found in </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">: &quot;</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">metadata_df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+                <span class="c1"># line to flatten the list of lists</span>
+                <span class="n">file_data_paths</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">file</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">file_data_paths</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">sublist</span>
+                <span class="p">]</span>
+
+                <span class="c1"># if it is a directory, we need to grab the directory from the metadata file path</span>
+                <span class="k">if</span> <span class="s2">&quot;process&quot;</span> <span class="ow">in</span> <span class="n">col</span><span class="p">:</span>
+                    <span class="n">urls</span> <span class="o">+=</span> <span class="p">[</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">process_data_url</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">file_data_paths</span>
+                    <span class="p">]</span>
+                <span class="k">elif</span> <span class="s2">&quot;raw&quot;</span> <span class="ow">in</span> <span class="n">col</span><span class="p">:</span>
+                    <span class="n">urls</span> <span class="o">+=</span> <span class="p">[</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">raw_data_url</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">file_data_paths</span>
+                    <span class="p">]</span>
+                <span class="c1"># check if the urls are valid</span>
+                <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">[</span>
+                    <span class="p">:</span><span class="mi">5</span>
+                <span class="p">]:</span>  <span class="c1"># Check up to 5 URLs, or fewer if the list is shorter</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;URL </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2"> is not accessible.&quot;</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;URL </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2"> is not accessible. Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># if its a file, we need to gather the file paths</span>
+                <span class="n">file_data_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">metadata_df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()]</span>
+                <span class="k">if</span> <span class="s2">&quot;process&quot;</span> <span class="ow">in</span> <span class="n">col</span><span class="p">:</span>
+                    <span class="n">urls</span> <span class="o">+=</span> <span class="p">[</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">process_data_url</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">file_data_paths</span>
+                    <span class="p">]</span>
+                <span class="k">elif</span> <span class="s2">&quot;raw&quot;</span> <span class="ow">in</span> <span class="n">col</span><span class="p">:</span>
+                    <span class="n">urls</span> <span class="o">+=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_data_url</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">file_data_paths</span><span class="p">]</span>
+                <span class="c1"># check if the urls are valid</span>
+                <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">[</span>
+                    <span class="p">:</span><span class="mi">5</span>
+                <span class="p">]:</span>  <span class="c1"># Check up to 5 URLs, or fewer if the list is shorter</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;URL </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2"> is not accessible.&quot;</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;URL </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2"> is not accessible. Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">doj_client</span> <span class="o">=</span> <span class="n">DataObjectSearch</span><span class="p">(</span><span class="n">env</span><span class="o">=</span><span class="n">ENV</span><span class="p">)</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="n">doj_client</span><span class="o">.</span><span class="n">get_batch_records</span><span class="p">(</span>
+            <span class="n">id_list</span><span class="o">=</span><span class="n">urls</span><span class="p">,</span> <span class="n">search_field</span><span class="o">=</span><span class="s2">&quot;url&quot;</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="s2">&quot;id&quot;</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">resp</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The following URLs already exist in the database: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="NMDCWorkflowMetadataGenerator.generate_biosample">
+<a class="viewcode-back" href="../../functions.html#src.metadata_generator.NMDCWorkflowMetadataGenerator.generate_biosample">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_biosample</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">biosamp_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">CLIENT_ID</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">CLIENT_SECRET</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">nmdc</span><span class="o">.</span><span class="n">Biosample</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Mint a biosample id from the given metadata and create a biosample instance.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        biosamp_metadata : dict</span>
+<span class="sd">            The metadata object containing biosample information.</span>
+<span class="sd">        CLIENT_ID : str</span>
+<span class="sd">            The client ID for the NMDC API.</span>
+<span class="sd">        CLIENT_SECRET : str</span>
+<span class="sd">            The client secret for the NMDC API.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        nmdc.Biosample</span>
+<span class="sd">            The generated biosample instance.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mint</span> <span class="o">=</span> <span class="n">Minter</span><span class="p">(</span><span class="n">env</span><span class="o">=</span><span class="n">ENV</span><span class="p">)</span>
+
+        <span class="c1"># If no biosample id in spreadsheet, mint biosample ids</span>
+        <span class="k">if</span> <span class="n">biosamp_metadata</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">biosamp_metadata</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mint</span><span class="o">.</span><span class="n">mint</span><span class="p">(</span>
+                <span class="n">nmdc_type</span><span class="o">=</span><span class="n">NmdcTypes</span><span class="o">.</span><span class="n">Biosample</span><span class="p">,</span>
+                <span class="n">client_id</span><span class="o">=</span><span class="n">CLIENT_ID</span><span class="p">,</span>
+                <span class="n">client_secret</span><span class="o">=</span><span class="n">CLIENT_SECRET</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Filter dictionary to remove any key/value pairs with None as the value</span>
+        <span class="n">biosamp_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clean_dict</span><span class="p">(</span><span class="n">biosamp_metadata</span><span class="p">)</span>
+
+        <span class="n">biosample_object</span> <span class="o">=</span> <span class="n">nmdc</span><span class="o">.</span><span class="n">Biosample</span><span class="p">(</span><span class="o">**</span><span class="n">biosamp_dict</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">biosample_object</span></div>
+
+
+<div class="viewcode-block" id="NMDCWorkflowMetadataGenerator.get_workflow_version">
+<a class="viewcode-back" href="../../functions.html#src.metadata_generator.NMDCWorkflowMetadataGenerator.get_workflow_version">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_workflow_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workflow_version_git_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the version of the workflow from the git repository.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        repo_link : str</span>
+<span class="sd">            The URL of the git repository containing the workflow version.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The version of the workflow.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">workflow_version_git_url</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+            <span class="c1"># Regular expression to find the current_version</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;current_version\s*=\s*([\d.]+)&quot;</span><span class="p">,</span> <span class="n">resp</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                <span class="n">current_version</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">current_version</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Failed to fetch the workflow version from the Git repository </span><span class="si">{</span><span class="n">workflow_version_git_url</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Olivia Hess.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
