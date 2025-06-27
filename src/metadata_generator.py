@@ -33,11 +33,13 @@ logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
+
 # TODO: Update script to for Sample Processing - has_input for MassSpectrometry will have to be changed to be a processed sample id - not biosample id
 class NMDCMetadataGenerator:
     """
     Generic base class for generating and validating NMDC metadata
     """
+
     def __init__(self):
         pass
 
@@ -81,7 +83,7 @@ class NMDCMetadataGenerator:
             )
 
         return client_id, client_secret
-    
+
     def start_nmdc_database(self) -> nmdc.Database:
         """
         Initialize and return a new NMDC Database instance.
@@ -145,7 +147,7 @@ class NMDCMetadataGenerator:
             )
 
         return BIO_API_KEY
-    
+
     def clean_dict(self, dict: Dict) -> Dict:
         """
         Clean the dictionary by removing keys with empty or None values.
@@ -241,7 +243,7 @@ class NMDCMetadataGenerator:
         data_object = nmdc.DataObject(**data_dict)
 
         return data_object
-    
+
     def dump_nmdc_database(self, nmdc_database: nmdc.Database, json_path: Path) -> None:
         """
         Dump the NMDC database to a JSON file.
@@ -291,6 +293,7 @@ class NMDCMetadataGenerator:
         """
         api_metadata = Metadata(env=ENV)
         api_metadata.validate_json(json_path)
+
 
 class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
     """

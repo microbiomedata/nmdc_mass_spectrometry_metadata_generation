@@ -142,9 +142,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             nmdc_database_inst.workflow_execution_set.append(nom_analysis)
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
-        self.validate_nmdc_database(
-            json_path=self.database_dump_json_path
-        )
+        self.validate_nmdc_database(json_path=self.database_dump_json_path)
 
     def run(self):
         """
@@ -247,9 +245,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             nmdc_database_inst.workflow_execution_set.append(nom_analysis)
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
-        self.validate_nmdc_database(
-            json_path=self.database_dump_json_path
-        )
+        self.validate_nmdc_database(json_path=self.database_dump_json_path)
 
     def get_calibration_id(
         self,
