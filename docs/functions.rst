@@ -21,6 +21,13 @@ Metadata Generator Base Class
    :undoc-members:
    :show-inheritance:
 
+Metadata Workflow Generator Base Class
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: src.metadata_generator.NMDCWorkflowMetadataGenerator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 LC/MS Metadata Generator Base Class
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: src.lcms_metadata_generator.LCMSMetadataGenerator
@@ -64,9 +71,16 @@ GC/MS Metabolomics Metadata Generator Subclass
    :undoc-members:
    :show-inheritance:
 
-NOM Metadata Generator Subclass
+Direct Infusion NOM Metadata Generator Subclass
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. autoclass:: src.nom_metadata_generator.NOMMetadataGenerator
+.. autoclass:: src.di_nom_metadata_generator.DINOMMetaDataGenerator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+LC NOM Metadata Generator Subclass
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: src.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator
    :members:
    :undoc-members:
    :show-inheritance:

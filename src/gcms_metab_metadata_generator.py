@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-from src.metadata_generator import NMDCMetadataGenerator
+from src.metadata_generator import NMDCWorkflowMetadataGenerator
 from tqdm import tqdm
 from pathlib import Path
 from datetime import datetime
 import logging
-from nmdc_api_utilities.metadata import Metadata
 import ast
 import pandas as pd
 from nmdc_api_utilities.data_object_search import DataObjectSearch
@@ -21,7 +20,7 @@ load_dotenv()
 ENV = os.getenv("NMDC_ENV", "prod")
 
 
-class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
+class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
     """
     A class for generating NMDC metadata objects related to GC/MS metabolomics data.
 
@@ -262,9 +261,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             nmdc_database_inst.workflow_execution_set.append(metab_analysis)
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
-        api_metadata = Metadata(env=ENV)
-        api_metadata.validate_json(self.database_dump_json_path)
-        logging.info("Metadata processing re run completed.")
+        self.validate_nmdc_database(json_path=self.database_dump_json_path)
 
     def run(self) -> None:
         """
@@ -427,8 +424,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCMetadataGenerator):
             nmdc_database_inst.workflow_execution_set.append(metab_analysis)
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
-        api_metadata = Metadata(env=ENV)
-        api_metadata.validate_json(self.database_dump_json_path)
+        self.validate_nmdc_database(json_path=self.database_dump_json_path)
         logging.info("Metadata processing completed.")
 
     def generate_calibration_id(

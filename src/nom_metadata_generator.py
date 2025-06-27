@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from src.metadata_generator import NMDCMetadataGenerator
+from src.metadata_generator import NMDCWorkflowMetadataGenerator
 from src.data_classes import NmdcTypes
 from tqdm import tqdm
 from pathlib import Path
@@ -7,7 +7,6 @@ from nmdc_api_utilities.data_object_search import DataObjectSearch
 from nmdc_api_utilities.calibration_search import CalibrationSearch
 from nmdc_api_utilities.workflow_execution_search import WorkflowExecutionSearch
 from nmdc_api_utilities.minter import Minter
-from nmdc_api_utilities.metadata import Metadata
 import nmdc_schema.nmdc as nmdc
 import hashlib
 import pandas as pd
@@ -23,7 +22,7 @@ load_dotenv()
 ENV = os.getenv("NMDC_ENV", "prod")
 
 
-class NOMMetadataGenerator(NMDCMetadataGenerator):
+class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
     """
     A class for generating NMDC metadata objects using provided metadata files and configuration
     for Natural Organic Matter (NOM) data.
@@ -143,8 +142,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             nmdc_database_inst.workflow_execution_set.append(nom_analysis)
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
-        api_metadata = Metadata(env=ENV)
-        api_metadata.validate_json(self.database_dump_json_path)
+        self.validate_nmdc_database(json_path=self.database_dump_json_path)
 
     def run(self):
         """
@@ -247,8 +245,7 @@ class NOMMetadataGenerator(NMDCMetadataGenerator):
             nmdc_database_inst.workflow_execution_set.append(nom_analysis)
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
-        api_metadata = Metadata(env=ENV)
-        api_metadata.validate_json(self.database_dump_json_path)
+        self.validate_nmdc_database(json_path=self.database_dump_json_path)
 
     def get_calibration_id(
         self,
