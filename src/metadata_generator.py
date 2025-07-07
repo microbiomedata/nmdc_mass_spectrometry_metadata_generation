@@ -313,6 +313,84 @@ class NMDCMetadataGenerator:
         mass_spectrometry_config = nmdc.MassSpectrometryConfiguration(**data_dict)
         return mass_spectrometry_config
 
+    def generate_portion_of_substance(
+        self,
+        substance_name: str,
+        volume_value: float | None = None,
+        volume_unit: str | None = None,
+        final_concentration_value: float | None = None,
+        source_concentration_value: float | None = None,
+        concentration_unit: str | None = None,
+        mass_value: float | None = None,
+        mass_unit: str | None = None,
+        substance_role: str | None = None,
+    ):
+        """
+        Create an NMDC PortionOfSubstance object with the provided metadata.
+
+        This method generates an NMDC PortionOfSubstance object, populated with the
+        specified metadata.
+
+        Parameters
+        ----------
+        substance_name : str
+            The name of the substance.
+        volume_value : float, optional
+            The volume of the substance.
+        volume_unit : str, optional
+            The unit of measurement for the volume.
+        final_concentration_value : float, optional
+            The final concentration of the substance.
+        source_concentration_value : float, optional
+            The source concentration of the substance.
+        concentration_unit : str, optional
+            The unit of measurement for the concentrations (both final and source).
+        mass_value : float, optional
+            The mass of the substance.
+        mass_unit : str, optional
+            The unit of measurement for the mass.
+        substance_role : str, optional
+            The role of the substance in the experiment.
+        """
+        data_dict = {
+            "known_as": substance_name,
+            "type": NmdcTypes.PortionOfSubstance,
+        }
+
+        if volume_value is not None and volume_unit is not None:
+            data_dict["volume"] = nmdc.QuantityValue(
+                type=NmdcTypes.QuantityValue,
+                has_numeric_value=volume_value,
+                has_unit=volume_unit,
+            )
+
+        if final_concentration_value is not None and concentration_unit is not None:
+            data_dict["final_concentration"] = nmdc.QuantityValue(
+                type=NmdcTypes.QuantityValue,
+                has_numeric_value=final_concentration_value,
+                has_unit=concentration_unit,
+            )
+
+        if source_concentration_value is not None and concentration_unit is not None:
+            data_dict["source_concentration"] = nmdc.QuantityValue(
+                type=NmdcTypes.QuantityValue,
+                has_numeric_value=source_concentration_value,
+                has_unit=concentration_unit,
+            )
+
+        if mass_value is not None and mass_unit is not None:
+            data_dict["mass"] = nmdc.QuantityValue(
+                type=NmdcTypes.QuantityValue,
+                has_numeric_value=mass_value,
+                has_unit=mass_unit,
+            )
+
+        if substance_role is not None:
+            data_dict["substance_role"] = substance_role
+
+        portion_of_substance = nmdc.PortionOfSubstance(**data_dict)
+        return portion_of_substance
+
     def dump_nmdc_database(self, nmdc_database: nmdc.Database, json_path: Path) -> None:
         """
         Dump the NMDC database to a JSON file.

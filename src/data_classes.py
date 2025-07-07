@@ -58,6 +58,7 @@ class NmdcTypes:
     TimeStampValue: str = "nmdc:TimestampValue"
     QuantityValue: str = "nmdc:QuantityValue"
     MassSpectrometryConfiguration: str = "nmdc:MassSpectrometryConfiguration"
+    PortionOfSubstance: str = "nmdc:PortionOfSubstance"
 
 
 @dataclass
