@@ -244,6 +244,75 @@ class NMDCMetadataGenerator:
 
         return data_object
 
+    def generate_mass_spectrometry_configuration(
+        self,
+        mass_spectrometry_acquisition_strategy: str,
+        resolution_categories: List[str],
+        mass_analyzers: List[str],
+        ionization_source: str,
+        mass_spectrum_collection_modes: List[str],
+        polarity_mode: str,
+        name: str,
+        description: str,
+        CLIENT_ID: str,
+        CLIENT_SECRET: str,
+    ) -> nmdc.MassSpectrometryConfiguration:
+        """
+        Create an NMDC MassSpectrometryConfiguration object with the provided metadata.
+
+        This method generates an NMDC MassSpectrometryConfiguration object,
+        populated with the specified metadata.
+
+        Parameters
+        ----------
+        mass_spectrometry_acquisition_strategy : str
+            The acquisition strategy used for mass spectrometry.
+        resolution_categories : List[str]
+            The resolution categories applicable to the mass spectrometry data.
+        mass_analyzers : List[str]
+            The mass analyzers used in the experiment.
+        ionization_source : str
+            The ionization source employed for the mass spectrometry analysis.
+        mass_spectrum_collection_modes : List[str]
+            The collection modes used for acquiring mass spectra.
+        polarity_mode : str
+            The polarity mode used in the mass spectrometry analysis.
+        name : str
+            The name of the mass spectrometry configuration.
+        description : str
+            A description of the mass spectrometry configuration.
+        CLIENT_ID : str
+            The client ID for the NMDC API.
+        CLIENT_SECRET : str
+            The client secret for the NMDC API.
+
+        Returns
+        -------
+        nmdc.MassSpectrometryConfiguration
+            An NMDC MassSpectrometryConfiguration object with the specified metadata.
+        """
+        mint = Minter(env=ENV)
+        nmdc_id = mint.mint(
+            nmdc_type=NmdcTypes.MassSpectrometryConfiguration,
+            client_id=CLIENT_ID,
+            client_secret=CLIENT_SECRET,
+        )
+        data_dict = {
+            "id": nmdc_id,
+            "name": name,
+            "description": description,
+            "mass_spectrometry_acquisition_strategy": mass_spectrometry_acquisition_strategy,
+            "resolution_categories": resolution_categories,
+            "mass_analyzers": mass_analyzers,
+            "ionization_source": ionization_source,
+            "mass_spectrum_collection_modes": mass_spectrum_collection_modes,
+            "polarity_mode": polarity_mode,
+            "type": NmdcTypes.MassSpectrometryConfiguration,
+        }
+
+        mass_spectrometry_config = nmdc.MassSpectrometryConfiguration(**data_dict)
+        return mass_spectrometry_config
+
     def dump_nmdc_database(self, nmdc_database: nmdc.Database, json_path: Path) -> None:
         """
         Dump the NMDC database to a JSON file.
