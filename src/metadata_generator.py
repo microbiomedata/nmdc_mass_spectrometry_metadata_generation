@@ -456,14 +456,14 @@ class NMDCMetadataGenerator:
             A description of the chromatography configuration.
         chromatographic_category : str
             The category of chromatography (e.g., 'liquid_chromatography').
-        ordered_mobile_phases : List[nmdc.MobilePhaseSegment]
-            A list of mobile phase segments used in the chromatography.
         stationary_phase : str
             The stationary phase used in the chromatography (e.g., 'C18').
         CLIENT_ID : str
             The client ID for the NMDC API.
         CLIENT_SECRET : str
             The client secret for the NMDC API.
+        ordered_mobile_phases : List[nmdc.MobilePhaseSegment]
+            A list of mobile phase segments used in the chromatography.
         temperature_value : float, optional
             The temperature at which the chromatography is performed.
         temperature_unit : str, optional

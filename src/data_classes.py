@@ -41,6 +41,12 @@ class NmdcTypes:
         NMDC type for Quantity Value.
     MassSpectrometryConfiguration : str
         NMDC type for Mass Spectrometry Configuration.
+    PortionOfSubstance : str
+        NMDC type for Portion of Substance.
+    MobilePhaseSegment : str
+        NMDC type for Mobile Phase Segment.
+    ChromatographyConfiguration : str
+        NMDC type for Chromatography Configuration.
 
     """
 
