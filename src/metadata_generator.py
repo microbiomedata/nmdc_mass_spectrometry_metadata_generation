@@ -391,6 +391,45 @@ class NMDCMetadataGenerator:
         portion_of_substance = nmdc.PortionOfSubstance(**data_dict)
         return portion_of_substance
 
+    def generate_mobile_phase_segment(
+        self,
+        duration_value: float | None = None,
+        duration_unit: str | None = None,
+        substances_used: List[nmdc.PortionOfSubstance] | None = None,
+    ) -> nmdc.MobilePhaseSegment:
+        """
+        Generate an NMDC MobilePhaseSegment object with the provided metadata.
+
+        This method creates an NMDC MobilePhaseSegment object, populated with the
+        specified metadata.
+
+        Parameters
+        ----------
+        duration_value : float, optional
+            The duration of the mobile phase segment.
+        duration_unit : str, optional
+            The unit of measurement for the duration.
+        substances_used : List[nmdc.PortionOfSubstance], optional
+            A list of PortionOfSubstance objects used in the mobile phase segment.
+
+        Returns
+        -------
+        nmdc.MobilePhaseSegment
+            The generated NMDC MobilePhaseSegment object.
+        """
+        mobile_phase_segment = nmdc.MobilePhaseSegment(
+            type=NmdcTypes.MobilePhaseSegment
+        )
+        if duration_value is not None and duration_unit is not None:
+            mobile_phase_segment.duration = nmdc.QuantityValue(
+                type=NmdcTypes.QuantityValue,
+                has_numeric_value=duration_value,
+                has_unit=duration_unit,
+            )
+        if substances_used is not None:
+            mobile_phase_segment.uses_substance = substances_used
+        return mobile_phase_segment
+
     def dump_nmdc_database(self, nmdc_database: nmdc.Database, json_path: Path) -> None:
         """
         Dump the NMDC database to a JSON file.

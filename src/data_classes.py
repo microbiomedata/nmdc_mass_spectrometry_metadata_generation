@@ -59,6 +59,7 @@ class NmdcTypes:
     QuantityValue: str = "nmdc:QuantityValue"
     MassSpectrometryConfiguration: str = "nmdc:MassSpectrometryConfiguration"
     PortionOfSubstance: str = "nmdc:PortionOfSubstance"
+    MobilePhaseSegment: str = "nmdc:MobilePhaseSegment"
 
 
 @dataclass
