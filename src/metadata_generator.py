@@ -427,8 +427,78 @@ class NMDCMetadataGenerator:
                 has_unit=duration_unit,
             )
         if substances_used is not None:
-            mobile_phase_segment.uses_substance = substances_used
+            mobile_phase_segment.substances_used = substances_used
         return mobile_phase_segment
+
+    def generate_chromatography_configuration(
+        self,
+        name: str,
+        description: str,
+        chromatographic_category: str,
+        stationary_phase: str,
+        CLIENT_ID: str,
+        CLIENT_SECRET: str,
+        ordered_mobile_phases: List[nmdc.MobilePhaseSegment] | None = None,
+        temperature_value: float | None = None,
+        temperature_unit: str | None = None,
+    ) -> nmdc.ChromatographyConfiguration:
+        """
+        Create an NMDC ChromatographyConfiguration object with the provided metadata.
+
+        This method generates an NMDC ChromatographyConfiguration object,
+        populated with the specified metadata.
+
+        Parameters
+        ----------
+        name : str
+            The name of the chromatography configuration.
+        description : str
+            A description of the chromatography configuration.
+        chromatographic_category : str
+            The category of chromatography (e.g., 'liquid_chromatography').
+        ordered_mobile_phases : List[nmdc.MobilePhaseSegment]
+            A list of mobile phase segments used in the chromatography.
+        stationary_phase : str
+            The stationary phase used in the chromatography (e.g., 'C18').
+        CLIENT_ID : str
+            The client ID for the NMDC API.
+        CLIENT_SECRET : str
+            The client secret for the NMDC API.
+        temperature_value : float, optional
+            The temperature at which the chromatography is performed.
+        temperature_unit : str, optional
+            The unit of measurement for the temperature (e.g., 'Cel')
+
+        Returns
+        -------
+        nmdc.ChromatographyConfiguration
+            An NMDC ChromatographyConfiguration object with the specified metadata.
+        """
+        mint = Minter(env=ENV)
+        nmdc_id = mint.mint(
+            nmdc_type=NmdcTypes.ChromatographyConfiguration,
+            client_id=CLIENT_ID,
+            client_secret=CLIENT_SECRET,
+        )
+        data_dict = {
+            "id": nmdc_id,
+            "name": name,
+            "description": description,
+            "chromatographic_category": chromatographic_category,
+            "ordered_mobile_phases": ordered_mobile_phases,
+            "stationary_phase": stationary_phase,
+            "type": NmdcTypes.ChromatographyConfiguration,
+        }
+
+        if temperature_value is not None and temperature_unit is not None:
+            data_dict["temperature"] = nmdc.QuantityValue(
+                type=NmdcTypes.QuantityValue,
+                has_numeric_value=temperature_value,
+                has_unit=temperature_unit,
+            )
+
+        chromatography_config = nmdc.ChromatographyConfiguration(**data_dict)
+        return chromatography_config
 
     def dump_nmdc_database(self, nmdc_database: nmdc.Database, json_path: Path) -> None:
         """

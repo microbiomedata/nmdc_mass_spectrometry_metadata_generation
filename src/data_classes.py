@@ -60,6 +60,7 @@ class NmdcTypes:
     MassSpectrometryConfiguration: str = "nmdc:MassSpectrometryConfiguration"
     PortionOfSubstance: str = "nmdc:PortionOfSubstance"
     MobilePhaseSegment: str = "nmdc:MobilePhaseSegment"
+    ChromatographyConfiguration: str = "nmdc:ChromatographyConfiguration"
 
 
 @dataclass
