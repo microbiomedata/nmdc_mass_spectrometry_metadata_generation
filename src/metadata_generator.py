@@ -244,6 +244,262 @@ class NMDCMetadataGenerator:
 
         return data_object
 
+    def generate_mass_spectrometry_configuration(
+        self,
+        mass_spectrometry_acquisition_strategy: str,
+        resolution_categories: List[str],
+        mass_analyzers: List[str],
+        ionization_source: str,
+        mass_spectrum_collection_modes: List[str],
+        polarity_mode: str,
+        name: str,
+        description: str,
+        CLIENT_ID: str,
+        CLIENT_SECRET: str,
+    ) -> nmdc.MassSpectrometryConfiguration:
+        """
+        Create an NMDC MassSpectrometryConfiguration object with the provided metadata.
+
+        This method generates an NMDC MassSpectrometryConfiguration object,
+        populated with the specified metadata.
+
+        Parameters
+        ----------
+        mass_spectrometry_acquisition_strategy : str
+            The acquisition strategy used for mass spectrometry.
+        resolution_categories : List[str]
+            The resolution categories applicable to the mass spectrometry data.
+        mass_analyzers : List[str]
+            The mass analyzers used in the experiment.
+        ionization_source : str
+            The ionization source employed for the mass spectrometry analysis.
+        mass_spectrum_collection_modes : List[str]
+            The collection modes used for acquiring mass spectra.
+        polarity_mode : str
+            The polarity mode used in the mass spectrometry analysis.
+        name : str
+            The name of the mass spectrometry configuration.
+        description : str
+            A description of the mass spectrometry configuration.
+        CLIENT_ID : str
+            The client ID for the NMDC API.
+        CLIENT_SECRET : str
+            The client secret for the NMDC API.
+
+        Returns
+        -------
+        nmdc.MassSpectrometryConfiguration
+            An NMDC MassSpectrometryConfiguration object with the specified metadata.
+        """
+        mint = Minter(env=ENV)
+        nmdc_id = mint.mint(
+            nmdc_type=NmdcTypes.MassSpectrometryConfiguration,
+            client_id=CLIENT_ID,
+            client_secret=CLIENT_SECRET,
+        )
+        data_dict = {
+            "id": nmdc_id,
+            "name": name,
+            "description": description,
+            "mass_spectrometry_acquisition_strategy": mass_spectrometry_acquisition_strategy,
+            "resolution_categories": resolution_categories,
+            "mass_analyzers": mass_analyzers,
+            "ionization_source": ionization_source,
+            "mass_spectrum_collection_modes": mass_spectrum_collection_modes,
+            "polarity_mode": polarity_mode,
+            "type": NmdcTypes.MassSpectrometryConfiguration,
+        }
+
+        mass_spectrometry_config = nmdc.MassSpectrometryConfiguration(**data_dict)
+        return mass_spectrometry_config
+
+    def generate_portion_of_substance(
+        self,
+        substance_name: str,
+        volume_value: float | None = None,
+        volume_unit: str | None = None,
+        final_concentration_value: float | None = None,
+        source_concentration_value: float | None = None,
+        concentration_unit: str | None = None,
+        mass_value: float | None = None,
+        mass_unit: str | None = None,
+        substance_role: str | None = None,
+    ) -> nmdc.PortionOfSubstance:
+        """
+        Create an NMDC PortionOfSubstance object with the provided metadata.
+
+        This method generates an NMDC PortionOfSubstance object, populated with the
+        specified metadata.
+
+        Parameters
+        ----------
+        substance_name : str
+            The name of the substance.
+        volume_value : float, optional
+            The volume of the substance.
+        volume_unit : str, optional
+            The unit of measurement for the volume.
+        final_concentration_value : float, optional
+            The final concentration of the substance.
+        source_concentration_value : float, optional
+            The source concentration of the substance.
+        concentration_unit : str, optional
+            The unit of measurement for the concentrations (both final and source).
+        mass_value : float, optional
+            The mass of the substance.
+        mass_unit : str, optional
+            The unit of measurement for the mass.
+        substance_role : str, optional
+            The role of the substance in the experiment.
+        """
+        data_dict = {
+            "known_as": substance_name,
+            "type": NmdcTypes.PortionOfSubstance,
+        }
+
+        if volume_value and volume_unit:
+            data_dict["volume"] = nmdc.QuantityValue(
+                type=NmdcTypes.QuantityValue,
+                has_numeric_value=volume_value,
+                has_unit=volume_unit,
+            )
+
+        if final_concentration_value and concentration_unit:
+            data_dict["final_concentration"] = nmdc.QuantityValue(
+                type=NmdcTypes.QuantityValue,
+                has_numeric_value=final_concentration_value,
+                has_unit=concentration_unit,
+            )
+
+        if source_concentration_value and concentration_unit:
+            data_dict["source_concentration"] = nmdc.QuantityValue(
+                type=NmdcTypes.QuantityValue,
+                has_numeric_value=source_concentration_value,
+                has_unit=concentration_unit,
+            )
+
+        if mass_value and mass_unit:
+            data_dict["mass"] = nmdc.QuantityValue(
+                type=NmdcTypes.QuantityValue,
+                has_numeric_value=mass_value,
+                has_unit=mass_unit,
+            )
+
+        if substance_role:
+            data_dict["substance_role"] = substance_role
+
+        portion_of_substance = nmdc.PortionOfSubstance(**data_dict)
+        return portion_of_substance
+
+    def generate_mobile_phase_segment(
+        self,
+        duration_value: float | None = None,
+        duration_unit: str | None = None,
+        substances_used: List[nmdc.PortionOfSubstance] | None = None,
+    ) -> nmdc.MobilePhaseSegment:
+        """
+        Generate an NMDC MobilePhaseSegment object with the provided metadata.
+
+        This method creates an NMDC MobilePhaseSegment object, populated with the
+        specified metadata.
+
+        Parameters
+        ----------
+        duration_value : float, optional
+            The duration of the mobile phase segment.
+        duration_unit : str, optional
+            The unit of measurement for the duration.
+        substances_used : List[nmdc.PortionOfSubstance], optional
+            A list of PortionOfSubstance objects used in the mobile phase segment.
+
+        Returns
+        -------
+        nmdc.MobilePhaseSegment
+            The generated NMDC MobilePhaseSegment object.
+        """
+        mobile_phase_segment = nmdc.MobilePhaseSegment(
+            type=NmdcTypes.MobilePhaseSegment
+        )
+        if duration_value and duration_unit:
+            mobile_phase_segment.duration = nmdc.QuantityValue(
+                type=NmdcTypes.QuantityValue,
+                has_numeric_value=duration_value,
+                has_unit=duration_unit,
+            )
+        if substances_used:
+            mobile_phase_segment.substances_used = substances_used
+        return mobile_phase_segment
+
+    def generate_chromatography_configuration(
+        self,
+        name: str,
+        description: str,
+        chromatographic_category: str,
+        stationary_phase: str,
+        CLIENT_ID: str,
+        CLIENT_SECRET: str,
+        ordered_mobile_phases: List[nmdc.MobilePhaseSegment] | None = None,
+        temperature_value: float | None = None,
+        temperature_unit: str | None = None,
+    ) -> nmdc.ChromatographyConfiguration:
+        """
+        Create an NMDC ChromatographyConfiguration object with the provided metadata.
+
+        This method generates an NMDC ChromatographyConfiguration object,
+        populated with the specified metadata.
+
+        Parameters
+        ----------
+        name : str
+            The name of the chromatography configuration.
+        description : str
+            A description of the chromatography configuration.
+        chromatographic_category : str
+            The category of chromatography (e.g., 'liquid_chromatography').
+        stationary_phase : str
+            The stationary phase used in the chromatography (e.g., 'C18').
+        CLIENT_ID : str
+            The client ID for the NMDC API.
+        CLIENT_SECRET : str
+            The client secret for the NMDC API.
+        ordered_mobile_phases : List[nmdc.MobilePhaseSegment]
+            A list of mobile phase segments used in the chromatography.
+        temperature_value : float, optional
+            The temperature at which the chromatography is performed.
+        temperature_unit : str, optional
+            The unit of measurement for the temperature (e.g., 'Cel')
+
+        Returns
+        -------
+        nmdc.ChromatographyConfiguration
+            An NMDC ChromatographyConfiguration object with the specified metadata.
+        """
+        mint = Minter(env=ENV)
+        nmdc_id = mint.mint(
+            nmdc_type=NmdcTypes.ChromatographyConfiguration,
+            client_id=CLIENT_ID,
+            client_secret=CLIENT_SECRET,
+        )
+        data_dict = {
+            "id": nmdc_id,
+            "name": name,
+            "description": description,
+            "chromatographic_category": chromatographic_category,
+            "ordered_mobile_phases": ordered_mobile_phases,
+            "stationary_phase": stationary_phase,
+            "type": NmdcTypes.ChromatographyConfiguration,
+        }
+
+        if temperature_value and temperature_unit:
+            data_dict["temperature"] = nmdc.QuantityValue(
+                type=NmdcTypes.QuantityValue,
+                has_numeric_value=temperature_value,
+                has_unit=temperature_unit,
+            )
+
+        chromatography_config = nmdc.ChromatographyConfiguration(**data_dict)
+        return chromatography_config
+
     def dump_nmdc_database(self, nmdc_database: nmdc.Database, json_path: Path) -> None:
         """
         Dump the NMDC database to a JSON file.

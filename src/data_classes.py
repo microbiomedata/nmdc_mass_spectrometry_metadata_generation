@@ -39,6 +39,14 @@ class NmdcTypes:
         NMDC type for Timestamp Value.
     QuantityValue : str
         NMDC type for Quantity Value.
+    MassSpectrometryConfiguration : str
+        NMDC type for Mass Spectrometry Configuration.
+    PortionOfSubstance : str
+        NMDC type for Portion of Substance.
+    MobilePhaseSegment : str
+        NMDC type for Mobile Phase Segment.
+    ChromatographyConfiguration : str
+        NMDC type for Chromatography Configuration.
 
     """
 
@@ -55,6 +63,10 @@ class NmdcTypes:
     GeolocationValue: str = "nmdc:GeolocationValue"
     TimeStampValue: str = "nmdc:TimestampValue"
     QuantityValue: str = "nmdc:QuantityValue"
+    MassSpectrometryConfiguration: str = "nmdc:MassSpectrometryConfiguration"
+    PortionOfSubstance: str = "nmdc:PortionOfSubstance"
+    MobilePhaseSegment: str = "nmdc:MobilePhaseSegment"
+    ChromatographyConfiguration: str = "nmdc:ChromatographyConfiguration"
 
 
 @dataclass
