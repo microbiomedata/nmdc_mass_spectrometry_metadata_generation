@@ -324,7 +324,7 @@ class NMDCMetadataGenerator:
         mass_value: float | None = None,
         mass_unit: str | None = None,
         substance_role: str | None = None,
-    ):
+    ) -> nmdc.PortionOfSubstance:
         """
         Create an NMDC PortionOfSubstance object with the provided metadata.
 
@@ -357,35 +357,35 @@ class NMDCMetadataGenerator:
             "type": NmdcTypes.PortionOfSubstance,
         }
 
-        if volume_value is not None and volume_unit is not None:
+        if volume_value and volume_unit:
             data_dict["volume"] = nmdc.QuantityValue(
                 type=NmdcTypes.QuantityValue,
                 has_numeric_value=volume_value,
                 has_unit=volume_unit,
             )
 
-        if final_concentration_value is not None and concentration_unit is not None:
+        if final_concentration_value and concentration_unit:
             data_dict["final_concentration"] = nmdc.QuantityValue(
                 type=NmdcTypes.QuantityValue,
                 has_numeric_value=final_concentration_value,
                 has_unit=concentration_unit,
             )
 
-        if source_concentration_value is not None and concentration_unit is not None:
+        if source_concentration_value and concentration_unit:
             data_dict["source_concentration"] = nmdc.QuantityValue(
                 type=NmdcTypes.QuantityValue,
                 has_numeric_value=source_concentration_value,
                 has_unit=concentration_unit,
             )
 
-        if mass_value is not None and mass_unit is not None:
+        if mass_value and mass_unit:
             data_dict["mass"] = nmdc.QuantityValue(
                 type=NmdcTypes.QuantityValue,
                 has_numeric_value=mass_value,
                 has_unit=mass_unit,
             )
 
-        if substance_role is not None:
+        if substance_role:
             data_dict["substance_role"] = substance_role
 
         portion_of_substance = nmdc.PortionOfSubstance(**data_dict)
@@ -420,13 +420,13 @@ class NMDCMetadataGenerator:
         mobile_phase_segment = nmdc.MobilePhaseSegment(
             type=NmdcTypes.MobilePhaseSegment
         )
-        if duration_value is not None and duration_unit is not None:
+        if duration_value and duration_unit:
             mobile_phase_segment.duration = nmdc.QuantityValue(
                 type=NmdcTypes.QuantityValue,
                 has_numeric_value=duration_value,
                 has_unit=duration_unit,
             )
-        if substances_used is not None:
+        if substances_used:
             mobile_phase_segment.substances_used = substances_used
         return mobile_phase_segment
 
@@ -490,7 +490,7 @@ class NMDCMetadataGenerator:
             "type": NmdcTypes.ChromatographyConfiguration,
         }
 
-        if temperature_value is not None and temperature_unit is not None:
+        if temperature_value and temperature_unit:
             data_dict["temperature"] = nmdc.QuantityValue(
                 type=NmdcTypes.QuantityValue,
                 has_numeric_value=temperature_value,
