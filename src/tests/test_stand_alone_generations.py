@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # This script will serve as a test for the generation of `MassSpectrometryConfiguration` and `ChromatographyConfiguration` records
-import datetime
+from datetime import datetime
 from src.metadata_generator import NMDCMetadataGenerator
 from dotenv import load_dotenv
 
