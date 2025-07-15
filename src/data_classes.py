@@ -100,6 +100,12 @@ class GCMSMetabWorkflowMetadata:
         Identifier for the execution resource.
     calibration_id : str
         Identifier for the calibration information used.
+    raw_data_url : str, optional
+        Complete URL for the raw data file. If provided, this takes precedence
+        over constructing the URL from base_url + filename.
+    processed_data_url : str, optional
+        Complete URL for the processed data file. If provided, this takes precedence
+        over constructing the URL from base_url + filename.
 
     """
 
@@ -115,6 +121,8 @@ class GCMSMetabWorkflowMetadata:
     instrument_analysis_end_date: str
     execution_resource: float
     calibration_id: str
+    raw_data_url: str = None
+    processed_data_url: str = None
 
 
 @dataclass
@@ -140,6 +148,12 @@ class LCMSLipidWorkflowMetadata:
         End date of the instrument analysis.
     execution_resource : float
         Identifier for the execution resource.
+    raw_data_url : str, optional
+        Complete URL for the raw data file. If provided, this takes precedence
+        over constructing the URL from base_url + filename.
+    processed_data_url : str, optional
+        Complete URL for the processed data directory. If provided, this takes precedence
+        over constructing the URL from base_url + filename.
 
     """
 
@@ -148,6 +162,11 @@ class LCMSLipidWorkflowMetadata:
     mass_spec_config_name: str
     lc_config_name: str
     instrument_used: str
+    instrument_analysis_start_date: str
+    instrument_analysis_end_date: str
+    execution_resource: float
+    raw_data_url: str = None
+    processed_data_url: str = None
     instrument_analysis_start_date: str
     instrument_analysis_end_date: str
     execution_resource: float

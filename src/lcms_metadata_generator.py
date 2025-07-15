@@ -121,6 +121,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
                 was_generated_by=mass_spec.id,
+                url=workflow_metadata.raw_data_url,
             )
 
             metab_analysis = self.generate_metabolomics_analysis(
@@ -516,4 +517,6 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             instrument_analysis_start_date=row["instrument_analysis_start_date"],
             instrument_analysis_end_date=row["instrument_analysis_end_date"],
             execution_resource=row["execution_resource"],
+            raw_data_url=row.get("raw_data_url"),
+            processed_data_url=row.get("processed_data_url"),
         )
