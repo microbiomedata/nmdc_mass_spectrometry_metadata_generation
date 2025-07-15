@@ -518,5 +518,4 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             instrument_analysis_end_date=row["instrument_analysis_end_date"],
             execution_resource=row["execution_resource"],
             raw_data_url=row.get("raw_data_url"),
-            processed_data_url=row.get("processed_data_url"),
         )

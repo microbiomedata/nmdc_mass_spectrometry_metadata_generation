@@ -226,7 +226,6 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
                 was_generated_by=metab_analysis_id,
-                url=data.get("processed_data_url"),
             )
             # need to generate a new metabolomics analysis object with the newly incremented id
             metab_analysis = self.generate_metabolomics_analysis(
@@ -401,7 +400,6 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
                 was_generated_by=metab_analysis.id,
-                url=workflow_metadata_obj.processed_data_url,
             )
 
             # Update MetabolomicsAnalysis times based on processed data file
@@ -593,7 +591,6 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             execution_resource=row["execution_resource"],
             calibration_id=row["calibration_id"],
             raw_data_url=row.get("raw_data_url"),
-            processed_data_url=row.get("processed_data_url"),
         )
 
     def generate_metab_identifications(

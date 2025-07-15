@@ -1055,9 +1055,9 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         """
         urls = []
         for col in url_columns:
-            # Check if this is a URL column (contains complete URLs)
-            if col.endswith("_url"):
-                # For URL columns, use the URLs directly
+            # Check if this is a raw data URL column (only handle raw data URLs)
+            if col == "raw_data_url":
+                # For raw data URL column, use the URLs directly
                 column_urls = metadata_df[col].dropna().tolist()
                 urls.extend(column_urls)
                 # Check if the urls are valid

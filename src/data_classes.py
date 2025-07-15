@@ -103,9 +103,6 @@ class GCMSMetabWorkflowMetadata:
     raw_data_url : str, optional
         Complete URL for the raw data file. If provided, this takes precedence
         over constructing the URL from base_url + filename.
-    processed_data_url : str, optional
-        Complete URL for the processed data file. If provided, this takes precedence
-        over constructing the URL from base_url + filename.
 
     """
 
@@ -122,7 +119,6 @@ class GCMSMetabWorkflowMetadata:
     execution_resource: float
     calibration_id: str
     raw_data_url: str = None
-    processed_data_url: str = None
 
 
 @dataclass
@@ -151,9 +147,6 @@ class LCMSLipidWorkflowMetadata:
     raw_data_url : str, optional
         Complete URL for the raw data file. If provided, this takes precedence
         over constructing the URL from base_url + filename.
-    processed_data_url : str, optional
-        Complete URL for the processed data directory. If provided, this takes precedence
-        over constructing the URL from base_url + filename.
 
     """
 
@@ -166,7 +159,3 @@ class LCMSLipidWorkflowMetadata:
     instrument_analysis_end_date: str
     execution_resource: float
     raw_data_url: str = None
-    processed_data_url: str = None
-    instrument_analysis_start_date: str
-    instrument_analysis_end_date: str
-    execution_resource: float

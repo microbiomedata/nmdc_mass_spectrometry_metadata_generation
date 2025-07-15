@@ -35,12 +35,11 @@ def test_data_classes_accept_url_fields():
         instrument_analysis_end_date="2023-01-01",
         execution_resource="test_resource",
         calibration_id="test_calibration",
-        raw_data_url="https://example.com/raw/test.raw",
-        processed_data_url="https://example.com/processed/test.csv"
+        raw_data_url="https://example.com/raw/test.raw"
     )
     
     assert gcms_metadata.raw_data_url == "https://example.com/raw/test.raw"
-    assert gcms_metadata.processed_data_url == "https://example.com/processed/test.csv"
+    assert not hasattr(gcms_metadata, 'processed_data_url')
     
     # Test LCMS metadata with URL fields
     lcms_metadata = LCMSLipidWorkflowMetadata(
@@ -52,12 +51,11 @@ def test_data_classes_accept_url_fields():
         instrument_analysis_start_date="2023-01-01",
         instrument_analysis_end_date="2023-01-01",
         execution_resource="test_resource",
-        raw_data_url="https://example.com/raw/test.raw",
-        processed_data_url="https://example.com/processed/test_dir"
+        raw_data_url="https://example.com/raw/test.raw"
     )
     
     assert lcms_metadata.raw_data_url == "https://example.com/raw/test.raw"
-    assert lcms_metadata.processed_data_url == "https://example.com/processed/test_dir"
+    assert not hasattr(lcms_metadata, 'processed_data_url')
 
 
 def test_workflow_metadata_creation_with_urls():
@@ -65,8 +63,8 @@ def test_workflow_metadata_creation_with_urls():
     
     # Create a temporary metadata file
     with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as temp_file:
-        temp_file.write("""biosample_id,biosample.associated_studies,material_processing_type,raw_data_file,processed_data_file,mass_spec_configuration_name,chromat_configuration_name,instrument_used,processing_institution,instrument_analysis_start_date,instrument_analysis_end_date,execution_resource,calibration_id,raw_data_url,processed_data_url
-nmdc:bsm-11-002vgm56,['nmdc:sty-11-34xj1150'],MPLEX,test.raw,test.csv,Test MS Config,Test LC Config,TestInstrument,Test Institution,2023-01-01T12:00:00Z,2023-01-01T13:00:00Z,TestResource,test-calibration,https://example.com/raw/test.raw,https://example.com/processed/test.csv""")
+        temp_file.write("""biosample_id,biosample.associated_studies,material_processing_type,raw_data_file,processed_data_file,mass_spec_configuration_name,chromat_configuration_name,instrument_used,processing_institution,instrument_analysis_start_date,instrument_analysis_end_date,execution_resource,calibration_id,raw_data_url
+nmdc:bsm-11-002vgm56,['nmdc:sty-11-34xj1150'],MPLEX,test.raw,test.csv,Test MS Config,Test LC Config,TestInstrument,Test Institution,2023-01-01T12:00:00Z,2023-01-01T13:00:00Z,TestResource,test-calibration,https://example.com/raw/test.raw""")
         temp_file_path = temp_file.name
     
     try:
@@ -87,18 +85,17 @@ nmdc:bsm-11-002vgm56,['nmdc:sty-11-34xj1150'],MPLEX,test.raw,test.csv,Test MS Co
         
         # Verify URL fields are populated correctly
         assert workflow_metadata.raw_data_url == "https://example.com/raw/test.raw"
-        assert workflow_metadata.processed_data_url == "https://example.com/processed/test.csv"
+        assert not hasattr(workflow_metadata, 'processed_data_url')
         
         # Test with row that has no URL fields
         row_without_urls = first_row.copy()
         del row_without_urls['raw_data_url']
-        del row_without_urls['processed_data_url']
         
         workflow_metadata_no_urls = generator.create_workflow_metadata(row_without_urls)
         
         # Verify URL fields are None when not provided
         assert workflow_metadata_no_urls.raw_data_url is None
-        assert workflow_metadata_no_urls.processed_data_url is None
+        assert not hasattr(workflow_metadata_no_urls, 'processed_data_url')
         
     finally:
         # Clean up
@@ -135,15 +132,15 @@ def test_url_validation_logic():
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir)
         
-        # Create test metadata with URL columns
+        # Create test metadata with URL columns - only raw_data_url is supported now
         metadata_with_urls = pd.DataFrame([
             {
                 "raw_data_url": "https://example.com/raw/test1.raw",
-                "processed_data_url": "https://example.com/processed/test1.csv"
+                "processed_data_file": "test1.csv"
             },
             {
                 "raw_data_url": "https://example.com/raw/test2.raw", 
-                "processed_data_url": "https://example.com/processed/test2.csv"
+                "processed_data_file": "test2.csv"
             }
         ])
         
@@ -156,12 +153,12 @@ def test_url_validation_logic():
             minting_config_creds=None
         )
         
-        # Test that URL validation accepts URL columns
+        # Test that URL validation accepts raw data URL columns only
         # This will fail due to network issues, but we can check the logic path
         try:
             generator.check_doj_urls(
                 metadata_df=metadata_with_urls,
-                url_columns=["raw_data_url", "processed_data_url"]
+                url_columns=["raw_data_url", "processed_data_file"]
             )
         except Exception as e:
             # Expected to fail due to network issues or non-existent URLs

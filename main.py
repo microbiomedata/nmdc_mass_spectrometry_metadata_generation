@@ -92,8 +92,8 @@ def main():
     )
     parser.add_argument(
         "--process_data_url",
-        required=False,
-        help="URL base for the processed data files. Optional if processed_data_url column is provided in metadata.",
+        required=True,
+        help="URL base for the processed data files.",
     )
     parser.add_argument(
         "--minting_config_creds",
@@ -118,21 +118,18 @@ def main():
     try:
         metadata_df = pd.read_csv(args.metadata_file)
         has_raw_url_column = "raw_data_url" in metadata_df.columns
-        has_processed_url_column = "processed_data_url" in metadata_df.columns
         
-        # Check if we have either CLI args or metadata columns for URLs
+        # Check if we have either CLI args or metadata columns for raw data URLs
         if not args.raw_data_url and not has_raw_url_column:
             raise ValueError("Either --raw_data_url must be provided as CLI argument or raw_data_url column must exist in metadata file.")
         
-        if not args.process_data_url and not has_processed_url_column:
-            raise ValueError("Either --process_data_url must be provided as CLI argument or processed_data_url column must exist in metadata file.")
+        # Process data URL is always required as CLI argument
+        if not args.process_data_url:
+            raise ValueError("--process_data_url must be provided as CLI argument.")
             
-        # Provide default values if not specified but columns exist
+        # Provide default value for raw_data_url if not specified but column exists
         if not args.raw_data_url and has_raw_url_column:
             args.raw_data_url = ""  # Empty string as placeholder when using column URLs
-            
-        if not args.process_data_url and has_processed_url_column:
-            args.process_data_url = ""  # Empty string as placeholder when using column URLs
             
     except FileNotFoundError:
         raise ValueError(f"Metadata file not found: {args.metadata_file}")
