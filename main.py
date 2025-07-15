@@ -88,12 +88,12 @@ def main():
         help="Path where the output database dump JSON file will be saved",
     )
     parser.add_argument(
-        "--raw_data_url", required=True, help="URL base for the raw data files"
+        "--raw_data_url", required=False, help="URL base for the raw data files. Optional if raw_data_url column is provided in metadata."
     )
     parser.add_argument(
         "--process_data_url",
-        required=True,
-        help="URL base for the processed data files",
+        required=False,
+        help="URL base for the processed data files. Optional if processed_data_url column is provided in metadata.",
     )
     parser.add_argument(
         "--minting_config_creds",
@@ -112,6 +112,33 @@ def main():
     )
 
     args = parser.parse_args()
+    
+    # Validate that URL parameters are provided either as CLI arguments or in metadata columns
+    import pandas as pd
+    try:
+        metadata_df = pd.read_csv(args.metadata_file)
+        has_raw_url_column = "raw_data_url" in metadata_df.columns
+        has_processed_url_column = "processed_data_url" in metadata_df.columns
+        
+        # Check if we have either CLI args or metadata columns for URLs
+        if not args.raw_data_url and not has_raw_url_column:
+            raise ValueError("Either --raw_data_url must be provided as CLI argument or raw_data_url column must exist in metadata file.")
+        
+        if not args.process_data_url and not has_processed_url_column:
+            raise ValueError("Either --process_data_url must be provided as CLI argument or processed_data_url column must exist in metadata file.")
+            
+        # Provide default values if not specified but columns exist
+        if not args.raw_data_url and has_raw_url_column:
+            args.raw_data_url = ""  # Empty string as placeholder when using column URLs
+            
+        if not args.process_data_url and has_processed_url_column:
+            args.process_data_url = ""  # Empty string as placeholder when using column URLs
+            
+    except FileNotFoundError:
+        raise ValueError(f"Metadata file not found: {args.metadata_file}")
+    except Exception as e:
+        raise ValueError(f"Error reading metadata file: {e}")
+    
     if args.generator not in ["lcms_lipid", "gcms_metab", "nom"]:
         raise ValueError(
             "Invalid generator specified. Choose from 'lcms_lipid', 'gcms_metab', or 'nom'."

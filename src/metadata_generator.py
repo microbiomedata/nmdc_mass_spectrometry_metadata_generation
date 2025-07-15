@@ -1055,7 +1055,22 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         """
         urls = []
         for col in url_columns:
-            if "directory" in col:
+            # Check if this is a URL column (contains complete URLs)
+            if col.endswith("_url"):
+                # For URL columns, use the URLs directly
+                column_urls = metadata_df[col].dropna().tolist()
+                urls.extend(column_urls)
+                # Check if the urls are valid
+                for url in column_urls[
+                    :5
+                ]:  # Check up to 5 URLs, or fewer if the list is shorter
+                    try:
+                        response = requests.head(url)
+                        if response.status_code != 200:
+                            raise ValueError(f"URL {url} is not accessible.")
+                    except requests.RequestException as e:
+                        raise ValueError(f"URL {url} is not accessible. Error: {e}")
+            elif "directory" in col:
                 # if its a directory, we need to gather all the files in the directory
                 file_data_paths = [
                     list(Path(x).glob("**/*")) for x in metadata_df[col].to_list()
