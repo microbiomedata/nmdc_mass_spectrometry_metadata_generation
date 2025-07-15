@@ -500,6 +500,65 @@ class NMDCMetadataGenerator:
         chromatography_config = nmdc.ChromatographyConfiguration(**data_dict)
         return chromatography_config
 
+    def generate_instrument(
+        self,
+        name: str,
+        description: str,
+        CLIENT_ID: str,
+        CLIENT_SECRET: str,
+        vendor: str = None,
+        model: str = None,
+    ) -> nmdc.Instrument:
+        """
+        Create an NMDC Instrument object with the provided metadata.
+
+        This method generates an NMDC Instrument object, populated with the
+        specified metadata.
+
+        Parameters
+        ----------
+        name : str
+            The name of the instrument.
+        description : str
+            A description of the instrument.
+        CLIENT_ID : str
+            The client ID for the NMDC API.
+        CLIENT_SECRET : str
+            The client secret for the NMDC API.
+        vendor : str, optional
+            The vendor/manufacturer of the instrument.
+        model : str, optional
+            The model of the instrument.
+
+        Returns
+        -------
+        nmdc.Instrument
+            An NMDC Instrument object with the specified metadata.
+        """
+        mint = Minter(env=ENV)
+        nmdc_id = mint.mint(
+            nmdc_type=NmdcTypes.Instrument,
+            client_id=CLIENT_ID,
+            client_secret=CLIENT_SECRET,
+        )
+        data_dict = {
+            "id": nmdc_id,
+            "name": name,
+            "description": description,
+            "type": NmdcTypes.Instrument,
+        }
+
+        if vendor:
+            data_dict["vendor"] = vendor
+
+        if model:
+            data_dict["model"] = model
+
+        # Clean the dictionary to remove any None values
+        data_dict = self.clean_dict(data_dict)
+        instrument = nmdc.Instrument(**data_dict)
+        return instrument
+
     def dump_nmdc_database(self, nmdc_database: nmdc.Database, json_path: Path) -> None:
         """
         Dump the NMDC database to a JSON file.

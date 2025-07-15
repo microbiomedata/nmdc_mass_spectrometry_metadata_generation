@@ -120,3 +120,40 @@ def test_chromatography_configuration_generation():
     # Save the database and run json validation
     generator.dump_nmdc_database(nmdc_database=db, json_path=output_file)
     generator.validate_nmdc_database(json_path=output_file)
+
+
+def test_instrument_generation():
+    """
+    Test the generation and validation of an Instrument record.
+    """
+    # Set up an output file with datetime stamp
+    output_file = (
+        "tests/test_data/test_instrument_"
+        + datetime.now().strftime("%Y%m%d%H%M%S")
+        + ".json"
+    )
+    generator = NMDCMetadataGenerator()
+
+    # Load credentials from the config file
+    client_id, client_secret = generator.load_credentials()
+
+    # Make a database object
+    db = generator.start_nmdc_database()
+
+    # Generate an instrument
+    example_instrument = generator.generate_instrument(
+        name="Test Mass Spectrometer",
+        description="Test instrument for mass spectrometry data generation.",
+        vendor="thermo_fisher",
+        model="orbitrap_q_exactive",
+        CLIENT_ID=client_id,
+        CLIENT_SECRET=client_secret,
+    )
+    assert example_instrument is not None
+
+    # Add to the database
+    db.instrument_set.append(example_instrument)
+
+    # Save the database and run json validation
+    generator.dump_nmdc_database(nmdc_database=db, json_path=output_file)
+    generator.validate_nmdc_database(json_path=output_file)
