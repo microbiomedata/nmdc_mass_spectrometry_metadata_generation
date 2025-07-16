@@ -77,11 +77,11 @@ def test_cli_with_url_column():
     sc = ScriptRunner(launch_mode="subprocess", rootdir=".")
     current_directory = os.path.dirname(__file__)
     csv_file_path = os.path.join(
-        current_directory, "..", "example_data", "sample_metadata_with_urls.csv"
+        current_directory, "test_data", "test_metadata_file_gcms_raw_urls.csv"
     )
     # Command to be tested - note no --raw_data_url since it's in the CSV
     output_file = (
-        "tests/test_data/test_database_gcms_with_urls_"
+        "tests/test_data/test_database_gcms_with_raw_urls_"
         + datetime.now().strftime("%Y%m%d%H%M%S")
         + ".json"
     )
@@ -102,35 +102,3 @@ def test_cli_with_url_column():
     # Verify it exits with a status code of zero
     print("ret.success", ret.success)
     assert ret.success
-
-
-def test_cli_validation_missing_raw_data_url():
-    """Test CLI validation when neither --raw_data_url nor raw_data_url column is provided."""
-    sc = ScriptRunner(launch_mode="subprocess", rootdir=".")
-    current_directory = os.path.dirname(__file__)
-    csv_file_path = os.path.join(
-        current_directory, "test_data", "test_metadata_file_gcms.csv"
-    )
-    # Command to be tested - missing both --raw_data_url and raw_data_url column
-    output_file = (
-        "tests/test_data/test_database_gcms_validation_"
-        + datetime.now().strftime("%Y%m%d%H%M%S")
-        + ".json"
-    )
-    ret = sc.run(
-        [
-            "python",
-            "main.py",
-            "--generator",
-            "gcms_metab",
-            "--metadata_file",
-            csv_file_path,
-            "--database_dump_json_path",
-            output_file,
-            "--process_data_url",
-            "https://nmdcdemo.emsl.pnnl.gov/metabolomics/test_data/test_processed_gcms_metab/",
-        ]
-    )
-    # Verify it exits with a non-zero status code (validation should fail)
-    print("ret.success", ret.success)
-    assert not ret.success

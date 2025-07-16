@@ -2,7 +2,8 @@
 import argparse
 from src.gcms_metab_metadata_generator import GCMSMetabolomicsMetadataGenerator
 from src.lcms_lipid_metadata_generator import LCMSLipidomicsMetadataGenerator
-from src.nom_metadata_generator import NOMMetadataGenerator
+from src.lcms_nom_metadata_generator import LCMSNOMMetadataGenerator
+from src.di_nom_metadata_generator import DINOMMetaDataGenerator
 
 
 def main():
@@ -31,8 +32,9 @@ def main():
         The name of the metadata generator to use.
         Options:
         lcms_lipid for 'LipidomicsMetadataGenerator'
-        gcms_metab 'GCMSMetabolomicsMetadataGenerator'
-        nom for 'NOMMetadataGenerator'.
+        gcms_metab for 'GCMSMetabolomicsMetadataGenerator'
+        lcms_nom for 'LCMSNOMMetadataGenerator'
+        di_nom for 'DINOMMetadataGenerator'
     --rerun : bool
         If True, this will indicate the run is a rerun. Default is False.
     --metadata_file : str
@@ -40,8 +42,8 @@ def main():
         Example: See example_metadata_file.csv in this directory.
     --database_dump_json_path : str
         Path where the output database dump JSON file will be saved.
-    --raw_data_url : str
-        URL base for the raw data files.
+    --raw_data_url : str, optional
+        URL base for the raw data files. Optional if raw_data_url column is provided in metadata.
         Example: 'https://nmdcdemo.emsl.pnnl.gov/nom/1000soils/raw/'
     --process_data_url : str
         URL base for the processed data files.
@@ -59,7 +61,8 @@ def main():
     --minting_config_creds : str
         Path to the config file with credentials for minting IDs.
         OPTIONAL: uses .env variables for credentials.
-
+    --workflow_version : str, optional
+        Version of the workflow to use. If not provided, it will be fetched from the Git URL.
     Notes
     -----
     See example_data directory in this package for an example of
@@ -88,7 +91,9 @@ def main():
         help="Path where the output database dump JSON file will be saved",
     )
     parser.add_argument(
-        "--raw_data_url", required=False, help="URL base for the raw data files. Optional if raw_data_url column is provided in metadata."
+        "--raw_data_url",
+        required=False,
+        help="URL base for the raw data files. Optional if raw_data_url column is provided in metadata.",
     )
     parser.add_argument(
         "--process_data_url",
@@ -110,35 +115,43 @@ def main():
         required=False,
         help="Path to the configuration file for the GCMS metadata generator. Default is 'emsl_gcms_corems_params.toml'.",
     )
+    parser.add_argument(
+        "--workflow_version",
+        required=False,
+        help="Version of the workflow to use. If not provided, it will be fetched from the Git URL.",
+    )
 
     args = parser.parse_args()
-    
+
     # Validate that URL parameters are provided either as CLI arguments or in metadata columns
     import pandas as pd
+
     try:
         metadata_df = pd.read_csv(args.metadata_file)
         has_raw_url_column = "raw_data_url" in metadata_df.columns
-        
+
         # Check if we have either CLI args or metadata columns for raw data URLs
         if not args.raw_data_url and not has_raw_url_column:
-            raise ValueError("Either --raw_data_url must be provided as CLI argument or raw_data_url column must exist in metadata file.")
-        
+            raise ValueError(
+                "Either --raw_data_url must be provided as CLI argument or raw_data_url column must exist in metadata file."
+            )
+
         # Process data URL is always required as CLI argument
         if not args.process_data_url:
             raise ValueError("--process_data_url must be provided as CLI argument.")
-            
-        # Provide default value for raw_data_url if not specified but column exists
+
+        # Set raw_data_url to None if not specified but column exists
         if not args.raw_data_url and has_raw_url_column:
-            args.raw_data_url = ""  # Empty string as placeholder when using column URLs
-            
+            args.raw_data_url = None
+
     except FileNotFoundError:
         raise ValueError(f"Metadata file not found: {args.metadata_file}")
     except Exception as e:
         raise ValueError(f"Error reading metadata file: {e}")
-    
-    if args.generator not in ["lcms_lipid", "gcms_metab", "nom"]:
+
+    if args.generator not in ["lcms_lipid", "gcms_metab", "di_nom", "lcms_nom"]:
         raise ValueError(
-            "Invalid generator specified. Choose from 'lcms_lipid', 'gcms_metab', or 'nom'."
+            "Invalid generator specified. Choose from 'lcms_lipid', 'gcms_metab', 'di_nom', or 'lcms_nom'."
         )
     if args.generator == "lcms_lipid":
         generator = LCMSLipidomicsMetadataGenerator(
@@ -147,6 +160,7 @@ def main():
             raw_data_url=args.raw_data_url,
             process_data_url=args.process_data_url,
             minting_config_creds=args.minting_config_creds,
+            workflow_version=args.workflow_version,
         )
     elif args.generator == "gcms_metab":
         generator = GCMSMetabolomicsMetadataGenerator(
@@ -157,14 +171,25 @@ def main():
             minting_config_creds=args.minting_config_creds,
             calibration_standard=args.calibration_standard,
             configuration_file_name=args.configuration_file,
+            workflow_version=args.workflow_version,
         )
-    elif args.generator == "nom":
-        generator = NOMMetadataGenerator(
+    elif args.generator == "lcms_nom":
+        generator = LCMSNOMMetadataGenerator(
             metadata_file=args.metadata_file,
             database_dump_json_path=args.database_dump_json_path,
             raw_data_url=args.raw_data_url,
             process_data_url=args.process_data_url,
             minting_config_creds=args.minting_config_creds,
+            workflow_version=args.workflow_version,
+        )
+    elif args.generator == "di_nom":
+        generator = DINOMMetaDataGenerator(
+            metadata_file=args.metadata_file,
+            database_dump_json_path=args.database_dump_json_path,
+            raw_data_url=args.raw_data_url,
+            process_data_url=args.process_data_url,
+            minting_config_creds=args.minting_config_creds,
+            workflow_version=args.workflow_version,
         )
     if args.rerun:
         generator.rerun()
