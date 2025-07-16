@@ -33,8 +33,8 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         Path to the metadata CSV file.
     database_dump_json_path : str
         Path to the output JSON file for the NMDC database dump.
-    raw_data_url : str
-        Base URL for the raw data files.
+    raw_data_url : str, optional
+        Base URL for the raw data files. If the raw data url is not directly passed in, it will use the raw data urls from the metadata file.
     process_data_url : str
         Base URL for the processed data files.
     minting_config_creds : str
@@ -77,7 +77,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
     """
 
     # Metadata attributes
-    unique_columns: List[str] = ["raw_data_file", "processed_data_file"]
+    unique_columns: List[str] = ["processed_data_file"]
 
     # Data Generation attributes
     mass_spec_desc: str = (
@@ -110,8 +110,8 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         self,
         metadata_file: str,
         database_dump_json_path: str,
-        raw_data_url: str,
         process_data_url: str,
+        raw_data_url: str = None,
         minting_config_creds: str = None,
         workflow_version: str = None,
         calibration_standard: str = "fames",
@@ -175,10 +175,14 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         except FileNotFoundError:
             raise FileNotFoundError(f"Metadata file not found: {self.metadata_file}")
         metadata_df = df.apply(lambda x: x.reset_index(drop=True))
-        # just check the process data urls
-        self.check_doj_urls(
-            metadata_df=metadata_df, url_columns=["processed_data_file"]
+
+        # check if the raw data url is directly passed in or needs to be built with raw data file
+        raw_col = (
+            "raw_data_url" if "raw_data_url" in metadata_df.columns else "raw_data_file"
         )
+        urls_columns = self.unique_columns + [raw_col]
+        self.check_doj_urls(metadata_df=metadata_df, url_columns=urls_columns)
+
         # Get the configuration file data object id and add it to the metadata_df
         do_client = DataObjectSearch(env=ENV)
         config_do_id = do_client.get_record_by_attribute(
@@ -311,7 +315,13 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             CLIENT_ID=client_id,
             CLIENT_SECRET=client_secret,
         )
-        self.check_doj_urls(metadata_df=metadata_df, url_columns=self.unique_columns)
+        # check if the raw data url is directly passed in or needs to be built with raw data file
+        raw_col = (
+            "raw_data_url" if "raw_data_url" in metadata_df.columns else "raw_data_file"
+        )
+        urls_columns = self.unique_columns + [raw_col]
+        self.check_doj_urls(metadata_df=metadata_df, url_columns=urls_columns)
+
         # Get the configuration file data object id and add it to the metadata_df
         do_client = DataObjectSearch(env=ENV)
         config_do_id = do_client.get_record_by_attribute(
