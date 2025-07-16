@@ -87,8 +87,12 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             CLIENT_ID=client_id,
             CLIENT_SECRET=client_secret,
         )
-        # check for duplicate doj urls in the database
-        self.check_doj_urls(metadata_df=metadata_df, url_columns=self.unique_columns)
+        # check if the raw data url is directly passed in or needs to be built with raw data file
+        raw_col = (
+            "raw_data_url" if "raw_data_url" in metadata_df.columns else "raw_data_file"
+        )
+        urls_columns = self.unique_columns + [raw_col]
+        self.check_doj_urls(metadata_df=metadata_df, url_columns=urls_columns)
 
         for _, data in tqdm(
             metadata_df.iterrows(),

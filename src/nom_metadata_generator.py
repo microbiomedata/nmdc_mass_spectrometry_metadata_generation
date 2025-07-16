@@ -64,10 +64,12 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         metadata_df = df.apply(lambda x: x.reset_index(drop=True))
         tqdm.write("\033[92mStarting metadata processing...\033[0m")
 
-        # check for duplicate doj urls in the database
-        self.check_doj_urls(
-            metadata_df=metadata_df, url_columns=["processed_data_directory"]
+        # check if the raw data url is directly passed in or needs to be built with raw data file
+        raw_col = (
+            "raw_data_url" if "raw_data_url" in metadata_df.columns else "raw_data_file"
         )
+        urls_columns = self.unique_columns + [raw_col]
+        self.check_doj_urls(metadata_df=metadata_df, url_columns=urls_columns)
         # Iterate through each row in df to generate metadata
         for _, row in tqdm(
             metadata_df.iterrows(),

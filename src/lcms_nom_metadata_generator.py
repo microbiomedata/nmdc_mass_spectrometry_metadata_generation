@@ -51,7 +51,7 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
     workflow_param_data_object_desc: str = "EnviroMS processing parameters for natural organic matter analysis when acquired using liquid chromatography."
     workflow_param_data_category: str = "workflow_parameter_data"
     workflow_param_data_object_type: str = "Analysis Tool Parameter File"
-    unique_columns: list[str] = ["raw_data_file", "processed_data_directory"]
+    unique_columns: list[str] = ["processed_data_directory"]
     mass_spec_eluent_intro: str = "liquid_chromatography"
     mass_spec_desc: str = "Generation of mass spectrometry data for the analysis of NOM when acquired using liquid chromatography."
     processing_institution: str = "EMSL"
