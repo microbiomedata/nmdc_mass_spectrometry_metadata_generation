@@ -157,7 +157,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         nmdc_database_inst = self.start_nmdc_database()
         metadata_df = self.load_metadata()
         tqdm.write("\033[92mStarting metadata processing...\033[0m")
-        processed_data = []
+
         self.check_for_biosamples(
             metadata_df=metadata_df,
             nmdc_database_inst=nmdc_database_inst,
