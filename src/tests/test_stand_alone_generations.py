@@ -128,7 +128,7 @@ def test_instrument_generation():
     """
     # Set up an output file with datetime stamp
     output_file = (
-        "tests/test_data/test_instrument_"
+        "tests/test_data/test_database_instrument_"
         + datetime.now().strftime("%Y%m%d%H%M%S")
         + ".json"
     )
