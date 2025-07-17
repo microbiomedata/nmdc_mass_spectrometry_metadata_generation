@@ -18,7 +18,7 @@ def test_mass_spec_configuration_generation():
     """
     # Set up an output file with datetime stamp
     output_file = (
-        "tests/test_data/test_mass_spec_configuration_"
+        "tests/test_data/test_database_mass_spec_configuration_"
         + datetime.now().strftime("%Y%m%d%H%M%S")
         + ".json"
     )
@@ -59,7 +59,7 @@ def test_chromatography_configuration_generation():
     """
     # Set up an output file with datetime stamp
     output_file = (
-        "tests/test_data/test_chromatography_configuration_"
+        "tests/test_data/test_database_chromatography_configuration_"
         + datetime.now().strftime("%Y%m%d%H%M%S")
         + ".json"
     )

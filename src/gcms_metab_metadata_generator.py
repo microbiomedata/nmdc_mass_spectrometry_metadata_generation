@@ -176,12 +176,10 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             raise FileNotFoundError(f"Metadata file not found: {self.metadata_file}")
         metadata_df = df.apply(lambda x: x.reset_index(drop=True))
 
-        # check if the raw data url is directly passed in or needs to be built with raw data file
-        raw_col = (
-            "raw_data_url" if "raw_data_url" in metadata_df.columns else "raw_data_file"
+        # just check the process data urls
+        self.check_doj_urls(
+            metadata_df=metadata_df, url_columns=["processed_data_file"]
         )
-        urls_columns = self.unique_columns + [raw_col]
-        self.check_doj_urls(metadata_df=metadata_df, url_columns=urls_columns)
 
         # Get the configuration file data object id and add it to the metadata_df
         do_client = DataObjectSearch(env=ENV)
@@ -470,6 +468,15 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             total=len(calibration_files),
             desc="Generating calibration information and data objects",
         ):
+            # Check if the df has calibration_file_url, if not, set url to None to use the raw_data_url
+            if "calibration_file_url" in metadata_df.columns:
+                url = metadata_df.loc[
+                    metadata_df["calibration_file"].eq(calibration_file),
+                    "calibration_file_url",
+                ].iloc[0]
+            else:
+                url = None
+
             calibration_data_object = self.generate_data_object(
                 file_path=Path(calibration_file),
                 data_category=self.raw_data_category,
@@ -478,6 +485,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 base_url=self.raw_data_url,
                 CLIENT_ID=CLIENT_ID,
                 CLIENT_SECRET=CLIENT_SECRET,
+                url=url,
             )
             nmdc_database_inst.data_object_set.append(calibration_data_object)
 
