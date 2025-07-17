@@ -108,11 +108,13 @@ def main():
     parser.add_argument(
         "--calibration_standard",
         required=False,
+        default="fames",
         help="Calibration standard to use for the GCMS metadata generation. Must be a value from the NMDC Schema. Default is 'fames'.",
     )
     parser.add_argument(
         "--configuration_file",
         required=False,
+        default="emsl_gcms_corems_params.toml",
         help="Path to the configuration file for the GCMS metadata generator. Default is 'emsl_gcms_corems_params.toml'.",
     )
     parser.add_argument(

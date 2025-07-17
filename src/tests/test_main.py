@@ -88,7 +88,7 @@ def test_cli_with_url_column():
     ret = sc.run(
         [
             "python",
-            "main.py",
+            "../main.py",
             "--generator",
             "gcms_metab",
             "--metadata_file",
@@ -102,3 +102,6 @@ def test_cli_with_url_column():
     # Verify it exits with a status code of zero
     print("ret.success", ret.success)
     assert ret.success
+
+
+test_cli_with_url_column()
