@@ -68,7 +68,7 @@ class LCMSLipidomicsMetadataGenerator(LCMSMetadataGenerator):
 
     """
 
-    unique_columns: List[str] = ["raw_data_file", "processed_data_directory"]
+    unique_columns: List[str] = ["processed_data_directory"]
     # Data Generation attributes
     mass_spec_desc: str = (
         "Generation of mass spectrometry data for the analysis of lipids."

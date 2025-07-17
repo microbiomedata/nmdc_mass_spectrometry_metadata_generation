@@ -33,8 +33,8 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         Path to the metadata CSV file.
     database_dump_json_path : str
         Path to the output JSON file for the NMDC database dump.
-    raw_data_url : str
-        Base URL for the raw data files.
+    raw_data_url : str, optional
+        Base URL for the raw data files. If the raw data url is not directly passed in, it will use the raw data urls from the metadata file.
     process_data_url : str
         Base URL for the processed data files.
     minting_config_creds : str
@@ -77,7 +77,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
     """
 
     # Metadata attributes
-    unique_columns: List[str] = ["raw_data_file", "processed_data_file"]
+    unique_columns: List[str] = ["processed_data_file"]
 
     # Data Generation attributes
     mass_spec_desc: str = (
@@ -110,8 +110,8 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         self,
         metadata_file: str,
         database_dump_json_path: str,
-        raw_data_url: str,
         process_data_url: str,
+        raw_data_url: str = None,
         minting_config_creds: str = None,
         workflow_version: str = None,
         calibration_standard: str = "fames",
@@ -175,10 +175,12 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         except FileNotFoundError:
             raise FileNotFoundError(f"Metadata file not found: {self.metadata_file}")
         metadata_df = df.apply(lambda x: x.reset_index(drop=True))
+
         # just check the process data urls
         self.check_doj_urls(
             metadata_df=metadata_df, url_columns=["processed_data_file"]
         )
+
         # Get the configuration file data object id and add it to the metadata_df
         do_client = DataObjectSearch(env=ENV)
         config_do_id = do_client.get_record_by_attribute(
@@ -311,7 +313,13 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             CLIENT_ID=client_id,
             CLIENT_SECRET=client_secret,
         )
-        self.check_doj_urls(metadata_df=metadata_df, url_columns=self.unique_columns)
+        # check if the raw data url is directly passed in or needs to be built with raw data file
+        raw_col = (
+            "raw_data_url" if "raw_data_url" in metadata_df.columns else "raw_data_file"
+        )
+        urls_columns = self.unique_columns + [raw_col]
+        self.check_doj_urls(metadata_df=metadata_df, url_columns=urls_columns)
+
         # Get the configuration file data object id and add it to the metadata_df
         do_client = DataObjectSearch(env=ENV)
         config_do_id = do_client.get_record_by_attribute(
@@ -367,6 +375,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
                 was_generated_by=mass_spec.id,
+                url=workflow_metadata_obj.raw_data_url,
             )
             raw_data_object_id = raw_data_object.id
             # Generate metabolite identifications
@@ -459,6 +468,15 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             total=len(calibration_files),
             desc="Generating calibration information and data objects",
         ):
+            # Check if the df has calibration_file_url, if not, set url to None to use the raw_data_url
+            if "calibration_file_url" in metadata_df.columns:
+                url = metadata_df.loc[
+                    metadata_df["calibration_file"].eq(calibration_file),
+                    "calibration_file_url",
+                ].iloc[0]
+            else:
+                url = None
+
             calibration_data_object = self.generate_data_object(
                 file_path=Path(calibration_file),
                 data_category=self.raw_data_category,
@@ -467,6 +485,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 base_url=self.raw_data_url,
                 CLIENT_ID=CLIENT_ID,
                 CLIENT_SECRET=CLIENT_SECRET,
+                url=url,
             )
             nmdc_database_inst.data_object_set.append(calibration_data_object)
 
@@ -589,6 +608,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             instrument_analysis_end_date=row["instrument_analysis_end_date"],
             execution_resource=row["execution_resource"],
             calibration_id=row["calibration_id"],
+            raw_data_url=row.get("raw_data_url"),
         )
 
     def generate_metab_identifications(

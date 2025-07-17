@@ -70,3 +70,38 @@ def test_cli_rerun():
     # Verify it exits with a status code of zero
     print("ret.success", ret.success)
     assert ret.success
+
+
+def test_cli_with_url_column():
+    """Test CLI functionality when using raw_data_url column in metadata file."""
+    sc = ScriptRunner(launch_mode="subprocess", rootdir=".")
+    current_directory = os.path.dirname(__file__)
+    csv_file_path = os.path.join(
+        current_directory, "test_data", "test_metadata_file_gcms_raw_urls.csv"
+    )
+    # Command to be tested - note no --raw_data_url since it's in the CSV
+    output_file = (
+        "tests/test_data/test_database_gcms_with_raw_urls_"
+        + datetime.now().strftime("%Y%m%d%H%M%S")
+        + ".json"
+    )
+    ret = sc.run(
+        [
+            "python",
+            "../main.py",
+            "--generator",
+            "gcms_metab",
+            "--metadata_file",
+            csv_file_path,
+            "--database_dump_json_path",
+            output_file,
+            "--process_data_url",
+            "https://nmdcdemo.emsl.pnnl.gov/metabolomics/test_data/test_processed_gcms_metab/",
+        ]
+    )
+    # Verify it exits with a status code of zero
+    print("ret.success", ret.success)
+    assert ret.success
+
+
+test_cli_with_url_column()
