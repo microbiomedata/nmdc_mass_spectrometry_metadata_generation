@@ -27,6 +27,7 @@ jobs:
           BIO_API_KEY: ${{ secrets.BIO_API_KEY }}
       - name: Install dependencies
         run: |
+            pip install -r requirements.txt
             pip install -r requirements-dev.txt
       - name: Run tests
         working-directory: ./src
