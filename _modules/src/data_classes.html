@@ -1,0 +1,278 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.data_classes &mdash; nmdc_mass_spectrometry_metadata_generation 3/1/2025 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=1e0eaa87"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            nmdc_mass_spectrometry_metadata_generation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html">Bio Ontology API Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#metadata-parser-base-class">Metadata Parser Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#metadata-generator-base-class">Metadata Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#metadata-workflow-generator-base-class">Metadata Workflow Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#lc-ms-metadata-generator-base-class">LC/MS Metadata Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#data-class">Data Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#lc-ms-lipidomics-metadata-generator-subclass">LC/MS Lipidomics Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#lc-ms-metabolomics-metadata-generator-subclass">LC/MS Metabolomics Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#gc-ms-metabolomics-metadata-generator-subclass">GC/MS Metabolomics Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#direct-infusion-nom-metadata-generator-subclass">Direct Infusion NOM Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#lc-nom-metadata-generator-subclass">LC NOM Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#main-cli-class">Main CLI Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">nmdc_mass_spectrometry_metadata_generation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.data_classes</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.data_classes</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module defines data classes for NMDC (National Microbiome Data Collaborative) type constants.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="NmdcTypes">
+<a class="viewcode-back" href="../../functions.html#src.data_classes.NmdcTypes">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">NmdcTypes</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Data class holding NMDC type constants.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Biosample : str</span>
+<span class="sd">        NMDC type for Biosample.</span>
+<span class="sd">    MassSpectrometry : str</span>
+<span class="sd">        NMDC type for Mass Spectrometry.</span>
+<span class="sd">    MetabolomicsAnalysis : str</span>
+<span class="sd">        NMDC type for Metabolomics Analysis.</span>
+<span class="sd">    DataObject : str</span>
+<span class="sd">        NMDC type for Data Object.</span>
+<span class="sd">    CalibrationInformation : str</span>
+<span class="sd">        NMDC type for Calibration Information.</span>
+<span class="sd">    MetaboliteIdentification : str</span>
+<span class="sd">        NMDC type for Metabolite Identification.</span>
+<span class="sd">    NomAnalysis : str</span>
+<span class="sd">        NMDC type for NOM Analysis.</span>
+<span class="sd">    OntologyClass : str</span>
+<span class="sd">        NMDC type for Ontology Class.</span>
+<span class="sd">    ControlledIdentifiedTermValue : str</span>
+<span class="sd">        NMDC type for Controlled Identified Term Value.</span>
+<span class="sd">    TextValue : str</span>
+<span class="sd">        NMDC type for Text Value.</span>
+<span class="sd">    GeolocationValue : str</span>
+<span class="sd">        NMDC type for Geolocation Value.</span>
+<span class="sd">    TimeStampValue : str</span>
+<span class="sd">        NMDC type for Timestamp Value.</span>
+<span class="sd">    QuantityValue : str</span>
+<span class="sd">        NMDC type for Quantity Value.</span>
+<span class="sd">    MassSpectrometryConfiguration : str</span>
+<span class="sd">        NMDC type for Mass Spectrometry Configuration.</span>
+<span class="sd">    PortionOfSubstance : str</span>
+<span class="sd">        NMDC type for Portion of Substance.</span>
+<span class="sd">    MobilePhaseSegment : str</span>
+<span class="sd">        NMDC type for Mobile Phase Segment.</span>
+<span class="sd">    ChromatographyConfiguration : str</span>
+<span class="sd">        NMDC type for Chromatography Configuration.</span>
+<span class="sd">    Instrument : str</span>
+<span class="sd">        NMDC type for Instrument.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">Biosample</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nmdc:Biosample&quot;</span>
+    <span class="n">MassSpectrometry</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nmdc:MassSpectrometry&quot;</span>
+    <span class="n">MetabolomicsAnalysis</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nmdc:MetabolomicsAnalysis&quot;</span>
+    <span class="n">DataObject</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nmdc:DataObject&quot;</span>
+    <span class="n">CalibrationInformation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nmdc:CalibrationInformation&quot;</span>
+    <span class="n">MetaboliteIdentification</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nmdc:MetaboliteIdentification&quot;</span>
+    <span class="n">NomAnalysis</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nmdc:NomAnalysis&quot;</span>
+    <span class="n">OntologyClass</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nmdc:OntologyClass&quot;</span>
+    <span class="n">ControlledIdentifiedTermValue</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nmdc:ControlledIdentifiedTermValue&quot;</span>
+    <span class="n">TextValue</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nmdc:TextValue&quot;</span>
+    <span class="n">GeolocationValue</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nmdc:GeolocationValue&quot;</span>
+    <span class="n">TimeStampValue</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nmdc:TimestampValue&quot;</span>
+    <span class="n">QuantityValue</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nmdc:QuantityValue&quot;</span>
+    <span class="n">MassSpectrometryConfiguration</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nmdc:MassSpectrometryConfiguration&quot;</span>
+    <span class="n">PortionOfSubstance</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nmdc:PortionOfSubstance&quot;</span>
+    <span class="n">MobilePhaseSegment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nmdc:MobilePhaseSegment&quot;</span>
+    <span class="n">ChromatographyConfiguration</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nmdc:ChromatographyConfiguration&quot;</span>
+    <span class="n">Instrument</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nmdc:Instrument&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="GCMSMetabWorkflowMetadata">
+<a class="viewcode-back" href="../../functions.html#src.data_classes.GCMSMetabWorkflowMetadata">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">GCMSMetabWorkflowMetadata</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Data class for holding GCMS metabolomic workflow metadata information.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    biosample_id: str</span>
+<span class="sd">        Identifier for the biosample.s</span>
+<span class="sd">    nmdc_study : str</span>
+<span class="sd">        Identifier for the NMDC study.</span>
+<span class="sd">    processing_institution : str</span>
+<span class="sd">        Name of the institution processing the data.</span>
+<span class="sd">    processed_data_file : str</span>
+<span class="sd">        Path or name of the processed data file.</span>
+<span class="sd">    raw_data_file : str</span>
+<span class="sd">        Path or name of the raw data file.</span>
+<span class="sd">    mass_spec_config_name : str</span>
+<span class="sd">        Name of the mass spectrometry configuration used.</span>
+<span class="sd">    chromat_config_name : str</span>
+<span class="sd">        Name of the chromatography configuration used.</span>
+<span class="sd">    instrument_used : str</span>
+<span class="sd">        Name of the instrument used for analysis.</span>
+<span class="sd">    instrument_analysis_start_date : str</span>
+<span class="sd">        Start date of the instrument analysis.</span>
+<span class="sd">    instrument_analysis_end_date : str</span>
+<span class="sd">        End date of the instrument analysis.</span>
+<span class="sd">    execution_resource : float</span>
+<span class="sd">        Identifier for the execution resource.</span>
+<span class="sd">    calibration_id : str</span>
+<span class="sd">        Identifier for the calibration information used.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">biosample_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">nmdc_study</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">processing_institution</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">processed_data_file</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">raw_data_file</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">mass_spec_config_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">chromat_config_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">instrument_used</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">instrument_analysis_start_date</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">instrument_analysis_end_date</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">execution_resource</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">calibration_id</span><span class="p">:</span> <span class="nb">str</span></div>
+
+
+
+<div class="viewcode-block" id="LCMSLipidWorkflowMetadata">
+<a class="viewcode-back" href="../../functions.html#src.data_classes.LCMSLipidWorkflowMetadata">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">LCMSLipidWorkflowMetadata</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Data class for holding LC-MS lipidomics workflow metadata information.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    processed_data_dir : str</span>
+<span class="sd">        Directory containing processed data files.</span>
+<span class="sd">    raw_data_file : str</span>
+<span class="sd">        Path or name of the raw data file.</span>
+<span class="sd">    mass_spec_config_name : str</span>
+<span class="sd">        Name of the mass spectrometry configuration used.</span>
+<span class="sd">    lc_config_name : str</span>
+<span class="sd">        Name of the liquid chromatography configuration used.</span>
+<span class="sd">    instrument_used : str</span>
+<span class="sd">        Name of the instrument used for analysis.</span>
+<span class="sd">    instrument_analysis_start_date : str</span>
+<span class="sd">        Start date of the instrument analysis.</span>
+<span class="sd">    instrument_analysis_end_date : str</span>
+<span class="sd">        End date of the instrument analysis.</span>
+<span class="sd">    execution_resource : float</span>
+<span class="sd">        Identifier for the execution resource.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">processed_data_dir</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">raw_data_file</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">mass_spec_config_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">lc_config_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">instrument_used</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">instrument_analysis_start_date</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">instrument_analysis_end_date</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">execution_resource</span><span class="p">:</span> <span class="nb">float</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Olivia Hess.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
