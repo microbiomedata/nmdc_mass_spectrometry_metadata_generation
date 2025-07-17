@@ -47,6 +47,8 @@ class NmdcTypes:
         NMDC type for Mobile Phase Segment.
     ChromatographyConfiguration : str
         NMDC type for Chromatography Configuration.
+    Instrument : str
+        NMDC type for Instrument.
 
     """
 
@@ -67,6 +69,7 @@ class NmdcTypes:
     PortionOfSubstance: str = "nmdc:PortionOfSubstance"
     MobilePhaseSegment: str = "nmdc:MobilePhaseSegment"
     ChromatographyConfiguration: str = "nmdc:ChromatographyConfiguration"
+    Instrument: str = "nmdc:Instrument"
 
 
 @dataclass
