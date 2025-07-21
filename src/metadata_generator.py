@@ -824,7 +824,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         cluster_name: str,
         raw_data_name: str,
         raw_data_id: str,
-        data_gen_id: str,
+        data_gen_id_list: List[str],
         processed_data_id: str,
         parameter_data_id: str,
         processing_institution: str,
@@ -849,7 +849,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             Name of the raw data file that was analyzed.
         raw_data_id : str
             ID of the raw data object that was analyzed.
-        data_gen_id : str
+        data_gen_id_list : List[str]
             ID of the DataGeneration object that generated the raw data.
         processed_data_id : str
             ID of the processed data resulting from the analysis.
@@ -905,7 +905,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             "execution_resource": cluster_name,
             "git_url": self.workflow_git_url,
             "version": self.workflow_version,
-            "was_informed_by": [data_gen_id],
+            "was_informed_by": data_gen_id_list,
             "has_input": [raw_data_id, parameter_data_id],
             "has_output": [processed_data_id],
             "started_at_time": "placeholder",
