@@ -23,6 +23,7 @@ import numpy as np
 import toml
 import requests
 from dotenv import load_dotenv
+import tqdm
 import os
 
 load_dotenv()
@@ -1193,6 +1194,66 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             raise ValueError(
                 f"The following URLs already exist in the database: {', '.join(resp)}"
             )
+
+    def check_manifest(
+        self,
+        metadata_df: pd.DataFrame,
+        nmdc_database_inst: nmdc.Database,
+        CLIENT_ID: str,
+        CLIENT_SECRET: str,
+    ) -> None:
+        """
+        Check if the manifest id is passed in the metadata DataFrame. If not, generate a new manifest id and add it to the NMDC database instance.
+
+        Parameters
+        ----------
+        metadata_df : pd.DataFrame
+            The DataFrame containing the metadata information.
+        nmdc_database_inst : nmdc.Database
+            The NMDC Database instance to add the manifest to if one needs to be generated.
+        CLIENT_ID : str
+            The client ID for the NMDC API. Used to mint a manifest id if one does not exist.
+        CLIENT_SECRET : str
+            The client secret for the NMDC API. Used to mint a manifest id if one does not exist.
+
+        """
+        if (
+            "manifest_id" not in metadata_df.columns
+            or metadata_df["manifest_id"].isnull().all()
+        ):
+            self.generate_manifest(
+                metadata_df=metadata_df,
+                nmdc_database_inst=nmdc_database_inst,
+                CLIENT_ID=CLIENT_ID,
+                CLIENT_SECRET=CLIENT_SECRET,
+            )
+
+    def generate_manifest(
+        self,
+        metadata_df: pd.DataFrame,
+        nmdc_database_inst: nmdc.Database,
+        CLIENT_ID: str,
+        CLIENT_SECRET: str,
+    ) -> None:
+        """
+        Generate manifest information and data objects for each manifest.
+
+        Parameters
+        ----------
+        metadata_df : pd.DataFrame
+            The metadata DataFrame.
+        nmdc_database_inst : nmdc.Database
+            The NMDC Database instance.
+        CLIENT_ID : str
+            The client ID for the NMDC API.
+        CLIENT_SECRET : str
+            The client secret for the NMDC API.
+
+        Returns
+        -------
+        None
+        """
+        pass
 
     def generate_biosample(
         self, biosamp_metadata: dict, CLIENT_ID: str, CLIENT_SECRET: str

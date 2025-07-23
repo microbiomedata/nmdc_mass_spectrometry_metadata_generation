@@ -340,6 +340,12 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
             )
+        self.check_manifest(
+            metadata_df=metadata_df,
+            nmdc_database_inst=nmdc_database_inst,
+            CLIENT_ID=client_id,
+            CLIENT_SECRET=client_secret,
+        )
 
         # process workflow metadata
         for _, data in tqdm(
