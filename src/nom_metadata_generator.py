@@ -64,7 +64,6 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         metadata_df = df.apply(lambda x: x.reset_index(drop=True))
         tqdm.write("\033[92mStarting metadata processing...\033[0m")
 
-        # check for duplicate doj urls in the database
         self.check_doj_urls(
             metadata_df=metadata_df, url_columns=["processed_data_directory"]
         )
@@ -157,7 +156,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         nmdc_database_inst = self.start_nmdc_database()
         metadata_df = self.load_metadata()
         tqdm.write("\033[92mStarting metadata processing...\033[0m")
-        processed_data = []
+
         self.check_for_biosamples(
             metadata_df=metadata_df,
             nmdc_database_inst=nmdc_database_inst,
@@ -204,6 +203,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
                 was_generated_by=mass_spec.id,
+                url=row.get("raw_data_url"),
             )
             # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
             calibration_id = self.get_calibration_id(

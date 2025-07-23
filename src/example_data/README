@@ -8,11 +8,21 @@ This directory contains example CSV files that serve as templates for the minimu
 - `quantity_value.csv`: This file contains the fields that are included in QuanityValue type slots. Examples of this slot include air_temp, samp_size, and phosphate. There are no required fields for this value type. This csv includes all available options for this slot type, but they can be included/excluded as needed. The important aspect in this example is the dot notation for included QuanityValue fields.
 - `enum_slot_example`: This file contains an example of Enum type slots. These are not complicated slots (note they still have 'biosample.' notation), but the values MUST be one of the permissible values as [defined in the NMDC Schema](https://microbiomedata.github.io/nmdc-schema/).
 - `config_example.toml`: This file is used to demonstrate the format of a toml file that holds credentials. The credential variables must follow the nomenclature in this file. If using `env` variables, the contents of the file will be same.
+- `sample_metadata_with_urls.csv`: This file demonstrates how to include sample-specific URLs for raw data files using `raw_data_url` column.
+
+## URL Functionality
+
+You can now include sample-specific URLs in your metadata files using this optional column:
+
+- `raw_data_url` - Complete URL for the raw data file
+
+When this column is present, it takes precedence over the base URL provided via CLI argument. This allows different samples to point to different data repositories or storage locations.
 
 ## Usage
 
 1. Use these tempaltes in your generation and workflow scripts. Ensure the output matches these.
 3. Ensure that all mandatory fields are completed.
+4. For URL functionality, either provide base URLs via CLI arguments OR include the raw_data_url column in your metadata file.
 
 ## Notes
 

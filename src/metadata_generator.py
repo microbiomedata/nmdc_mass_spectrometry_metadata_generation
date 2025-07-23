@@ -175,6 +175,7 @@ class NMDCMetadataGenerator:
         CLIENT_SECRET: str,
         was_generated_by: str = None,
         alternative_id: str = None,
+        url: str = None,
     ) -> nmdc.DataObject:
         """
         Create an NMDC DataObject with metadata from the specified file and details.
@@ -196,7 +197,7 @@ class NMDCMetadataGenerator:
             Description of the data object.
         base_url : str
             Base URL for accessing the data object, to which the file name is
-            appended to form the complete URL.
+            appended to form the complete URL. Ignored if `url` is provided.
         CLIENT_ID : str
             The client ID for the NMDC API.
         CLIENT_SECRET : str
@@ -206,6 +207,9 @@ class NMDCMetadataGenerator:
             (e.g., the DataGeneration id or the MetabolomicsAnalysis id).
         alternative_id : str, optional
             An optional alternative identifier for the data object.
+        url : str, optional
+            The complete URL for the data object. If provided, this takes
+            precedence over constructing the URL from base_url + file name.
 
         Returns
         -------
@@ -232,7 +236,7 @@ class NMDCMetadataGenerator:
             "description": description,
             "file_size_bytes": file_path.stat().st_size,
             "md5_checksum": hashlib.md5(file_path.open("rb").read()).hexdigest(),
-            "url": base_url + str(file_path.name),
+            "url": url if url is not None else base_url + str(file_path.name),
             "type": NmdcTypes.DataObject,
             "was_generated_by": was_generated_by,
             "alternative_identifiers": alternative_id,
@@ -1110,7 +1114,22 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         """
         urls = []
         for col in url_columns:
-            if "directory" in col:
+            # Check if this is a raw data URL column (only handle raw data URLs)
+            if col == "raw_data_url":
+                # For raw data URL column, use the URLs directly
+                column_urls = metadata_df[col].dropna().tolist()
+                urls.extend(column_urls)
+                # Check if the urls are valid
+                for url in column_urls[
+                    :5
+                ]:  # Check up to 5 URLs, or fewer if the list is shorter
+                    try:
+                        response = requests.head(url)
+                        if response.status_code != 200:
+                            raise ValueError(f"URL {url} is not accessible.")
+                    except requests.RequestException as e:
+                        raise ValueError(f"URL {url} is not accessible. Error: {e}")
+            elif "directory" in col:
                 # if its a directory, we need to gather all the files in the directory
                 file_data_paths = [
                     list(Path(x).glob("**/*")) for x in metadata_df[col].to_list()
