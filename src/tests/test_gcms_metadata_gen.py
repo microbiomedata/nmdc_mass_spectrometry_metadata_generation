@@ -82,20 +82,20 @@ def test_gcms_biosample_gen():
     assert len(working_data["biosample_set"]) == 1
 
 
-def test_gcms_calibration_exists():
+def test_gcms_calibration_manifest_exists():
     """
-    Test to handle the case where calibration IDs already exist in the metadata file.
+    Test to handle the case where calibration and manifest IDs already exist in the metadata file.
     """
     # Set up output file with datetime stame
     output_file = (
-        "tests/test_data/test_database_gcms_calibration_id"
+        "tests/test_data/test_database_gcms_calibration_manifest_id"
         + datetime.now().strftime("%Y%m%d%H%M%S")
         + ".json"
     )
 
     # Start the metadata generation setup
     generator = GCMSMetabolomicsMetadataGenerator(
-        metadata_file="tests/test_data/test_metadata_file_gcms_calibration_id.csv",
+        metadata_file="tests/test_data/test_metadata_file_gcms_calibration_manifest_id.csv",
         database_dump_json_path=output_file,
         raw_data_url="https://nmdcdemo.emsl.pnnl.gov/metabolomics/test_data/test_raw_gcms_metab/",
         process_data_url="https://nmdcdemo.emsl.pnnl.gov/metabolomics/test_data/test_processed_gcms_metab/",

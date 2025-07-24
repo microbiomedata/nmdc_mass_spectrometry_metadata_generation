@@ -23,7 +23,7 @@ import numpy as np
 import toml
 import requests
 from dotenv import load_dotenv
-import tqdm
+from tqdm import tqdm
 import os
 
 load_dotenv()
