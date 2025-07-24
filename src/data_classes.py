@@ -49,6 +49,8 @@ class NmdcTypes:
         NMDC type for Chromatography Configuration.
     Instrument : str
         NMDC type for Instrument.
+    Manifest : str
+        NMDC type for Manifest.
 
     """
 
@@ -70,6 +72,7 @@ class NmdcTypes:
     MobilePhaseSegment: str = "nmdc:MobilePhaseSegment"
     ChromatographyConfiguration: str = "nmdc:ChromatographyConfiguration"
     Instrument: str = "nmdc:Instrument"
+    Manifest: str = "nmdc:Manifest"
 
 
 @dataclass

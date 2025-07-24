@@ -1236,7 +1236,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         CLIENT_SECRET: str,
     ) -> None:
         """
-        Generate manifest information and data objects for each manifest.
+        Generate manifest information and data objects for each manifest. Add the manifest id to the metadata DataFrame.
 
         Parameters
         ----------
@@ -1253,7 +1253,47 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         -------
         None
         """
-        pass
+        # Get unique manifest names, create data object and Manifest information for each and attach associated ids to metadata_df
+        manifest_names = metadata_df["manifest_name"].unique()
+        for manifest_name in tqdm(
+            manifest_names,
+            total=len(manifest_names),
+            desc="Generating manifest information and data objects",
+        ):
+            # mint id
+            mint = Minter(env=ENV)
+            manifest_id = mint.mint(
+                nmdc_type=NmdcTypes.Manifest,
+                client_id=CLIENT_ID,
+                client_secret=CLIENT_SECRET,
+            )
+
+            # get the manifest_category
+            if "manifest_category" in metadata_df.columns:
+                manifest_category = metadata_df.loc[
+                    metadata_df["manifest_name"].eq(manifest_name),
+                    "manifest_category",
+                ].iloc[0]
+            else:
+                raise ValueError(
+                    "manifest_category column is missing from the metadata file. Please provide manifest_category for each manifest_name."
+                )
+
+            data_dict = {
+                "id": manifest_id,
+                "name": manifest_name,
+                "type": NmdcTypes.Manifest,
+                "manifest_category": manifest_category,
+            }
+
+            manifest = nmdc.Manifest(**data_dict)
+
+            nmdc_database_inst.manifest_set.append(manifest)
+
+            # Add manifest id to metadata_df
+            metadata_df.loc[
+                metadata_df["manifest_name"] == manifest_name, "manifest_id"
+            ] = manifest.id
 
     def generate_biosample(
         self, biosamp_metadata: dict, CLIENT_ID: str, CLIENT_SECRET: str
