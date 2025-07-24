@@ -1255,6 +1255,16 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         -------
         None
         """
+        # check if manifest_name or manifest_id exists. If neither does, return
+        if (
+            "manifest_name" not in metadata_df.columns
+            or metadata_df["manifest_name"].isnull().all()
+            or "manifest_id" not in metadata_df.columns
+            or metadata_df["manifest_id"].isnull().all()
+        ):
+            print("No manifests will be added.")
+            return
+
         # Get unique manifest names, create data object and Manifest information for each and attach associated ids to metadata_df
         manifest_names = metadata_df["manifest_name"].unique()
         manifest_id_mapping = {}
@@ -1271,22 +1281,11 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
                 client_secret=CLIENT_SECRET,
             )
 
-            # get the manifest_category
-            if "manifest_category" in metadata_df.columns:
-                manifest_category = metadata_df.loc[
-                    metadata_df["manifest_name"].eq(manifest_name),
-                    "manifest_category",
-                ].iloc[0]
-            else:
-                raise ValueError(
-                    "manifest_category column is missing from the metadata file. Please provide manifest_category for each manifest_name."
-                )
-
             data_dict = {
                 "id": manifest_id,
                 "name": manifest_name,
                 "type": NmdcTypes.Manifest,
-                "manifest_category": manifest_category,
+                "manifest_category": "instrument_run",
             }
 
             manifest = nmdc.Manifest(**data_dict)
