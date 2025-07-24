@@ -1257,6 +1257,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         """
         # Get unique manifest names, create data object and Manifest information for each and attach associated ids to metadata_df
         manifest_names = metadata_df["manifest_name"].unique()
+        manifest_id_mapping = {}
         for manifest_name in tqdm(
             manifest_names,
             total=len(manifest_names),
@@ -1291,7 +1292,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             manifest = nmdc.Manifest(**data_dict)
 
             nmdc_database_inst.manifest_set.append(manifest)
-            manifest_id_mapping = {}
+
             # Add manifest_id to the mapping dictionary
             manifest_id_mapping[manifest_name] = manifest.id
 
