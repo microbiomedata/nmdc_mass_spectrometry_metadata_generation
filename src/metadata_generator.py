@@ -176,6 +176,7 @@ class NMDCMetadataGenerator:
         CLIENT_SECRET: str,
         was_generated_by: str = None,
         alternative_id: str = None,
+        in_manifest=None,
         url: str = None,
     ) -> nmdc.DataObject:
         """
@@ -241,6 +242,7 @@ class NMDCMetadataGenerator:
             "type": NmdcTypes.DataObject,
             "was_generated_by": was_generated_by,
             "alternative_identifiers": alternative_id,
+            "in_manifest": in_manifest,
         }
 
         # If any of the data_dict values are None or empty strings, remove them
