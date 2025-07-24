@@ -1292,11 +1292,11 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
 
             nmdc_database_inst.manifest_set.append(manifest)
 
-            # Add manifest id to metadata_df
-            metadata_df.loc[
-                metadata_df["manifest_name"] == manifest_name, "manifest_id"
-            ] = manifest.id
+            # Add manifest_id to the mapping dictionary
+            manifest_id_mapping[manifest_name] = manifest.id
 
+        # Update the metadata_df in a single operation
+        metadata_df["manifest_id"] = metadata_df["manifest_name"].map(manifest_id_mapping)
     def generate_biosample(
         self, biosamp_metadata: dict, CLIENT_ID: str, CLIENT_SECRET: str
     ) -> nmdc.Biosample:
