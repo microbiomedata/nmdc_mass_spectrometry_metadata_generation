@@ -645,6 +645,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         raw_data_url: str,
         process_data_url: str,
     ):
+        super().__init__()
         self.metadata_file = metadata_file
         self.database_dump_json_path = database_dump_json_path
         self.raw_data_url = raw_data_url
