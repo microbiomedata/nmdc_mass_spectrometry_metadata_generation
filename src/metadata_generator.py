@@ -17,7 +17,7 @@ from nmdc_api_utilities.biosample_search import BiosampleSearch
 from nmdc_api_utilities.study_search import StudySearch
 from nmdc_api_utilities.data_object_search import DataObjectSearch
 from nmdc_api_utilities.metadata import Metadata
-from utils import IDPool
+from src.utils import IDPool
 import ast
 import numpy as np
 import toml
