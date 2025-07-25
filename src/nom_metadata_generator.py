@@ -163,6 +163,15 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             CLIENT_ID=client_id,
             CLIENT_SECRET=client_secret,
         )
+
+        # check if manifest ids are provided or if we need to generate them
+        self.check_manifest(
+            metadata_df=metadata_df,
+            nmdc_database_inst=nmdc_database_inst,
+            CLIENT_ID=client_id,
+            CLIENT_SECRET=client_secret,
+        )
+
         # check for duplicate doj urls in the database
         self.check_doj_urls(metadata_df=metadata_df, url_columns=self.unique_columns)
         print(f"ENV: {ENV}")
@@ -204,6 +213,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_SECRET=client_secret,
                 was_generated_by=mass_spec.id,
                 url=row.get("raw_data_url"),
+                in_manifest=row.get("manifest_id", None),
             )
             # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
             calibration_id = self.get_calibration_id(

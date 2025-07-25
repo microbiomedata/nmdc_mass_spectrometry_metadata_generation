@@ -23,6 +23,7 @@ import numpy as np
 import toml
 import requests
 from dotenv import load_dotenv
+from tqdm import tqdm
 import os
 
 load_dotenv()
@@ -175,6 +176,7 @@ class NMDCMetadataGenerator:
         CLIENT_SECRET: str,
         was_generated_by: str = None,
         alternative_id: str = None,
+        in_manifest=None,
         url: str = None,
     ) -> nmdc.DataObject:
         """
@@ -240,6 +242,7 @@ class NMDCMetadataGenerator:
             "type": NmdcTypes.DataObject,
             "was_generated_by": was_generated_by,
             "alternative_identifiers": alternative_id,
+            "in_manifest": in_manifest,
         }
 
         # If any of the data_dict values are None or empty strings, remove them
@@ -1193,6 +1196,109 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             raise ValueError(
                 f"The following URLs already exist in the database: {', '.join(resp)}"
             )
+
+    def check_manifest(
+        self,
+        metadata_df: pd.DataFrame,
+        nmdc_database_inst: nmdc.Database,
+        CLIENT_ID: str,
+        CLIENT_SECRET: str,
+    ) -> None:
+        """
+        Check if the manifest id is passed in the metadata DataFrame. If not, generate a new manifest id and add it to the NMDC database instance.
+
+        Parameters
+        ----------
+        metadata_df : pd.DataFrame
+            The DataFrame containing the metadata information.
+        nmdc_database_inst : nmdc.Database
+            The NMDC Database instance to add the manifest to if one needs to be generated.
+        CLIENT_ID : str
+            The client ID for the NMDC API. Used to mint a manifest id if one does not exist.
+        CLIENT_SECRET : str
+            The client secret for the NMDC API. Used to mint a manifest id if one does not exist.
+
+        """
+        if (
+            "manifest_id" not in metadata_df.columns
+            or metadata_df["manifest_id"].isnull().all()
+        ):
+            self.generate_manifest(
+                metadata_df=metadata_df,
+                nmdc_database_inst=nmdc_database_inst,
+                CLIENT_ID=CLIENT_ID,
+                CLIENT_SECRET=CLIENT_SECRET,
+            )
+
+    def generate_manifest(
+        self,
+        metadata_df: pd.DataFrame,
+        nmdc_database_inst: nmdc.Database,
+        CLIENT_ID: str,
+        CLIENT_SECRET: str,
+    ) -> None:
+        """
+        Generate manifest information and data objects for each manifest. Add the manifest id to the metadata DataFrame.
+
+        Parameters
+        ----------
+        metadata_df : pd.DataFrame
+            The metadata DataFrame.
+        nmdc_database_inst : nmdc.Database
+            The NMDC Database instance.
+        CLIENT_ID : str
+            The client ID for the NMDC API.
+        CLIENT_SECRET : str
+            The client secret for the NMDC API.
+
+        Returns
+        -------
+        None
+        """
+        # check if manifest_name or manifest_id exists. If neither does, return
+        if (
+            "manifest_name" not in metadata_df.columns
+            or metadata_df["manifest_name"].isnull().all()
+            or "manifest_id" not in metadata_df.columns
+            or metadata_df["manifest_id"].isnull().all()
+        ):
+            print("No manifests will be added.")
+            return
+
+        # Get unique manifest names, create data object and Manifest information for each and attach associated ids to metadata_df
+        manifest_names = metadata_df["manifest_name"].unique()
+        manifest_id_mapping = {}
+        for manifest_name in tqdm(
+            manifest_names,
+            total=len(manifest_names),
+            desc="Generating manifest information and data objects",
+        ):
+            # mint id
+            mint = Minter(env=ENV)
+            manifest_id = mint.mint(
+                nmdc_type=NmdcTypes.Manifest,
+                client_id=CLIENT_ID,
+                client_secret=CLIENT_SECRET,
+            )
+
+            data_dict = {
+                "id": manifest_id,
+                "name": manifest_name,
+                "type": NmdcTypes.Manifest,
+                "manifest_category": "instrument_run",
+            }
+
+            manifest = nmdc.Manifest(**data_dict)
+
+            nmdc_database_inst.manifest_set.append(manifest)
+
+            # Add manifest_id to the mapping dictionary
+            manifest_id_mapping[manifest_name] = manifest.id
+
+        # Update the metadata_df in a single operation
+        metadata_df["manifest_id"] = metadata_df["manifest_name"].map(
+            manifest_id_mapping
+        )
 
     def generate_biosample(
         self, biosamp_metadata: dict, CLIENT_ID: str, CLIENT_SECRET: str

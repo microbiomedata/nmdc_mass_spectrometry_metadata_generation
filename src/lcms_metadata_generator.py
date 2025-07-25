@@ -87,6 +87,15 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             CLIENT_ID=client_id,
             CLIENT_SECRET=client_secret,
         )
+
+        # check if manifest ids are provided or if we need to generate them
+        self.check_manifest(
+            metadata_df=metadata_df,
+            nmdc_database_inst=nmdc_database_inst,
+            CLIENT_ID=client_id,
+            CLIENT_SECRET=client_secret,
+        )
+
         # check if the raw data url is directly passed in or needs to be built with raw data file
         raw_col = (
             "raw_data_url" if "raw_data_url" in metadata_df.columns else "raw_data_file"
@@ -126,6 +135,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_SECRET=client_secret,
                 was_generated_by=mass_spec.id,
                 url=workflow_metadata.raw_data_url,
+                in_manifest=workflow_metadata.manifest_id,
             )
 
             metab_analysis = self.generate_metabolomics_analysis(
@@ -522,4 +532,5 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             instrument_analysis_end_date=row["instrument_analysis_end_date"],
             execution_resource=row["execution_resource"],
             raw_data_url=row.get("raw_data_url"),
+            manifest_id=row.get("manifest_id", None),
         )

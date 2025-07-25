@@ -340,6 +340,13 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
             )
+        # check if manifest ids are provided or if we need to generate them
+        self.check_manifest(
+            metadata_df=metadata_df,
+            nmdc_database_inst=nmdc_database_inst,
+            CLIENT_ID=client_id,
+            CLIENT_SECRET=client_secret,
+        )
 
         # process workflow metadata
         for _, data in tqdm(
@@ -376,6 +383,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_SECRET=client_secret,
                 was_generated_by=mass_spec.id,
                 url=workflow_metadata_obj.raw_data_url,
+                in_manifest=workflow_metadata_obj.manifest_id,
             )
             raw_data_object_id = raw_data_object.id
             # Generate metabolite identifications
@@ -609,6 +617,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             execution_resource=row["execution_resource"],
             calibration_id=row["calibration_id"],
             raw_data_url=row.get("raw_data_url"),
+            manifest_id=row.get("manifest_id"),
         )
 
     def generate_metab_identifications(
