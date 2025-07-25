@@ -40,10 +40,16 @@ class IDPool:
         if len(self.pools[nmdc_type]) <= self.refill_threshold:
             self._refill_pool(nmdc_type, client_id, client_secret)
 
+        # Ensure the pool is not empty before popping
+        if not self.pools[nmdc_type]:
+            raise RuntimeError(
+                f"ID pool for type '{nmdc_type}' is empty after refill attempt."
+            )
+
         # Return an ID from the pool
         return self.pools[nmdc_type].pop()
 
-    def _refill_pool(self, nmdc_type: str, client_id: str, client_secret: str):
+    def _refill_pool(self, nmdc_type: str, client_id: str, client_secret: str) -> None:
         """
         Refill the pool for a specific NMDC type.
 
@@ -51,6 +57,14 @@ class IDPool:
         ----------
         nmdc_type : str
             The type of NMDC entity to refill the pool for.
+        client_id : str
+            The client ID for the NMDC API.
+        client_secret : str
+            The client secret for the NMDC API.
+
+        Returns
+        -------
+        None
         """
         minter = Minter(env=ENV)
         new_ids = minter.mint(
