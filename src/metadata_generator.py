@@ -17,7 +17,6 @@ from nmdc_api_utilities.biosample_search import BiosampleSearch
 from nmdc_api_utilities.study_search import StudySearch
 from nmdc_api_utilities.data_object_search import DataObjectSearch
 from nmdc_api_utilities.metadata import Metadata
-from nmdc_api_utilities.minter import Minter
 from utils import IDPool
 import ast
 import numpy as np
@@ -303,8 +302,7 @@ class NMDCMetadataGenerator:
         nmdc.MassSpectrometryConfiguration
             An NMDC MassSpectrometryConfiguration object with the specified metadata.
         """
-        mint = Minter(env=ENV)
-        nmdc_id = mint.mint(
+        nmdc_id = self.id_pool.get_id(
             nmdc_type=NmdcTypes.MassSpectrometryConfiguration,
             client_id=CLIENT_ID,
             client_secret=CLIENT_SECRET,
@@ -486,8 +484,8 @@ class NMDCMetadataGenerator:
         nmdc.ChromatographyConfiguration
             An NMDC ChromatographyConfiguration object with the specified metadata.
         """
-        mint = Minter(env=ENV)
-        nmdc_id = mint.mint(
+
+        nmdc_id = self.id_pool.get_id(
             nmdc_type=NmdcTypes.ChromatographyConfiguration,
             client_id=CLIENT_ID,
             client_secret=CLIENT_SECRET,
@@ -547,8 +545,8 @@ class NMDCMetadataGenerator:
         nmdc.Instrument
             An NMDC Instrument object with the specified metadata.
         """
-        mint = Minter(env=ENV)
-        nmdc_id = mint.mint(
+
+        nmdc_id = self.id_pool.get_id(
             nmdc_type=NmdcTypes.Instrument,
             client_id=CLIENT_ID,
             client_secret=CLIENT_SECRET,
@@ -773,8 +771,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
 
         is_client = InstrumentSearch(env=ENV)
         cs_client = ConfigurationSearch(env=ENV)
-        minter = Minter(env=ENV)
-        nmdc_id = minter.mint(
+        nmdc_id = self.id_pool.get_id(
             nmdc_type=NmdcTypes.MassSpectrometry,
             client_id=CLIENT_ID,
             client_secret=CLIENT_SECRET,
@@ -900,9 +897,9 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         """
         if incremeneted_id is None:
             # If no incremented id is provided, mint a new one
-            mint = Minter(env=ENV)
+
             nmdc_id = (
-                mint.mint(
+                self.id_pool.get_id(
                     nmdc_type=NmdcTypes.MetabolomicsAnalysis,
                     client_id=CLIENT_ID,
                     client_secret=CLIENT_SECRET,
@@ -1280,8 +1277,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             desc="Generating manifest information and data objects",
         ):
             # mint id
-            mint = Minter(env=ENV)
-            manifest_id = mint.mint(
+            manifest_id = self.id_pool.get_id(
                 nmdc_type=NmdcTypes.Manifest,
                 client_id=CLIENT_ID,
                 client_secret=CLIENT_SECRET,
@@ -1327,11 +1323,10 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             The generated biosample instance.
 
         """
-        mint = Minter(env=ENV)
 
         # If no biosample id in spreadsheet, mint biosample ids
         if biosamp_metadata["id"] is None:
-            biosamp_metadata["id"] = mint.mint(
+            biosamp_metadata["id"] = self.id_pool.get_id(
                 nmdc_type=NmdcTypes.Biosample,
                 client_id=CLIENT_ID,
                 client_secret=CLIENT_SECRET,
