@@ -18,6 +18,7 @@ from nmdc_api_utilities.study_search import StudySearch
 from nmdc_api_utilities.data_object_search import DataObjectSearch
 from nmdc_api_utilities.metadata import Metadata
 from nmdc_api_utilities.minter import Minter
+from utils import IDPool
 import ast
 import numpy as np
 import toml
@@ -41,8 +42,11 @@ class NMDCMetadataGenerator:
     Generic base class for generating and validating NMDC metadata
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, id_pool_size: int = 100, id_refill_threshold: int = 10):
+        # Initialize ID pool
+        self.id_pool = IDPool(
+            pool_size=id_pool_size, refill_threshold=id_refill_threshold
+        )
 
     def load_credentials(self, config_file: str = None) -> tuple:
         """
@@ -224,12 +228,13 @@ class NMDCMetadataGenerator:
         time-consuming for large files.
 
         """
-        mint = Minter(env=ENV)
-        nmdc_id = mint.mint(
+
+        nmdc_id = self.id_pool.get_id(
             nmdc_type=NmdcTypes.DataObject,
             client_id=CLIENT_ID,
             client_secret=CLIENT_SECRET,
         )
+
         data_dict = {
             "id": nmdc_id,
             "data_category": data_category,
