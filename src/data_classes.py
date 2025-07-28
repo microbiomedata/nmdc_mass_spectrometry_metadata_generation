@@ -49,6 +49,8 @@ class NmdcTypes:
         NMDC type for Chromatography Configuration.
     Instrument : str
         NMDC type for Instrument.
+    Manifest : str
+        NMDC type for Manifest.
     Protocol : str
         NMDC type for Protocol.
     """
@@ -72,6 +74,7 @@ class NmdcTypes:
     ChromatographyConfiguration: str = "nmdc:ChromatographyConfiguration"
     Instrument: str = "nmdc:Instrument"
     Protocol: str = "nmdc:Protocol"
+    Manifest: str = "nmdc:Manifest"
 
 
 @dataclass
@@ -105,7 +108,11 @@ class GCMSMetabWorkflowMetadata:
         Identifier for the execution resource.
     calibration_id : str
         Identifier for the calibration information used.
-
+    raw_data_url : str, optional
+        Complete URL for the raw data file. If provided, this takes precedence
+        over constructing the URL from base_url + filename.
+    manifest_id : str
+        Identifier for the manifest associated with this workflow metadata.
     """
 
     biosample_id: str
@@ -120,6 +127,8 @@ class GCMSMetabWorkflowMetadata:
     instrument_analysis_end_date: str
     execution_resource: float
     calibration_id: str
+    raw_data_url: str = None
+    manifest_id: str = None
 
 
 @dataclass
@@ -145,7 +154,11 @@ class LCMSLipidWorkflowMetadata:
         End date of the instrument analysis.
     execution_resource : float
         Identifier for the execution resource.
-
+    raw_data_url : str, optional
+        Complete URL for the raw data file. If provided, this takes precedence
+        over constructing the URL from base_url + filename.
+    manifest_id : str
+        Identifier for the manifest associated with this workflow metadata.
     """
 
     processed_data_dir: str
@@ -156,3 +169,5 @@ class LCMSLipidWorkflowMetadata:
     instrument_analysis_start_date: str
     instrument_analysis_end_date: str
     execution_resource: float
+    raw_data_url: str = None
+    manifest_id: str = None

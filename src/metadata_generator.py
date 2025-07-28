@@ -17,12 +17,13 @@ from nmdc_api_utilities.biosample_search import BiosampleSearch
 from nmdc_api_utilities.study_search import StudySearch
 from nmdc_api_utilities.data_object_search import DataObjectSearch
 from nmdc_api_utilities.metadata import Metadata
-from nmdc_api_utilities.minter import Minter
+from src.utils import IDPool
 import ast
 import numpy as np
 import toml
 import requests
 from dotenv import load_dotenv
+from tqdm import tqdm
 import os
 
 load_dotenv()
@@ -40,8 +41,11 @@ class NMDCMetadataGenerator:
     Generic base class for generating and validating NMDC metadata
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, id_pool_size: int = 100, id_refill_threshold: int = 10):
+        # Initialize ID pool
+        self.id_pool = IDPool(
+            pool_size=id_pool_size, refill_threshold=id_refill_threshold
+        )
 
     def load_credentials(self, config_file: str = None) -> tuple:
         """
@@ -175,6 +179,8 @@ class NMDCMetadataGenerator:
         CLIENT_SECRET: str,
         was_generated_by: str = None,
         alternative_id: str = None,
+        in_manifest=None,
+        url: str = None,
     ) -> nmdc.DataObject:
         """
         Create an NMDC DataObject with metadata from the specified file and details.
@@ -196,7 +202,7 @@ class NMDCMetadataGenerator:
             Description of the data object.
         base_url : str
             Base URL for accessing the data object, to which the file name is
-            appended to form the complete URL.
+            appended to form the complete URL. Ignored if `url` is provided.
         CLIENT_ID : str
             The client ID for the NMDC API.
         CLIENT_SECRET : str
@@ -206,6 +212,9 @@ class NMDCMetadataGenerator:
             (e.g., the DataGeneration id or the MetabolomicsAnalysis id).
         alternative_id : str, optional
             An optional alternative identifier for the data object.
+        url : str, optional
+            The complete URL for the data object. If provided, this takes
+            precedence over constructing the URL from base_url + file name.
 
         Returns
         -------
@@ -218,12 +227,13 @@ class NMDCMetadataGenerator:
         time-consuming for large files.
 
         """
-        mint = Minter(env=ENV)
-        nmdc_id = mint.mint(
+
+        nmdc_id = self.id_pool.get_id(
             nmdc_type=NmdcTypes.DataObject,
             client_id=CLIENT_ID,
             client_secret=CLIENT_SECRET,
         )
+
         data_dict = {
             "id": nmdc_id,
             "data_category": data_category,
@@ -232,10 +242,11 @@ class NMDCMetadataGenerator:
             "description": description,
             "file_size_bytes": file_path.stat().st_size,
             "md5_checksum": hashlib.md5(file_path.open("rb").read()).hexdigest(),
-            "url": base_url + str(file_path.name),
+            "url": url if url is not None else base_url + str(file_path.name),
             "type": NmdcTypes.DataObject,
             "was_generated_by": was_generated_by,
             "alternative_identifiers": alternative_id,
+            "in_manifest": in_manifest,
         }
 
         # If any of the data_dict values are None or empty strings, remove them
@@ -294,8 +305,7 @@ class NMDCMetadataGenerator:
         nmdc.MassSpectrometryConfiguration
             An NMDC MassSpectrometryConfiguration object with the specified metadata.
         """
-        mint = Minter(env=ENV)
-        nmdc_id = mint.mint(
+        nmdc_id = self.id_pool.get_id(
             nmdc_type=NmdcTypes.MassSpectrometryConfiguration,
             client_id=CLIENT_ID,
             client_secret=CLIENT_SECRET,
@@ -508,8 +518,8 @@ class NMDCMetadataGenerator:
         nmdc.ChromatographyConfiguration
             An NMDC ChromatographyConfiguration object with the specified metadata.
         """
-        mint = Minter(env=ENV)
-        nmdc_id = mint.mint(
+
+        nmdc_id = self.id_pool.get_id(
             nmdc_type=NmdcTypes.ChromatographyConfiguration,
             client_id=CLIENT_ID,
             client_secret=CLIENT_SECRET,
@@ -570,8 +580,8 @@ class NMDCMetadataGenerator:
         nmdc.Instrument
             An NMDC Instrument object with the specified metadata.
         """
-        mint = Minter(env=ENV)
-        nmdc_id = mint.mint(
+
+        nmdc_id = self.id_pool.get_id(
             nmdc_type=NmdcTypes.Instrument,
             client_id=CLIENT_ID,
             client_secret=CLIENT_SECRET,
@@ -668,6 +678,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         raw_data_url: str,
         process_data_url: str,
     ):
+        super().__init__()
         self.metadata_file = metadata_file
         self.database_dump_json_path = database_dump_json_path
         self.raw_data_url = raw_data_url
@@ -795,8 +806,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
 
         is_client = InstrumentSearch(env=ENV)
         cs_client = ConfigurationSearch(env=ENV)
-        minter = Minter(env=ENV)
-        nmdc_id = minter.mint(
+        nmdc_id = self.id_pool.get_id(
             nmdc_type=NmdcTypes.MassSpectrometry,
             client_id=CLIENT_ID,
             client_secret=CLIENT_SECRET,
@@ -922,9 +932,9 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         """
         if incremeneted_id is None:
             # If no incremented id is provided, mint a new one
-            mint = Minter(env=ENV)
+
             nmdc_id = (
-                mint.mint(
+                self.id_pool.get_id(
                     nmdc_type=NmdcTypes.MetabolomicsAnalysis,
                     client_id=CLIENT_ID,
                     client_secret=CLIENT_SECRET,
@@ -1145,7 +1155,22 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         """
         urls = []
         for col in url_columns:
-            if "directory" in col:
+            # Check if this is a raw data URL column (only handle raw data URLs)
+            if col == "raw_data_url":
+                # For raw data URL column, use the URLs directly
+                column_urls = metadata_df[col].dropna().tolist()
+                urls.extend(column_urls)
+                # Check if the urls are valid
+                for url in column_urls[
+                    :5
+                ]:  # Check up to 5 URLs, or fewer if the list is shorter
+                    try:
+                        response = requests.head(url)
+                        if response.status_code != 200:
+                            raise ValueError(f"URL {url} is not accessible.")
+                    except requests.RequestException as e:
+                        raise ValueError(f"URL {url} is not accessible. Error: {e}")
+            elif "directory" in col:
                 # if its a directory, we need to gather all the files in the directory
                 file_data_paths = [
                     list(Path(x).glob("**/*")) for x in metadata_df[col].to_list()
@@ -1210,6 +1235,108 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
                 f"The following URLs already exist in the database: {', '.join(resp)}"
             )
 
+    def check_manifest(
+        self,
+        metadata_df: pd.DataFrame,
+        nmdc_database_inst: nmdc.Database,
+        CLIENT_ID: str,
+        CLIENT_SECRET: str,
+    ) -> None:
+        """
+        Check if the manifest id is passed in the metadata DataFrame. If not, generate a new manifest id and add it to the NMDC database instance.
+
+        Parameters
+        ----------
+        metadata_df : pd.DataFrame
+            The DataFrame containing the metadata information.
+        nmdc_database_inst : nmdc.Database
+            The NMDC Database instance to add the manifest to if one needs to be generated.
+        CLIENT_ID : str
+            The client ID for the NMDC API. Used to mint a manifest id if one does not exist.
+        CLIENT_SECRET : str
+            The client secret for the NMDC API. Used to mint a manifest id if one does not exist.
+
+        """
+        if (
+            "manifest_id" not in metadata_df.columns
+            or metadata_df["manifest_id"].isnull().all()
+        ):
+            self.generate_manifest(
+                metadata_df=metadata_df,
+                nmdc_database_inst=nmdc_database_inst,
+                CLIENT_ID=CLIENT_ID,
+                CLIENT_SECRET=CLIENT_SECRET,
+            )
+
+    def generate_manifest(
+        self,
+        metadata_df: pd.DataFrame,
+        nmdc_database_inst: nmdc.Database,
+        CLIENT_ID: str,
+        CLIENT_SECRET: str,
+    ) -> None:
+        """
+        Generate manifest information and data objects for each manifest. Add the manifest id to the metadata DataFrame.
+
+        Parameters
+        ----------
+        metadata_df : pd.DataFrame
+            The metadata DataFrame.
+        nmdc_database_inst : nmdc.Database
+            The NMDC Database instance.
+        CLIENT_ID : str
+            The client ID for the NMDC API.
+        CLIENT_SECRET : str
+            The client secret for the NMDC API.
+
+        Returns
+        -------
+        None
+        """
+        # check if manifest_name or manifest_id exists. If neither does, return
+        if (
+            "manifest_name" not in metadata_df.columns
+            or metadata_df["manifest_name"].isnull().all()
+            or "manifest_id" not in metadata_df.columns
+            or metadata_df["manifest_id"].isnull().all()
+        ):
+            print("No manifests will be added.")
+            return
+
+        # Get unique manifest names, create data object and Manifest information for each and attach associated ids to metadata_df
+        manifest_names = metadata_df["manifest_name"].unique()
+        manifest_id_mapping = {}
+        for manifest_name in tqdm(
+            manifest_names,
+            total=len(manifest_names),
+            desc="Generating manifest information and data objects",
+        ):
+            # mint id
+            manifest_id = self.id_pool.get_id(
+                nmdc_type=NmdcTypes.Manifest,
+                client_id=CLIENT_ID,
+                client_secret=CLIENT_SECRET,
+            )
+
+            data_dict = {
+                "id": manifest_id,
+                "name": manifest_name,
+                "type": NmdcTypes.Manifest,
+                "manifest_category": "instrument_run",
+            }
+
+            manifest = nmdc.Manifest(**data_dict)
+
+            nmdc_database_inst.manifest_set.append(manifest)
+
+            # Add manifest_id to the mapping dictionary
+            manifest_id_mapping[manifest_name] = manifest.id
+
+        # Update the metadata_df in a single operation
+        metadata_df["manifest_id"] = metadata_df["manifest_name"].map(
+            manifest_id_mapping
+        )
+
     def generate_biosample(
         self, biosamp_metadata: dict, CLIENT_ID: str, CLIENT_SECRET: str
     ) -> nmdc.Biosample:
@@ -1231,11 +1358,10 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             The generated biosample instance.
 
         """
-        mint = Minter(env=ENV)
 
         # If no biosample id in spreadsheet, mint biosample ids
         if biosamp_metadata["id"] is None:
-            biosamp_metadata["id"] = mint.mint(
+            biosamp_metadata["id"] = self.id_pool.get_id(
                 nmdc_type=NmdcTypes.Biosample,
                 client_id=CLIENT_ID,
                 client_secret=CLIENT_SECRET,

@@ -6,7 +6,6 @@ from pathlib import Path
 from nmdc_api_utilities.data_object_search import DataObjectSearch
 from nmdc_api_utilities.calibration_search import CalibrationSearch
 from nmdc_api_utilities.workflow_execution_search import WorkflowExecutionSearch
-from nmdc_api_utilities.minter import Minter
 import nmdc_schema.nmdc as nmdc
 import hashlib
 import pandas as pd
@@ -64,7 +63,6 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         metadata_df = df.apply(lambda x: x.reset_index(drop=True))
         tqdm.write("\033[92mStarting metadata processing...\033[0m")
 
-        # check for duplicate doj urls in the database
         self.check_doj_urls(
             metadata_df=metadata_df, url_columns=["processed_data_directory"]
         )
@@ -157,13 +155,22 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         nmdc_database_inst = self.start_nmdc_database()
         metadata_df = self.load_metadata()
         tqdm.write("\033[92mStarting metadata processing...\033[0m")
-        processed_data = []
+
         self.check_for_biosamples(
             metadata_df=metadata_df,
             nmdc_database_inst=nmdc_database_inst,
             CLIENT_ID=client_id,
             CLIENT_SECRET=client_secret,
         )
+
+        # check if manifest ids are provided or if we need to generate them
+        self.check_manifest(
+            metadata_df=metadata_df,
+            nmdc_database_inst=nmdc_database_inst,
+            CLIENT_ID=client_id,
+            CLIENT_SECRET=client_secret,
+        )
+
         # check for duplicate doj urls in the database
         self.check_doj_urls(metadata_df=metadata_df, url_columns=self.unique_columns)
         print(f"ENV: {ENV}")
@@ -204,6 +211,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
                 was_generated_by=mass_spec.id,
+                url=row.get("raw_data_url"),
+                in_manifest=row.get("manifest_id", None),
             )
             # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
             calibration_id = self.get_calibration_id(
@@ -330,8 +339,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             The generated metabolomics analysis object.
         """
         if incremented_id is None:
-            mint = Minter(env=ENV)
-            nmdc_id = mint.mint(
+            nmdc_id = self.id_pool.get_id(
                 nmdc_type=NmdcTypes.NomAnalysis,
                 client_id=CLIENT_ID,
                 client_secret=CLIENT_SECRET,
