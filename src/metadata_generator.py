@@ -434,7 +434,7 @@ class NMDCMetadataGenerator:
             mobile_phase_segment.substances_used = substances_used
         return mobile_phase_segment
 
-    def generate_protocol(name: str = None, url: str = None) -> nmdc.Protocol:
+    def generate_protocol(self, name: str = None, url: str = None) -> nmdc.Protocol:
         """
         Create an NMDC Protocol object with the provided metadata.
         This method generates an NMDC Protocol object, populated with the specified metadata.
