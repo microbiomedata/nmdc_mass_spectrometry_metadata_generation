@@ -30,6 +30,9 @@ def test_lcms_lipid_metadata_gen():
         database_dump_json_path=output_file,
         raw_data_url="https://nmdcdemo.emsl.pnnl.gov/lipidomics/test_data/test_raw_lcms_lipid/",
         process_data_url="https://nmdcdemo.emsl.pnnl.gov/lipidomics/test_data/test_processed_lcms_lipid/",
+        existing_data_objects=[
+            "nmdc:dobj-11-00095294"
+        ],  # random, existing data object for testing
     )
     # Run the metadata generation process
     generator.run()
@@ -87,6 +90,3 @@ def test_lcms_lipid_biosample_gen():
     file.close()
     # expecting 1 since we only have 1 unique biosample name in the csv
     assert len(working_data["biosample_set"]) == 1
-
-
-test_lcms_lipid_metadata_gen()

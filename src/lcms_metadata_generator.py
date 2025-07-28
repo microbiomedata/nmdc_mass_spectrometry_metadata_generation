@@ -251,7 +251,11 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 raise ValueError(
                     f"Not all processed data objects were created for {workflow_metadata.processed_data_dir}."
                 )
-            has_input = [parameter_data_id, raw_data_object.id]
+            has_input = [
+                parameter_data_id,
+                raw_data_object.id,
+            ] + self.existing_data_objects
+
             self.update_outputs(
                 mass_spec_obj=mass_spec,
                 analysis_obj=metab_analysis,
@@ -470,7 +474,10 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 raise ValueError(
                     f"Not all processed data objects were created for {data['processed_data_directory']}."
                 )
-            has_input = [parameter_data_id, raw_data_object_id]
+            has_input = [
+                parameter_data_id,
+                raw_data_object_id,
+            ] + self.existing_data_objects
             self.update_outputs(
                 analysis_obj=metab_analysis,
                 raw_data_obj_id=raw_data_object_id,
