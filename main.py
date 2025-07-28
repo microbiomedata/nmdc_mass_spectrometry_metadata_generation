@@ -63,6 +63,8 @@ def main():
         OPTIONAL: uses .env variables for credentials.
     --workflow_version : str, optional
         Version of the workflow to use. If not provided, it will be fetched from the Git URL.
+    --existing_data_objects : list[str], optional
+        List of existing data object IDs to use for the workflow set has input. Used ONLY in lcms_lipid and lcms_metab generators.
     Notes
     -----
     See example_data directory in this package for an example of
@@ -122,6 +124,12 @@ def main():
         required=False,
         help="Version of the workflow to use. If not provided, it will be fetched from the Git URL.",
     )
+    parser.add_argument(
+        "--existing_data_objects",
+        required=False,
+        default=[],
+        help="List of existing data object IDs to use for the workflow set has input. Used ONLY in lcms_lipid and lcms_metab generators.",
+    )
 
     args = parser.parse_args()
 
@@ -163,6 +171,7 @@ def main():
             process_data_url=args.process_data_url,
             minting_config_creds=args.minting_config_creds,
             workflow_version=args.workflow_version,
+            existing_data_objects=args.existing_data_objects,
         )
     elif args.generator == "gcms_metab":
         generator = GCMSMetabolomicsMetadataGenerator(
