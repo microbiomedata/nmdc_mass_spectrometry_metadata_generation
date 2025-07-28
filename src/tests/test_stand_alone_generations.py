@@ -110,6 +110,7 @@ def test_chromatography_configuration_generation():
         temperature_value=40,
         temperature_unit="Cel",
         CLIENT_ID=client_id,
+        protocol_link="here is a link to the protocol",
         CLIENT_SECRET=client_secret,
     )
     assert emp500_chromat_config is not None
