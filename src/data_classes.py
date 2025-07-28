@@ -49,7 +49,8 @@ class NmdcTypes:
         NMDC type for Chromatography Configuration.
     Instrument : str
         NMDC type for Instrument.
-
+    Protocol : str
+        NMDC type for Protocol.
     """
 
     Biosample: str = "nmdc:Biosample"
@@ -70,6 +71,7 @@ class NmdcTypes:
     MobilePhaseSegment: str = "nmdc:MobilePhaseSegment"
     ChromatographyConfiguration: str = "nmdc:ChromatographyConfiguration"
     Instrument: str = "nmdc:Instrument"
+    Protocol: str = "nmdc:Protocol"
 
 
 @dataclass
