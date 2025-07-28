@@ -100,6 +100,11 @@ def test_chromatography_configuration_generation():
         substances_used=[acetonitrile_99_9, formic_acid__1],
     )
 
+    # create protocol
+    protocol = generator.generate_protocol(
+        name="Test Chromatography Protocol", url="https://example.com/protocol"
+    )
+
     ## Finally, create the chromatography configuration
     emp500_chromat_config = generator.generate_chromatography_configuration(
         name="Test Chromatography Configuration",
@@ -109,6 +114,7 @@ def test_chromatography_configuration_generation():
         stationary_phase="C18",
         temperature_value=40,
         temperature_unit="Cel",
+        protocol_link=protocol,
         CLIENT_ID=client_id,
         CLIENT_SECRET=client_secret,
     )

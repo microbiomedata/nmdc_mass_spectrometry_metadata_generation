@@ -267,6 +267,7 @@ class NMDCMetadataGenerator:
         description: str,
         CLIENT_ID: str,
         CLIENT_SECRET: str,
+        protocol_link: nmdc.Protocol | None = None,
     ) -> nmdc.MassSpectrometryConfiguration:
         """
         Create an NMDC MassSpectrometryConfiguration object with the provided metadata.
@@ -296,6 +297,8 @@ class NMDCMetadataGenerator:
             The client ID for the NMDC API.
         CLIENT_SECRET : str
             The client secret for the NMDC API.
+        protocol_link : nmdc.Protocol, optional
+            A link to the protocol used for the mass spectrometry configuration.
 
         Returns
         -------
@@ -318,6 +321,7 @@ class NMDCMetadataGenerator:
             "mass_spectrum_collection_modes": mass_spectrum_collection_modes,
             "polarity_mode": polarity_mode,
             "type": NmdcTypes.MassSpectrometryConfiguration,
+            "protocol_link": protocol_link,
         }
 
         mass_spectrometry_config = nmdc.MassSpectrometryConfiguration(**data_dict)
@@ -440,6 +444,33 @@ class NMDCMetadataGenerator:
             mobile_phase_segment.substances_used = substances_used
         return mobile_phase_segment
 
+    def generate_protocol(self, name: str = None, url: str = None) -> nmdc.Protocol:
+        """
+        Create an NMDC Protocol object with the provided metadata.
+        This method generates an NMDC Protocol object, populated with the specified metadata.
+
+        Parameters
+        ----------
+        name : str, optional
+            The name of the protocol.
+        url : str, optional
+            The URL of the protocol.
+
+        Returns
+        -------
+        nmdc.Protocol
+            An NMDC Protocol object with the specified metadata.
+
+        """
+
+        data_dict = {
+            "type": NmdcTypes.Protocol,
+            "name": name,
+            "url": url,
+        }
+
+        return nmdc.Protocol(**data_dict)
+
     def generate_chromatography_configuration(
         self,
         name: str,
@@ -451,6 +482,7 @@ class NMDCMetadataGenerator:
         ordered_mobile_phases: List[nmdc.MobilePhaseSegment] | None = None,
         temperature_value: float | None = None,
         temperature_unit: str | None = None,
+        protocol_link: nmdc.Protocol | None = None,
     ) -> nmdc.ChromatographyConfiguration:
         """
         Create an NMDC ChromatographyConfiguration object with the provided metadata.
@@ -478,6 +510,8 @@ class NMDCMetadataGenerator:
             The temperature at which the chromatography is performed.
         temperature_unit : str, optional
             The unit of measurement for the temperature (e.g., 'Cel')
+        protocol_link : nmdc.Protocol, optional
+            A link to the protocol used for the chromatography configuration.
 
         Returns
         -------
@@ -498,6 +532,7 @@ class NMDCMetadataGenerator:
             "ordered_mobile_phases": ordered_mobile_phases,
             "stationary_phase": stationary_phase,
             "type": NmdcTypes.ChromatographyConfiguration,
+            "protocol_link": protocol_link,
         }
 
         if temperature_value and temperature_unit:
