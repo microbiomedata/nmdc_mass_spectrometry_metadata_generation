@@ -6,7 +6,6 @@ from pathlib import Path
 from nmdc_api_utilities.data_object_search import DataObjectSearch
 from nmdc_api_utilities.calibration_search import CalibrationSearch
 from nmdc_api_utilities.workflow_execution_search import WorkflowExecutionSearch
-from nmdc_api_utilities.minter import Minter
 import nmdc_schema.nmdc as nmdc
 import hashlib
 import pandas as pd
@@ -340,8 +339,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             The generated metabolomics analysis object.
         """
         if incremented_id is None:
-            mint = Minter(env=ENV)
-            nmdc_id = mint.mint(
+            nmdc_id = self.id_pool.get_id(
                 nmdc_type=NmdcTypes.NomAnalysis,
                 client_id=CLIENT_ID,
                 client_secret=CLIENT_SECRET,
