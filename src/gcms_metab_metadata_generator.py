@@ -9,7 +9,6 @@ import pandas as pd
 from nmdc_api_utilities.data_object_search import DataObjectSearch
 from nmdc_api_utilities.workflow_execution_search import WorkflowExecutionSearch
 import nmdc_schema.nmdc as nmdc
-from nmdc_api_utilities.minter import Minter
 from typing import List
 from src.data_classes import NmdcTypes, GCMSMetabWorkflowMetadata
 import re
@@ -551,9 +550,8 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             If the calibration type is not supported.
 
         """
-        mint = Minter(env=ENV)
         if fames and not internal:
-            nmdc_id = mint.mint(
+            nmdc_id = self.id_pool.get_id(
                 nmdc_type=NmdcTypes.CalibrationInformation,
                 client_id=CLIENT_ID,
                 client_secret=CLIENT_SECRET,
