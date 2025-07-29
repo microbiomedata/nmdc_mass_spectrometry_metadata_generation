@@ -1268,6 +1268,74 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
                 CLIENT_SECRET=CLIENT_SECRET,
             )
 
+    def generate_mass_spec_fields(
+        self,
+        metadata_df: pd.DataFrame,
+    ) -> None:
+        """
+        Generate mass_spec_id, lc_config_name, and instrument_id information for each row in the metadata DataFrame. Add fields back to the DataFrame.
+
+        Parameters
+        ----------
+        metadata_df : pd.DataFrame
+            The metadata DataFrame.
+
+        Returns
+        -------
+        None
+        """
+        is_client = InstrumentSearch(env=ENV)
+        cs_client = ConfigurationSearch(env=ENV)
+        instrument_names = metadata_df["instrument_used"].unique()
+        lc_config_names = metadata_df["chromat_configuration_name"].unique()
+        mass_spec_config_names = metadata_df["mass_spec_configuration_name"].unique()
+
+        # loop through each variable and get the id for each name
+        # and add it to the metadata_df
+        for var in [instrument_names, lc_config_names, mass_spec_config_names]:
+            for name in var:
+                if var is instrument_names:
+                    # Get instrument id
+                    instrument_id = is_client.get_record_by_attribute(
+                        attribute_name="name",
+                        attribute_value=name,
+                        fields="id",
+                        exact_match=True,
+                    )[0]["id"]
+                    metadata_df.loc[
+                        metadata_df["instrument_used"] == name, "instrument_id"
+                    ] = instrument_id
+                elif var is lc_config_names:
+                    # Get LC configuration id
+                    try:
+                        lc_config_id = cs_client.get_record_by_attribute(
+                            attribute_name="name",
+                            attribute_value=name,
+                            fields="id",
+                            exact_match=True,
+                        )[0]["id"]
+                    except IndexError:
+                        raise ValueError(
+                            f"Configuration '{name}' not found in the database."
+                        )
+                    metadata_df.loc[
+                        metadata_df["chromat_configuration_name"] == name,
+                        "lc_config_id",
+                    ] = lc_config_id
+
+                elif var is mass_spec_config_names:
+                    # Get mass spec configuration id
+                    mass_spec_id = cs_client.get_record_by_attribute(
+                        attribute_name="name",
+                        attribute_value=name,
+                        fields="id",
+                        exact_match=True,
+                    )[0]["id"]
+                    metadata_df.loc[
+                        metadata_df["mass_spec_configuration_name"] == name,
+                        "mass_spec_config_id",
+                    ] = mass_spec_id
+
     def generate_manifest(
         self,
         metadata_df: pd.DataFrame,

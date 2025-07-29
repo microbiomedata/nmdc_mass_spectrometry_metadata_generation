@@ -103,6 +103,11 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
         urls_columns = self.unique_columns + [raw_col]
         self.check_doj_urls(metadata_df=metadata_df, url_columns=urls_columns)
 
+        # Generate mass spec fields
+        self.generate_mass_spec_fields(
+            metadata_df=metadata_df,
+        )
+
         for _, data in tqdm(
             metadata_df.iterrows(),
             total=metadata_df.shape[0],
