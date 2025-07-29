@@ -51,7 +51,8 @@ class NmdcTypes:
         NMDC type for Instrument.
     Manifest : str
         NMDC type for Manifest.
-
+    Protocol : str
+        NMDC type for Protocol.
     """
 
     Biosample: str = "nmdc:Biosample"
@@ -72,6 +73,7 @@ class NmdcTypes:
     MobilePhaseSegment: str = "nmdc:MobilePhaseSegment"
     ChromatographyConfiguration: str = "nmdc:ChromatographyConfiguration"
     Instrument: str = "nmdc:Instrument"
+    Protocol: str = "nmdc:Protocol"
     Manifest: str = "nmdc:Manifest"
 
 
