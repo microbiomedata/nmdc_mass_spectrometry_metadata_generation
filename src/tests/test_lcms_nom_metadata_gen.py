@@ -62,6 +62,3 @@ def test_lcms_nom_metadata_gen_rerun():
     # Run the metadata generation process
     generator.rerun()
     assert os.path.exists(output_file)
-
-
-test_lcms_nom_metadata_gen()

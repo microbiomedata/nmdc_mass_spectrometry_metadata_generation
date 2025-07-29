@@ -87,6 +87,3 @@ def test_lcms_lipid_biosample_gen():
     file.close()
     # expecting 1 since we only have 1 unique biosample name in the csv
     assert len(working_data["biosample_set"]) == 1
-
-
-test_lcms_lipid_metadata_gen()

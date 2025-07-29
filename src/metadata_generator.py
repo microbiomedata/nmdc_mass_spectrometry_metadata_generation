@@ -1263,7 +1263,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             lc_config_names = metadata_df["chromat_configuration_name"].unique()
         else:
             # If the column does not exist, set it to an empty array
-            lc_config_names = np.array([])
+            lc_config_names = []
         mass_spec_config_names = metadata_df["mass_spec_configuration_name"].unique()
 
         # loop through each variable and get the id for each name
