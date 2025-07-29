@@ -117,13 +117,13 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
             mass_spec = self.generate_mass_spectrometry(
                 file_path=Path(workflow_metadata.raw_data_file),
-                instrument_name=workflow_metadata.instrument_used,
+                instrument_id=workflow_metadata.instrument_id,
                 sample_id=data["biosample_id"],
                 raw_data_id="nmdc:placeholder",
                 study_id=ast.literal_eval(data["biosample.associated_studies"]),
                 processing_institution=data["processing_institution"],
-                mass_spec_config_name=workflow_metadata.mass_spec_config_name,
-                lc_config_name=workflow_metadata.lc_config_name,
+                mass_spec_configuration_id=workflow_metadata.mass_spec_configuration_id,
+                lc_config_id=workflow_metadata.lc_config_id,
                 start_date=workflow_metadata.instrument_analysis_start_date,
                 end_date=workflow_metadata.instrument_analysis_end_date,
                 CLIENT_ID=client_id,
@@ -522,7 +522,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
         -----
         The input dictionary is expected to contain the following keys:
         'Processed Data Directory', 'Raw Data File', 'Raw Data Object Alt Id',
-        'mass spec configuration name', 'lc config name', 'instrument used',
+        'mass spec configuration id', 'lc config id', 'instrument id',
         'instrument analysis start date', 'instrument analysis end date',
         'execution resource'.
 
@@ -530,9 +530,9 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
         return LCMSLipidWorkflowMetadata(
             processed_data_dir=row["processed_data_directory"],
             raw_data_file=row["raw_data_file"],
-            mass_spec_config_name=row["mass_spec_configuration_name"],
-            lc_config_name=row["chromat_configuration_name"],
-            instrument_used=row["instrument_used"],
+            mass_spec_configuration_id=row["mass_spec_configuration_id"],
+            lc_config_id=row["lc_config_id"],
+            instrument_id=row["instrument_id"],
             instrument_analysis_start_date=row["instrument_analysis_start_date"],
             instrument_analysis_end_date=row["instrument_analysis_end_date"],
             execution_resource=row["execution_resource"],
