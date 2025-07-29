@@ -36,7 +36,12 @@ def test_lcms_lipid_metadata_gen():
     )
     # Run the metadata generation process
     generator.run()
+    file = open(output_file, "r")
+    working_data = json.load(file)
+    file.close()
     assert os.path.exists(output_file)
+    for record in working_data["workflow_execution_set"]:
+        assert "nmdc:dobj-11-00095294" in record["has_input"]
 
 
 def test_lcms_lipid_metadata_gen_rerun():
