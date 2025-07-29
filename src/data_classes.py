@@ -94,15 +94,15 @@ class GCMSMetabWorkflowMetadata:
         Path or name of the processed data file.
     raw_data_file : str
         Path or name of the raw data file.
-    mass_spec_config_name : str
-        Name of the mass spectrometry configuration used.
-    chromat_config_name : str
-        Name of the chromatography configuration used.
-    instrument_used : str
-        Name of the instrument used for analysis.
-    instrument_analysis_start_date : str
+    mass_spec_configuration_id : str
+        Identifier for the mass spectrometry configuration used.
+    lc_config_id: str
+        Identifier for the liquid chromatography configuration used.
+    instrument_id: str
+        Identifier for the instrument used for analysis.
+    instrument_analysis_start_date: str
         Start date of the instrument analysis.
-    instrument_analysis_end_date : str
+    instrument_analysis_end_date: str
         End date of the instrument analysis.
     execution_resource : float
         Identifier for the execution resource.
@@ -120,9 +120,9 @@ class GCMSMetabWorkflowMetadata:
     processing_institution: str
     processed_data_file: str
     raw_data_file: str
-    mass_spec_config_name: str
-    chromat_config_name: str
-    instrument_used: str
+    mass_spec_configuration_id: str
+    lc_config_id: str
+    instrument_id: str
     instrument_analysis_start_date: str
     instrument_analysis_end_date: str
     execution_resource: float
