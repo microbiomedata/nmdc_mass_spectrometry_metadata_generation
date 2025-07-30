@@ -188,7 +188,7 @@ class NOMWorkflowMetadata:
         List of associated study identifiers.
     biosample_id : str
         Identifier for the biosample.
-    instrument_used : str
+    instrument_id : str
         Identifier for the instrument used for analysis.
     mass_spec_configuration_id : str
         Identifier for the mass spectrometry configuration used.
