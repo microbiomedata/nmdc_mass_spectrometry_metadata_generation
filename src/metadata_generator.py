@@ -746,17 +746,17 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
     def generate_mass_spectrometry(
         self,
         file_path: Path,
-        instrument_name: str,
+        instrument_id: str,
         sample_id: str,
         raw_data_id: str,
         study_id: str,
         processing_institution: str,
-        mass_spec_config_name: str,
+        mass_spec_configuration_id: str,
         start_date: str,
         end_date: str,
         CLIENT_ID: str,
         CLIENT_SECRET: str,
-        lc_config_name: str = None,
+        lc_config_id: str = None,
         calibration_id: str = None,
     ) -> nmdc.DataGeneration:
         """
@@ -803,40 +803,11 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         and configurations. It also mints a new NMDC ID for the DataGeneration object.
 
         """
-
-        is_client = InstrumentSearch(env=ENV)
-        cs_client = ConfigurationSearch(env=ENV)
         nmdc_id = self.id_pool.get_id(
             nmdc_type=NmdcTypes.MassSpectrometry,
             client_id=CLIENT_ID,
             client_secret=CLIENT_SECRET,
         )
-        instrument_id = is_client.get_record_by_attribute(
-            attribute_name="name",
-            attribute_value=instrument_name,
-            fields="id",
-            exact_match=True,
-        )[0]["id"]
-        if lc_config_name:
-            try:
-                lc_config_id = cs_client.get_record_by_attribute(
-                    attribute_name="name",
-                    attribute_value=lc_config_name,
-                    fields="id",
-                    exact_match=True,
-                )[0]["id"]
-            except IndexError:
-                raise ValueError(
-                    f"Configuration '{lc_config_name}' not found in the database."
-                )
-        else:
-            lc_config_id = ""
-        mass_spec_id = cs_client.get_record_by_attribute(
-            attribute_name="name",
-            attribute_value=mass_spec_config_name,
-            fields="id",
-            exact_match=True,
-        )[0]["id"]
 
         data_dict = {
             "id": nmdc_id,
@@ -844,7 +815,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             "description": self.mass_spec_desc,
             "add_date": datetime.now().strftime("%Y-%m-%d"),
             "eluent_introduction_category": self.mass_spec_eluent_intro,
-            "has_mass_spectrometry_configuration": mass_spec_id,
+            "has_mass_spectrometry_configuration": mass_spec_configuration_id,
             "has_chromatography_configuration": lc_config_id,
             "analyte_category": self.analyte_category,
             "instrument_used": instrument_id,
@@ -1267,6 +1238,79 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
                 CLIENT_ID=CLIENT_ID,
                 CLIENT_SECRET=CLIENT_SECRET,
             )
+
+    def generate_mass_spec_fields(
+        self,
+        metadata_df: pd.DataFrame,
+    ) -> None:
+        """
+        Generate mass_spec_id, lc_config_name, and instrument_id information for each row in the metadata DataFrame. Add fields back to the DataFrame.
+
+        Parameters
+        ----------
+        metadata_df : pd.DataFrame
+            The metadata DataFrame.
+
+        Returns
+        -------
+        None
+        """
+        is_client = InstrumentSearch(env=ENV)
+        cs_client = ConfigurationSearch(env=ENV)
+        instrument_names = metadata_df["instrument_used"].unique()
+        if "chromat_configuration_name" in metadata_df.columns:
+            # If the column exists, get unique LC configuration names
+            lc_config_names = metadata_df["chromat_configuration_name"].unique()
+        else:
+            # If the column does not exist, set it to an empty array
+            lc_config_names = []
+        mass_spec_config_names = metadata_df["mass_spec_configuration_name"].unique()
+
+        # loop through each variable and get the id for each name
+        # and add it to the metadata_df
+        for var in [instrument_names, lc_config_names, mass_spec_config_names]:
+            for name in var:
+                if var is instrument_names:
+                    # Get instrument id
+                    instrument_id = is_client.get_record_by_attribute(
+                        attribute_name="name",
+                        attribute_value=name,
+                        fields="id",
+                        exact_match=True,
+                    )[0]["id"]
+                    metadata_df.loc[
+                        metadata_df["instrument_used"] == name, "instrument_id"
+                    ] = instrument_id
+                elif var is lc_config_names:
+                    # Get LC configuration id
+                    try:
+                        lc_config_id = cs_client.get_record_by_attribute(
+                            attribute_name="name",
+                            attribute_value=name,
+                            fields="id",
+                            exact_match=True,
+                        )[0]["id"]
+                    except IndexError:
+                        raise ValueError(
+                            f"Configuration '{name}' not found in the database."
+                        )
+                    metadata_df.loc[
+                        metadata_df["chromat_configuration_name"] == name,
+                        "lc_config_id",
+                    ] = lc_config_id
+
+                elif var is mass_spec_config_names:
+                    # Get mass spec configuration id
+                    mass_spec_id = cs_client.get_record_by_attribute(
+                        attribute_name="name",
+                        attribute_value=name,
+                        fields="id",
+                        exact_match=True,
+                    )[0]["id"]
+                    metadata_df.loc[
+                        metadata_df["mass_spec_configuration_name"] == name,
+                        "mass_spec_configuration_id",
+                    ] = mass_spec_id
 
     def generate_manifest(
         self,

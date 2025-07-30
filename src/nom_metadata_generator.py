@@ -16,6 +16,7 @@ import os
 import ast
 from abc import abstractmethod
 from src.metadata_parser import MetadataParser
+from src.data_classes import NOMWorkflowMetadata
 
 load_dotenv()
 ENV = os.getenv("NMDC_ENV", "prod")
@@ -119,7 +120,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             (
                 processed_ids,
                 workflow_data_object,
-            ) = self.create_proccesed_data_objects(
+            ) = self.create_processed_data_objects(
                 row=row,
                 client_id=client_id,
                 client_secret=client_secret,
@@ -173,37 +174,41 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
         # check for duplicate doj urls in the database
         self.check_doj_urls(metadata_df=metadata_df, url_columns=self.unique_columns)
-        print(f"ENV: {ENV}")
+
+        self.generate_mass_spec_fields(
+            metadata_df=metadata_df,
+        )
+
         # Iterate through each row in df to generate metadata
         for _, row in tqdm(
             metadata_df.iterrows(),
             total=metadata_df.shape[0],
             desc="Processing NOM rows",
         ):
-            emsl_metadata = self.create_nom_metatdata(row=row)
+            workflow_metadata_obj = self.create_nom_metatdata(row=row)
             # Generate MassSpectrometry record
 
             mass_spec = self.generate_mass_spectrometry(
-                file_path=Path(emsl_metadata["raw_data_file"]),
-                instrument_name=emsl_metadata["instrument_used"],
-                sample_id=emsl_metadata["biosample_id"],
+                file_path=Path(workflow_metadata_obj.raw_data_file),
+                instrument_id=workflow_metadata_obj.instrument_id,
+                sample_id=workflow_metadata_obj.biosample_id,
                 raw_data_id="nmdc:placeholder",
-                study_id=emsl_metadata["associated_studies"],
+                study_id=workflow_metadata_obj.associated_studies,
                 processing_institution=self.processing_institution,
-                mass_spec_config_name=emsl_metadata["mass_spec_config"],
+                mass_spec_configuration_id=workflow_metadata_obj.mass_spec_configuration_id,
                 start_date=row["instrument_analysis_start_date"],
                 end_date=row["instrument_analysis_end_date"],
-                lc_config_name=emsl_metadata["lc_config_name"],
+                lc_config_id=workflow_metadata_obj.lc_config_id,
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
             )
             eluent_intro_pretty = self.mass_spec_eluent_intro.replace("_", " ")
             # raw is the zipped .d directory
             raw_data_object_desc = (
-                f"Raw {emsl_metadata['instrument_used']} {eluent_intro_pretty} data."
+                f"Raw {row['instrument_used']} {eluent_intro_pretty} data."
             )
             raw_data_object = self.generate_data_object(
-                file_path=Path(row["raw_data_file"]),
+                file_path=Path(workflow_metadata_obj.raw_data_file),
                 data_category=self.raw_data_category,
                 data_object_type=self.raw_data_object_type,
                 description=raw_data_object_desc,
@@ -212,14 +217,14 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_SECRET=client_secret,
                 was_generated_by=mass_spec.id,
                 url=row.get("raw_data_url"),
-                in_manifest=row.get("manifest_id", None),
+                in_manifest=workflow_metadata_obj.manifest_id,
             )
             # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
             calibration_id = self.get_calibration_id(
                 calibration_path=Path(row["ref_calibration_path"])
             )
             nom_analysis = self.generate_nom_analysis(
-                file_path=Path(row["raw_data_file"]),
+                file_path=Path(workflow_metadata_obj.raw_data_file),
                 calibration_id=calibration_id,
                 raw_data_id=raw_data_object.id,
                 data_gen_id=mass_spec.id,
@@ -230,7 +235,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             (
                 processed_data_id_list,
                 workflow_data_object,
-            ) = self.create_proccesed_data_objects(
+            ) = self.create_processed_data_objects(
                 row=row,
                 client_id=client_id,
                 client_secret=client_secret,
@@ -367,7 +372,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
         return nomAnalysis
 
-    def create_nom_metatdata(self, row: pd.Series) -> dict:
+    def create_nom_metatdata(self, row: pd.Series) -> NOMWorkflowMetadata:
         """
         Parse the metadata row to get non-biosample class information.
 
@@ -378,35 +383,64 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
         Returns
         -------
-        Dict
+        NOMWorkflowMetadata
 
         """
         parser = MetadataParser()
-        # Initialize the metadata dictionary
-        metadata_dict = {
-            "raw_data_file": Path(parser.get_value(row, "raw_data_file")),
-            "processed_data_directory": Path(
-                parser.get_value(row, "processed_data_directory")
-            ),
-            "associated_studies": ast.literal_eval(
+        return NOMWorkflowMetadata(
+            raw_data_file=parser.get_value(row, "raw_data_file"),
+            processed_data_directory=parser.get_value(row, "processed_data_directory"),
+            associated_studies=ast.literal_eval(
                 parser.get_value(row, "associated_studies")
             )
             if parser.get_value(row, "associated_studies")
             else None,
-            "biosample_id": parser.get_value(row, "biosample_id")
+            biosample_id=parser.get_value(row, "biosample_id")
             if parser.get_value(row, "biosample_id") or parser.get_value(row, "id")
             else None,
-            "instrument_used": parser.get_value(row, "instrument_used")
-            if parser.get_value(row, "instrument_used")
+            instrument_id=parser.get_value(row, "instrument_id")
+            if parser.get_value(row, "instrument_id")
             else None,
-            "mass_spec_config": parser.get_value(row, "mass_spec_config")
-            if parser.get_value(row, "mass_spec_config")
+            mass_spec_configuration_id=parser.get_value(
+                row, "mass_spec_configuration_id"
+            )
+            if parser.get_value(row, "mass_spec_configuration_id")
             else None,
-            "lc_config_name": parser.get_value(row, "chromat_configuration_name"),
-        }
-
-        return metadata_dict
+            lc_config_id=parser.get_value(row, "lc_config_id")
+            if parser.get_value(row, "lc_config_id")
+            else None,
+            manifest_id=parser.get_value(row, "manifest_id")
+            if parser.get_value(row, "manifest_id")
+            else None,
+        )
 
     @abstractmethod
-    def create_proccesed_data_objects():
-        pass
+    def create_processed_data_objects(
+        self,
+        row: pd.Series,
+        client_id: str,
+        client_secret: str,
+        nom_analysis: nmdc.NomAnalysis,
+        nmdc_database_inst: nmdc.Database,
+    ):
+        """
+        Abstract method to create processed data objects.
+
+        Parameters
+        ----------
+        row : pd.Series
+            A row from the DataFrame containing metadata.
+        client_id : str
+            The client ID for authentication.
+        client_secret : str
+            The client secret for authentication.
+        nom_analysis : nmdc.NomAnalysis
+            The NomAnalysis object to which the processed data objects will be associated.
+        nmdc_database_inst : nmdc.Database
+            The NMDC database instance to which the processed data objects will be added.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the processed data object and the workflow parameter data object.
+        """

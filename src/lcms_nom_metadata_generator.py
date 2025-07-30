@@ -89,7 +89,7 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
     def run(self):
         super().run()
 
-    def create_proccesed_data_objects(
+    def create_processed_data_objects(
         self,
         row: pd.Series,
         client_id: str,
