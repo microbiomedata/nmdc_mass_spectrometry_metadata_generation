@@ -415,5 +415,32 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         )
 
     @abstractmethod
-    def create_processed_data_objects(self):
-        pass
+    def create_processed_data_objects(
+        self,
+        row: pd.Series,
+        client_id: str,
+        client_secret: str,
+        nom_analysis: nmdc.NomAnalysis,
+        nmdc_database_inst: nmdc.Database,
+    ):
+        """
+        Abstract method to create processed data objects.
+
+        Parameters
+        ----------
+        row : pd.Series
+            A row from the DataFrame containing metadata.
+        client_id : str
+            The client ID for authentication.
+        client_secret : str
+            The client secret for authentication.
+        nom_analysis : nmdc.NomAnalysis
+            The NomAnalysis object to which the processed data objects will be associated.
+        nmdc_database_inst : nmdc.Database
+            The NMDC database instance to which the processed data objects will be added.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the processed data object and the workflow parameter data object.
+        """
