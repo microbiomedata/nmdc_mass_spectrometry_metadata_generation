@@ -114,6 +114,7 @@ class LCMSLipidomicsMetadataGenerator(LCMSMetadataGenerator):
         process_data_url: str,
         minting_config_creds: str = None,
         workflow_version: str = None,
+        existing_data_objects: list[str] = [],
     ):
         super().__init__(
             metadata_file=metadata_file,
@@ -126,6 +127,7 @@ class LCMSLipidomicsMetadataGenerator(LCMSMetadataGenerator):
             workflow_version_git_url="https://github.com/microbiomedata/metaMS/blob/master/.bumpversion_lipid.cfg"
         )
         self.minting_config_creds = minting_config_creds
+        self.existing_data_objects = existing_data_objects
 
     def rerun(self):
         super().rerun()
