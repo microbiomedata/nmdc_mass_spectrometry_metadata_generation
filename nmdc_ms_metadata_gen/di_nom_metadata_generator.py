@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from src.nom_metadata_generator import NOMMetadataGenerator
+from nmdc_ms_metadata_gen.nom_metadata_generator import NOMMetadataGenerator
 import pandas as pd
 from pathlib import Path
 from datetime import datetime

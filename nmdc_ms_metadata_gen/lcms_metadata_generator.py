@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
-from src.metadata_generator import NMDCWorkflowMetadataGenerator
+from nmdc_ms_metadata_gen.metadata_generator import NMDCWorkflowMetadataGenerator
 from tqdm import tqdm
 from pathlib import Path
 from datetime import datetime
 import logging
 import ast
 import pandas as pd
-from src.data_classes import LCMSLipidWorkflowMetadata
+from nmdc_ms_metadata_gen.data_classes import LCMSLipidWorkflowMetadata
 from nmdc_api_utilities.workflow_execution_search import WorkflowExecutionSearch
 from nmdc_api_utilities.data_object_search import DataObjectSearch
-from src.data_classes import NmdcTypes
+from nmdc_ms_metadata_gen.data_classes import NmdcTypes
 import re
 from dotenv import load_dotenv
 import os

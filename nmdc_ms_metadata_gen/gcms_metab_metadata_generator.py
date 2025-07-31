@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from src.metadata_generator import NMDCWorkflowMetadataGenerator
+from nmdc_ms_metadata_gen.metadata_generator import NMDCWorkflowMetadataGenerator
 from tqdm import tqdm
 from pathlib import Path
 from datetime import datetime
@@ -10,7 +10,7 @@ from nmdc_api_utilities.data_object_search import DataObjectSearch
 from nmdc_api_utilities.workflow_execution_search import WorkflowExecutionSearch
 import nmdc_schema.nmdc as nmdc
 from typing import List
-from src.data_classes import NmdcTypes, GCMSMetabWorkflowMetadata
+from nmdc_ms_metadata_gen.data_classes import NmdcTypes, GCMSMetabWorkflowMetadata
 import re
 from dotenv import load_dotenv
 import os

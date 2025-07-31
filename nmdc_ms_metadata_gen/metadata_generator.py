@@ -9,15 +9,15 @@ import pandas as pd
 import hashlib
 import nmdc_schema.nmdc as nmdc
 from linkml_runtime.dumpers import json_dumper
-from src.metadata_parser import MetadataParser
-from src.data_classes import NmdcTypes
+from nmdc_ms_metadata_gen.metadata_parser import MetadataParser
+from nmdc_ms_metadata_gen.data_classes import NmdcTypes
 from nmdc_api_utilities.instrument_search import InstrumentSearch
 from nmdc_api_utilities.configuration_search import ConfigurationSearch
 from nmdc_api_utilities.biosample_search import BiosampleSearch
 from nmdc_api_utilities.study_search import StudySearch
 from nmdc_api_utilities.data_object_search import DataObjectSearch
 from nmdc_api_utilities.metadata import Metadata
-from src.utils import IDPool
+from nmdc_ms_metadata_gen.utils import IDPool
 import ast
 import numpy as np
 import toml

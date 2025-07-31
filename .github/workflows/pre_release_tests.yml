@@ -20,7 +20,7 @@ jobs:
         with:
             python-version: 3.12
       - name: Set up environment variables
-        working-directory: ./src
+        working-directory: ./nmdc_ms_metadata_gen
         run: echo "Environment variables set up"
         env:
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
@@ -34,7 +34,7 @@ jobs:
             pip uninstall -y nmdc-schema
             pip install --pre nmdc-schema
       - name: Run tests
-        working-directory: ./src
+        working-directory: ./nmdc_ms_metadata_gen
         env:
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}

@@ -11,7 +11,9 @@ if python_path:
     os.environ["PYTHONPATH"] = python_path
 
 
-from src.gcms_metab_metadata_generator import GCMSMetabolomicsMetadataGenerator
+from nmdc_ms_metadata_gen.gcms_metab_metadata_generator import (
+    GCMSMetabolomicsMetadataGenerator,
+)
 
 
 def test_workflow_metadata_creation_with_urls():
