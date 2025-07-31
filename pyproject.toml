@@ -28,3 +28,7 @@ dependencies = [
     "toml~=0.10.2"
 ]
 license = { file = "LICENSE" }
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["nmdc_ms_metadata_gen*"]
