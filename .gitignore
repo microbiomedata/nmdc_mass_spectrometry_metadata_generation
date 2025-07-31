@@ -2,7 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
-src/tests/.test.ipynb
+nmdc_ms_metadata/tests/.test.ipynb
 # C extensions
 *.so
 nmdc_ms_metadata/tests/test_data/test_database_*.json
