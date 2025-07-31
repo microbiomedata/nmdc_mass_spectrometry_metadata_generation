@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from src.lcms_metadata_generator import LCMSMetadataGenerator
+from nmdc_ms_metadata_gen.lcms_metadata_generator import LCMSMetadataGenerator
 
 
 class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):

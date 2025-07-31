@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 import argparse
-from src.gcms_metab_metadata_generator import GCMSMetabolomicsMetadataGenerator
-from src.lcms_lipid_metadata_generator import LCMSLipidomicsMetadataGenerator
-from src.lcms_nom_metadata_generator import LCMSNOMMetadataGenerator
-from src.di_nom_metadata_generator import DINOMMetaDataGenerator
+from nmdc_ms_metadata_gen.gcms_metab_metadata_generator import (
+    GCMSMetabolomicsMetadataGenerator,
+)
+from nmdc_ms_metadata_gen.lcms_lipid_metadata_generator import (
+    LCMSLipidomicsMetadataGenerator,
+)
+from nmdc_ms_metadata_gen.lcms_nom_metadata_generator import LCMSNOMMetadataGenerator
+from nmdc_ms_metadata_gen.di_nom_metadata_generator import DINOMMetaDataGenerator
 
 
 def main():

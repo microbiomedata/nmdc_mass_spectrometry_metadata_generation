@@ -1,0 +1,54 @@
+{
+  "@type": "Database",
+  "data_object_set": [
+    {
+      "data_category": "processed_data",
+      "data_object_type": "Direct Infusion FT-ICR MS Analysis Results",
+      "description": "EnviroMS natural organic matter workflow molecular formula assignment output details",
+      "file_size_bytes": 914178,
+      "id": "nmdc:dobj-11-bhvf5m92",
+      "md5_checksum": "a93ab26c9b8b452f3b6d54c2fb9d1ef7",
+      "name": "nom_sample_1.csv",
+      "type": "nmdc:DataObject",
+      "url": "https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_nom/nom_sample_1/nom_sample_1.csv",
+      "was_generated_by": "nmdc:wfnom-11-65b8j621.2"
+    },
+    {
+      "data_category": "workflow_parameter_data",
+      "data_object_type": "Analysis Tool Parameter File",
+      "description": "EnviroMS processing parameters for natural organic matter analysis.",
+      "file_size_bytes": 5788,
+      "id": "nmdc:dobj-11-3td1b490",
+      "md5_checksum": "e38a1a2f4b54dd082e544b7826a57dbb",
+      "name": "nom_sample_1.json",
+      "type": "nmdc:DataObject",
+      "url": "https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_nom/nom_sample_1/nom_sample_1.json",
+      "was_generated_by": "nmdc:wfnom-11-65b8j621.2"
+    }
+  ],
+  "workflow_execution_set": [
+    {
+      "description": "Processing of raw DI FT-ICR MS data for natural organic matter identification",
+      "ended_at_time": "2025-07-31 10:00:14",
+      "execution_resource": "EMSL",
+      "git_url": "https://github.com/microbiomedata/enviroMS/blob/master/wdl/di_fticr_ms.wdl",
+      "has_input": [
+        "nmdc:dobj-11-3td1b490",
+        "nmdc:dobj-11-dmqrkq30"
+      ],
+      "has_output": [
+        "nmdc:dobj-11-bhvf5m92"
+      ],
+      "id": "nmdc:wfnom-11-65b8j621.2",
+      "name": "NOM Analysis for Blanchard_MeOHExt_H-17-AB-M_20Feb18_000001.zip",
+      "processing_institution": "EMSL",
+      "started_at_time": "2025-07-31 10:00:14",
+      "type": "nmdc:NomAnalysis",
+      "uses_calibration": "nmdc:calib-14-hhn3qb47",
+      "version": "4.3.1",
+      "was_informed_by": [
+        "nmdc:dgms-11-n80fvn39"
+      ]
+    }
+  ]
+}

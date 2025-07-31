@@ -6,7 +6,7 @@ from dataclasses import dataclass, is_dataclass
 from typing import Union, Dict, List, get_origin, get_args
 import typing_inspect
 from pathlib import Path
-from src.bio_ontology_api import BioOntologyInfoRetriever
+from nmdc_ms_metadata_gen.bio_ontology_api import BioOntologyInfoRetriever
 from nmdc_schema.nmdc import (
     Biosample,
     ControlledIdentifiedTermValue,
@@ -16,7 +16,7 @@ from nmdc_schema.nmdc import (
     TimestampValue,
 )
 import ast
-from src.data_classes import NmdcTypes
+from nmdc_ms_metadata_gen.data_classes import NmdcTypes
 
 
 class MetadataParser:

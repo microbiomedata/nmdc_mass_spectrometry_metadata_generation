@@ -5,7 +5,7 @@ __pycache__/
 src/tests/.test.ipynb
 # C extensions
 *.so
-src/tests/test_data/test_database_*.json
+nmdc_ms_metadata/tests/test_data/test_database_*.json
 # Distribution / packaging
 .Python
 build/
