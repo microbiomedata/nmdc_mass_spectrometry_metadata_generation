@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from src.metadata_generator import NMDCWorkflowMetadataGenerator
-from src.data_classes import NmdcTypes
+from nmdc_ms_metadata_gen.metadata_generator import NMDCWorkflowMetadataGenerator
+from nmdc_ms_metadata_gen.data_classes import NmdcTypes
 from tqdm import tqdm
 from pathlib import Path
 from nmdc_api_utilities.data_object_search import DataObjectSearch
@@ -15,8 +15,8 @@ from dotenv import load_dotenv
 import os
 import ast
 from abc import abstractmethod
-from src.metadata_parser import MetadataParser
-from src.data_classes import NOMWorkflowMetadata
+from nmdc_ms_metadata_gen.metadata_parser import MetadataParser
+from nmdc_ms_metadata_gen.data_classes import NOMWorkflowMetadata
 
 load_dotenv()
 ENV = os.getenv("NMDC_ENV", "prod")
