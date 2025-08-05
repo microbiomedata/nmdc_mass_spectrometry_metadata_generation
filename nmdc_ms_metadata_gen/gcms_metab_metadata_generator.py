@@ -40,8 +40,8 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         Path to the minting configuration credentials file.
     calibration_standard : str, optional
         Calibration standard used for the data. Default is "fames".
-    configuration_file_name : str, optional
-        Name of the configuration file. Default is "emsl_gcms_corems_params.toml".
+    configuration_file_name : str
+        Name of the configuration file.
 
     Attributes
     ----------
@@ -110,11 +110,11 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         metadata_file: str,
         database_dump_json_path: str,
         process_data_url: str,
+        configuration_file_name: str,
         raw_data_url: str = None,
         minting_config_creds: str = None,
         workflow_version: str = None,
         calibration_standard: str = "fames",
-        configuration_file_name: str = "emsl_gcms_corems_params.toml",
     ):
         super().__init__(
             metadata_file=metadata_file,

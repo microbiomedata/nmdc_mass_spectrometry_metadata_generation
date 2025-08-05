@@ -252,12 +252,32 @@ def global_options(f):
 
 
 def existing_option(f):
-    "Decorator for existing data objects option"
+    """Decorator for existing data objects option"""
 
     @click.option(
         "--existing_data_objects",
         default=[],
         help="List of existing data object IDs to use for the workflow set has input. Used ONLY in lcms_lipid and lcms_metab generators.",
+    )
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        return f(*args, **kwargs)
+
+    return wrapper
+
+
+def configuration_options(f):
+    """Decorator for GCMS calibration and configuration options"""
+
+    @click.option(
+        "--calibration_standard",
+        default="fames",
+        help="Calibration standard to use for the GCMS metadata generation. Must be a value from the NMDC Schema. Default is 'fames'.",
+    )
+    @click.option(
+        "--configuration_file",
+        required=True,
+        help="Path to the configuration file for the GCMS metadata generator",
     )
     @wraps(f)
     def wrapper(*args, **kwargs):
@@ -375,6 +395,37 @@ def lcms_metab(
         minting_config_creds=minting_config_creds,
         workflow_version=workflow_version,
         existing_data_objects=existing_data_objects,
+    )
+    if rerun:
+        generator.rerun()
+    else:
+        generator.run()
+
+
+@cli.command()
+@global_options
+@configuration_options
+def gcms_metab(
+    rerun: bool,
+    raw_data_url: str,
+    minting_config_creds: str,
+    workflow_version: str,
+    metadata_file: str,
+    database_dump_path: str,
+    process_data_url: str,
+    calibration_standard: str,
+    configuration_file: str,
+):
+    """Generate GCMS Metabolomics metadata"""
+    generator = GCMSMetabolomicsMetadataGenerator(
+        metadata_file=metadata_file,
+        database_dump_json_path=database_dump_path,
+        raw_data_url=raw_data_url,
+        process_data_url=process_data_url,
+        minting_config_creds=minting_config_creds,
+        workflow_version=workflow_version,
+        calibration_standard=calibration_standard,
+        configuration_file_name=configuration_file,
     )
     if rerun:
         generator.rerun()
