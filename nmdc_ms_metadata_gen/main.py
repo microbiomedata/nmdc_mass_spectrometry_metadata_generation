@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 import argparse
-from nmdc_ms_metadata_gen.gcms_metab_metadata_generator import (
-    GCMSMetabolomicsMetadataGenerator,
-)
-from nmdc_ms_metadata_gen.lcms_lipid_metadata_generator import (
-    LCMSLipidomicsMetadataGenerator,
-)
-from nmdc_ms_metadata_gen.lcms_nom_metadata_generator import LCMSNOMMetadataGenerator
-from nmdc_ms_metadata_gen.di_nom_metadata_generator import DINOMMetaDataGenerator
+from .gcms_metab_metadata_generator import GCMSMetabolomicsMetadataGenerator
+from .lcms_lipid_metadata_generator import LCMSLipidomicsMetadataGenerator
+from .lcms_metab_metadata_generator import LCMSMetabolomicsMetadataGenerator
+from .lcms_nom_metadata_generator import LCMSNOMMetadataGenerator
+from .di_nom_metadata_generator import DINOMMetaDataGenerator
+import click
+from functools import wraps
 
 
 def main():
@@ -212,5 +211,176 @@ def main():
         generator.run()
 
 
+def global_options(f):
+    """Decorator to add global options to commands"""
+
+    @click.option(
+        "--rerun",
+        is_flag=True,
+        default=False,
+        help="Indicates the script is expecting data that has been re-processed.",
+    )
+    @click.option(
+        "--raw_data_url", default=None, help="URL base for the raw data files."
+    )
+    @click.option(
+        "--minting_config_creds",
+        default=None,
+        help="Path to the config file with credentials.",
+    )
+    @click.option(
+        "--workflow_version", default=None, help="Version of the workflow to use."
+    )
+    @click.option(
+        "--metadata_file", required=True, help="Path to the input CSV metadata file"
+    )
+    @click.option(
+        "--database_dump_path",
+        required=True,
+        help="Path where the output database dump JSON file will be saved",
+    )
+    @click.option(
+        "--process_data_url",
+        required=True,
+        help="URL base for the processed data files.",
+    )
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        return f(*args, **kwargs)
+
+    return wrapper
+
+
+def existing_option(f):
+    "Decorator for existing data objects option"
+
+    @click.option(
+        "--existing_data_objects",
+        default=[],
+        help="List of existing data object IDs to use for the workflow set has input. Used ONLY in lcms_lipid and lcms_metab generators.",
+    )
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        return f(*args, **kwargs)
+
+    return wrapper
+
+
+@click.group()
+def cli():
+    """Your CLI tool description"""
+    pass
+
+
+@cli.command()
+@global_options
+def di_nom(
+    rerun: bool,
+    raw_data_url: str,
+    minting_config_creds: str,
+    workflow_version: str,
+    metadata_file: str,
+    database_dump_path: str,
+    process_data_url: str,
+):
+    """Generate Direct Infusion NOM metadata"""
+    generator = DINOMMetaDataGenerator(
+        metadata_file=metadata_file,
+        database_dump_json_path=database_dump_path,
+        raw_data_url=raw_data_url,
+        process_data_url=process_data_url,
+        minting_config_creds=minting_config_creds,
+        workflow_version=workflow_version,
+    )
+    if rerun:
+        generator.rerun()
+    else:
+        generator.run()
+
+
+@cli.command()
+@global_options
+def lcms_nom(
+    rerun: bool,
+    raw_data_url: str,
+    minting_config_creds: str,
+    workflow_version: str,
+    metadata_file: str,
+    database_dump_path: str,
+    process_data_url: str,
+):
+    """Generate LCMS NOM metadata"""
+    generator = LCMSNOMMetadataGenerator(
+        metadata_file=metadata_file,
+        database_dump_json_path=database_dump_path,
+        raw_data_url=raw_data_url,
+        process_data_url=process_data_url,
+        minting_config_creds=minting_config_creds,
+        workflow_version=workflow_version,
+    )
+    if rerun:
+        generator.rerun()
+    else:
+        generator.run()
+
+
+@cli.command()
+@global_options
+@existing_option
+def lcms_lipid(
+    rerun: bool,
+    raw_data_url: str,
+    minting_config_creds: str,
+    workflow_version: str,
+    metadata_file: str,
+    database_dump_path: str,
+    process_data_url: str,
+    existing_data_objects: list,
+):
+    """Generate LCMS Lipid metadata"""
+    generator = LCMSLipidomicsMetadataGenerator(
+        metadata_file=metadata_file,
+        database_dump_json_path=database_dump_path,
+        raw_data_url=raw_data_url,
+        process_data_url=process_data_url,
+        minting_config_creds=minting_config_creds,
+        workflow_version=workflow_version,
+        existing_data_objects=existing_data_objects,
+    )
+    if rerun:
+        generator.rerun()
+    else:
+        generator.run()
+
+
+@cli.command()
+@global_options
+@existing_option
+def lcms_metab(
+    rerun: bool,
+    raw_data_url: str,
+    minting_config_creds: str,
+    workflow_version: str,
+    metadata_file: str,
+    database_dump_path: str,
+    process_data_url: str,
+    existing_data_objects: list,
+):
+    """Generate LCMS Metabolomics metadata"""
+    generator = LCMSMetabolomicsMetadataGenerator(
+        metadata_file=metadata_file,
+        database_dump_json_path=database_dump_path,
+        raw_data_url=raw_data_url,
+        process_data_url=process_data_url,
+        minting_config_creds=minting_config_creds,
+        workflow_version=workflow_version,
+        existing_data_objects=existing_data_objects,
+    )
+    if rerun:
+        generator.rerun()
+    else:
+        generator.run()
+
+
 if __name__ == "__main__":
-    main()
+    cli()
