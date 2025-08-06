@@ -85,7 +85,7 @@ def test_cli_gcms_with_url_column():
     output_file = os.path.join(
         current_directory,
         "test_data",
-        f"test_database_gcms_with_raw_urls_{datetime.now().strftime('%Y%m%d%H%M%S')}.json",
+        f"test_database_gcms_with_raw_urls_cli_{datetime.now().strftime('%Y%m%d%H%M%S')}.json",
     )
 
     result = runner.invoke(
@@ -113,6 +113,3 @@ def test_info_command_invalid():
     result = runner.invoke(cli, ["info", "invalid-command"])
 
     assert result.exit_code != 0  # Should fail for invalid command
-
-
-test_cli_gcms_with_url_column()

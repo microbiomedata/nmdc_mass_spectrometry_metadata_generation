@@ -31,6 +31,7 @@ def test_workflow_metadata_creation_with_urls():
         database_dump_json_path=output_file,
         process_data_url="https://nmdcdemo.emsl.pnnl.gov/metabolomics/test_data/test_processed_gcms_metab/",
         minting_config_creds=None,
+        configuration_file_name="emsl_gcms_corems_params.toml",
     )
 
     # Run the metadata generation
