@@ -12,7 +12,7 @@ pip install git+https://github.com/microbiomedata/nmdc_mass_spectrometry_metadat
 
 This will install the package through the git repository. Each module can be accessed through its name. For example:
 ```python
-import nmdc_ms_metadata_gen
+import nmdc_ms_metadata_gen.di_nom_metadata_generator
 ```
 
 You can also add `nmdc_ms_metadata_gen @ git+https://github.com/microbiomedata/nmdc_mass_spectrometry_metadata_generation.git@1.4.0` to a requirements.txt file.
@@ -29,11 +29,8 @@ nmdc-ms-metadata-gen --help
 
 To see more information on each command
 ```bash
-nmdc-ms-metadata-gen command-name --help`.
-```
-
-For example, to see more info on the `di-nom` command
-```bash
+nmdc-ms-metadata-gen command-name --help
+# example to see more info for di-nom
 nmdc-ms-metadata-gen di-nom --help
 ```
 
