@@ -28,6 +28,8 @@ dependencies = [
     "toml~=0.10.2"
 ]
 license = { file = "LICENSE" }
+[tool.setuptools]
+py-modules = ["main"]  # This tells setuptools to include main.py
 [project.scripts]
 nmdc_ms_metadata_gen = "main:cli"
 [tool.setuptools.packages.find]
