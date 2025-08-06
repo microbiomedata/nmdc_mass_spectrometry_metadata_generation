@@ -29,7 +29,7 @@ dependencies = [
 ]
 license = { file = "LICENSE" }
 [project.scripts]
-nmdc_ms_metadata_gen = "nmdc_ms_metadata.main:cli"
+nmdc_ms_metadata_gen = "main:cli"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["nmdc_ms_metadata_gen*"]

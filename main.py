@@ -1,12 +1,19 @@
 # -*- coding: utf-8 -*-
 import argparse
-from .gcms_metab_metadata_generator import GCMSMetabolomicsMetadataGenerator
-from .lcms_lipid_metadata_generator import LCMSLipidomicsMetadataGenerator
-from .lcms_metab_metadata_generator import LCMSMetabolomicsMetadataGenerator
-from .lcms_nom_metadata_generator import LCMSNOMMetadataGenerator
-from .di_nom_metadata_generator import DINOMMetaDataGenerator
+from nmdc_ms_metadata_gen.gcms_metab_metadata_generator import (
+    GCMSMetabolomicsMetadataGenerator,
+)
+from nmdc_ms_metadata_gen.lcms_lipid_metadata_generator import (
+    LCMSLipidomicsMetadataGenerator,
+)
+from nmdc_ms_metadata_gen.lcms_metab_metadata_generator import (
+    LCMSMetabolomicsMetadataGenerator,
+)
+from nmdc_ms_metadata_gen.lcms_nom_metadata_generator import LCMSNOMMetadataGenerator
+from nmdc_ms_metadata_gen.di_nom_metadata_generator import DINOMMetaDataGenerator
 import click
 from functools import wraps
+import pandas as pd
 
 
 def main():
@@ -211,6 +218,12 @@ def main():
         generator.run()
 
 
+@click.group()
+def cli():
+    """Thank you for using the NMDC Mass Spectrometry Metadata Generator CLI. Here you can run different metadata generation process compatible with the NMDC API."""
+    pass
+
+
 def global_options(f):
     """Decorator to add global options to commands"""
 
@@ -286,10 +299,13 @@ def configuration_options(f):
     return wrapper
 
 
-@click.group()
-def cli():
-    """Your CLI tool description"""
-    pass
+@cli.command()
+def example():
+    """Print an example of a csv where biosample record creation is required because the biosample does not already exist in NMDC"""
+    df = pd.read_csv(
+        "nmdc_ms_metadata_gen/example_data/biosample_creation_required_info.csv"
+    )
+    click.echo(df)
 
 
 @cli.command()
