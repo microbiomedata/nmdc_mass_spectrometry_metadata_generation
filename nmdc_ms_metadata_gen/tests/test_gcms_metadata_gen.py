@@ -29,6 +29,7 @@ def test_gcms_metadata_gen():
         database_dump_json_path=output_file,
         raw_data_url="https://nmdcdemo.emsl.pnnl.gov/metabolomics/test_data/test_raw_gcms_metab/",
         process_data_url="https://nmdcdemo.emsl.pnnl.gov/metabolomics/test_data/test_processed_gcms_metab/",
+        configuration_file_name="emsl_gcms_corems_params.toml",
     )
 
     # Run the metadata generation process
@@ -50,6 +51,7 @@ def test_gcms_metadata_rerun_gen():
         database_dump_json_path=output_file,
         raw_data_url="https://nmdcdemo.emsl.pnnl.gov/metabolomics/blanchard_11_8ws97026/raw/",
         process_data_url="https://nmdcdemo.emsl.pnnl.gov/metabolomics/test_data/test_processed_gcms_metab/",
+        configuration_file_name="emsl_gcms_corems_params.toml",
     )
 
     # Run the metadata generation process
@@ -72,6 +74,7 @@ def test_gcms_biosample_gen():
         raw_data_url="https://nmdcdemo.emsl.pnnl.gov/metabolomics/test_data/test_raw_gcms_metab/",
         process_data_url="https://nmdcdemo.emsl.pnnl.gov/metabolomics/test_data/test_processed_gcms_metab/",
         minting_config_creds="src/config.toml",
+        configuration_file_name="emsl_gcms_corems_params.toml",
     )
 
     # Run the metadata generation process
@@ -101,6 +104,7 @@ def test_gcms_calibration_manifest_exists():
         database_dump_json_path=output_file,
         raw_data_url="https://nmdcdemo.emsl.pnnl.gov/metabolomics/test_data/test_raw_gcms_metab/",
         process_data_url="https://nmdcdemo.emsl.pnnl.gov/metabolomics/test_data/test_processed_gcms_metab/",
+        configuration_file_name="emsl_gcms_corems_params.toml",
     )
 
     # Run the metadata generation process

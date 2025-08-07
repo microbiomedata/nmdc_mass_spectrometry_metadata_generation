@@ -3,17 +3,17 @@
 """
 Test passing in raw data urls in the metadata file functionality for metadata generation.
 """
+
+from nmdc_ms_metadata_gen.gcms_metab_metadata_generator import (
+    GCMSMetabolomicsMetadataGenerator,
+)
+
 import os
 from datetime import datetime
 
 python_path = os.getenv("PYTHONPATH")
 if python_path:
     os.environ["PYTHONPATH"] = python_path
-
-
-from nmdc_ms_metadata_gen.gcms_metab_metadata_generator import (
-    GCMSMetabolomicsMetadataGenerator,
-)
 
 
 def test_workflow_metadata_creation_with_urls():
@@ -31,6 +31,7 @@ def test_workflow_metadata_creation_with_urls():
         database_dump_json_path=output_file,
         process_data_url="https://nmdcdemo.emsl.pnnl.gov/metabolomics/test_data/test_processed_gcms_metab/",
         minting_config_creds=None,
+        configuration_file_name="emsl_gcms_corems_params.toml",
     )
 
     # Run the metadata generation

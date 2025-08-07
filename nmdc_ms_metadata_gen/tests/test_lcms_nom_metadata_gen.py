@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 # This script will serve as a test for the lipdomics metadata generation script.
+import os
 from datetime import datetime
 from nmdc_ms_metadata_gen.lcms_nom_metadata_generator import LCMSNOMMetadataGenerator
 from dotenv import load_dotenv
-import json
 
 load_dotenv()
-import os
 
 python_path = os.getenv("PYTHONPATH")
 if python_path:
