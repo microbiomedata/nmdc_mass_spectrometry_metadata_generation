@@ -1149,7 +1149,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
                 # Add a check that the processed data directory is not empty
                 if not any(file_data_paths):
                     raise FileNotFoundError(
-                        f"No files found in {col}: " f"{metadata_df[col]}"
+                        f"No files found in {col}: {metadata_df[col]}"
                     )
                 # line to flatten the list of lists
                 file_data_paths = [

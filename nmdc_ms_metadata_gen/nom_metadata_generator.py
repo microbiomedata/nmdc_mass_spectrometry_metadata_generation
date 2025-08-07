@@ -10,7 +10,6 @@ import nmdc_schema.nmdc as nmdc
 import hashlib
 import pandas as pd
 import re
-from datetime import datetime
 from dotenv import load_dotenv
 import os
 import ast
@@ -101,7 +100,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                     lambda x: str(int(x.group(1)) + 1),
                     prev_nom_analysis["id"],
                 )
-            except Exception as e:
+            except Exception:
                 raise IndexError(
                     f"NomAnalysis object not found for raw data object ID: {raw_data_object_id}"
                 )

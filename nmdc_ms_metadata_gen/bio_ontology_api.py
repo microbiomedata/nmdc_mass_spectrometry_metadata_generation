@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 import requests
-import os
-from pathlib import Path
-import requests
 
 
 class BioOntologyInfoRetriever:

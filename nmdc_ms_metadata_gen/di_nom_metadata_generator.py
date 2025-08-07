@@ -71,7 +71,7 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
     workflow_param_data_category: str = "workflow_parameter_data"
     workflow_param_data_object_type: str = "Analysis Tool Parameter File"
     workflow_param_data_object_desc = (
-        f"EnviroMS processing parameters for natural organic matter analysis."
+        "EnviroMS processing parameters for natural organic matter analysis."
     )
     unique_columns: list[str] = ["processed_data_directory"]
     mass_spec_eluent_intro: str = "direct_infusion_autosampler"

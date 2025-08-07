@@ -40,7 +40,7 @@ Run a command to generate metadata for a DI NOM data type
 nmdc-ms-metadata-gen di-nom --database_dump_path tests/test_data/test_database_nom_main --process_data_url https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_nom/ --raw_data_url https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_raw_nom/ --metadata_file nmdc_ms_metadata_gen/tests/test_data/test_metadata_file_nom.csv`
 ```
 
-Details on the flags can be found in the [documentation](https://microbiomedata.github.io/nmdc_mass_spectrometry_metadata_generation/functions.html#main-cli). Credentials to reach the NMDC API for necessary functions can either be passed in a .toml file OR read in from .env variables. Examples on format for these can be found under (nmdc_ms_metadata_gen/example_data)[https://github.com/microbiomedata/nmdc_mass_spectrometry_metadata_generation/tree/main/nmdc_ms_metadata_gen/example_data].
+Details on the flags can be found in the [documentation](https://microbiomedata.github.io/nmdc_mass_spectrometry_metadata_generation/functions.html#main-cli). Credentials to reach the NMDC API for necessary functions can either be passed in a .toml file OR read in from .env variables. Examples on format for these can be found under [nmdc_ms_metadata_gen/example_data](https://github.com/microbiomedata/nmdc_mass_spectrometry_metadata_generation/tree/main/nmdc_ms_metadata_gen/example_data).
 
 # Development Environment
 To run scripts in the dev NMDC API environment, set NMDC_ENV='dev' in .env file. Default will run in production.

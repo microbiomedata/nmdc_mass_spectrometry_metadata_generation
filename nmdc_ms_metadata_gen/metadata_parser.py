@@ -3,9 +3,8 @@ import pandas as pd
 import numpy as np
 
 from dataclasses import dataclass, is_dataclass
-from typing import Union, Dict, List, get_origin, get_args
+from typing import Union, List, get_origin, get_args
 import typing_inspect
-from pathlib import Path
 from nmdc_ms_metadata_gen.bio_ontology_api import BioOntologyInfoRetriever
 from nmdc_schema.nmdc import (
     Biosample,
