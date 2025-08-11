@@ -193,7 +193,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 sample_id=workflow_metadata_obj.biosample_id,
                 raw_data_id="nmdc:placeholder",
                 study_id=workflow_metadata_obj.associated_studies,
-                processing_institution=self.processing_institution,
+                processing_institution=workflow_metadata_obj.processing_institution,
                 mass_spec_configuration_id=workflow_metadata_obj.mass_spec_configuration_id,
                 start_date=row["instrument_analysis_start_date"],
                 end_date=row["instrument_analysis_end_date"],
@@ -228,6 +228,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 raw_data_id=raw_data_object.id,
                 data_gen_id=mass_spec.id,
                 processed_data_id="nmdc:placeholder",
+                workflow_metadata_obj=workflow_metadata_obj,
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
             )
@@ -310,6 +311,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         raw_data_id: str,
         data_gen_id: str,
         processed_data_id: str,
+        workflow_metadata_obj: NOMWorkflowMetadata,
         CLIENT_ID: str,
         CLIENT_SECRET: str,
         calibration_id: str = None,
@@ -328,6 +330,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             The ID of the data generation process that informed this analysis.
         processed_data_id : str
             The ID of the processed data resulting from this analysis.
+        workflow_metadata_obj : NOMWorkflowMetadata
+            The workflow metadata object containing information about the workflow.
         CLIENT_ID : str
             The client ID for the NMDC API.
         CLIENT_SECRET : str
@@ -355,8 +359,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             "name": f"{self.workflow_analysis_name} for {file_path.name}",
             "description": self.workflow_description,
             "uses_calibration": calibration_id,
-            "processing_institution": self.processing_institution,
-            "execution_resource": self.execution_resource,
+            "processing_institution": workflow_metadata_obj.processing_institution,
+            "execution_resource": workflow_metadata_obj.execution_resource,
             "git_url": self.workflow_git_url,
             "version": self.workflow_version,
             "was_informed_by": data_gen_id,
@@ -410,6 +414,12 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             else None,
             manifest_id=parser.get_value(row, "manifest_id")
             if parser.get_value(row, "manifest_id")
+            else None,
+            execution_resource=parser.get_value(row, "execution_resource")
+            if parser.get_value(row, "execution_resource")
+            else None,
+            processing_institution=parser.get_value(row, "processing_institution")
+            if parser.get_value(row, "processing_institution")
             else None,
         )
 

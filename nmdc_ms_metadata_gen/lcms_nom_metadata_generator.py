@@ -32,7 +32,24 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
 
     Attributes
     ----------
-
+    processed_data_object_desc : str
+    qc_process_data_obj_type : str
+    qc_process_data_description : str
+    raw_data_object_type : str
+    raw_data_obj_desc : str
+    processed_data_object_type : str
+    processed_data_category: str
+    analyte_category: str
+    workflow_analysis_name: str
+    workflow_param_data_object_desc: str
+    workflow_param_data_category: str
+    workflow_param_data_object_type: str
+    unique_columns: list[str]
+    mass_spec_eluent_intro: str
+    mass_spec_desc: str
+    workflow_git_url: str
+    workflow_version: str
+    workflow_description: str
     """
 
     processed_data_object_desc: str = (
@@ -45,7 +62,6 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
     raw_data_obj_desc: str = "LC FT-ICR MS Raw Data raw data for NOM data acquisition."
     processed_data_object_type: str = "LC FT-ICR MS Analysis Results"
     processed_data_category: str = "processed_data"
-    execution_resource: str = "EMSL-RZR"
     analyte_category: str = "nom"
     workflow_analysis_name: str = "LC FT-ICR MS NOM Analysis"
     workflow_param_data_object_desc: str = "EnviroMS processing parameters for natural organic matter analysis when acquired using liquid chromatography."
@@ -54,7 +70,6 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
     unique_columns: list[str] = ["processed_data_directory"]
     mass_spec_eluent_intro: str = "liquid_chromatography"
     mass_spec_desc: str = "Generation of mass spectrometry data for the analysis of NOM when acquired using liquid chromatography."
-    processing_institution: str = "EMSL"
     workflow_git_url: str = (
         "https://github.com/microbiomedata/enviroMS/blob/master/wdl/lc_ftirc_ms.wdl"
     )
