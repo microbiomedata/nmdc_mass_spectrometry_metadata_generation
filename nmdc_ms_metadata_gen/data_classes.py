@@ -102,12 +102,12 @@ class GCMSMetabWorkflowMetadata:
         Start date of the instrument analysis.
     instrument_analysis_end_date: str
         End date of the instrument analysis.
+    calibration_id : str
+        Identifier for the calibration information used.
     processing_institution : str
         Name of the processing institution. Must be a value from ProcessingInstitutionEnum.
     execution_resource : str, optional
         Name of the execution resource. Must be a value from ExecutionResourceEnum.
-    calibration_id : str
-        Identifier for the calibration information used.
     raw_data_url : str, optional
         Complete URL for the raw data file. If provided, this takes precedence
         over constructing the URL from base_url + filename.
@@ -125,8 +125,8 @@ class GCMSMetabWorkflowMetadata:
     instrument_analysis_start_date: str
     instrument_analysis_end_date: str
     processing_institution: str
-    execution_resource: str = None
     calibration_id: str
+    execution_resource: str = None
     raw_data_url: str = None
     manifest_id: str = None
 
