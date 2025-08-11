@@ -62,7 +62,7 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
     processed_data_object_type: str = "Direct Infusion FT-ICR MS Analysis Results"
     processed_data_object_desc = "EnviroMS natural organic matter workflow molecular formula assignment output details"
     processed_data_category: str = "processed_data"
-    execution_resource: str = "EMSL"
+    execution_resource: str = "EMSL-RZR"
     analyte_category: str = "nom"
     workflow_analysis_name: str = "NOM Analysis"
     workflow_description: str = (

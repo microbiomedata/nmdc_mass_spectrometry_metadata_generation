@@ -88,8 +88,6 @@ class GCMSMetabWorkflowMetadata:
         Identifier for the biosample.s
     nmdc_study : str
         Identifier for the NMDC study.
-    processing_institution : str
-        Name of the institution processing the data.
     processed_data_file : str
         Path or name of the processed data file.
     raw_data_file : str
@@ -104,8 +102,10 @@ class GCMSMetabWorkflowMetadata:
         Start date of the instrument analysis.
     instrument_analysis_end_date: str
         End date of the instrument analysis.
-    execution_resource : float
-        Identifier for the execution resource.
+    processing_institution : str
+        Name of the processing institution. Must be a value from ProcessingInstitutionEnum.
+    execution_resource : str, optional
+        Name of the execution resource. Must be a value from ExecutionResourceEnum.
     calibration_id : str
         Identifier for the calibration information used.
     raw_data_url : str, optional
@@ -117,7 +117,6 @@ class GCMSMetabWorkflowMetadata:
 
     biosample_id: str
     nmdc_study: str
-    processing_institution: str
     processed_data_file: str
     raw_data_file: str
     mass_spec_configuration_id: str
@@ -125,7 +124,8 @@ class GCMSMetabWorkflowMetadata:
     instrument_id: str
     instrument_analysis_start_date: str
     instrument_analysis_end_date: str
-    execution_resource: float
+    processing_institution: str
+    execution_resource: str = None
     calibration_id: str
     raw_data_url: str = None
     manifest_id: str = None
@@ -152,8 +152,10 @@ class LCMSLipidWorkflowMetadata:
         Start date of the instrument analysis.
     instrument_analysis_end_date : str
         End date of the instrument analysis.
-    execution_resource : float
-        Identifier for the execution resource.
+    processing_institution : str
+        Name of the processing institution. Must be a value from ProcessingInstitutionEnum.
+    execution_resource : str, optional
+        Name of the execution resource. Must be a value from ExecutionResourceEnum.
     raw_data_url : str, optional
         Complete URL for the raw data file. If provided, this takes precedence
         over constructing the URL from base_url + filename.
@@ -168,7 +170,8 @@ class LCMSLipidWorkflowMetadata:
     instrument_id: str
     instrument_analysis_start_date: str
     instrument_analysis_end_date: str
-    execution_resource: float
+    processing_institution: str
+    execution_resource: str = None
     raw_data_url: str = None
     manifest_id: str = None
 
@@ -196,6 +199,10 @@ class NOMWorkflowMetadata:
         Identifier for the liquid chromatography configuration used.
     manifest_id : str
         Identifier for the manifest associated with this workflow metadata.
+    processing_institution : str
+        Name of the processing institution. Must be a value from ProcessingInstitutionEnum.
+    execution_resource : str, optional
+        Name of the execution resource. Must be a value from ExecutionResourceEnum.
     """
 
     raw_data_file: str
@@ -206,3 +213,5 @@ class NOMWorkflowMetadata:
     mass_spec_configuration_id: str
     lc_config_id: str
     manifest_id: str
+    processing_institution: str
+    execution_resource: str = None

@@ -45,7 +45,7 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
     raw_data_obj_desc: str = "LC FT-ICR MS Raw Data raw data for NOM data acquisition."
     processed_data_object_type: str = "LC FT-ICR MS Analysis Results"
     processed_data_category: str = "processed_data"
-    execution_resource: str = "EMSL"
+    execution_resource: str = "EMSL-RZR"
     analyte_category: str = "nom"
     workflow_analysis_name: str = "LC FT-ICR MS NOM Analysis"
     workflow_param_data_object_desc: str = "EnviroMS processing parameters for natural organic matter analysis when acquired using liquid chromatography."
