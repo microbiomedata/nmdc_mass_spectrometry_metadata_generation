@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 # This script will serve as a test for the lipdomics metadata generation script.
 from datetime import datetime
+import os
+import json
+
 from nmdc_ms_metadata_gen.lcms_lipid_metadata_generator import (
     LCMSLipidomicsMetadataGenerator,
 )
 from dotenv import load_dotenv
 
 load_dotenv()
-import os
-import json
 
 python_path = os.getenv("PYTHONPATH")
 if python_path:
@@ -70,6 +71,7 @@ def test_lcms_lipid_metadata_gen_rerun():
 
 
 def test_lcms_lipid_biosample_gen():
+    """Test LCMS lipidomics metadata generation with no biosample ID and generating a manifest"""
     current_directory = os.path.dirname(__file__)
     csv_file_path = os.path.join(
         current_directory,
@@ -97,3 +99,5 @@ def test_lcms_lipid_biosample_gen():
     file.close()
     # expecting 1 since we only have 1 unique biosample name in the csv
     assert len(working_data["biosample_set"]) == 1
+    # expecting to generate 1 manifest
+    assert len(working_data["manifest_set"]) == 1
