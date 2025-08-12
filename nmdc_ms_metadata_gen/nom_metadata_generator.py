@@ -72,6 +72,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             total=metadata_df.shape[0],
             desc="Processing NOM rows",
         ):
+            workflow_metadata_obj = self.create_nom_metatdata(row=row)
             try:
                 raw_data_object_id = do_client.get_record_by_attribute(
                     attribute_name="url",
@@ -104,6 +105,15 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 raise IndexError(
                     f"NomAnalysis object not found for raw data object ID: {raw_data_object_id}"
                 )
+            workflow_metadata_obj.processing_institution = prev_nom_analysis[
+                "processing_institution"
+            ]
+            workflow_metadata_obj.execution_resource = (
+                prev_nom_analysis["execution_resource"]
+                if prev_nom_analysis["execution_resource"]
+                else None
+            )
+
             # grab the calibration_id from the previous metabolomics analysis
             # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
             nom_analysis = self.generate_nom_analysis(
@@ -113,6 +123,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 processed_data_id="nmdc:placeholder",
                 calibration_id=prev_nom_analysis["uses_calibration"],
                 incremented_id=metab_analysis_id,
+                workflow_metadata_obj=workflow_metadata_obj,
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
             )
