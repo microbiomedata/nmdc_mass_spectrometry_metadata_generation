@@ -1356,12 +1356,12 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             manifest_id_mapping[row["manifest_name"]] = row["manifest_id"]
 
         for manifest_name in tqdm(
-            manifest_names,
+            manifest_id_mapping.keys(),
             total=len(manifest_names),
             desc="Generating manifest information and data objects",
         ):
             # If there is already an manifest_id associated with a manifest_name
-            if manifest_id_mapping["manifest_name"] is not None:
+            if manifest_id_mapping[manifest_name] is not None:
                 continue
             # mint id
             manifest_id = self.id_pool.get_id(
