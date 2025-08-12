@@ -1337,12 +1337,10 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         -------
         None
         """
-        # check if manifest_name or manifest_id exists. If neither does, return
+        # check if manifest_name exists and has non-null values. If not, return
         if (
             "manifest_name" not in metadata_df.columns
             or metadata_df["manifest_name"].isnull().all()
-            or "manifest_id" not in metadata_df.columns
-            or metadata_df["manifest_id"].isnull().all()
         ):
             print("No manifests will be added.")
             return
