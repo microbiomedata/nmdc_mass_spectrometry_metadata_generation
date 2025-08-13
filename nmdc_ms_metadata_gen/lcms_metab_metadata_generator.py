@@ -1,4 +1,11 @@
 # -*- coding: utf-8 -*-
+from typing import List
+from pathlib import Path
+
+import nmdc_schema.nmdc as nmdc
+import pandas as pd
+
+from nmdc_ms_metadata_gen.data_classes import NmdcTypes
 from nmdc_ms_metadata_gen.lcms_metadata_generator import LCMSMetadataGenerator
 
 
@@ -63,7 +70,8 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
         Type of HDF5 processed data object.
     hdf5_process_data_description : str
         Description of HDF5 processed data.
-
+    add_metabolite_ids : bool
+        Whether to add metabolite IDs to the metadata.
     """
 
     unique_columns: list[str] = ["processed_data_directory"]
@@ -82,6 +90,7 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
     workflow_git_url: str = "https://github.com/microbiomedata/metaMS/blob/master/wdl/metaMS_lcms_metabolomics.wdl"
     workflow_version: str
     workflow_category: str = "lc_ms_metabolomics"
+    add_metabolite_ids: bool = True
 
     # Processed data attributes
     wf_config_process_data_category: str = "workflow_parameter_data"
@@ -122,6 +131,73 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
         )
         self.minting_config_creds = minting_config_creds
         self.existing_data_objects = existing_data_objects
+
+    def generate_metab_identifications(
+        self, processed_data_dir: str
+    ) -> List[nmdc.MetaboliteIdentification]:
+        """
+        Generate MetaboliteIdentification objects from processed data directory.
+
+        Parameters
+        ----------
+        workflow_metadata : str
+            Path to the processed data directory.
+
+        Returns
+        -------
+        List[nmdc.MetaboliteIdentification]
+            List of MetaboliteIdentification objects generated from the processed data directory.
+
+        Notes
+        -----
+        This method reads in the processed data file and generates MetaboliteIdentification objects,
+        pulling out the best hit for each peak based on the highest "Similarity Score".
+
+        """
+        # Find the .csv file within the processed data directory
+        processed_data_file = next(Path(processed_data_dir).glob("**/*.csv"), None)
+
+        # Open the file and read in the data as a pandas dataframe
+        processed_data = pd.read_csv(processed_data_file)
+
+        # Drop any rows with missing entropy similarity scores
+        processed_data = processed_data.dropna(subset=["Entropy Similarity"])
+
+        # Group by "Mass Feature ID" and find the best hit for each peak based on the highest "Entropy Similarity"
+        best_hits = processed_data.groupby("Mass Feature ID").apply(
+            lambda x: x.loc[x["Entropy Similarity"].idxmax()]
+        )
+
+        metabolite_identifications = []
+        for index, best_hit in best_hits.iterrows():
+            # Check if the best hit has a Chebi ID, if not, do not create a MetaboliteIdentification object
+            if pd.isna(best_hit["chebi"]):
+                continue
+            chebi_id = "chebi:" + str(int(best_hit["chebi"]))
+
+            # Prepare KEGG Compound ID as an alternative identifier
+            alt_ids = []
+            if not pd.isna(best_hit["kegg"]):
+                # Check for | in Kegg Compound ID and split if necessary
+                if "|" in best_hit["kegg"]:
+                    alt_ids.extend(
+                        ["kegg:" + x.strip() for x in best_hit["kegg"].split("|")]
+                    )
+                else:
+                    alt_ids.append("kegg:" + best_hit["kegg"])
+            alt_ids = list(set(alt_ids))
+
+            data_dict = {
+                "metabolite_identified": chebi_id,
+                "alternative_identifiers": alt_ids,
+                "type": NmdcTypes.MetaboliteIdentification,
+                "highest_similarity_score": best_hit["Entropy Similarity"],
+            }
+
+            metabolite_identification = nmdc.MetaboliteIdentification(**data_dict)
+            metabolite_identifications.append(metabolite_identification)
+
+        return metabolite_identifications
 
     def rerun(self):
         super().rerun()

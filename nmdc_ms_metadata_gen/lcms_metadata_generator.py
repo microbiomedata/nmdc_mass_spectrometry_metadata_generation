@@ -143,6 +143,14 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 in_manifest=workflow_metadata.manifest_id,
             )
 
+            if self.add_metabolite_ids:
+                # Generate metabolite identifications
+                metabolite_identifications = self.generate_metab_identifications(
+                    processed_data_dir=workflow_metadata.processed_data_dir
+                )
+            else:
+                metabolite_identifications = None
+
             metab_analysis = self.generate_metabolomics_analysis(
                 cluster_name=workflow_metadata.execution_resource,
                 raw_data_name=Path(workflow_metadata.raw_data_file).name,
@@ -153,6 +161,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 processing_institution=data["processing_institution"],
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
+                metabolite_identifications=metabolite_identifications,
             )
 
             # list all paths in the processed data directory
