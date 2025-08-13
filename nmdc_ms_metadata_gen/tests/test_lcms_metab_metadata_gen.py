@@ -70,7 +70,7 @@ def test_lcms_metab_metadata_gen_rerun():
     assert os.path.exists(output_file)
 
 
-def xtest_lcms_metab_biosample_gen():
+def test_lcms_metab_biosample_gen():
     current_directory = os.path.dirname(__file__)
     csv_file_path = os.path.join(
         current_directory,
