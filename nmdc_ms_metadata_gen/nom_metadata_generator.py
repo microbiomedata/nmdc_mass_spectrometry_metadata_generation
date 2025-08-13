@@ -15,7 +15,7 @@ import os
 import ast
 from abc import abstractmethod
 from nmdc_ms_metadata_gen.metadata_parser import MetadataParser
-from nmdc_ms_metadata_gen.data_classes import NOMWorkflowMetadata
+from nmdc_ms_metadata_gen.data_classes import NOMMetadata
 
 load_dotenv()
 ENV = os.getenv("NMDC_ENV", "prod")
@@ -204,7 +204,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 sample_id=workflow_metadata_obj.biosample_id,
                 raw_data_id="nmdc:placeholder",
                 study_id=workflow_metadata_obj.associated_studies,
-                processing_institution=workflow_metadata_obj.processing_institution,
+                processing_institution=workflow_metadata_obj.processing_institution_generation,
                 mass_spec_configuration_id=workflow_metadata_obj.mass_spec_configuration_id,
                 start_date=row["instrument_analysis_start_date"],
                 end_date=row["instrument_analysis_end_date"],
@@ -322,7 +322,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         raw_data_id: str,
         data_gen_id: str,
         processed_data_id: str,
-        workflow_metadata_obj: NOMWorkflowMetadata,
+        workflow_metadata_obj: NOMMetadata,
         CLIENT_ID: str,
         CLIENT_SECRET: str,
         calibration_id: str = None,
@@ -341,7 +341,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             The ID of the data generation process that informed this analysis.
         processed_data_id : str
             The ID of the processed data resulting from this analysis.
-        workflow_metadata_obj : NOMWorkflowMetadata
+        workflow_metadata_obj : NOMMetadata
             The workflow metadata object containing information about the workflow.
         CLIENT_ID : str
             The client ID for the NMDC API.
@@ -370,7 +370,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             "name": f"{self.workflow_analysis_name} for {file_path.name}",
             "description": self.workflow_description,
             "uses_calibration": calibration_id,
-            "processing_institution": workflow_metadata_obj.processing_institution,
+            "processing_institution": workflow_metadata_obj.processing_institution_workflow,
             "execution_resource": workflow_metadata_obj.execution_resource,
             "git_url": self.workflow_git_url,
             "version": self.workflow_version,
@@ -386,7 +386,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
         return nomAnalysis
 
-    def create_nom_metatdata(self, row: pd.Series) -> NOMWorkflowMetadata:
+    def create_nom_metatdata(self, row: pd.Series) -> NOMMetadata:
         """
         Parse the metadata row to get non-biosample class information.
 
@@ -397,11 +397,11 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
         Returns
         -------
-        NOMWorkflowMetadata
+        NOMMetadata
 
         """
         parser = MetadataParser()
-        return NOMWorkflowMetadata(
+        return NOMMetadata(
             raw_data_file=parser.get_value(row, "raw_data_file"),
             processed_data_directory=parser.get_value(row, "processed_data_directory"),
             associated_studies=ast.literal_eval(
@@ -429,8 +429,15 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             execution_resource=parser.get_value(row, "execution_resource")
             if parser.get_value(row, "execution_resource")
             else None,
-            processing_institution=parser.get_value(row, "processing_institution")
-            if parser.get_value(row, "processing_institution")
+            processing_institution_generation=parser.get_value(
+                row, "processing_institution_generation"
+            )
+            if parser.get_value(row, "processing_institution_generation")
+            else None,
+            processing_institution_workflow=parser.get_value(
+                row, "processing_institution_workflow"
+            )
+            if parser.get_value(row, "processing_institution_workflow")
             else None,
         )
 

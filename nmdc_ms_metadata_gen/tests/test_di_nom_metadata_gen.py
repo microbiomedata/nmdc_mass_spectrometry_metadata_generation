@@ -147,3 +147,6 @@ def test_di_nom_config_file():
     # Run the metadata generation process
     generator.run()
     assert os.path.exists(output_file)
+
+
+test_di_nom_metadata_gen()

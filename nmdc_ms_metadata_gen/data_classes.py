@@ -177,7 +177,7 @@ class LCMSLipidWorkflowMetadata:
 
 
 @dataclass
-class NOMWorkflowMetadata:
+class NOMMetadata:
     """
     Data class for holding NOM workflow metadata information.
 
@@ -199,8 +199,10 @@ class NOMWorkflowMetadata:
         Identifier for the liquid chromatography configuration used.
     manifest_id : str
         Identifier for the manifest associated with this workflow metadata.
-    processing_institution : str
-        Name of the processing institution. Must be a value from ProcessingInstitutionEnum.
+    processing_institution_generation : str
+        Name of the processing institution where the data was generated. Must be a value from ProcessingInstitutionEnum.
+    processing_institution_workflow : str
+        Name of the processing institution where the workflow was executed. Must be a value from ProcessingInstitutionEnum.
     execution_resource : str, optional
         Name of the execution resource. Must be a value from ExecutionResourceEnum.
     """
@@ -213,5 +215,6 @@ class NOMWorkflowMetadata:
     mass_spec_configuration_id: str
     lc_config_id: str
     manifest_id: str
-    processing_institution: str
+    processing_institution_generation: str
+    processing_institution_workflow: str
     execution_resource: str = None
