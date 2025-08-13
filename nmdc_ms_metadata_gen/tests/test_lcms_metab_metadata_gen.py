@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
 # This script will serve as a test for the lipdomics metadata generation script.
+import json
+import os
 from datetime import datetime
+
+from dotenv import load_dotenv
+
 from nmdc_ms_metadata_gen.lcms_metab_metadata_generator import (
     LCMSMetabolomicsMetadataGenerator,
 )
-from dotenv import load_dotenv
 
 load_dotenv()
-import os
-import json
 
 python_path = os.getenv("PYTHONPATH")
 if python_path:
@@ -36,6 +38,13 @@ def test_lcms_metab_metadata_gen():
     # Run the metadata generation process
     generator.run()
     assert os.path.exists(output_file)
+
+    file = open(output_file, "r")
+    working_data = json.load(file)
+    file.close()
+    # expect metabolite identifications for each workflow_execution records
+    for record in working_data["workflow_execution_set"]:
+        assert "hashas_metabolite_identifications" in record
 
 
 def test_lcms_metab_metadata_gen_rerun():

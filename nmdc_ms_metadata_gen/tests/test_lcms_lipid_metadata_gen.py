@@ -101,3 +101,6 @@ def test_lcms_lipid_biosample_gen():
     assert len(working_data["biosample_set"]) == 1
     # expecting to generate 1 manifest
     assert len(working_data["manifest_set"]) == 1
+    # expect no metabolite identifications
+    for record in working_data["workflow_execution_set"]:
+        assert "has_metabolite_identifications" not in record
