@@ -17,7 +17,10 @@ if python_path:
 
 
 def test_workflow_metadata_creation_with_urls():
-    """Test that workflow metadata creation handles URL fields correctly."""
+    """Test that workflow metadata creation handles URL fields correctly.
+
+    Also tests metadata generation without instrument_analysis_start_date or instrument_analysis_end_date
+    """
     # Set up output file with datetime stame
     output_file = (
         "tests/test_data/test_database_gcms_raw_urls_"
