@@ -165,7 +165,7 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
 
         # Group by "Mass Feature ID" and find the best hit for each peak based on the highest "Entropy Similarity"
         best_hits = processed_data.groupby("Mass Feature ID").apply(
-            lambda x: x.loc[x["Entropy Similarity"].idxmax()]
+            lambda x: x.loc[x["Entropy Similarity"].idxmax()], include_groups=False
         )
 
         metabolite_identifications = []

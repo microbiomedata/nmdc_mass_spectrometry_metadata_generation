@@ -662,7 +662,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         processed_data = processed_data.dropna(subset=["Similarity Score"])
         # Group by "Peak Index" and find the best hit for each peak based on the highest "Similarity Score"
         best_hits = processed_data.groupby("Peak Index").apply(
-            lambda x: x.loc[x["Similarity Score"].idxmax()]
+            lambda x: x.loc[x["Similarity Score"].idxmax()], include_groups=False
         )
 
         metabolite_identifications = []
