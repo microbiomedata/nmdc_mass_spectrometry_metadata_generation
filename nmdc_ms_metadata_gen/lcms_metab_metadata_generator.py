@@ -15,10 +15,10 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
         Path to the input CSV metadata file.
     database_dump_json_path : str
         Path where the output database dump JSON file will be saved.
-    raw_data_url : str
-        Base URL for the raw data files.
     process_data_url : str
         Base URL for the processed data files.
+    raw_data_url : str, optional
+        Base URL for the raw data files. If the raw data url is not directly passed in, it will use the raw data urls from the metadata file.
     minting_config_creds : str, optional
         Path to the configuration file containing the client ID and client secret for minting NMDC IDs. It can also include the bio ontology API key if generating biosample ids is needed.
         If not provided, the CLIENT_ID, CLIENT_SECRET, and BIO_API_KEY environment variables will be used.
@@ -104,8 +104,8 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
         self,
         metadata_file: str,
         database_dump_json_path: str,
-        raw_data_url: str,
         process_data_url: str,
+        raw_data_url: str = None,
         minting_config_creds: str = None,
         workflow_version: str = None,
         existing_data_objects: list[str] = [],
