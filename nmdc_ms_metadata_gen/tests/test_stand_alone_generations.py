@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 # This script will serve as a test for the generation of `MassSpectrometryConfiguration` and `ChromatographyConfiguration` records
+import os
 from datetime import datetime
 from nmdc_ms_metadata_gen.metadata_generator import NMDCMetadataGenerator
 from dotenv import load_dotenv
 
 load_dotenv()
-import os
 
 python_path = os.getenv("PYTHONPATH")
 if python_path:
@@ -91,12 +91,12 @@ def test_chromatography_configuration_generation():
     ## Then, create the mobile phase segments
     mobile_phase_segment_A = generator.generate_mobile_phase_segment(
         duration_value=11,
-        duration_unit="minute",
+        duration_unit="min",
         substances_used=[water_99_9, formic_acid__1],
     )
     mobile_phase_segment_B = generator.generate_mobile_phase_segment(
         duration_value=11,
-        duration_unit="minute",
+        duration_unit="min",
         substances_used=[acetonitrile_99_9, formic_acid__1],
     )
 
