@@ -199,10 +199,12 @@ class NOMMetadata:
         Identifier for the liquid chromatography configuration used.
     manifest_id : str
         Identifier for the manifest associated with this workflow metadata.
+    processing_institution : str
+        Name of the processing institution. Must be a value from ProcessingInstitutionEnum. OPTIONAL IF processing_institution_generation AND processing_institution_workflow ARE PROVIDED
     processing_institution_generation : str
-        Name of the processing institution where the data was generated. Must be a value from ProcessingInstitutionEnum.
+        Name of the processing institution where the data was generated. Must be a value from ProcessingInstitutionEnum. OPTIONAL IF processing_institution IS PROVIDED
     processing_institution_workflow : str
-        Name of the processing institution where the workflow was executed. Must be a value from ProcessingInstitutionEnum.
+        Name of the processing institution where the workflow was executed. Must be a value from ProcessingInstitutionEnum. OPTIONAL IF processing_institution IS PROVIDED
     execution_resource : str, optional
         Name of the execution resource. Must be a value from ExecutionResourceEnum.
     """
@@ -215,6 +217,7 @@ class NOMMetadata:
     mass_spec_configuration_id: str
     lc_config_id: str
     manifest_id: str
-    processing_institution_generation: str
-    processing_institution_workflow: str
+    processing_institution: str = None
+    processing_institution_generation: str = None
+    processing_institution_workflow: str = None
     execution_resource: str = None
