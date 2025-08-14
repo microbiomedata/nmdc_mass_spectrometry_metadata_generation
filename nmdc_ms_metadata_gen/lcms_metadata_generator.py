@@ -121,7 +121,11 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 sample_id=data["biosample_id"],
                 raw_data_id="nmdc:placeholder",
                 study_id=ast.literal_eval(data["biosample.associated_studies"]),
-                processing_institution=data["processing_institution"],
+                processing_institution=(
+                    workflow_metadata.processing_institution_generation
+                    if workflow_metadata.processing_institution_generation
+                    else workflow_metadata.processing_institution
+                ),
                 mass_spec_configuration_id=workflow_metadata.mass_spec_configuration_id,
                 lc_config_id=workflow_metadata.lc_config_id,
                 start_date=workflow_metadata.instrument_analysis_start_date,
@@ -158,7 +162,11 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 data_gen_id_list=[mass_spec.id],
                 processed_data_id="nmdc:placeholder",
                 parameter_data_id="nmdc:placeholder",
-                processing_institution=data["processing_institution"],
+                processing_institution=(
+                    workflow_metadata.processing_institution_workflow
+                    if workflow_metadata.processing_institution_workflow
+                    else workflow_metadata.processing_institution
+                ),
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
                 metabolite_identifications=metabolite_identifications,
@@ -551,7 +559,14 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             instrument_id=row["instrument_id"],
             instrument_analysis_start_date=row.get("instrument_analysis_start_date"),
             instrument_analysis_end_date=row.get("instrument_analysis_end_date"),
-            execution_resource=row["execution_resource"],
+            processing_institution=row.get("processing_institution"),
+            processing_institution_generation=row.get(
+                "processing_institution_generation", None
+            ),
+            processing_institution_workflow=row.get(
+                "processing_institution_workflow", None
+            ),
+            execution_resource=row.get("execution_resource", None),
             raw_data_url=row.get("raw_data_url"),
             manifest_id=row.get("manifest_id", None),
         )

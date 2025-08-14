@@ -74,6 +74,10 @@ class MetadataParser:
             # if the value is empty, return the default value
             if not value:
                 return default
+            if "has_unit" not in value or not value["has_unit"]:
+                raise ValueError(
+                    f"Missing unit for {key}. `has_unit` is required for QuantityValue types for schema version 11.9.1 and up."
+                )
             return value
         value = row.get(key, default)
         if isinstance(value, float) and np.isnan(value):

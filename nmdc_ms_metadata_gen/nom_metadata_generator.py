@@ -15,7 +15,7 @@ import os
 import ast
 from abc import abstractmethod
 from nmdc_ms_metadata_gen.metadata_parser import MetadataParser
-from nmdc_ms_metadata_gen.data_classes import NOMWorkflowMetadata
+from nmdc_ms_metadata_gen.data_classes import NOMMetadata
 
 load_dotenv()
 ENV = os.getenv("NMDC_ENV", "prod")
@@ -72,6 +72,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             total=metadata_df.shape[0],
             desc="Processing NOM rows",
         ):
+            workflow_metadata_obj = self.create_nom_metatdata(row=row)
             try:
                 raw_data_object_id = do_client.get_record_by_attribute(
                     attribute_name="url",
@@ -104,6 +105,15 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 raise IndexError(
                     f"NomAnalysis object not found for raw data object ID: {raw_data_object_id}"
                 )
+            workflow_metadata_obj.processing_institution = prev_nom_analysis[
+                "processing_institution"
+            ]
+            workflow_metadata_obj.execution_resource = (
+                prev_nom_analysis["execution_resource"]
+                if prev_nom_analysis["execution_resource"]
+                else None
+            )
+
             # grab the calibration_id from the previous metabolomics analysis
             # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
             nom_analysis = self.generate_nom_analysis(
@@ -113,6 +123,12 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 processed_data_id="nmdc:placeholder",
                 calibration_id=prev_nom_analysis["uses_calibration"],
                 incremented_id=metab_analysis_id,
+                processing_institution=(
+                    workflow_metadata_obj.processing_institution_generation
+                    if workflow_metadata_obj.processing_institution_generation
+                    else workflow_metadata_obj.processing_institution
+                ),
+                execution_resource=workflow_metadata_obj.execution_resource,
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
             )
@@ -193,7 +209,12 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 sample_id=workflow_metadata_obj.biosample_id,
                 raw_data_id="nmdc:placeholder",
                 study_id=workflow_metadata_obj.associated_studies,
-                processing_institution=self.processing_institution,
+                # check which processing institution to use
+                processing_institution=(
+                    workflow_metadata_obj.processing_institution_generation
+                    if workflow_metadata_obj.processing_institution_generation
+                    else workflow_metadata_obj.processing_institution
+                ),
                 mass_spec_configuration_id=workflow_metadata_obj.mass_spec_configuration_id,
                 start_date=row["instrument_analysis_start_date"],
                 end_date=row["instrument_analysis_end_date"],
@@ -228,6 +249,12 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 raw_data_id=raw_data_object.id,
                 data_gen_id=mass_spec.id,
                 processed_data_id="nmdc:placeholder",
+                processing_institution=(
+                    workflow_metadata_obj.processing_institution_workflow
+                    if workflow_metadata_obj.processing_institution_workflow
+                    else workflow_metadata_obj.processing_institution
+                ),
+                execution_resource=workflow_metadata_obj.execution_resource,
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
             )
@@ -310,8 +337,10 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         raw_data_id: str,
         data_gen_id: str,
         processed_data_id: str,
+        processing_institution: str,
         CLIENT_ID: str,
         CLIENT_SECRET: str,
+        execution_resource: str = None,
         calibration_id: str = None,
         incremented_id: str = None,
     ) -> nmdc.NomAnalysis:
@@ -328,10 +357,14 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             The ID of the data generation process that informed this analysis.
         processed_data_id : str
             The ID of the processed data resulting from this analysis.
+        processing_institution: str
+            The name of the processing institution. Must be a value from ProcessingInstitutionEnum.
         CLIENT_ID : str
             The client ID for the NMDC API.
         CLIENT_SECRET : str
             The client secret for the NMDC API.
+        execution_resource: str, optional
+            The name of the execution resource. Must be a value from ExecutionResourceEnum.
         calibration_id : str, optional
             The ID of the calibration object used in the analysis. If None, no calibration is used.
         incremented_id : str, optional
@@ -355,8 +388,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             "name": f"{self.workflow_analysis_name} for {file_path.name}",
             "description": self.workflow_description,
             "uses_calibration": calibration_id,
-            "processing_institution": self.processing_institution,
-            "execution_resource": self.execution_resource,
+            "processing_institution": processing_institution,
+            "execution_resource": execution_resource,
             "git_url": self.workflow_git_url,
             "version": self.workflow_version,
             "was_informed_by": data_gen_id,
@@ -371,7 +404,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
         return nomAnalysis
 
-    def create_nom_metatdata(self, row: pd.Series) -> NOMWorkflowMetadata:
+    def create_nom_metatdata(self, row: pd.Series) -> NOMMetadata:
         """
         Parse the metadata row to get non-biosample class information.
 
@@ -382,11 +415,11 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
         Returns
         -------
-        NOMWorkflowMetadata
+        NOMMetadata
 
         """
         parser = MetadataParser()
-        return NOMWorkflowMetadata(
+        return NOMMetadata(
             raw_data_file=parser.get_value(row, "raw_data_file"),
             processed_data_directory=parser.get_value(row, "processed_data_directory"),
             associated_studies=ast.literal_eval(
@@ -410,6 +443,22 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             else None,
             manifest_id=parser.get_value(row, "manifest_id")
             if parser.get_value(row, "manifest_id")
+            else None,
+            execution_resource=parser.get_value(row, "execution_resource")
+            if parser.get_value(row, "execution_resource")
+            else None,
+            processing_institution_generation=parser.get_value(
+                row, "processing_institution_generation"
+            )
+            if parser.get_value(row, "processing_institution_generation")
+            else None,
+            processing_institution_workflow=parser.get_value(
+                row, "processing_institution_workflow"
+            )
+            if parser.get_value(row, "processing_institution_workflow")
+            else None,
+            processing_institution=parser.get_value(row, "processing_institution")
+            if parser.get_value(row, "processing_institution")
             else None,
         )
 

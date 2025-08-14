@@ -34,8 +34,6 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
         The type of the processed data object.
     processed_data_category : str
         The category of the processed data.
-    execution_resource : str
-        The execution resource for the workflow.
     analyte_category : str
         The category of the analyte.
     workflow_analysis_name : str
@@ -50,8 +48,6 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
         List of unique columns in the metadata file.
     mass_spec_eluent_intro : str
         The introduction to the mass spectrometry eluent.
-    processing_institution : str
-        The institution responsible for processing the data.
     workflow_git_url : str
         The URL of the workflow Git repository.
     workflow_version : str
@@ -62,7 +58,6 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
     processed_data_object_type: str = "Direct Infusion FT-ICR MS Analysis Results"
     processed_data_object_desc = "EnviroMS natural organic matter workflow molecular formula assignment output details"
     processed_data_category: str = "processed_data"
-    execution_resource: str = "EMSL"
     analyte_category: str = "nom"
     workflow_analysis_name: str = "NOM Analysis"
     workflow_description: str = (
@@ -76,7 +71,6 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
     unique_columns: list[str] = ["processed_data_directory"]
     mass_spec_eluent_intro: str = "direct_infusion_autosampler"
     mass_spec_desc: str = "ultra high resolution mass spectrum"
-    processing_institution: str = "EMSL"
     workflow_git_url: str = (
         "https://github.com/microbiomedata/enviroMS/blob/master/wdl/di_fticr_ms.wdl"
     )

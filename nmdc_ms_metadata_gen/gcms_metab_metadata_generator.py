@@ -376,7 +376,11 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 sample_id=workflow_metadata_obj.biosample_id,
                 raw_data_id="nmdc:placeholder",
                 study_id=workflow_metadata_obj.nmdc_study,
-                processing_institution=workflow_metadata_obj.processing_institution,
+                processing_institution=(
+                    workflow_metadata_obj.processing_institution_generation
+                    if workflow_metadata_obj.processing_institution_generation
+                    else workflow_metadata_obj.processing_institution
+                ),
                 mass_spec_configuration_id=workflow_metadata_obj.mass_spec_configuration_id,
                 lc_config_id=workflow_metadata_obj.lc_config_id,
                 start_date=workflow_metadata_obj.instrument_analysis_start_date,
@@ -413,7 +417,11 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 data_gen_id_list=[mass_spec.id],
                 processed_data_id="nmdc:placeholder",
                 parameter_data_id=config_do_id,
-                processing_institution=workflow_metadata_obj.processing_institution,
+                processing_institution=(
+                    workflow_metadata_obj.processing_institution_workflow
+                    if workflow_metadata_obj.processing_institution_workflow
+                    else workflow_metadata_obj.processing_institution
+                ),
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
                 calibration_id=workflow_metadata_obj.calibration_id,
@@ -607,19 +615,15 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         GCMSMetabWorkflowMetadata
             A GCMSMetabWorkflowMetadata object populated with data from the input dictionary.
 
-        Notes
-        -----
-        The input dictionary is expected to contain the following keys:
-        'Processed Data Directory', 'Raw Data File', 'Raw Data Object Alt Id',
-        'mass spec configuration name', 'lc config name', 'instrument used',
-        'instrument analysis start date', 'instrument analysis end date',
-        'execution resource'.
-
         """
         return GCMSMetabWorkflowMetadata(
             biosample_id=row["biosample_id"],
             nmdc_study=ast.literal_eval(row["biosample.associated_studies"]),
-            processing_institution=row["processing_institution"],
+            processing_institution=row.get("processing_institution"),
+            processing_institution_generation=row.get(
+                "processing_institution_generation"
+            ),
+            processing_institution_workflow=row.get("processing_institution_workflow"),
             processed_data_file=row["processed_data_file"],
             raw_data_file=row["raw_data_file"],
             mass_spec_configuration_id=row["mass_spec_configuration_id"],

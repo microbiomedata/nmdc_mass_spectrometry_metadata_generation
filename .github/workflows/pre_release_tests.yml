@@ -39,7 +39,7 @@ jobs:
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
           BIO_API_KEY: ${{ secrets.BIO_API_KEY }}
           NMDC_ENV: "dev"
-        run: pytest -r tests/
+        run: pytest -x -r tests/
       - name: Create Issue
         if: failure() && github.event_name == 'schedule'
         uses: actions/github-script@v6
