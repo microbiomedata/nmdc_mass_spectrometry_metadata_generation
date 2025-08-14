@@ -1230,7 +1230,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         """
         if (
             "manifest_id" not in metadata_df.columns
-            or metadata_df["manifest_id"].isnull().all()
+            or metadata_df["manifest_id"].isnull().any()
         ):
             self.generate_manifest(
                 metadata_df=metadata_df,
@@ -1337,24 +1337,32 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         -------
         None
         """
-        # check if manifest_name or manifest_id exists. If neither does, return
+        # check if manifest_name exists and has non-null values. If not, return
         if (
             "manifest_name" not in metadata_df.columns
             or metadata_df["manifest_name"].isnull().all()
-            or "manifest_id" not in metadata_df.columns
-            or metadata_df["manifest_id"].isnull().all()
         ):
             print("No manifests will be added.")
             return
 
-        # Get unique manifest names, create data object and Manifest information for each and attach associated ids to metadata_df
-        manifest_names = metadata_df["manifest_name"].unique()
+        # Get unique combinations of manifest_name and (if existing) manifest_id and create initial mapping
+        if "manifest_id" not in metadata_df.columns:
+            metadata_df["manifest_id"] = None
+
         manifest_id_mapping = {}
+        manifest_names = metadata_df[["manifest_name", "manifest_id"]].drop_duplicates()
+
+        for _, row in manifest_names.iterrows():
+            manifest_id_mapping[row["manifest_name"]] = row["manifest_id"]
+
         for manifest_name in tqdm(
-            manifest_names,
+            manifest_id_mapping.keys(),
             total=len(manifest_names),
             desc="Generating manifest information and data objects",
         ):
+            # If there is already an manifest_id associated with a manifest_name
+            if manifest_id_mapping[manifest_name] is not None:
+                continue
             # mint id
             manifest_id = self.id_pool.get_id(
                 nmdc_type=NmdcTypes.Manifest,

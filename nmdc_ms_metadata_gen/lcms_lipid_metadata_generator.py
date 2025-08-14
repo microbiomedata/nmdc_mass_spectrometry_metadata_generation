@@ -65,6 +65,8 @@ class LCMSLipidomicsMetadataGenerator(LCMSMetadataGenerator):
         Type of HDF5 processed data object.
     hdf5_process_data_description : str
         Description of HDF5 processed data.
+    add_metabolite_ids : bool
+        Whether to add metabolite IDs to the metadata.
 
     """
 
@@ -88,6 +90,7 @@ class LCMSLipidomicsMetadataGenerator(LCMSMetadataGenerator):
     )
     workflow_version: str
     workflow_category: str = "lc_ms_lipidomics"
+    add_metabolite_ids: bool = False
 
     # Processed data attributes
     wf_config_process_data_category: str = "workflow_parameter_data"
