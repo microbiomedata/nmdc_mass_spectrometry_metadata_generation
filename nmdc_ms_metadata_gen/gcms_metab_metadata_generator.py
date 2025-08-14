@@ -1,19 +1,21 @@
 # -*- coding: utf-8 -*-
-from nmdc_ms_metadata_gen.metadata_generator import NMDCWorkflowMetadataGenerator
-from tqdm import tqdm
-from pathlib import Path
-from datetime import datetime
-import logging
 import ast
+import logging
+import os
+import re
+from datetime import datetime
+from pathlib import Path
+from typing import List
+
+import nmdc_schema.nmdc as nmdc
 import pandas as pd
+from dotenv import load_dotenv
 from nmdc_api_utilities.data_object_search import DataObjectSearch
 from nmdc_api_utilities.workflow_execution_search import WorkflowExecutionSearch
-import nmdc_schema.nmdc as nmdc
-from typing import List
-from nmdc_ms_metadata_gen.data_classes import NmdcTypes, GCMSMetabWorkflowMetadata
-import re
-from dotenv import load_dotenv
-import os
+from tqdm import tqdm
+
+from nmdc_ms_metadata_gen.data_classes import GCMSMetabWorkflowMetadata, NmdcTypes
+from nmdc_ms_metadata_gen.metadata_generator import NMDCWorkflowMetadataGenerator
 
 load_dotenv()
 ENV = os.getenv("NMDC_ENV", "prod")
@@ -228,6 +230,12 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_SECRET=client_secret,
                 was_generated_by=metab_analysis_id,
             )
+
+            # Generate metabolite identifications
+            metabolite_identifications = self.generate_metab_identifications(
+                processed_data_file=Path(data["processed_data_file"])
+            )
+
             # need to generate a new metabolomics analysis object with the newly incremented id
             metab_analysis = self.generate_metabolomics_analysis(
                 cluster_name=prev_metab_analysis["execution_resource"],
@@ -241,7 +249,9 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
                 calibration_id=prev_metab_analysis["uses_calibration"],
+                metabolite_identifications=metabolite_identifications,
             )
+
             # Update MetabolomicsAnalysis times based on processed data file
             processed_file = Path(data["processed_data_file"])
             metab_analysis.started_at_time = datetime.fromtimestamp(
@@ -393,6 +403,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 in_manifest=workflow_metadata_obj.manifest_id,
             )
             raw_data_object_id = raw_data_object.id
+
             # Generate metabolite identifications
             metabolite_identifications = self.generate_metab_identifications(
                 processed_data_file=workflow_metadata_obj.processed_data_file
@@ -618,8 +629,8 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             mass_spec_configuration_id=row["mass_spec_configuration_id"],
             lc_config_id=row["lc_config_id"],
             instrument_id=row["instrument_id"],
-            instrument_analysis_start_date=row["instrument_analysis_start_date"],
-            instrument_analysis_end_date=row["instrument_analysis_end_date"],
+            instrument_analysis_start_date=row.get("instrument_analysis_start_date"),
+            instrument_analysis_end_date=row.get("instrument_analysis_end_date"),
             execution_resource=row["execution_resource"],
             calibration_id=row["calibration_id"],
             raw_data_url=row.get("raw_data_url"),
@@ -655,7 +666,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         processed_data = processed_data.dropna(subset=["Similarity Score"])
         # Group by "Peak Index" and find the best hit for each peak based on the highest "Similarity Score"
         best_hits = processed_data.groupby("Peak Index").apply(
-            lambda x: x.loc[x["Similarity Score"].idxmax()]
+            lambda x: x.loc[x["Similarity Score"].idxmax()], include_groups=False
         )
 
         metabolite_identifications = []

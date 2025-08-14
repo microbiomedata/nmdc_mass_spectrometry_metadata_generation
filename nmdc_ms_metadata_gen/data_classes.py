@@ -98,12 +98,12 @@ class GCMSMetabWorkflowMetadata:
         Identifier for the liquid chromatography configuration used.
     instrument_id: str
         Identifier for the instrument used for analysis.
-    instrument_analysis_start_date: str
-        Start date of the instrument analysis.
-    instrument_analysis_end_date: str
-        End date of the instrument analysis.
     calibration_id : str
         Identifier for the calibration information used.
+    instrument_analysis_start_date: str, optional
+        Start date of the instrument analysis.
+    instrument_analysis_end_date: str, optional
+        End date of the instrument analysis.
     processing_institution : str
         Name of the processing institution. Must be a value from ProcessingInstitutionEnum. OPTIONAL IF processing_institution_generation AND processing_institution_workflow ARE PROVIDED
     processing_institution_generation : str
@@ -126,9 +126,9 @@ class GCMSMetabWorkflowMetadata:
     mass_spec_configuration_id: str
     lc_config_id: str
     instrument_id: str
-    instrument_analysis_start_date: str
-    instrument_analysis_end_date: str
     calibration_id: str
+    instrument_analysis_start_date: str = None
+    instrument_analysis_end_date: str = None
     processing_institution: str = None
     processing_institution_generation: str = None
     processing_institution_workflow: str = None
@@ -141,6 +141,7 @@ class GCMSMetabWorkflowMetadata:
 class LCMSLipidWorkflowMetadata:
     """
     Data class for holding LC-MS lipidomics workflow metadata information.
+    Also used for LC-MS Metabolomics workflows.
 
     Attributes
     ----------
@@ -154,10 +155,6 @@ class LCMSLipidWorkflowMetadata:
         Identifier for the liquid chromatography configuration used.
     instrument_id : str
         Identifier for the instrument used for analysis.
-    instrument_analysis_start_date : str
-        Start date of the instrument analysis.
-    instrument_analysis_end_date : str
-        End date of the instrument analysis.
     processing_institution : str
         Name of the processing institution. Must be a value from ProcessingInstitutionEnum. OPTIONAL IF processing_institution_generation AND processing_institution_workflow ARE PROVIDED
     processing_institution_generation : str
@@ -166,10 +163,14 @@ class LCMSLipidWorkflowMetadata:
         Name of the processing institution where the workflow was executed. Must be a value from ProcessingInstitutionEnum. OPTIONAL IF processing_institution IS PROVIDED
     execution_resource : str, optional
         Name of the execution resource. Must be a value from ExecutionResourceEnum.
+    instrument_analysis_start_date : str, optional
+        Start date of the instrument analysis.
+    instrument_analysis_end_date : str, optional
+        End date of the instrument analysis.
     raw_data_url : str, optional
         Complete URL for the raw data file. If provided, this takes precedence
         over constructing the URL from base_url + filename.
-    manifest_id : str
+    manifest_id : str, optional
         Identifier for the manifest associated with this workflow metadata.
     """
 
@@ -178,12 +179,12 @@ class LCMSLipidWorkflowMetadata:
     mass_spec_configuration_id: str
     lc_config_id: str
     instrument_id: str
-    instrument_analysis_start_date: str
-    instrument_analysis_end_date: str
     processing_institution: str = None
     processing_institution_generation: str = None
     processing_institution_workflow: str = None
     execution_resource: str = None
+    instrument_analysis_start_date: str = None
+    instrument_analysis_end_date: str = None
     raw_data_url: str = None
     manifest_id: str = None
 
