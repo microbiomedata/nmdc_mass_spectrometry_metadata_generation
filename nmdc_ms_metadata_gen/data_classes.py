@@ -105,7 +105,11 @@ class GCMSMetabWorkflowMetadata:
     calibration_id : str
         Identifier for the calibration information used.
     processing_institution : str
-        Name of the processing institution. Must be a value from ProcessingInstitutionEnum.
+        Name of the processing institution. Must be a value from ProcessingInstitutionEnum. OPTIONAL IF processing_institution_generation AND processing_institution_workflow ARE PROVIDED
+    processing_institution_generation : str
+        Name of the processing institution where the data was generated. Must be a value from ProcessingInstitutionEnum. OPTIONAL IF processing_institution IS PROVIDED
+    processing_institution_workflow : str
+        Name of the processing institution where the workflow was executed. Must be a value from ProcessingInstitutionEnum. OPTIONAL IF processing_institution IS PROVIDED
     execution_resource : str, optional
         Name of the execution resource. Must be a value from ExecutionResourceEnum.
     raw_data_url : str, optional
@@ -124,8 +128,10 @@ class GCMSMetabWorkflowMetadata:
     instrument_id: str
     instrument_analysis_start_date: str
     instrument_analysis_end_date: str
-    processing_institution: str
     calibration_id: str
+    processing_institution: str = None
+    processing_institution_generation: str = None
+    processing_institution_workflow: str = None
     execution_resource: str = None
     raw_data_url: str = None
     manifest_id: str = None
@@ -153,7 +159,11 @@ class LCMSLipidWorkflowMetadata:
     instrument_analysis_end_date : str
         End date of the instrument analysis.
     processing_institution : str
-        Name of the processing institution. Must be a value from ProcessingInstitutionEnum.
+        Name of the processing institution. Must be a value from ProcessingInstitutionEnum. OPTIONAL IF processing_institution_generation AND processing_institution_workflow ARE PROVIDED
+    processing_institution_generation : str
+        Name of the processing institution where the data was generated. Must be a value from ProcessingInstitutionEnum. OPTIONAL IF processing_institution IS PROVIDED
+    processing_institution_workflow : str
+        Name of the processing institution where the workflow was executed. Must be a value from ProcessingInstitutionEnum. OPTIONAL IF processing_institution IS PROVIDED
     execution_resource : str, optional
         Name of the execution resource. Must be a value from ExecutionResourceEnum.
     raw_data_url : str, optional
@@ -170,7 +180,9 @@ class LCMSLipidWorkflowMetadata:
     instrument_id: str
     instrument_analysis_start_date: str
     instrument_analysis_end_date: str
-    processing_institution: str
+    processing_institution: str = None
+    processing_institution_generation: str = None
+    processing_institution_workflow: str = None
     execution_resource: str = None
     raw_data_url: str = None
     manifest_id: str = None
