@@ -250,8 +250,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 data_gen_id=mass_spec.id,
                 processed_data_id="nmdc:placeholder",
                 processing_institution=(
-                    workflow_metadata_obj.processing_institution_generation
-                    if workflow_metadata_obj.processing_institution_generation
+                    workflow_metadata_obj.processing_institution_workflow
+                    if workflow_metadata_obj.processing_institution_workflow
                     else workflow_metadata_obj.processing_institution
                 ),
                 execution_resource=workflow_metadata_obj.execution_resource,
