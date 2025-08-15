@@ -3,7 +3,6 @@ import ast
 import logging
 import os
 import re
-from datetime import datetime
 from pathlib import Path
 from typing import List
 
@@ -254,12 +253,10 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
             # Update MetabolomicsAnalysis times based on processed data file
             processed_file = Path(data["processed_data_file"])
-            metab_analysis.started_at_time = datetime.fromtimestamp(
-                processed_file.stat().st_ctime
-            ).strftime("%Y-%m-%d %H:%M:%S")
-            metab_analysis.ended_at_time = datetime.fromtimestamp(
-                processed_file.stat().st_mtime
-            ).strftime("%Y-%m-%d %H:%M:%S")
+            start_time, end_time = self.get_start_end_times(processed_file)
+            metab_analysis.started_at_time = start_time
+            metab_analysis.ended_at_time = end_time
+
             has_inputs = [config_do_id, raw_data_object_id]
             self.update_outputs(
                 analysis_obj=metab_analysis,
@@ -442,12 +439,10 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
             # Update MetabolomicsAnalysis times based on processed data file
             processed_file = Path(workflow_metadata_obj.processed_data_file)
-            metab_analysis.started_at_time = datetime.fromtimestamp(
-                processed_file.stat().st_ctime
-            ).strftime("%Y-%m-%d %H:%M:%S")
-            metab_analysis.ended_at_time = datetime.fromtimestamp(
-                processed_file.stat().st_mtime
-            ).strftime("%Y-%m-%d %H:%M:%S")
+            start_time, end_time = self.get_start_end_times(processed_file)
+            metab_analysis.started_at_time = start_time
+            metab_analysis.ended_at_time = end_time
+
             has_inputs = [config_do_id, raw_data_object_id]
             self.update_outputs(
                 mass_spec_obj=mass_spec,
