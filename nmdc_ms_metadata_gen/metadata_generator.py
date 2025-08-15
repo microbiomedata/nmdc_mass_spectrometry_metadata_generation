@@ -654,6 +654,36 @@ class NMDCMetadataGenerator:
         api_metadata = Metadata(env=ENV)
         api_metadata.validate_json(json_path)
 
+    @staticmethod
+    def get_start_end_times(file) -> tuple:
+        """
+        Get the start and end times for a given file based on its filesystem metadata.
+
+        This method retrieves the earliest and latest timestamps associated with the file,
+        considering creation, modification, and, if available, birth times.
+
+        Parameters
+        ----------
+        file : Path
+            A pathlib.Path object representing the file.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the start time and end time as formatted strings ("%Y-%m-%d %H:%M:%S").
+        """
+        stat_info = file.stat()
+        timestamps = [stat_info.st_mtime, stat_info.st_ctime]
+        if hasattr(stat_info, "st_birthtime"):
+            timestamps.append(stat_info.st_birthtime)
+        earliest_time = min(timestamps)
+        start_time = datetime.fromtimestamp(earliest_time).strftime("%Y-%m-%d %H:%M:%S")
+        end_time = datetime.fromtimestamp(stat_info.st_mtime).strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
+        assert start_time <= end_time, "Start time must be before end time."
+        return start_time, end_time
+
 
 class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
     """

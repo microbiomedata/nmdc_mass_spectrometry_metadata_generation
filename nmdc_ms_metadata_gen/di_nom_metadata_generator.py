@@ -2,7 +2,6 @@
 from nmdc_ms_metadata_gen.nom_metadata_generator import NOMMetadataGenerator
 import pandas as pd
 from pathlib import Path
-from datetime import datetime
 import nmdc_schema.nmdc as nmdc
 
 
@@ -160,12 +159,10 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
                     alternative_id=None,
                 )
                 # Update NomAnalysis times based on csv file
-                nom_analysis.started_at_time = datetime.fromtimestamp(
-                    file.stat().st_ctime
-                ).strftime("%Y-%m-%d %H:%M:%S")
-                nom_analysis.ended_at_time = datetime.fromtimestamp(
-                    file.stat().st_mtime
-                ).strftime("%Y-%m-%d %H:%M:%S")
+                start_time, end_time = self.get_start_end_times(file)
+                nom_analysis.started_at_time = start_time
+                nom_analysis.ended_at_time = end_time
+
                 # Add the processed data object to the NMDC database
                 nmdc_database_inst.data_object_set.append(processed_data_object)
                 # add the processed data object id to the list

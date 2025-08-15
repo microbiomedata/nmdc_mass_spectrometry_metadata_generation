@@ -2,7 +2,6 @@
 from nmdc_ms_metadata_gen.metadata_generator import NMDCWorkflowMetadataGenerator
 from tqdm import tqdm
 from pathlib import Path
-from datetime import datetime
 import logging
 import ast
 import pandas as pd
@@ -254,12 +253,9 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                         processed_data.append(processed_data_object.id)
 
                         # Update MetabolomicsAnalysis times based on HDF5 file
-                        metab_analysis.started_at_time = datetime.fromtimestamp(
-                            file.stat().st_ctime
-                        ).strftime("%Y-%m-%d %H:%M:%S")
-                        metab_analysis.ended_at_time = datetime.fromtimestamp(
-                            file.stat().st_mtime
-                        ).strftime("%Y-%m-%d %H:%M:%S")
+                        start_time, end_time = self.get_start_end_times(file)
+                        metab_analysis.started_at_time = start_time
+                        metab_analysis.ended_at_time = end_time
 
                     else:
                         raise ValueError(f"Unexpected file type found for file {file}.")
@@ -477,12 +473,9 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                         processed_data.append(processed_data_object.id)
 
                         # Update MetabolomicsAnalysis times based on HDF5 file
-                        metab_analysis.started_at_time = datetime.fromtimestamp(
-                            file.stat().st_ctime
-                        ).strftime("%Y-%m-%d %H:%M:%S")
-                        metab_analysis.ended_at_time = datetime.fromtimestamp(
-                            file.stat().st_mtime
-                        ).strftime("%Y-%m-%d %H:%M:%S")
+                        start_time, end_time = self.get_start_end_times(file)
+                        metab_analysis.started_at_time = start_time
+                        metab_analysis.ended_at_time = end_time
 
                     else:
                         raise ValueError(f"Unexpected file type found for file {file}.")
