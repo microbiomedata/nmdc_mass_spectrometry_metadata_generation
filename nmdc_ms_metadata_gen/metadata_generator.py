@@ -1199,7 +1199,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
 
         doj_client = DataObjectSearch(env=ENV)
         resp = doj_client.get_batch_records(
-            id_list=urls, search_field="url", fields="id"
+            id_list=urls, search_field="url", fields="id", chunk_size=10
         )
         if resp:
             raise ValueError(
