@@ -53,6 +53,11 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
         The version of the workflow.
     """
 
+    qc_process_data_obj_type: str = "Direct Infusion FT-ICR MS QC Plots    "
+    qc_process_data_description: str = (
+        "EnviroMS QC plots representing a Direct Infusion NOM analysis."
+    )
+
     raw_data_object_type: str = "Direct Infusion FT ICR-MS Raw Data"
     processed_data_object_type: str = "Direct Infusion FT-ICR MS Analysis Results"
     processed_data_object_desc = "EnviroMS natural organic matter workflow molecular formula assignment output details"
@@ -167,7 +172,7 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
                 nmdc_database_inst.data_object_set.append(processed_data_object)
                 # add the processed data object id to the list
                 processed_ids.append(processed_data_object.id)
-            if file.suffix == ".json":
+            elif file.suffix == ".json":
                 # Generate workflow parameter data object
                 workflow_data_object = self.generate_data_object(
                     file_path=file,
@@ -182,4 +187,23 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
                     CLIENT_SECRET=client_secret,
                     alternative_id=None,
                 )
+            elif ".png" in file.suffix:
+                # Generate QC plots processed data object
+                qc_data_object = self.generate_data_object(
+                    file_path=file,
+                    data_category=self.processed_data_category,
+                    data_object_type=self.qc_process_data_obj_type,
+                    description=self.qc_process_data_description,
+                    base_url=self.process_data_url
+                    + Path(row["processed_data_directory"]).name
+                    + "/",
+                    was_generated_by=nom_analysis.id,
+                    CLIENT_ID=client_id,
+                    CLIENT_SECRET=client_secret,
+                    alternative_id=None,
+                )
+                # add to the nmdc database
+                nmdc_database_inst.data_object_set.append(qc_data_object)
+                # add id to the processed id list
+                processed_ids.append(qc_data_object.id)
         return processed_ids, workflow_data_object
