@@ -526,7 +526,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 nmdc_database_inst.data_object_set.append(processed_data_object)
                 # add the processed data object id to the list
                 processed_ids.append(processed_data_object.id)
-            # LCMS NOM has json files
+            # DI NOM has json files
             elif file.suffix == ".json":
                 # Generate workflow parameter data object
                 workflow_data_object = self.generate_data_object(
