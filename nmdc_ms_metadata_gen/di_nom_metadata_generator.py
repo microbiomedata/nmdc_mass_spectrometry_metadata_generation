@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 from nmdc_ms_metadata_gen.nom_metadata_generator import NOMMetadataGenerator
-import pandas as pd
-from pathlib import Path
-import nmdc_schema.nmdc as nmdc
 
 
 class DINOMMetaDataGenerator(NOMMetadataGenerator):
@@ -53,6 +50,11 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
         The version of the workflow.
     """
 
+    qc_process_data_obj_type: str = "Direct Infusion FT-ICR MS QC Plots"
+    qc_process_data_description: str = (
+        "EnviroMS QC plots representing a Direct Infusion NOM analysis."
+    )
+
     raw_data_object_type: str = "Direct Infusion FT ICR-MS Raw Data"
     processed_data_object_type: str = "Direct Infusion FT-ICR MS Analysis Results"
     processed_data_object_desc = "EnviroMS natural organic matter workflow molecular formula assignment output details"
@@ -101,85 +103,3 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
 
     def run(self):
         super().run()
-
-    def create_processed_data_objects(
-        self,
-        row: pd.Series,
-        client_id: str,
-        client_secret: str,
-        nom_analysis: nmdc.NomAnalysis,
-        nmdc_database_inst: nmdc.Database,
-    ) -> tuple:
-        """
-        Create processed data objects for DI NOM metadata generation. This process expects a csv and json processed output.
-
-        Parameters
-        ----------
-        row : pd.Series
-            A row from the metadata DataFrame containing information about the processed data.
-        client_id : str
-            The client ID for minting NMDC IDs.
-        client_secret : str
-            The client secret for minting NMDC IDs.
-        nom_analysis : nmdc.NomAnalysis
-            The NomAnalysis object to which the processed data objects will be associated.
-        nmdc_database_inst : nmdc.Database
-            The NMDC database instance to which the processed data objects will be added.
-
-        Returns
-        -------
-        tuple
-            A tuple containing the processed data object and the workflow parameter data object.
-
-        """
-        processed_ids = []
-        processed_data_paths = list(Path(row["processed_data_directory"]).glob("**/*"))
-        # Add a check that the processed data directory is not empty
-        if not any(processed_data_paths):
-            raise FileNotFoundError(
-                f"No files found in processed data directory: "
-                f"{row['processed_data_directory']}"
-            )
-        processed_data_paths = [x for x in processed_data_paths if x.is_file()]
-
-        for file in processed_data_paths:
-            if file.suffix == ".csv":
-                # this is the .csv file of the processed data
-                processed_data_object = self.generate_data_object(
-                    file_path=file,
-                    data_category=self.processed_data_category,
-                    data_object_type=self.processed_data_object_type,
-                    description=self.processed_data_object_desc,
-                    base_url=self.process_data_url
-                    + Path(row["processed_data_directory"]).name
-                    + "/",
-                    CLIENT_ID=client_id,
-                    CLIENT_SECRET=client_secret,
-                    was_generated_by=nom_analysis.id,
-                    alternative_id=None,
-                )
-                # Update NomAnalysis times based on csv file
-                start_time, end_time = self.get_start_end_times(file)
-                nom_analysis.started_at_time = start_time
-                nom_analysis.ended_at_time = end_time
-
-                # Add the processed data object to the NMDC database
-                nmdc_database_inst.data_object_set.append(processed_data_object)
-                # add the processed data object id to the list
-                processed_ids.append(processed_data_object.id)
-            if file.suffix == ".json":
-                # Generate workflow parameter data object
-                workflow_data_object = self.generate_data_object(
-                    file_path=file,
-                    data_category=self.workflow_param_data_category,
-                    data_object_type=self.workflow_param_data_object_type,
-                    description=self.workflow_param_data_object_desc,
-                    base_url=self.process_data_url
-                    + Path(row["processed_data_directory"]).name
-                    + "/",
-                    was_generated_by=nom_analysis.id,
-                    CLIENT_ID=client_id,
-                    CLIENT_SECRET=client_secret,
-                    alternative_id=None,
-                )
-        return processed_ids, workflow_data_object

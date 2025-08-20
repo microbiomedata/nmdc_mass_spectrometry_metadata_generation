@@ -13,7 +13,6 @@ import re
 from dotenv import load_dotenv
 import os
 import ast
-from abc import abstractmethod
 from nmdc_ms_metadata_gen.metadata_parser import MetadataParser
 from nmdc_ms_metadata_gen.data_classes import NOMMetadata
 
@@ -462,7 +461,6 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             else None,
         )
 
-    @abstractmethod
     def create_processed_data_objects(
         self,
         row: pd.Series,
@@ -492,3 +490,92 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         tuple
             A tuple containing the processed data object and the workflow parameter data object.
         """
+        processed_ids = []
+        processed_data_paths = list(Path(row["processed_data_directory"]).glob("**/*"))
+        # Add a check that the processed data directory is not empty
+        if not any(processed_data_paths):
+            raise FileNotFoundError(
+                f"No files found in processed data directory: "
+                f"{row['processed_data_directory']}"
+            )
+        processed_data_paths = [x for x in processed_data_paths if x.is_file()]
+
+        for file in processed_data_paths:
+            # Both DI and LCMS NOM have csv files
+            if file.suffix == ".csv":
+                # this is the .csv file of the processed data
+                processed_data_object = self.generate_data_object(
+                    file_path=file,
+                    data_category=self.processed_data_category,
+                    data_object_type=self.processed_data_object_type,
+                    description=self.processed_data_object_desc,
+                    base_url=self.process_data_url
+                    + Path(row["processed_data_directory"]).name
+                    + "/",
+                    CLIENT_ID=client_id,
+                    CLIENT_SECRET=client_secret,
+                    was_generated_by=nom_analysis.id,
+                    alternative_id=None,
+                )
+                # Update NomAnalysis times based on csv file
+                start_time, end_time = self.get_start_end_times(file)
+                nom_analysis.started_at_time = start_time
+                nom_analysis.ended_at_time = end_time
+
+                # Add the processed data object to the NMDC database
+                nmdc_database_inst.data_object_set.append(processed_data_object)
+                # add the processed data object id to the list
+                processed_ids.append(processed_data_object.id)
+            # DI NOM has json files
+            elif file.suffix == ".json":
+                # Generate workflow parameter data object
+                workflow_data_object = self.generate_data_object(
+                    file_path=file,
+                    data_category=self.workflow_param_data_category,
+                    data_object_type=self.workflow_param_data_object_type,
+                    description=self.workflow_param_data_object_desc,
+                    base_url=self.process_data_url
+                    + Path(row["processed_data_directory"]).name
+                    + "/",
+                    was_generated_by=nom_analysis.id,
+                    CLIENT_ID=client_id,
+                    CLIENT_SECRET=client_secret,
+                    alternative_id=None,
+                )
+            # Both DI and LCMS NOM have QC plots
+            elif ".png" in file.suffix:
+                # Generate QC plots processed data object
+                qc_data_object = self.generate_data_object(
+                    file_path=file,
+                    data_category=self.processed_data_category,
+                    data_object_type=self.qc_process_data_obj_type,
+                    description=self.qc_process_data_description,
+                    base_url=self.process_data_url
+                    + Path(row["processed_data_directory"]).name
+                    + "/",
+                    was_generated_by=nom_analysis.id,
+                    CLIENT_ID=client_id,
+                    CLIENT_SECRET=client_secret,
+                    alternative_id=None,
+                )
+                # add to the nmdc database
+                nmdc_database_inst.data_object_set.append(qc_data_object)
+                # add id to the processed id list
+                processed_ids.append(qc_data_object.id)
+            # LCMS NOM has toml files
+            elif file.suffix == ".toml":
+                # Generate workflow parameter data object
+                workflow_data_object = self.generate_data_object(
+                    file_path=file,
+                    data_category=self.workflow_param_data_category,
+                    data_object_type=self.workflow_param_data_object_type,
+                    description=self.workflow_param_data_object_desc,
+                    base_url=self.process_data_url
+                    + Path(row["processed_data_directory"]).name
+                    + "/",
+                    was_generated_by=nom_analysis.id,
+                    CLIENT_ID=client_id,
+                    CLIENT_SECRET=client_secret,
+                    alternative_id=None,
+                )
+        return processed_ids, workflow_data_object
