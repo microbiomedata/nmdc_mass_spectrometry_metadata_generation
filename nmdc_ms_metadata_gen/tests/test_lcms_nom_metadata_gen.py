@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 from nmdc_ms_metadata_gen.lcms_nom_metadata_generator import LCMSNOMMetadataGenerator
 from dotenv import load_dotenv
+import json
 
 load_dotenv()
 
@@ -35,6 +36,22 @@ def test_lcms_nom_metadata_gen():
     # Run the metadata generation process
     generator.run()
     assert os.path.exists(output_file)
+
+    file = open(output_file, "r")
+    working_data = json.load(file)
+    file.close()
+
+    exists = any(
+        any("QC" in str(value) for value in d.values())
+        for d in working_data["data_object_set"]
+    )
+    assert exists
+    count = sum(
+        1
+        for d in working_data["data_object_set"]
+        if any("QC" in str(value) for value in d.values())
+    )
+    assert count >= 1
 
 
 def test_lcms_nom_metadata_gen_rerun():

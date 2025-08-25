@@ -37,6 +37,21 @@ def test_di_nom_metadata_gen():
     generator.run()
     assert os.path.exists(output_file)
 
+    file = open(output_file, "r")
+    working_data = json.load(file)
+    file.close()
+    exists = any(
+        any("QC" in str(value) for value in d.values())
+        for d in working_data["data_object_set"]
+    )
+    assert exists
+    count = sum(
+        1
+        for d in working_data["data_object_set"]
+        if any("QC" in str(value) for value in d.values())
+    )
+    assert count >= 5
+
 
 def test_di_nom_metadata_gen_rerun():
     """
@@ -61,6 +76,21 @@ def test_di_nom_metadata_gen_rerun():
     # Run the metadata generation process
     generator.rerun()
     assert os.path.exists(output_file)
+
+    file = open(output_file, "r")
+    working_data = json.load(file)
+    file.close()
+    exists = any(
+        any("QC" in str(value) for value in d.values())
+        for d in working_data["data_object_set"]
+    )
+    assert exists
+    count = sum(
+        1
+        for d in working_data["data_object_set"]
+        if any("QC" in str(value) for value in d.values())
+    )
+    assert count >= 1
 
 
 def test_di_nom_biosample_gen_more_fields():
@@ -92,6 +122,18 @@ def test_di_nom_biosample_gen_more_fields():
     file.close()
     assert len(working_data["biosample_set"]) == 2
 
+    exists = any(
+        any("QC" in str(value) for value in d.values())
+        for d in working_data["data_object_set"]
+    )
+    assert exists
+    count = sum(
+        1
+        for d in working_data["data_object_set"]
+        if any("QC" in str(value) for value in d.values())
+    )
+    assert count >= 3
+
 
 def test_di_nom_biosample_gen_no_biosample():
     """
@@ -122,6 +164,18 @@ def test_di_nom_biosample_gen_no_biosample():
     file.close()
     assert len(working_data["biosample_set"]) == 2
 
+    exists = any(
+        any("QC" in str(value) for value in d.values())
+        for d in working_data["data_object_set"]
+    )
+    assert exists
+    count = sum(
+        1
+        for d in working_data["data_object_set"]
+        if any("QC" in str(value) for value in d.values())
+    )
+    assert count >= 2
+
 
 def test_di_nom_config_file():
     """
@@ -147,6 +201,18 @@ def test_di_nom_config_file():
     # Run the metadata generation process
     generator.run()
     assert os.path.exists(output_file)
+    file = open(output_file, "r")
+    working_data = json.load(file)
+    file.close()
 
-
-test_di_nom_metadata_gen()
+    exists = any(
+        any("QC" in str(value) for value in d.values())
+        for d in working_data["data_object_set"]
+    )
+    assert exists
+    count = sum(
+        1
+        for d in working_data["data_object_set"]
+        if any("QC" in str(value) for value in d.values())
+    )
+    assert count >= 5
