@@ -1,16 +1,19 @@
 exclude: '.pre-commit-config.yaml|.vscode/'
 repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.20.0  # Replace with the latest tag
     hooks:
-      - id: fix-encoding-pragma
+      - id: pyupgrade
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
       - id: trailing-whitespace
       - id: check-merge-conflict
       - id: end-of-file-fixer
       - id: debug-statements
       - id: check-added-large-files
       - id: check-ast
-      - id: check-byte-order-marker
+      - id: fix-byte-order-marker
       - id: check-case-conflict
       - id: check-json
       - id: check-vcs-permalinks
@@ -28,30 +31,33 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.3.1
+    rev: v1.5.5
     hooks:
       - id: remove-tabs
         exclude: '(\.tsv|Makefile)$'
 
   - repo: https://github.com/psf/black
-    rev: 23.3.0
+    rev: 25.1.0
     hooks:
       - id: black
 
   - repo: https://github.com/jsh9/pydoclint
-    rev: 0.6.6
+    rev: 0.6.10
     hooks:
       - id: pydoclint 
         args: [--style=sphinx]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    # Ruff version.
-    rev: v0.12.7
+    rev: v0.12.10
     hooks:
-      # Run the linter.
-      - id: ruff-check
-        args: [ --fix ]
-      # Run the formatter.
-      - id: ruff-format
+      - id: ruff
+        name: ruff-check
+        args: ["--select", "I"]  # Only enable import-related rules
+        additional_dependencies: []  # Add specific ruff version if needed
+        
+      - id: ruff
+        name: ruff-format
+        args: ["--select", "I", "--fix"]  # Automatically fix import formatting
+        additional_dependencies: []
 
   # - repo: https://github.com/thclark/pre-commit-sphinx
   #   rev: 0.0.1

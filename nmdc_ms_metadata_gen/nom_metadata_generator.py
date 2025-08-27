@@ -1,21 +1,21 @@
-# -*- coding: utf-8 -*-
-from nmdc_ms_metadata_gen.metadata_generator import NMDCWorkflowMetadataGenerator
-from nmdc_ms_metadata_gen.data_classes import NmdcTypes
-from tqdm import tqdm
-from pathlib import Path
-from nmdc_api_utilities.data_object_search import DataObjectSearch
-from nmdc_api_utilities.calibration_search import CalibrationSearch
-from nmdc_api_utilities.workflow_execution_search import WorkflowExecutionSearch
-import nmdc_schema.nmdc as nmdc
-import hashlib
-import pandas as pd
-import re
-from dotenv import load_dotenv
-import os
 import ast
+import hashlib
+import os
+import re
 from abc import abstractmethod
+from pathlib import Path
+
+import nmdc_schema.nmdc as nmdc
+import pandas as pd
+from dotenv import load_dotenv
+from nmdc_api_utilities.calibration_search import CalibrationSearch
+from nmdc_api_utilities.data_object_search import DataObjectSearch
+from nmdc_api_utilities.workflow_execution_search import WorkflowExecutionSearch
+from tqdm import tqdm
+
+from nmdc_ms_metadata_gen.data_classes import NmdcTypes, NOMMetadata
+from nmdc_ms_metadata_gen.metadata_generator import NMDCWorkflowMetadataGenerator
 from nmdc_ms_metadata_gen.metadata_parser import MetadataParser
-from nmdc_ms_metadata_gen.data_classes import NOMMetadata
 
 load_dotenv()
 ENV = os.getenv("NMDC_ENV", "prod")
@@ -422,44 +422,56 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         return NOMMetadata(
             raw_data_file=parser.get_value(row, "raw_data_file"),
             processed_data_directory=parser.get_value(row, "processed_data_directory"),
-            associated_studies=ast.literal_eval(
-                parser.get_value(row, "associated_studies")
-            )
-            if parser.get_value(row, "associated_studies")
-            else None,
-            biosample_id=parser.get_value(row, "biosample_id")
-            if parser.get_value(row, "biosample_id") or parser.get_value(row, "id")
-            else None,
-            instrument_id=parser.get_value(row, "instrument_id")
-            if parser.get_value(row, "instrument_id")
-            else None,
-            mass_spec_configuration_id=parser.get_value(
-                row, "mass_spec_configuration_id"
-            )
-            if parser.get_value(row, "mass_spec_configuration_id")
-            else None,
-            lc_config_id=parser.get_value(row, "lc_config_id")
-            if parser.get_value(row, "lc_config_id")
-            else None,
-            manifest_id=parser.get_value(row, "manifest_id")
-            if parser.get_value(row, "manifest_id")
-            else None,
-            execution_resource=parser.get_value(row, "execution_resource")
-            if parser.get_value(row, "execution_resource")
-            else None,
-            processing_institution_generation=parser.get_value(
-                row, "processing_institution_generation"
-            )
-            if parser.get_value(row, "processing_institution_generation")
-            else None,
-            processing_institution_workflow=parser.get_value(
-                row, "processing_institution_workflow"
-            )
-            if parser.get_value(row, "processing_institution_workflow")
-            else None,
-            processing_institution=parser.get_value(row, "processing_institution")
-            if parser.get_value(row, "processing_institution")
-            else None,
+            associated_studies=(
+                ast.literal_eval(parser.get_value(row, "associated_studies"))
+                if parser.get_value(row, "associated_studies")
+                else None
+            ),
+            biosample_id=(
+                parser.get_value(row, "biosample_id")
+                if parser.get_value(row, "biosample_id") or parser.get_value(row, "id")
+                else None
+            ),
+            instrument_id=(
+                parser.get_value(row, "instrument_id")
+                if parser.get_value(row, "instrument_id")
+                else None
+            ),
+            mass_spec_configuration_id=(
+                parser.get_value(row, "mass_spec_configuration_id")
+                if parser.get_value(row, "mass_spec_configuration_id")
+                else None
+            ),
+            lc_config_id=(
+                parser.get_value(row, "lc_config_id")
+                if parser.get_value(row, "lc_config_id")
+                else None
+            ),
+            manifest_id=(
+                parser.get_value(row, "manifest_id")
+                if parser.get_value(row, "manifest_id")
+                else None
+            ),
+            execution_resource=(
+                parser.get_value(row, "execution_resource")
+                if parser.get_value(row, "execution_resource")
+                else None
+            ),
+            processing_institution_generation=(
+                parser.get_value(row, "processing_institution_generation")
+                if parser.get_value(row, "processing_institution_generation")
+                else None
+            ),
+            processing_institution_workflow=(
+                parser.get_value(row, "processing_institution_workflow")
+                if parser.get_value(row, "processing_institution_workflow")
+                else None
+            ),
+            processing_institution=(
+                parser.get_value(row, "processing_institution")
+                if parser.get_value(row, "processing_institution")
+                else None
+            ),
         )
 
     @abstractmethod

@@ -1,0 +1,102 @@
+from pathlib import Path
+
+import pandas as pd
+
+
+class ChangeSheetGenerator:
+    @staticmethod
+    def initialize_empty_df() -> pd.DataFrame:
+        """Create an empty DataFrame with required columns"""
+        df = pd.DataFrame(columns=["id", "action", "attribute", "value"])
+        return df
+
+    @staticmethod
+    def add_row(
+        df: pd.DataFrame, id: str, action: str, attribute: str, value: str
+    ) -> pd.DataFrame:
+        """
+        Add a new row to the DataFrame.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            The DataFrame to add the row to
+        id : str
+            The identifier
+        action : str
+            The action being performed
+        attribute : str
+            The attribute being modified
+        value : str
+            The value to set
+
+        Returns
+        -------
+        pd.DataFrame
+            The updated DataFrame
+        """
+        new_row = {"id": id, "action": action, "attribute": attribute, "value": value}
+
+        # Changed self.df to df since we're using static method
+        return pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+
+
+class WorkflowSheetGenerator:
+    @staticmethod
+    def initialize_empty_df() -> pd.DataFrame:
+        """Create an empty DataFrame with required columns"""
+        df = pd.DataFrame(
+            columns=["biosample_id", "raw_data_identifier", "last_processed_sample"]
+        )
+        return df
+
+    @staticmethod
+    def add_row(
+        df: pd.DataFrame,
+        biosample_id: str,
+        raw_data_identifier: str,
+        last_processed_sample: str,
+    ) -> pd.DataFrame:
+        """
+        Add a new row to the DataFrame.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            The DataFrame to add the row to
+        biosample_id : str
+            The biosample identifier
+        raw_data_identifier : str
+            The raw file identifier
+        last_processed_sample : str
+            The last processed sample made during material processing, to be used as input to data generation record
+
+        Returns
+        -------
+        pd.DataFrame
+            The updated DataFrame
+        """
+        new_row = {
+            "biosample_id": biosample_id,
+            "raw_data_identifier": raw_data_identifier,
+            "last_processed_sample": last_processed_sample,
+        }
+
+        # Changed self.df to df since we're using static method
+        return pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+
+
+@staticmethod
+def save_to_csv(df: pd.DataFrame, output_path: str | Path):
+    """
+    Save the DataFrame to a CSV file.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The DataFrame to save
+    output_path : str or Path
+        The path where the CSV should be saved
+    """
+    df.to_csv(f"{output_path}.csv", index=False)
+    print(f"Sheet saved to {output_path}.csv")
