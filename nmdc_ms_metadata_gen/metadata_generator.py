@@ -17,6 +17,7 @@ from nmdc_api_utilities.biosample_search import BiosampleSearch
 from nmdc_api_utilities.study_search import StudySearch
 from nmdc_api_utilities.data_object_search import DataObjectSearch
 from nmdc_api_utilities.metadata import Metadata
+from nmdc_api_utilities.auth import NMDCAuth
 from nmdc_ms_metadata_gen.utils import IDPool
 import ast
 import numpy as np
@@ -653,6 +654,27 @@ class NMDCMetadataGenerator:
         """
         api_metadata = Metadata(env=ENV)
         api_metadata.validate_json(json_path)
+
+    def json_submit(json: dict | str, CLIENT_ID: str, CLIENT_SECRET: str):
+        """
+        Submit the generated JSON metadata to the NMDC API.
+
+        Parameters
+        ----------
+        json : dict | str
+            The JSON metadata to submit.
+        CLIENT_ID : str
+            The client ID for the NMDC API.
+        CLIENT_SECRET : str
+            The client secret for the NMDC API.
+
+        """
+        auth = NMDCAuth(client_id=CLIENT_ID, client_secret=CLIENT_SECRET)
+        md = Metadata(env=ENV, auth=auth)
+        success = md.submit_json(json)
+        if success != 200:
+            logging.error("Failed to submit JSON metadata: %s", json)
+            raise ValueError("Failed to submit JSON metadata")
 
     @staticmethod
     def get_start_end_times(file) -> tuple:
