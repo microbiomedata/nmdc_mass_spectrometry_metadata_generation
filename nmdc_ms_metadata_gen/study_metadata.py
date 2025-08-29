@@ -63,7 +63,7 @@ class MetadataSurveyor:
         data_objects = pd.concat(data_objects)[["id", "biosample_id"]]
         return data_objects
 
-    def data_generation_metadata(self) -> pd.DataFrame:
+    def data_generation_metadata(self, extra_dg_columns=[]) -> pd.DataFrame:
         """
         Gather data generation records for this study into a pandas dataframe
         """
@@ -73,10 +73,14 @@ class MetadataSurveyor:
 
         data_gen_df = pd.DataFrame(data_gen_records)
 
-        # select columns
-        data_gen_df = data_gen_df[
-            ["id", "name", "has_input", "has_output", "analyte_category"]
-        ]
+        keep_cols = [
+            "id",
+            "name",
+            "has_input",
+            "has_output",
+            "analyte_category",
+        ] + extra_dg_columns
+        data_gen_df = data_gen_df[keep_cols]
 
         # get biosample or processed sample input object
         data_gen_df = data_gen_df.explode("has_input")
@@ -100,19 +104,24 @@ class MetadataSurveyor:
 
         return data_gen_df
 
-    def existing_metadata(self) -> pd.DataFrame:
+    def existing_metadata(self, extra_dg_columns=[]) -> pd.DataFrame:
         """
         Connect biosamples to data generation records by matching the output from data generation to the list of data objects associated with each biosample
         """
         try:
-            existing_study_dg_metadata = self.data_generation_metadata()
+            existing_study_dg_metadata = self.data_generation_metadata(extra_dg_columns)
             existing_study_dataobjects = self.study_dataobject_metadata()
             existing_study_metadata = existing_study_dg_metadata.merge(
                 existing_study_dataobjects, left_on="has_output", right_on="id"
             )
-            existing_study_metadata = existing_study_metadata[
-                ["biosample_id", "raw_data_identifier", "raw_file_name", "analyte"]
-            ]
+            keep_cols = [
+                "biosample_id",
+                "raw_data_identifier",
+                "raw_file_name",
+                "analyte",
+                "raw_data_input",
+            ] + extra_dg_columns
+            existing_study_metadata = existing_study_metadata[keep_cols]
         except Exception as e:
             raise ValueError("no existing metadata for this study") from e
 
@@ -186,11 +195,31 @@ class MetadataSurveyor:
         existing_metadata = self.existing_metadata()
         if not mapping_df.empty and not existing_metadata.empty:
             for row, _ in mapping_df.iterrows():
+                biosample_id = row["biosample_id"]
                 raw_data_identifier = row["raw_data_identifier"]
-                existing_name = existing_metadata[
-                    existing_metadata["biosample_id"] == "biosample_id"
-                ]["raw_file_name"]
-                if raw_data_identifier in existing_name:
-                    raise ValueError(
-                        "Data generation record(s) exists in mongo for biosample with raw data identifier in file name"
-                    )
+                if "nmdc:" in raw_data_identifier:
+                    existing_raw_input = existing_metadata[
+                        (
+                            existing_metadata["biosample_id"]
+                            == biosample_id & existing_metadata["raw_data_identifier"]
+                            == raw_data_identifier
+                        )
+                    ]["raw_data_input"]
+                    if existing_raw_input:
+                        if existing_raw_input.str.startswith("nmdc:procsm"):
+                            raise ValueError(
+                                f"Data generation record {raw_data_identifier} already has processed sample as input and likely already has material processing steps created"
+                            )
+                    else:
+                        raise ValueError(
+                            f"provided mapping info contains nmdc ids for biosample {biosample_id} and raw identifier {raw_data_identifier} but one or both not found in mongodb"
+                        )
+                else:
+                    existing_dgnames_for_biosample = existing_metadata[
+                        existing_metadata["biosample_id"] == biosample_id
+                    ]["raw_file_name"].tolist()
+                    for name in existing_dgnames_for_biosample:
+                        if raw_data_identifier in name:
+                            raise ValueError(
+                                f"{biosample_id} doesn't have an nmdc id as the `raw_data_identifier` ({raw_data_identifier}) but there is a data generation record for this biosample in mongo with {raw_data_identifier} in the file name"
+                            )

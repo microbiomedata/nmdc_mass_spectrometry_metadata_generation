@@ -1,4 +1,6 @@
+import os
 import re
+import sys
 
 import nmdc_schema.nmdc as nmdc
 import pandas as pd
@@ -27,12 +29,20 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
         study_id: str,
         yaml_outline_path: str,
         sample_to_dg_mapping_path: str,
+        test: bool,
     ):
+        super().__init__(
+            metadata_file="metadata_file",
+            database_dump_json_path=output_path,
+            raw_data_url="raw_data_url",
+            process_data_url="process_data_url",
+        )
         self.config_path = config_path
         self.output_path = output_path
         self.study_id = study_id
         self.yaml_outline_path = yaml_outline_path
         self.sample_to_dg_mapping_path = sample_to_dg_mapping_path
+        self.test = test
 
     def run(self, sample_specific_info_path=None):
         """
@@ -41,6 +51,8 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
         """
 
         ## Setup
+        CLIENT_ID = os.getenv("CLIENT_ID")
+        CLIENT_SECRET = os.getenv("CLIENT_SECRET")
         nmdc_database = self.start_nmdc_database()
         output_changesheet = ChangeSheetGenerator.initialize_empty_df()
         output_workflowsheet = WorkflowSheetGenerator.initialize_empty_df()
@@ -50,8 +62,9 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
         ## Load mapping info
         reference_mapping = survey.mapping_info(str(self.sample_to_dg_mapping_path))
 
-        ## Double check data
-        survey.metadata_test(reference_mapping)
+        ## Double check data against mongodb if this isn't a test
+        if self.test == False:
+            survey.metadata_test(reference_mapping)
 
         ## Determine number of biosamples with each number of expected final outputs (ex 10 biosamples with 1 final output, 100 biosamples with 2 final outputs)
         pattern_counts = (
@@ -68,7 +81,11 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
         ## For each biosample create json of necessary material processing steps and processed samples, as well as output dataframe
         for biosample in tqdm(
-            reference_mapping["biosample_id"].unique(), desc="Biosamples"
+            reference_mapping["biosample_id"].unique(),
+            desc="Biosamples",
+            file=sys.stdout,
+            dynamic_ncols=True,
+            leave=True,
         ):
             yaml_parameters = {}
 
@@ -99,6 +116,8 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 data=full_outline,
                 placeholder_dict=input_dict,
                 nmdc_database=nmdc_database,
+                CLIENT_ID=CLIENT_ID,
+                CLIENT_SECRET=CLIENT_SECRET,
             )
             # print(final_processed_samples)
             # break
@@ -117,16 +136,18 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
             )
 
             if not unmatched_current.empty:
-                print(
+                raise ValueError(
                     f"{biosample} had {unmatched_current.shape[0]} unmatched final processed sample(s):\n {unmatched_current}"
                 )
 
         # Output summary and save results
         self.output_summary(reference_mapping, nmdc_database)
         self.dump_nmdc_database(nmdc_database=nmdc_database)
-        self.validate_json()
-        save_to_csv(output_changesheet, f"{self.output_path}_changesheet")
-        save_to_csv(output_workflowsheet, f"{self.output_path}_workflowreference")
+        self.validate_nmdc_database(self.output_path)
+        if not output_changesheet.empty:
+            save_to_csv(output_changesheet, f"{self.output_path}_changesheet")
+        if not output_workflowsheet.empty:
+            save_to_csv(output_workflowsheet, f"{self.output_path}_workflowreference")
 
     def map_final_samples(
         self,
@@ -194,7 +215,12 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
         )
 
     def json_generation(
-        self, data: dict, placeholder_dict: dict, nmdc_database: nmdc.Database
+        self,
+        data: dict,
+        placeholder_dict: dict,
+        nmdc_database: nmdc.Database,
+        CLIENT_ID: str,
+        CLIENT_SECRET: str,
     ):
         """
         Function that creates the json and all minted ids based on the biosample adjusted yaml (tracking ids to make sure they are minted before reference)
@@ -205,6 +231,10 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
             The nested dictionary containing the workflow steps (yaml outline)
         placeholder_dict:dict
             Nested dictionary with yaml placeholder (outer key) to generated NMDC processed sample attributes (inner key is slot and inner value is slot value)
+        CLIENT_ID:str
+            The client ID for authentication
+        CLIENT_SECRET:str
+            The client secret for authentication
 
         Returns
         -------
@@ -260,7 +290,11 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
                                         placeholder_dict[reference]["id"],
                                     )
 
-                processed_sample = self.generate_processed_sample(placeholder_outline)
+                processed_sample = self.generate_processed_sample(
+                    placeholder_outline,
+                    CLIENT_ID=CLIENT_ID,
+                    CLIENT_SECRET=CLIENT_SECRET,
+                )
 
                 # Map the output placeholder and its values to the newly generated processed sample id in placeholder_dict. info used for tracking nmdc id generation in future calls of generate_material_processing_metadata
                 placeholder_dict[output_placeholder] = {}
@@ -297,6 +331,8 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 process_data,
                 input_samp_id=step_input,  # List of actual NMDC IDs
                 output_samp_id=step_output,  # List of actual NMDC IDs
+                CLIENT_ID=CLIENT_ID,
+                CLIENT_SECRET=CLIENT_SECRET,
             )
 
             # add material processing step to Database
