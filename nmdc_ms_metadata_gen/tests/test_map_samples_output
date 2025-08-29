@@ -1,0 +1,1071 @@
+{
+  "material_processing_set": [
+    {
+      "id": "nmdc:subspr-11-qjdkn758",
+      "type": "nmdc:SubSamplingProcess",
+      "name": "Subsample_soil",
+      "description": "A portion of soil being taken from nmdc:bsm-11-64vz3p24 soil sample for extraction",
+      "has_input": [
+        "nmdc:bsm-11-64vz3p24"
+      ],
+      "has_output": [
+        "nmdc:procsm-11-a8bx1567"
+      ],
+      "processing_institution": "EMSL",
+      "mass": {
+        "type": "nmdc:QuantityValue",
+        "has_raw_value": "1 g",
+        "has_numeric_value": 1,
+        "has_unit": "g"
+      }
+    },
+    {
+      "id": "nmdc:extrp-11-e9gee861",
+      "type": "nmdc:Extraction",
+      "name": "Cold_water_extraction_NOM",
+      "description": "Cold water extraction of nmdc:procsm-11-a8bx1567",
+      "has_input": [
+        "nmdc:procsm-11-a8bx1567"
+      ],
+      "has_output": [
+        "nmdc:procsm-11-gf36st31"
+      ],
+      "processing_institution": "EMSL",
+      "substances_used": [
+        {
+          "type": "nmdc:PortionOfSubstance",
+          "known_as": "water",
+          "substance_role": "solvent",
+          "volume": {
+            "type": "nmdc:QuantityValue",
+            "has_raw_value": "30 mL",
+            "has_numeric_value": 30,
+            "has_unit": "mL"
+          }
+        }
+      ],
+      "extraction_targets": [
+        "natural organic matter"
+      ],
+      "input_mass": {
+        "type": "nmdc:QuantityValue",
+        "has_raw_value": "1 g",
+        "has_numeric_value": 1,
+        "has_unit": "g"
+      },
+      "temperature": {
+        "type": "nmdc:QuantityValue",
+        "has_raw_value": "20 Cel",
+        "has_numeric_value": 20,
+        "has_unit": "Cel"
+      }
+    },
+    {
+      "id": "nmdc:cspro-11-7zd7kg91",
+      "type": "nmdc:ChromatographicSeparationProcess",
+      "name": "Water extract SPE",
+      "description": "Solid phase extraction of dissolved organic matter from nmdc:procsm-11-gf36st31",
+      "has_input": [
+        "nmdc:procsm-11-gf36st31"
+      ],
+      "has_output": [
+        "nmdc:procsm-11-t239vr41"
+      ],
+      "processing_institution": "EMSL",
+      "protocol_link": {
+        "type": "nmdc:Protocol",
+        "url": "https://doi.org/10.4319/lom.2008.6.230",
+        "name": "Dittmar et al 2008. A simple and efficient method for the solid-phase extraction of dissolved organic matter (SPE-DOM) from seawater"
+      },
+      "chromatographic_category": "solid_phase_extraction",
+      "ordered_mobile_phases": [
+        {
+          "type": "nmdc:MobilePhaseSegment",
+          "substances_used": [
+            {
+              "type": "nmdc:PortionOfSubstance",
+              "source_concentration": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "37%",
+                "has_numeric_value": 37,
+                "has_unit": "%"
+              },
+              "known_as": "hydrochloric_acid",
+              "substance_role": "acid",
+              "volume": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "2 uL",
+                "has_numeric_value": 2,
+                "has_unit": "uL"
+              }
+            },
+            {
+              "type": "nmdc:PortionOfSubstance",
+              "known_as": "water",
+              "substance_role": "solvent",
+              "volume": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "5 mL",
+                "has_numeric_value": 5,
+                "has_unit": "mL"
+              }
+            }
+          ]
+        },
+        {
+          "type": "nmdc:MobilePhaseSegment",
+          "substances_used": [
+            {
+              "type": "nmdc:PortionOfSubstance",
+              "source_concentration": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "10 mmol/L",
+                "has_numeric_value": 10,
+                "has_unit": "mmol/L"
+              },
+              "known_as": "hydrochloric_acid",
+              "substance_role": "acid",
+              "volume": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "3 mL",
+                "has_numeric_value": 3,
+                "has_unit": "mL"
+              }
+            }
+          ]
+        },
+        {
+          "type": "nmdc:MobilePhaseSegment",
+          "substances_used": [
+            {
+              "type": "nmdc:PortionOfSubstance",
+              "known_as": "methanol",
+              "substance_role": "solvent",
+              "volume": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "1.5 mL",
+                "has_numeric_value": 1.5,
+                "has_unit": "mL"
+              }
+            }
+          ]
+        }
+      ],
+      "stationary_phase": "PS-DVB"
+    },
+    {
+      "id": "nmdc:subspr-11-3pzb0y07",
+      "type": "nmdc:SubSamplingProcess",
+      "name": "Subsample_soil",
+      "description": "A portion of soil being taken from nmdc:bsm-11-5r7c6h25 soil sample for extraction",
+      "has_input": [
+        "nmdc:bsm-11-5r7c6h25"
+      ],
+      "has_output": [
+        "nmdc:procsm-11-p8qgc591"
+      ],
+      "processing_institution": "EMSL",
+      "mass": {
+        "type": "nmdc:QuantityValue",
+        "has_raw_value": "1 g",
+        "has_numeric_value": 1,
+        "has_unit": "g"
+      }
+    },
+    {
+      "id": "nmdc:extrp-11-t7h43w26",
+      "type": "nmdc:Extraction",
+      "name": "Cold_water_extraction_NOM",
+      "description": "Cold water extraction of nmdc:procsm-11-p8qgc591",
+      "has_input": [
+        "nmdc:procsm-11-p8qgc591"
+      ],
+      "has_output": [
+        "nmdc:procsm-11-cpvz8t20"
+      ],
+      "processing_institution": "EMSL",
+      "substances_used": [
+        {
+          "type": "nmdc:PortionOfSubstance",
+          "known_as": "water",
+          "substance_role": "solvent",
+          "volume": {
+            "type": "nmdc:QuantityValue",
+            "has_raw_value": "30 mL",
+            "has_numeric_value": 30,
+            "has_unit": "mL"
+          }
+        }
+      ],
+      "extraction_targets": [
+        "natural organic matter"
+      ],
+      "input_mass": {
+        "type": "nmdc:QuantityValue",
+        "has_raw_value": "1 g",
+        "has_numeric_value": 1,
+        "has_unit": "g"
+      },
+      "temperature": {
+        "type": "nmdc:QuantityValue",
+        "has_raw_value": "20 Cel",
+        "has_numeric_value": 20,
+        "has_unit": "Cel"
+      }
+    },
+    {
+      "id": "nmdc:extrp-11-ttfct618",
+      "type": "nmdc:Extraction",
+      "name": "Hot_water_extraction_NOM",
+      "description": "Hot water extraction of nmdc:procsm-11-cpvz8t20",
+      "has_input": [
+        "nmdc:procsm-11-cpvz8t20"
+      ],
+      "has_output": [
+        "nmdc:procsm-11-z7t75r70"
+      ],
+      "processing_institution": "EMSL",
+      "substances_used": [
+        {
+          "type": "nmdc:PortionOfSubstance",
+          "known_as": "water",
+          "substance_role": "solvent",
+          "volume": {
+            "type": "nmdc:QuantityValue",
+            "has_raw_value": "30 mL",
+            "has_numeric_value": 30,
+            "has_unit": "mL"
+          }
+        }
+      ],
+      "extraction_targets": [
+        "natural organic matter"
+      ],
+      "temperature": {
+        "type": "nmdc:QuantityValue",
+        "has_raw_value": "80 Cel",
+        "has_numeric_value": 80,
+        "has_unit": "Cel"
+      }
+    },
+    {
+      "id": "nmdc:cspro-11-tpgyhy57",
+      "type": "nmdc:ChromatographicSeparationProcess",
+      "name": "Water extract SPE",
+      "description": "Solid phase extraction of dissolved organic matter from nmdc:procsm-11-z7t75r70",
+      "has_input": [
+        "nmdc:procsm-11-z7t75r70"
+      ],
+      "has_output": [
+        "nmdc:procsm-11-4e406v11"
+      ],
+      "processing_institution": "EMSL",
+      "protocol_link": {
+        "type": "nmdc:Protocol",
+        "url": "https://doi.org/10.4319/lom.2008.6.230",
+        "name": "Dittmar et al 2008. A simple and efficient method for the solid-phase extraction of dissolved organic matter (SPE-DOM) from seawater"
+      },
+      "chromatographic_category": "solid_phase_extraction",
+      "ordered_mobile_phases": [
+        {
+          "type": "nmdc:MobilePhaseSegment",
+          "substances_used": [
+            {
+              "type": "nmdc:PortionOfSubstance",
+              "source_concentration": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "37%",
+                "has_numeric_value": 37,
+                "has_unit": "%"
+              },
+              "known_as": "hydrochloric_acid",
+              "substance_role": "acid",
+              "volume": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "2 uL",
+                "has_numeric_value": 2,
+                "has_unit": "uL"
+              }
+            },
+            {
+              "type": "nmdc:PortionOfSubstance",
+              "known_as": "water",
+              "substance_role": "solvent",
+              "volume": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "5 mL",
+                "has_numeric_value": 5,
+                "has_unit": "mL"
+              }
+            }
+          ]
+        },
+        {
+          "type": "nmdc:MobilePhaseSegment",
+          "substances_used": [
+            {
+              "type": "nmdc:PortionOfSubstance",
+              "source_concentration": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "10 mmol/L",
+                "has_numeric_value": 10,
+                "has_unit": "mmol/L"
+              },
+              "known_as": "hydrochloric_acid",
+              "substance_role": "acid",
+              "volume": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "3 mL",
+                "has_numeric_value": 3,
+                "has_unit": "mL"
+              }
+            }
+          ]
+        },
+        {
+          "type": "nmdc:MobilePhaseSegment",
+          "substances_used": [
+            {
+              "type": "nmdc:PortionOfSubstance",
+              "known_as": "methanol",
+              "substance_role": "solvent",
+              "volume": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "1.5 mL",
+                "has_numeric_value": 1.5,
+                "has_unit": "mL"
+              }
+            }
+          ]
+        }
+      ],
+      "stationary_phase": "PS-DVB"
+    },
+    {
+      "id": "nmdc:subspr-11-3jssa303",
+      "type": "nmdc:SubSamplingProcess",
+      "name": "Subsample_soil",
+      "description": "A portion of soil being taken from nmdc:bsm-11-q0awnq72 soil sample for extraction",
+      "has_input": [
+        "nmdc:bsm-11-q0awnq72"
+      ],
+      "has_output": [
+        "nmdc:procsm-11-pzb9k670"
+      ],
+      "processing_institution": "EMSL",
+      "mass": {
+        "type": "nmdc:QuantityValue",
+        "has_raw_value": "1 g",
+        "has_numeric_value": 1,
+        "has_unit": "g"
+      }
+    },
+    {
+      "id": "nmdc:extrp-11-2mtan913",
+      "type": "nmdc:Extraction",
+      "name": "Cold_water_extraction_NOM",
+      "description": "Cold water extraction of nmdc:procsm-11-pzb9k670",
+      "has_input": [
+        "nmdc:procsm-11-pzb9k670"
+      ],
+      "has_output": [
+        "nmdc:procsm-11-s1dcnd37",
+        "nmdc:procsm-11-d5vsp717"
+      ],
+      "processing_institution": "EMSL",
+      "substances_used": [
+        {
+          "type": "nmdc:PortionOfSubstance",
+          "known_as": "water",
+          "substance_role": "solvent",
+          "volume": {
+            "type": "nmdc:QuantityValue",
+            "has_raw_value": "30 mL",
+            "has_numeric_value": 30,
+            "has_unit": "mL"
+          }
+        }
+      ],
+      "extraction_targets": [
+        "natural organic matter"
+      ],
+      "input_mass": {
+        "type": "nmdc:QuantityValue",
+        "has_raw_value": "1 g",
+        "has_numeric_value": 1,
+        "has_unit": "g"
+      },
+      "temperature": {
+        "type": "nmdc:QuantityValue",
+        "has_raw_value": "20 Cel",
+        "has_numeric_value": 20,
+        "has_unit": "Cel"
+      }
+    },
+    {
+      "id": "nmdc:extrp-11-vbksk840",
+      "type": "nmdc:Extraction",
+      "name": "Hot_water_extraction_NOM",
+      "description": "Hot water extraction of nmdc:procsm-11-d5vsp717",
+      "has_input": [
+        "nmdc:procsm-11-d5vsp717"
+      ],
+      "has_output": [
+        "nmdc:procsm-11-e08g0059"
+      ],
+      "processing_institution": "EMSL",
+      "substances_used": [
+        {
+          "type": "nmdc:PortionOfSubstance",
+          "known_as": "water",
+          "substance_role": "solvent",
+          "volume": {
+            "type": "nmdc:QuantityValue",
+            "has_raw_value": "30 mL",
+            "has_numeric_value": 30,
+            "has_unit": "mL"
+          }
+        }
+      ],
+      "extraction_targets": [
+        "natural organic matter"
+      ],
+      "temperature": {
+        "type": "nmdc:QuantityValue",
+        "has_raw_value": "80 Cel",
+        "has_numeric_value": 80,
+        "has_unit": "Cel"
+      }
+    },
+    {
+      "id": "nmdc:cspro-11-w6kw8x61",
+      "type": "nmdc:ChromatographicSeparationProcess",
+      "name": "Water extract SPE",
+      "description": "Solid phase extraction of dissolved organic matter from nmdc:procsm-11-s1dcnd37",
+      "has_input": [
+        "nmdc:procsm-11-s1dcnd37"
+      ],
+      "has_output": [
+        "nmdc:procsm-11-d8z33t78"
+      ],
+      "processing_institution": "EMSL",
+      "protocol_link": {
+        "type": "nmdc:Protocol",
+        "url": "https://doi.org/10.4319/lom.2008.6.230",
+        "name": "Dittmar et al 2008. A simple and efficient method for the solid-phase extraction of dissolved organic matter (SPE-DOM) from seawater"
+      },
+      "chromatographic_category": "solid_phase_extraction",
+      "ordered_mobile_phases": [
+        {
+          "type": "nmdc:MobilePhaseSegment",
+          "substances_used": [
+            {
+              "type": "nmdc:PortionOfSubstance",
+              "source_concentration": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "37%",
+                "has_numeric_value": 37,
+                "has_unit": "%"
+              },
+              "known_as": "hydrochloric_acid",
+              "substance_role": "acid",
+              "volume": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "2 uL",
+                "has_numeric_value": 2,
+                "has_unit": "uL"
+              }
+            },
+            {
+              "type": "nmdc:PortionOfSubstance",
+              "known_as": "water",
+              "substance_role": "solvent",
+              "volume": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "5 mL",
+                "has_numeric_value": 5,
+                "has_unit": "mL"
+              }
+            }
+          ]
+        },
+        {
+          "type": "nmdc:MobilePhaseSegment",
+          "substances_used": [
+            {
+              "type": "nmdc:PortionOfSubstance",
+              "source_concentration": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "10 mmol/L",
+                "has_numeric_value": 10,
+                "has_unit": "mmol/L"
+              },
+              "known_as": "hydrochloric_acid",
+              "substance_role": "acid",
+              "volume": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "3 mL",
+                "has_numeric_value": 3,
+                "has_unit": "mL"
+              }
+            }
+          ]
+        },
+        {
+          "type": "nmdc:MobilePhaseSegment",
+          "substances_used": [
+            {
+              "type": "nmdc:PortionOfSubstance",
+              "known_as": "methanol",
+              "substance_role": "solvent",
+              "volume": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "1.5 mL",
+                "has_numeric_value": 1.5,
+                "has_unit": "mL"
+              }
+            }
+          ]
+        }
+      ],
+      "stationary_phase": "PS-DVB"
+    },
+    {
+      "id": "nmdc:cspro-11-schsk023",
+      "type": "nmdc:ChromatographicSeparationProcess",
+      "name": "Water extract SPE",
+      "description": "Solid phase extraction of dissolved organic matter from nmdc:procsm-11-e08g0059",
+      "has_input": [
+        "nmdc:procsm-11-e08g0059"
+      ],
+      "has_output": [
+        "nmdc:procsm-11-7m0p2583"
+      ],
+      "processing_institution": "EMSL",
+      "protocol_link": {
+        "type": "nmdc:Protocol",
+        "url": "https://doi.org/10.4319/lom.2008.6.230",
+        "name": "Dittmar et al 2008. A simple and efficient method for the solid-phase extraction of dissolved organic matter (SPE-DOM) from seawater"
+      },
+      "chromatographic_category": "solid_phase_extraction",
+      "ordered_mobile_phases": [
+        {
+          "type": "nmdc:MobilePhaseSegment",
+          "substances_used": [
+            {
+              "type": "nmdc:PortionOfSubstance",
+              "source_concentration": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "37%",
+                "has_numeric_value": 37,
+                "has_unit": "%"
+              },
+              "known_as": "hydrochloric_acid",
+              "substance_role": "acid",
+              "volume": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "2 uL",
+                "has_numeric_value": 2,
+                "has_unit": "uL"
+              }
+            },
+            {
+              "type": "nmdc:PortionOfSubstance",
+              "known_as": "water",
+              "substance_role": "solvent",
+              "volume": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "5 mL",
+                "has_numeric_value": 5,
+                "has_unit": "mL"
+              }
+            }
+          ]
+        },
+        {
+          "type": "nmdc:MobilePhaseSegment",
+          "substances_used": [
+            {
+              "type": "nmdc:PortionOfSubstance",
+              "source_concentration": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "10 mmol/L",
+                "has_numeric_value": 10,
+                "has_unit": "mmol/L"
+              },
+              "known_as": "hydrochloric_acid",
+              "substance_role": "acid",
+              "volume": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "3 mL",
+                "has_numeric_value": 3,
+                "has_unit": "mL"
+              }
+            }
+          ]
+        },
+        {
+          "type": "nmdc:MobilePhaseSegment",
+          "substances_used": [
+            {
+              "type": "nmdc:PortionOfSubstance",
+              "known_as": "methanol",
+              "substance_role": "solvent",
+              "volume": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "1.5 mL",
+                "has_numeric_value": 1.5,
+                "has_unit": "mL"
+              }
+            }
+          ]
+        }
+      ],
+      "stationary_phase": "PS-DVB"
+    },
+    {
+      "id": "nmdc:subspr-11-wwyafv84",
+      "type": "nmdc:SubSamplingProcess",
+      "name": "Subsample_soil",
+      "description": "A portion of soil being taken from nmdc:bsm-11-cama3617 soil sample for extraction",
+      "has_input": [
+        "nmdc:bsm-11-cama3617"
+      ],
+      "has_output": [
+        "nmdc:procsm-11-whbrf561"
+      ],
+      "processing_institution": "EMSL",
+      "mass": {
+        "type": "nmdc:QuantityValue",
+        "has_raw_value": "1 g",
+        "has_numeric_value": 1,
+        "has_unit": "g"
+      }
+    },
+    {
+      "id": "nmdc:extrp-11-hcsww027",
+      "type": "nmdc:Extraction",
+      "name": "Cold_water_extraction_NOM",
+      "description": "Cold water extraction of nmdc:procsm-11-whbrf561",
+      "has_input": [
+        "nmdc:procsm-11-whbrf561"
+      ],
+      "has_output": [
+        "nmdc:procsm-11-ez399859",
+        "nmdc:procsm-11-4gzewb11"
+      ],
+      "processing_institution": "EMSL",
+      "substances_used": [
+        {
+          "type": "nmdc:PortionOfSubstance",
+          "known_as": "water",
+          "substance_role": "solvent",
+          "volume": {
+            "type": "nmdc:QuantityValue",
+            "has_raw_value": "30 mL",
+            "has_numeric_value": 30,
+            "has_unit": "mL"
+          }
+        }
+      ],
+      "extraction_targets": [
+        "natural organic matter"
+      ],
+      "input_mass": {
+        "type": "nmdc:QuantityValue",
+        "has_raw_value": "1 g",
+        "has_numeric_value": 1,
+        "has_unit": "g"
+      },
+      "temperature": {
+        "type": "nmdc:QuantityValue",
+        "has_raw_value": "20 Cel",
+        "has_numeric_value": 20,
+        "has_unit": "Cel"
+      }
+    },
+    {
+      "id": "nmdc:extrp-11-0tw03t97",
+      "type": "nmdc:Extraction",
+      "name": "Hot_water_extraction_NOM",
+      "description": "Hot water extraction of nmdc:procsm-11-4gzewb11",
+      "has_input": [
+        "nmdc:procsm-11-4gzewb11"
+      ],
+      "has_output": [
+        "nmdc:procsm-11-mhjatg18"
+      ],
+      "processing_institution": "EMSL",
+      "substances_used": [
+        {
+          "type": "nmdc:PortionOfSubstance",
+          "known_as": "water",
+          "substance_role": "solvent",
+          "volume": {
+            "type": "nmdc:QuantityValue",
+            "has_raw_value": "30 mL",
+            "has_numeric_value": 30,
+            "has_unit": "mL"
+          }
+        }
+      ],
+      "extraction_targets": [
+        "natural organic matter"
+      ],
+      "temperature": {
+        "type": "nmdc:QuantityValue",
+        "has_raw_value": "80 Cel",
+        "has_numeric_value": 80,
+        "has_unit": "Cel"
+      }
+    },
+    {
+      "id": "nmdc:cspro-11-0rztmf13",
+      "type": "nmdc:ChromatographicSeparationProcess",
+      "name": "Water extract SPE",
+      "description": "Solid phase extraction of dissolved organic matter from nmdc:procsm-11-ez399859",
+      "has_input": [
+        "nmdc:procsm-11-ez399859"
+      ],
+      "has_output": [
+        "nmdc:procsm-11-7v12h565"
+      ],
+      "processing_institution": "EMSL",
+      "protocol_link": {
+        "type": "nmdc:Protocol",
+        "url": "https://doi.org/10.4319/lom.2008.6.230",
+        "name": "Dittmar et al 2008. A simple and efficient method for the solid-phase extraction of dissolved organic matter (SPE-DOM) from seawater"
+      },
+      "chromatographic_category": "solid_phase_extraction",
+      "ordered_mobile_phases": [
+        {
+          "type": "nmdc:MobilePhaseSegment",
+          "substances_used": [
+            {
+              "type": "nmdc:PortionOfSubstance",
+              "source_concentration": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "37%",
+                "has_numeric_value": 37,
+                "has_unit": "%"
+              },
+              "known_as": "hydrochloric_acid",
+              "substance_role": "acid",
+              "volume": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "2 uL",
+                "has_numeric_value": 2,
+                "has_unit": "uL"
+              }
+            },
+            {
+              "type": "nmdc:PortionOfSubstance",
+              "known_as": "water",
+              "substance_role": "solvent",
+              "volume": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "5 mL",
+                "has_numeric_value": 5,
+                "has_unit": "mL"
+              }
+            }
+          ]
+        },
+        {
+          "type": "nmdc:MobilePhaseSegment",
+          "substances_used": [
+            {
+              "type": "nmdc:PortionOfSubstance",
+              "source_concentration": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "10 mmol/L",
+                "has_numeric_value": 10,
+                "has_unit": "mmol/L"
+              },
+              "known_as": "hydrochloric_acid",
+              "substance_role": "acid",
+              "volume": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "3 mL",
+                "has_numeric_value": 3,
+                "has_unit": "mL"
+              }
+            }
+          ]
+        },
+        {
+          "type": "nmdc:MobilePhaseSegment",
+          "substances_used": [
+            {
+              "type": "nmdc:PortionOfSubstance",
+              "known_as": "methanol",
+              "substance_role": "solvent",
+              "volume": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "1.5 mL",
+                "has_numeric_value": 1.5,
+                "has_unit": "mL"
+              }
+            }
+          ]
+        }
+      ],
+      "stationary_phase": "PS-DVB"
+    },
+    {
+      "id": "nmdc:cspro-11-n97fqd31",
+      "type": "nmdc:ChromatographicSeparationProcess",
+      "name": "Water extract SPE",
+      "description": "Solid phase extraction of dissolved organic matter from nmdc:procsm-11-mhjatg18",
+      "has_input": [
+        "nmdc:procsm-11-mhjatg18"
+      ],
+      "has_output": [
+        "nmdc:procsm-11-dam3j802"
+      ],
+      "processing_institution": "EMSL",
+      "protocol_link": {
+        "type": "nmdc:Protocol",
+        "url": "https://doi.org/10.4319/lom.2008.6.230",
+        "name": "Dittmar et al 2008. A simple and efficient method for the solid-phase extraction of dissolved organic matter (SPE-DOM) from seawater"
+      },
+      "chromatographic_category": "solid_phase_extraction",
+      "ordered_mobile_phases": [
+        {
+          "type": "nmdc:MobilePhaseSegment",
+          "substances_used": [
+            {
+              "type": "nmdc:PortionOfSubstance",
+              "source_concentration": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "37%",
+                "has_numeric_value": 37,
+                "has_unit": "%"
+              },
+              "known_as": "hydrochloric_acid",
+              "substance_role": "acid",
+              "volume": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "2 uL",
+                "has_numeric_value": 2,
+                "has_unit": "uL"
+              }
+            },
+            {
+              "type": "nmdc:PortionOfSubstance",
+              "known_as": "water",
+              "substance_role": "solvent",
+              "volume": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "5 mL",
+                "has_numeric_value": 5,
+                "has_unit": "mL"
+              }
+            }
+          ]
+        },
+        {
+          "type": "nmdc:MobilePhaseSegment",
+          "substances_used": [
+            {
+              "type": "nmdc:PortionOfSubstance",
+              "source_concentration": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "10 mmol/L",
+                "has_numeric_value": 10,
+                "has_unit": "mmol/L"
+              },
+              "known_as": "hydrochloric_acid",
+              "substance_role": "acid",
+              "volume": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "3 mL",
+                "has_numeric_value": 3,
+                "has_unit": "mL"
+              }
+            }
+          ]
+        },
+        {
+          "type": "nmdc:MobilePhaseSegment",
+          "substances_used": [
+            {
+              "type": "nmdc:PortionOfSubstance",
+              "known_as": "methanol",
+              "substance_role": "solvent",
+              "volume": {
+                "type": "nmdc:QuantityValue",
+                "has_raw_value": "1.5 mL",
+                "has_numeric_value": 1.5,
+                "has_unit": "mL"
+              }
+            }
+          ]
+        }
+      ],
+      "stationary_phase": "PS-DVB"
+    }
+  ],
+  "processed_sample_set": [
+    {
+      "id": "nmdc:procsm-11-a8bx1567",
+      "type": "nmdc:ProcessedSample",
+      "name": "nmdc:bsm-11-64vz3p24_subsample",
+      "description": "The output from subsampling nmdc:bsm-11-64vz3p24 for extraction"
+    },
+    {
+      "id": "nmdc:procsm-11-gf36st31",
+      "type": "nmdc:ProcessedSample",
+      "name": "nmdc:bsm-11-64vz3p24_cold_water",
+      "description": "Cold water extract of nmdc:bsm-11-64vz3p24",
+      "sampled_portion": [
+        "aqueous_layer"
+      ]
+    },
+    {
+      "id": "nmdc:procsm-11-t239vr41",
+      "type": "nmdc:ProcessedSample",
+      "name": "nmdc:bsm-11-64vz3p24_NOM_cold_water_SPE",
+      "description": "NOM from cold water and solid phase extraction of nmdc:bsm-11-64vz3p24",
+      "sampled_portion": [
+        "aqueous_layer"
+      ]
+    },
+    {
+      "id": "nmdc:procsm-11-p8qgc591",
+      "type": "nmdc:ProcessedSample",
+      "name": "nmdc:bsm-11-5r7c6h25_subsample",
+      "description": "The output from subsampling nmdc:bsm-11-5r7c6h25 for extraction"
+    },
+    {
+      "id": "nmdc:procsm-11-cpvz8t20",
+      "type": "nmdc:ProcessedSample",
+      "name": "nmdc:bsm-11-5r7c6h25_cold_water_extracted_soil",
+      "description": "Water-extracted soil for hot water extraction of nmdc:bsm-11-5r7c6h25",
+      "sampled_portion": [
+        "pellet"
+      ]
+    },
+    {
+      "id": "nmdc:procsm-11-z7t75r70",
+      "type": "nmdc:ProcessedSample",
+      "name": "nmdc:bsm-11-5r7c6h25_hot_water",
+      "description": "Hot water extract of nmdc:bsm-11-5r7c6h25",
+      "sampled_portion": [
+        "aqueous_layer"
+      ]
+    },
+    {
+      "id": "nmdc:procsm-11-4e406v11",
+      "type": "nmdc:ProcessedSample",
+      "name": "nmdc:bsm-11-5r7c6h25_NOM_hot_water_SPE",
+      "description": "NOM from hot water and solid phase extraction of nmdc:bsm-11-5r7c6h25",
+      "sampled_portion": [
+        "aqueous_layer"
+      ]
+    },
+    {
+      "id": "nmdc:procsm-11-pzb9k670",
+      "type": "nmdc:ProcessedSample",
+      "name": "nmdc:bsm-11-q0awnq72_subsample",
+      "description": "The output from subsampling nmdc:bsm-11-q0awnq72 for extraction"
+    },
+    {
+      "id": "nmdc:procsm-11-s1dcnd37",
+      "type": "nmdc:ProcessedSample",
+      "name": "nmdc:bsm-11-q0awnq72_cold_water",
+      "description": "Cold water extract of nmdc:bsm-11-q0awnq72",
+      "sampled_portion": [
+        "aqueous_layer"
+      ]
+    },
+    {
+      "id": "nmdc:procsm-11-d5vsp717",
+      "type": "nmdc:ProcessedSample",
+      "name": "nmdc:bsm-11-q0awnq72_cold_water_extracted_soil",
+      "description": "Water-extracted soil for hot water extraction of nmdc:bsm-11-q0awnq72",
+      "sampled_portion": [
+        "pellet"
+      ]
+    },
+    {
+      "id": "nmdc:procsm-11-e08g0059",
+      "type": "nmdc:ProcessedSample",
+      "name": "nmdc:bsm-11-q0awnq72_hot_water",
+      "description": "Hot water extract of nmdc:bsm-11-q0awnq72",
+      "sampled_portion": [
+        "aqueous_layer"
+      ]
+    },
+    {
+      "id": "nmdc:procsm-11-d8z33t78",
+      "type": "nmdc:ProcessedSample",
+      "name": "nmdc:bsm-11-q0awnq72_NOM_cold_water_SPE",
+      "description": "NOM from cold water and solid phase extraction of nmdc:bsm-11-q0awnq72",
+      "sampled_portion": [
+        "aqueous_layer"
+      ]
+    },
+    {
+      "id": "nmdc:procsm-11-7m0p2583",
+      "type": "nmdc:ProcessedSample",
+      "name": "nmdc:bsm-11-q0awnq72_NOM_hot_water_SPE",
+      "description": "NOM from hot water and solid phase extraction of nmdc:bsm-11-q0awnq72",
+      "sampled_portion": [
+        "aqueous_layer"
+      ]
+    },
+    {
+      "id": "nmdc:procsm-11-whbrf561",
+      "type": "nmdc:ProcessedSample",
+      "name": "nmdc:bsm-11-cama3617_subsample",
+      "description": "The output from subsampling nmdc:bsm-11-cama3617 for extraction"
+    },
+    {
+      "id": "nmdc:procsm-11-ez399859",
+      "type": "nmdc:ProcessedSample",
+      "name": "nmdc:bsm-11-cama3617_cold_water",
+      "description": "Cold water extract of nmdc:bsm-11-cama3617",
+      "sampled_portion": [
+        "aqueous_layer"
+      ]
+    },
+    {
+      "id": "nmdc:procsm-11-4gzewb11",
+      "type": "nmdc:ProcessedSample",
+      "name": "nmdc:bsm-11-cama3617_cold_water_extracted_soil",
+      "description": "Water-extracted soil for hot water extraction of nmdc:bsm-11-cama3617",
+      "sampled_portion": [
+        "pellet"
+      ]
+    },
+    {
+      "id": "nmdc:procsm-11-mhjatg18",
+      "type": "nmdc:ProcessedSample",
+      "name": "nmdc:bsm-11-cama3617_hot_water",
+      "description": "Hot water extract of nmdc:bsm-11-cama3617",
+      "sampled_portion": [
+        "aqueous_layer"
+      ]
+    },
+    {
+      "id": "nmdc:procsm-11-7v12h565",
+      "type": "nmdc:ProcessedSample",
+      "name": "nmdc:bsm-11-cama3617_NOM_cold_water_SPE",
+      "description": "NOM from cold water and solid phase extraction of nmdc:bsm-11-cama3617",
+      "sampled_portion": [
+        "aqueous_layer"
+      ]
+    },
+    {
+      "id": "nmdc:procsm-11-dam3j802",
+      "type": "nmdc:ProcessedSample",
+      "name": "nmdc:bsm-11-cama3617_NOM_hot_water_SPE",
+      "description": "NOM from hot water and solid phase extraction of nmdc:bsm-11-cama3617",
+      "sampled_portion": [
+        "aqueous_layer"
+      ]
+    }
+  ],
+  "@type": "Database"
+}
