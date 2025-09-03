@@ -6,6 +6,8 @@ nmdc_ms_metadata_gen/tests/.test.ipynb
 # C extensions
 *.so
 nmdc_ms_metadata_gen/tests/test_data/test_database_*.json
+
+nmdc_ms_metadata_gen/tests/test_data/test_mp_*
 # Distribution / packaging
 .Python
 build/
