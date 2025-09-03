@@ -18,9 +18,15 @@ def test_yamlspecifier_add_info():
     """
 
     # Spruce test study
-    yaml_outline_path = "tests/spruce_proteins_test.yaml"
-    sample_to_dg_mapping_path = "tests/add_info_test_mapping_input.csv"
-    sample_specific_info_path = "tests/add_info_test_input.csv"
+    yaml_outline_path = (
+        "tests/test_data/test_material_processing/spruce_proteins_test.yaml"
+    )
+    sample_to_dg_mapping_path = (
+        "tests/test_data/test_material_processing/add_info_test_mapping_input.csv"
+    )
+    sample_specific_info_path = (
+        "tests/test_data/test_material_processing/add_info_test_input.csv"
+    )
 
     yaml_parameters = {}
 
@@ -77,8 +83,12 @@ def test_yamlspecifier_adjust_outputs():
     }
 
     yaml_parameters = {}
-    yaml_outline_path = "tests/SanClements-NOM_test.yaml"
-    sample_to_dg_mapping_path = "tests/outputs_test_mapping_input.csv"
+    yaml_outline_path = (
+        "tests/test_data/test_material_processing/SanClements-NOM_test.yaml"
+    )
+    sample_to_dg_mapping_path = (
+        "tests/test_data/test_material_processing/outputs_test_mapping_input.csv"
+    )
     sample_to_dg_mapping = pd.read_csv(sample_to_dg_mapping_path)
 
     # Subset to biosamples with varying number of outputs
@@ -103,9 +113,6 @@ def test_yamlspecifier_adjust_outputs():
         assert len(final_outputs) == tracking[test_biosample]
 
 
-# test_yamlspecifier_adjust_outputs()
-
-
 def test_map_final_samples():
     """
     Test that there are no unmatched processed samples being created and that a valid json is being created
@@ -119,17 +126,14 @@ def test_map_final_samples():
     # SanClements test study
     generator = MaterialProcessingMetadataGenerator(
         config_path="config.yaml",
-        output_path="tests/test_map_samples_output",
+        output_path="tests/test_data/test_mp_map_samples_output",
         study_id="nmdc:sty-11-8xdqsn54",
-        yaml_outline_path="tests/SanClements-NOM_test.yaml",
-        sample_to_dg_mapping_path="tests/outputs_test_mapping_input.csv",
+        yaml_outline_path="tests/test_data/test_material_processing/SanClements-NOM_test.yaml",
+        sample_to_dg_mapping_path="tests/test_data/test_material_processing/outputs_test_mapping_input.csv",
         test=True,
     )
 
     generator.run()
-
-
-test_map_final_samples()
 
 
 def test_changesheet_workflowsheet():
@@ -140,10 +144,10 @@ def test_changesheet_workflowsheet():
     # SanClements test study
     generator = MaterialProcessingMetadataGenerator(
         config_path="config.yaml",
-        output_path="tests/test_changesheet_workflowsheet_output",
+        output_path="tests/test_data/test_mp_changesheet_workflowsheet_output",
         study_id="nmdc:sty-11-8xdqsn54",
-        yaml_outline_path="tests/SanClements-NOM_test.yaml",
-        sample_to_dg_mapping_path="tests/changesheet_workflowsheet_test_mapping_input.csv",
+        yaml_outline_path="tests/test_data/test_material_processing/SanClements-NOM_test.yaml",
+        sample_to_dg_mapping_path="tests/test_data/test_material_processing/changesheet_workflowsheet_test_mapping_input.csv",
         test=True,
     )
 
