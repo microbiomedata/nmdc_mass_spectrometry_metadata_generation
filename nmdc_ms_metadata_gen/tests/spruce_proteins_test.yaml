@@ -1,26 +1,23 @@
 # Can remove ProcessedSample, just add placeholder processed samples in has_output and has_inputs
 
-  - ProcessedSample1:
-      ProcessedSample:
-        id: #nmdc:
-        name: <Biosample>_MPLEx-subsample
-        description: The output from subsampling <Biosample> for extraction
-
-  - ProcessedSample2:
-      ProcessedSample:
-        id: #nmdc:
-        name: <Biosample>_proteins
-        description: The proteins from extracting <Biosample> via MPLEx
-        sampled_portion:
-          - interlayer
-
-  - ProcessedSample3:
-      ProcessedSample:
-        type: nmdc:ProcessedSample
-        name: <Biosample>_proteins
-        description: Extracted and digested proteins from <Biosample>
-        sampled_portion:
-          - interlayer
+Study: nmdc:sty-11-33fbta56
+steps:
+  - Step 1:
+      SubSamplingProcess:
+        id: # nmdc:subspr-{shoulder}-{blade}
+        type: nmdc:SubSamplingProcess
+        name: subsampling1
+        description: A portion of soil being taken from soil sample <Biosample> for extraction
+        has_input:
+          - Biosample
+        has_output:
+          - ProcessedSample1
+        processing_institution: EMSL
+        mass:
+          type: nmdc:QuantityValue
+          has_raw_value: # source from additional_info.txt
+          has_unit: g
+          has_numeric_value: # source from additional_info.txt
 
 # An MPLEX extraction, but only making records for the proteins
   - Step 2:
@@ -99,23 +96,26 @@
           has_unit: h
           has_numeric_value: 3
 
-Study: nmdc:sty-11-33fbta56
-steps:
-  - Step 1:
-      SubSamplingProcess:
-        id: # nmdc:subspr-{shoulder}-{blade}
-        type: nmdc:SubSamplingProcess
-        name: subsampling1
-        description: A portion of soil being taken from soil sample <Biosample> for extraction
-        has_input:
-          - Biosample
-        has_output:
-          - ProcessedSample1
-        processing_institution: EMSL
-        mass:
-          type: nmdc:QuantityValue
-          has_raw_value: # source from additional_info.txt
-          has_unit: g
-          has_numeric_value: # source from additional_info.txt
-
 processedsamples:
+
+  - ProcessedSample1:
+      ProcessedSample:
+        id: #nmdc:
+        name: <Biosample>_MPLEx-subsample
+        description: The output from subsampling <Biosample> for extraction
+
+  - ProcessedSample2:
+      ProcessedSample:
+        id: #nmdc:
+        name: <Biosample>_proteins
+        description: The proteins from extracting <Biosample> via MPLEx
+        sampled_portion:
+          - interlayer
+
+  - ProcessedSample3:
+      ProcessedSample:
+        type: nmdc:ProcessedSample
+        name: <Biosample>_proteins
+        description: Extracted and digested proteins from <Biosample>
+        sampled_portion:
+          - interlayer

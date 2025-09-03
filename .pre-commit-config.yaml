@@ -22,11 +22,7 @@ repos:
         args:
           - --autofix
           - --top-keys=_id
-      - id: sort-simple-yaml
-        files: '.yaml$'
       - id: check-symlinks
-      # - id: check-yaml
-      #   exclude: '(.*-ci|ci/.+)\.yml$'
       - id: detect-private-key
       - id: trailing-whitespace
 

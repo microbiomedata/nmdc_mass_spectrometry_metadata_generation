@@ -1,51 +1,22 @@
 # Water extraction and SPE
-
-  - ProcessedSample1:
-      ProcessedSample:
-        id: #nmdc:
-        type: nmdc:ProcessedSample
-        name: <Biosample>_subsample
-        description: The output from subsampling <Biosample> for extraction
-
-  - ProcessedSample2:
-      ProcessedSample:
-        id: #nmdc:
-        type: nmdc:ProcessedSample
-        name: <Biosample>_cold_water
-        description: Cold water extract of <Biosample>
-        sampled_portion: aqueous_layer
-
-  - ProcessedSample3:
-      ProcessedSample:
-        id: #nmdc:
-        type: nmdc:ProcessedSample
-        name: <Biosample>_cold_water_extracted_soil
-        description: Water-extracted soil for hot water extraction of <Biosample>
-        sampled_portion: pellet
-
-  - ProcessedSample4:
-      ProcessedSample:
-        id: #nmdc:
-        type: nmdc:ProcessedSample
-        name: <Biosample>_hot_water
-        description: Hot water extract of <Biosample>
-        sampled_portion: aqueous_layer
-
-  - ProcessedSample5:
-      ProcessedSample:
-        id: #nmdc:
-        type: nmdc:ProcessedSample
-        name: <Biosample>_NOM_cold_water_SPE
-        description: NOM from cold water and solid phase extraction of <Biosample>
-        sampled_portion: aqueous_layer
-
-  - ProcessedSample6:
-      ProcessedSample:
-        id: #nmdc:
-        type: nmdc:ProcessedSample
-        name: <Biosample>_NOM_hot_water_SPE
-        description: NOM from hot water and solid phase extraction of <Biosample>
-        sampled_portion: aqueous_layer
+Study: nmdc:sty-11-8xdqsn54
+steps:
+  - Step 1:
+      SubSamplingProcess:
+        id: # nmdc:subspr-{shoulder}-{blade}
+        type: nmdc:SubSamplingProcess
+        name: Subsample_soil
+        description: A portion of soil being taken from <Biosample> soil sample for extraction
+        has_input:
+          - Biosample
+        has_output:
+          - ProcessedSample1
+        processing_institution: EMSL
+        mass:
+          type: nmdc:QuantityValue
+          has_raw_value: 1 g
+          has_unit: g
+          has_numeric_value: 1
 
   - Step 2:
       Extraction:
@@ -243,23 +214,51 @@
                   has_numeric_value: 1.5
         stationary_phase: PS-DVB
 
-Study: nmdc:sty-11-8xdqsn54
-steps:
-  - Step 1:
-      SubSamplingProcess:
-        id: # nmdc:subspr-{shoulder}-{blade}
-        type: nmdc:SubSamplingProcess
-        name: Subsample_soil
-        description: A portion of soil being taken from <Biosample> soil sample for extraction
-        has_input:
-          - Biosample
-        has_output:
-          - ProcessedSample1
-        processing_institution: EMSL
-        mass:
-          type: nmdc:QuantityValue
-          has_raw_value: 1 g
-          has_unit: g
-          has_numeric_value: 1
-
 processedsamples:
+
+  - ProcessedSample1:
+      ProcessedSample:
+        id: #nmdc:
+        type: nmdc:ProcessedSample
+        name: <Biosample>_subsample
+        description: The output from subsampling <Biosample> for extraction
+
+  - ProcessedSample2:
+      ProcessedSample:
+        id: #nmdc:
+        type: nmdc:ProcessedSample
+        name: <Biosample>_cold_water
+        description: Cold water extract of <Biosample>
+        sampled_portion: aqueous_layer
+
+  - ProcessedSample3:
+      ProcessedSample:
+        id: #nmdc:
+        type: nmdc:ProcessedSample
+        name: <Biosample>_cold_water_extracted_soil
+        description: Water-extracted soil for hot water extraction of <Biosample>
+        sampled_portion: pellet
+
+  - ProcessedSample4:
+      ProcessedSample:
+        id: #nmdc:
+        type: nmdc:ProcessedSample
+        name: <Biosample>_hot_water
+        description: Hot water extract of <Biosample>
+        sampled_portion: aqueous_layer
+
+  - ProcessedSample5:
+      ProcessedSample:
+        id: #nmdc:
+        type: nmdc:ProcessedSample
+        name: <Biosample>_NOM_cold_water_SPE
+        description: NOM from cold water and solid phase extraction of <Biosample>
+        sampled_portion: aqueous_layer
+
+  - ProcessedSample6:
+      ProcessedSample:
+        id: #nmdc:
+        type: nmdc:ProcessedSample
+        name: <Biosample>_NOM_hot_water_SPE
+        description: NOM from hot water and solid phase extraction of <Biosample>
+        sampled_portion: aqueous_layer
