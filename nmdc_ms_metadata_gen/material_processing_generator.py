@@ -32,10 +32,10 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
         test: bool,
     ):
         super().__init__(
-            metadata_file="metadata_file",
+            metadata_file="",
             database_dump_json_path=output_path,
-            raw_data_url="raw_data_url",
-            process_data_url="process_data_url",
+            raw_data_url="",
+            process_data_url="",
         )
         self.config_path = config_path
         self.output_path = output_path
@@ -48,6 +48,14 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
         """
         This main function generates mass spectrometry material processing steps for a given study using provided metadata
 
+        Parameters
+        ----------
+        sample_specific_info_path : str or None
+            The path to the sample specific information csv file, if available
+
+        Returns
+        -------
+        None
         """
 
         ## Setup

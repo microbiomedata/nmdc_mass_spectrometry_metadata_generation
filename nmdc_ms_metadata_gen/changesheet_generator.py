@@ -6,7 +6,18 @@ import pandas as pd
 class ChangeSheetGenerator:
     @staticmethod
     def initialize_empty_df() -> pd.DataFrame:
-        """Create an empty DataFrame with required columns"""
+        """
+        Create an empty DataFrame with required columns
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        pd.DataFrame
+            The initialized empty DataFrame
+        """
         df = pd.DataFrame(columns=["id", "action", "attribute", "value"])
         return df
 
@@ -44,7 +55,18 @@ class ChangeSheetGenerator:
 class WorkflowSheetGenerator:
     @staticmethod
     def initialize_empty_df() -> pd.DataFrame:
-        """Create an empty DataFrame with required columns"""
+        """
+        Create an empty DataFrame with required columns
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        pd.DataFrame
+            The initialized empty DataFrame
+        """
         df = pd.DataFrame(
             columns=["biosample_id", "raw_data_identifier", "last_processed_sample"]
         )
@@ -97,6 +119,11 @@ def save_to_csv(df: pd.DataFrame, output_path: str | Path):
         The DataFrame to save
     output_path : str or Path
         The path where the CSV should be saved
+
+    Returns
+    -------
+    None
+
     """
     df.to_csv(f"{output_path}.csv", index=False)
     print(f"Sheet saved to {output_path}.csv")
