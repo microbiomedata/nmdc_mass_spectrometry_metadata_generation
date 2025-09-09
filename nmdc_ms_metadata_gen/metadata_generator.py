@@ -662,11 +662,15 @@ class NMDCMetadataGenerator:
         Parameters
         ----------
         json : dict | str
-            The JSON metadata to submit.
+            The JSON metadata to submit. Can be a file path or a JSON string.
         CLIENT_ID : str
             The client ID for the NMDC API.
         CLIENT_SECRET : str
             The client secret for the NMDC API.
+
+        Returns
+        -------
+        None
 
         """
         auth = NMDCAuth(client_id=CLIENT_ID, client_secret=CLIENT_SECRET)
