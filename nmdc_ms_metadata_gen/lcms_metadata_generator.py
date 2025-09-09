@@ -129,6 +129,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 lc_config_id=workflow_metadata.lc_config_id,
                 start_date=workflow_metadata.instrument_analysis_start_date,
                 end_date=workflow_metadata.instrument_analysis_end_date,
+                instrument_instance_specifier=workflow_metadata.instrument_instance_specifier,
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
             )
@@ -562,4 +563,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             execution_resource=row.get("execution_resource", None),
             raw_data_url=row.get("raw_data_url"),
             manifest_id=row.get("manifest_id", None),
+            instrument_instance_specifier=row.get(
+                "instrument_instance_specifier", None
+            ),
         )
