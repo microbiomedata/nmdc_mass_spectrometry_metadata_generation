@@ -115,8 +115,6 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
             # Use the biosample specific values and target output information to adjust the yaml outline for this biosample
             full_outline = data_parser.yaml_generation(**yaml_parameters)
-            # print(full_outline)
-            # break
 
             # Create necessary material processing and processed sample ids to link each biosample to a final processed sample that will be the new input to the data generation records
             input_dict = {"Biosample": {"id": biosample}}
@@ -127,8 +125,6 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_ID=CLIENT_ID,
                 CLIENT_SECRET=CLIENT_SECRET,
             )
-            # print(final_processed_samples)
-            # break
 
             # Match the new final processed sample ids back to raw data files via a changesheet (if dg exists) or a workflowsheet (no dg yet)
             (
