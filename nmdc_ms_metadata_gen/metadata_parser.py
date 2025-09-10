@@ -1,20 +1,25 @@
-# -*- coding: utf-8 -*-
-import pandas as pd
+# Standard Library
+import ast
+from dataclasses import dataclass, is_dataclass
+from typing import List, Union, get_args, get_origin
+
 import numpy as np
 
-from dataclasses import dataclass, is_dataclass
-from typing import Union, List, get_origin, get_args
+# Third-Party Libraries
+import pandas as pd
 import typing_inspect
-from nmdc_ms_metadata_gen.bio_ontology_api import BioOntologyInfoRetriever
+import yaml
 from nmdc_schema.nmdc import (
     Biosample,
     ControlledIdentifiedTermValue,
-    TextValue,
-    QuantityValue,
     GeolocationValue,
+    QuantityValue,
+    TextValue,
     TimestampValue,
 )
-import ast
+
+# Local Modules
+from nmdc_ms_metadata_gen.bio_ontology_api import BioOntologyInfoRetriever
 from nmdc_ms_metadata_gen.data_classes import NmdcTypes
 
 
@@ -445,3 +450,189 @@ class MetadataParser:
 
         # Save the DataFrame to a CSV file
         df.to_csv(file_path, index=False)
+
+
+class YamlSpecifier:
+    """
+    This class provides functionality to adjust generic yaml outlines with sample specific information
+
+    Parameters
+        ----------
+        yaml_outline_path : str
+            path to yaml outline
+    """
+
+    def __init__(self, yaml_outline_path: str):
+        self.yaml_outline_path = yaml_outline_path
+
+    def load_material_processing(self):
+        """
+        Takes the yaml file that outlines the material processing steps and processed samples, then return something pythonic
+        """
+
+        with open(self.yaml_outline_path) as f:
+            return yaml.safe_load(f)
+
+    def update_quantity_value(
+        self, data: dict, sample_specific_info_subset: pd.DataFrame
+    ) -> dict:
+        """
+        Updates any slot with a quantity value based on step number and name.
+
+        Parameters:
+        -----------
+        data : dict
+            The nested dictionary containing the workflow steps (yaml outline)
+        sample_specific_info_subset : pd.DataFrame
+            Rows of pandas dataframe relevant to biosample with info to update a QuantityValue: biosample_id, stepname, slotname, value
+
+        Returns:
+        --------
+        data
+            Updated dictionary with new quantity values
+        """
+
+        for index, row in sample_specific_info_subset.iterrows():
+            stepname = row["stepname"]
+            slotname = row["slotname"]
+            has_numeric_value = row["value"]
+
+            for step in data.get("steps", []):
+                for name, content in step.items():
+                    if stepname in content:
+                        process = content[stepname]
+                        if slotname in process:
+                            quantity_dict = process[slotname]
+                            if (
+                                isinstance(quantity_dict, dict)
+                                and "type" in quantity_dict
+                                and quantity_dict["type"] == "nmdc:QuantityValue"
+                            ):
+                                quantity_dict["has_numeric_value"] = has_numeric_value
+                                quantity_dict["has_raw_value"] = (
+                                    f"{has_numeric_value} {quantity_dict['has_unit']}"
+                                )
+
+        return data
+
+    def update_sample_outputs(self, data: dict, target_outputs: list) -> dict:
+        """
+        Updates yaml outline to only keep the listed processed sample placeholders, removing intermediate steps and processed samples
+
+        Parameters:
+        -----------
+        data : dict
+            Nested dictionary containing the workflow steps (yaml outline)
+        target_outputs: list
+            List of placeholders to keep
+
+        Returns:
+        --------
+        dict
+            Updated yaml dictionary
+        """
+
+        # Get sections of yaml that will be updated
+        processed_samples = data.get("processedsamples", [])
+        steps = data.get("steps", [])
+
+        ## Filter to any steps that lead to the target_outputs
+        required_steps = []
+        required_outputs = set()
+        outputs_to_trace = set(target_outputs)
+
+        # For each output we're tracing, find and save the step that outputs it and add the step's input to the list of samples to trace
+        # Continue until all outputs to trace have been dealt with (if a step is already saved (while tracing a different output) then add current trace to list of outputs)
+
+        step_map = {
+            step_key: step for step in steps for step_key in step.keys()
+        }  # Step mapping (as a dictionary vs list) and output caching for fast lookup
+        step_output_cache = {}
+
+        while outputs_to_trace:
+            current_iteration_traces = outputs_to_trace.copy()
+            outputs_to_trace.clear()
+
+            for step_key, step in step_map.items():
+                step_info = list(step[step_key].values())[0]
+                step_outputs = step_info.get("has_output", [])
+                step_inputs = step_info.get("has_input", [])
+
+                step_outputs_set = set(
+                    step_outputs
+                )  # OPTIMIZATION Convert to sets once per loop iteration, not per intersection
+                step_inputs_set = set(step_inputs)
+
+                # Check for outputs that we are tracing
+                matching_outputs = set(step_outputs_set).intersection(
+                    current_iteration_traces
+                )
+
+                if matching_outputs:
+                    step_output_cache.setdefault(step_key, set()).update(
+                        matching_outputs
+                    )  # Cache outputs for the step to avoid redundant computations
+
+                    if step not in required_steps:
+                        required_steps.append(step)
+
+                    required_outputs.update(matching_outputs)
+                    outputs_to_trace.update(set(step_inputs_set) - required_outputs)
+
+            if not outputs_to_trace:
+                break
+
+        # Update required step outputs with required processed samples
+        for step in required_steps:
+            step_key = list(step.keys())[0]
+            step_info = list(step[step_key].values())[0]
+            step_info["has_output"] = list(step_output_cache.get(step_key, []))
+
+        data["steps"] = sorted(
+            required_steps, key=lambda x: int(list(x.keys())[0].split()[1])
+        )
+
+        # Update list of processedsamples to required processedsamples
+        required_outputs_set = set(
+            list(required_outputs)
+        )  # OPTIMIZATION Use dictionary comprehension and avoid repeated key extraction
+        data["processedsamples"] = [
+            sample
+            for sample in processed_samples
+            if next(iter(sample)) in required_outputs_set
+        ]
+
+        return data
+
+    def yaml_generation(self, sample_specific_info_subset=None, target_outputs=list):
+        """ "
+        Generates yaml outline with biosample specific values (placeholders and quantities)
+
+        Parameters
+        ----------
+        sample_specific_info_subset : pd.DataFrame
+            Rows of pandas dataframe relevant to biosample with info to update a QuantityValue: biosample_id, step_number, slot_name, value
+        target_map: pd.DataFrame
+            Pandas dataframe of the slot distinguishing each analyte and the regex to match to each existing output
+
+        Returns
+        -------
+        outline:dict
+            Updated yaml outline with sample specific adjustments
+        """
+
+        # yaml outline (no sample specific information)
+        outline = self.load_material_processing()
+
+        # add sample specific values from dictionary to outline
+        if sample_specific_info_subset is not None:
+            outline = self.update_quantity_value(
+                data=outline, sample_specific_info_subset=sample_specific_info_subset
+            )
+
+        # remove placeholders that don't have a raw file
+        outline = self.update_sample_outputs(
+            data=outline, target_outputs=target_outputs
+        )
+
+        return outline
