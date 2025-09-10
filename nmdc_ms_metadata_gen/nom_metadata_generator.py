@@ -4,12 +4,10 @@ import os
 import re
 from abc import abstractmethod
 from pathlib import Path
-import ast
 
 import nmdc_schema.nmdc as nmdc
 import pandas as pd
 from dotenv import load_dotenv
-
 from nmdc_api_utilities.calibration_search import CalibrationSearch
 from nmdc_api_utilities.data_object_search import DataObjectSearch
 from nmdc_api_utilities.workflow_execution_search import WorkflowExecutionSearch
@@ -221,6 +219,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 start_date=row["instrument_analysis_start_date"],
                 end_date=row["instrument_analysis_end_date"],
                 lc_config_id=workflow_metadata_obj.lc_config_id,
+                instrument_instance_specifier=workflow_metadata_obj.instrument_instance_specifier,
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
             )
@@ -472,6 +471,11 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             processing_institution=(
                 parser.get_value(row, "processing_institution")
                 if parser.get_value(row, "processing_institution")
+                else None
+            ),
+            instrument_instance_specifier=(
+                parser.get_value(row, "instrument_instance_specifier")
+                if parser.get_value(row, "instrument_instance_specifier")
                 else None
             ),
         )

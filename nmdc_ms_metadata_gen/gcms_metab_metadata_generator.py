@@ -385,6 +385,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
                 calibration_id=workflow_metadata_obj.calibration_id,
+                instrument_instance_specifier=workflow_metadata_obj.instrument_instance_specifier,
             )
             # Generate raw data object
             raw_data_object = self.generate_data_object(
@@ -630,6 +631,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             calibration_id=row["calibration_id"],
             raw_data_url=row.get("raw_data_url"),
             manifest_id=row.get("manifest_id"),
+            instrument_instance_specifier=row.get("instrument_instance_specifier"),
         )
 
     def generate_metab_identifications(

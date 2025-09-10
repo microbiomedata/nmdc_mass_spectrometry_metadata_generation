@@ -785,6 +785,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         end_date: str,
         CLIENT_ID: str,
         CLIENT_SECRET: str,
+        instrument_instance_specifier: str = None,
         lc_config_id: str = None,
         calibration_id: str = None,
     ) -> nmdc.DataGeneration:
@@ -815,7 +816,9 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             The client ID for the NMDC API.
         CLIENT_SECRET : str
             The client secret for the NMDC API.
-        lc_config_name : str
+        instrument_instance_specifier : str, optional
+            Specifier for the instrument instance used in the data generation.
+        lc_config_name : str, optional
             Name of the liquid chromatography configuration.
         calibration_id : str, optional
             ID of the calibration information generated with the data.
@@ -854,6 +857,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             "processing_institution": processing_institution,
             "start_date": start_date,
             "end_date": end_date,
+            "instrument_instance_specifier": instrument_instance_specifier,
             "type": NmdcTypes.MassSpectrometry,
         }
 

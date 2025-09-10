@@ -137,6 +137,8 @@ class GCMSMetabWorkflowMetadata:
         over constructing the URL from base_url + filename.
     manifest_id : str
         Identifier for the manifest associated with this workflow metadata.
+    instrument_instance_specifier : str, optional
+        Specifier for the instrument instance used in the analysis.
     """
 
     biosample_id: str
@@ -155,6 +157,7 @@ class GCMSMetabWorkflowMetadata:
     execution_resource: str = None
     raw_data_url: str = None
     manifest_id: str = None
+    instrument_instance_specifier: str = None
 
 
 @dataclass
@@ -192,6 +195,8 @@ class LCMSLipidWorkflowMetadata:
         over constructing the URL from base_url + filename.
     manifest_id : str, optional
         Identifier for the manifest associated with this workflow metadata.
+    instrument_instance_specifier : str, optional
+        Specifier for the instrument instance used in the analysis.
     """
 
     processed_data_dir: str
@@ -207,6 +212,7 @@ class LCMSLipidWorkflowMetadata:
     instrument_analysis_end_date: str = None
     raw_data_url: str = None
     manifest_id: str = None
+    instrument_instance_specifier: str = None
 
 
 @dataclass
@@ -240,6 +246,8 @@ class NOMMetadata:
         Name of the processing institution where the workflow was executed. Must be a value from ProcessingInstitutionEnum. OPTIONAL IF processing_institution IS PROVIDED
     execution_resource : str, optional
         Name of the execution resource. Must be a value from ExecutionResourceEnum.
+    instrument_instance_specifier : str, optional
+        Specifier for the instrument instance used in the analysis.
     """
 
     raw_data_file: str
@@ -254,6 +262,7 @@ class NOMMetadata:
     processing_institution_generation: str = None
     processing_institution_workflow: str = None
     execution_resource: str = None
+    instrument_instance_specifier: str = None
 
 
 @dataclass

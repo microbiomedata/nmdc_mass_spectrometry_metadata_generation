@@ -52,6 +52,14 @@ def test_di_nom_metadata_gen():
     )
     assert count >= 5
 
+    assert (
+        "specifier"
+        in working_data["data_generation_set"][0]["instrument_instance_specifier"]
+    )
+
+
+test_di_nom_metadata_gen()
+
 
 def test_di_nom_metadata_gen_rerun():
     """
