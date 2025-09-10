@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from dataclasses import dataclass
 
 """
@@ -53,6 +52,20 @@ class NmdcTypes:
         NMDC type for Manifest.
     Protocol : str
         NMDC type for Protocol.
+    ChemicalConversionProcess : str
+        NMDC type for Chemical Conversion Process.
+    ChromatographicSeparationProcess : str
+        NMDC type for Chromatographic Separation Process.
+    Pooling : str
+        NMDC type for Pooling.
+    SubSamplingProcess : str
+        NMDC type for Sub Sampling Process.
+    Extraction : str
+        NMDC type for Extraction.
+    ProcessedSample : str
+        NMDC type for Processed Sample.
+    DissolvingProcess : str
+        NMDC type for Dissolving Process.
     """
 
     Biosample: str = "nmdc:Biosample"
@@ -75,6 +88,13 @@ class NmdcTypes:
     Instrument: str = "nmdc:Instrument"
     Protocol: str = "nmdc:Protocol"
     Manifest: str = "nmdc:Manifest"
+    ChemicalConversionProcess: str = "nmdc:ChemicalConversionProcess"
+    ChromatographicSeparationProcess: str = "nmdc:ChromatographicSeparationProcess"
+    Pooling: str = "nmdc:Pooling"
+    SubSamplingProcess: str = "nmdc:SubSamplingProcess"
+    Extraction: str = "nmdc:Extraction"
+    ProcessedSample: str = "nmdc:ProcessedSample"
+    DissolvingProcess: str = "nmdc:DissolvingProcess"
 
 
 @dataclass
@@ -243,3 +263,19 @@ class NOMMetadata:
     processing_institution_workflow: str = None
     execution_resource: str = None
     instrument_instance_specifier: str = None
+
+
+@dataclass
+class ProcessGeneratorMap:
+    """
+    Maps process names from YAML file to their corresponding generator methods.
+
+    This mapping is used to dynamically call the appropriate generator method
+    based on the process type found in the YAML file.
+    """
+
+    SubSamplingProcess: str = "generate_subsampling_process"
+    Extraction: str = "generate_extraction"
+    ChemicalConversionProcess: str = "generate_chemical_conversion"
+    ChromatographicSeparationProcess: str = "generate_chromatographic_separation"
+    DissolvingProcess: str = "generate_dissolving_process"
