@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from dataclasses import dataclass
 
 """
@@ -53,6 +52,20 @@ class NmdcTypes:
         NMDC type for Manifest.
     Protocol : str
         NMDC type for Protocol.
+    ChemicalConversionProcess : str
+        NMDC type for Chemical Conversion Process.
+    ChromatographicSeparationProcess : str
+        NMDC type for Chromatographic Separation Process.
+    Pooling : str
+        NMDC type for Pooling.
+    SubSamplingProcess : str
+        NMDC type for Sub Sampling Process.
+    Extraction : str
+        NMDC type for Extraction.
+    ProcessedSample : str
+        NMDC type for Processed Sample.
+    DissolvingProcess : str
+        NMDC type for Dissolving Process.
     """
 
     Biosample: str = "nmdc:Biosample"
@@ -75,6 +88,13 @@ class NmdcTypes:
     Instrument: str = "nmdc:Instrument"
     Protocol: str = "nmdc:Protocol"
     Manifest: str = "nmdc:Manifest"
+    ChemicalConversionProcess: str = "nmdc:ChemicalConversionProcess"
+    ChromatographicSeparationProcess: str = "nmdc:ChromatographicSeparationProcess"
+    Pooling: str = "nmdc:Pooling"
+    SubSamplingProcess: str = "nmdc:SubSamplingProcess"
+    Extraction: str = "nmdc:Extraction"
+    ProcessedSample: str = "nmdc:ProcessedSample"
+    DissolvingProcess: str = "nmdc:DissolvingProcess"
 
 
 @dataclass
@@ -117,6 +137,8 @@ class GCMSMetabWorkflowMetadata:
         over constructing the URL from base_url + filename.
     manifest_id : str
         Identifier for the manifest associated with this workflow metadata.
+    instrument_instance_specifier : str, optional
+        Specifier for the instrument instance used in the analysis.
     """
 
     biosample_id: str
@@ -135,6 +157,7 @@ class GCMSMetabWorkflowMetadata:
     execution_resource: str = None
     raw_data_url: str = None
     manifest_id: str = None
+    instrument_instance_specifier: str = None
 
 
 @dataclass
@@ -172,6 +195,8 @@ class LCMSLipidWorkflowMetadata:
         over constructing the URL from base_url + filename.
     manifest_id : str, optional
         Identifier for the manifest associated with this workflow metadata.
+    instrument_instance_specifier : str, optional
+        Specifier for the instrument instance used in the analysis.
     """
 
     processed_data_dir: str
@@ -187,6 +212,7 @@ class LCMSLipidWorkflowMetadata:
     instrument_analysis_end_date: str = None
     raw_data_url: str = None
     manifest_id: str = None
+    instrument_instance_specifier: str = None
 
 
 @dataclass
@@ -220,6 +246,8 @@ class NOMMetadata:
         Name of the processing institution where the workflow was executed. Must be a value from ProcessingInstitutionEnum. OPTIONAL IF processing_institution IS PROVIDED
     execution_resource : str, optional
         Name of the execution resource. Must be a value from ExecutionResourceEnum.
+    instrument_instance_specifier : str, optional
+        Specifier for the instrument instance used in the analysis.
     """
 
     raw_data_file: str
@@ -234,3 +262,20 @@ class NOMMetadata:
     processing_institution_generation: str = None
     processing_institution_workflow: str = None
     execution_resource: str = None
+    instrument_instance_specifier: str = None
+
+
+@dataclass
+class ProcessGeneratorMap:
+    """
+    Maps process names from YAML file to their corresponding generator methods.
+
+    This mapping is used to dynamically call the appropriate generator method
+    based on the process type found in the YAML file.
+    """
+
+    SubSamplingProcess: str = "generate_subsampling_process"
+    Extraction: str = "generate_extraction"
+    ChemicalConversionProcess: str = "generate_chemical_conversion"
+    ChromatographicSeparationProcess: str = "generate_chromatographic_separation"
+    DissolvingProcess: str = "generate_dissolving_process"
