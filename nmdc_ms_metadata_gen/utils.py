@@ -1,8 +1,8 @@
-# -*- coding: utf-8 -*-
-from collections import defaultdict
-from nmdc_api_utilities.minter import Minter
-from dotenv import load_dotenv
 import os
+from collections import defaultdict
+
+from dotenv import load_dotenv
+from nmdc_api_utilities.minter import Minter
 
 load_dotenv()
 ENV = os.getenv("NMDC_ENV", "prod")
@@ -49,7 +49,9 @@ class IDPool:
         # Return an ID from the pool
         return self.pools[nmdc_type].pop()
 
-    def _refill_pool(self, nmdc_type: str, client_id: str, client_secret: str) -> None:
+    def _refill_pool(
+        self, nmdc_type: str, client_id: str, client_secret: str, retries: int = 3
+    ) -> None:
         """
         Refill the pool for a specific NMDC type.
 
@@ -61,16 +63,28 @@ class IDPool:
             The client ID for the NMDC API.
         client_secret : str
             The client secret for the NMDC API.
+        retries : int
+            Number of retry attempts in case of failure.
 
         Returns
         -------
         None
         """
-        minter = Minter(env=ENV)
-        new_ids = minter.mint(
-            nmdc_type=nmdc_type,
-            count=self.pool_size,
-            client_id=client_id,
-            client_secret=client_secret,
-        )
-        self.pools[nmdc_type].extend(new_ids)
+        attempt = 0
+        while attempt < retries:
+            try:
+                minter = Minter(env=ENV)
+                new_ids = minter.mint(
+                    nmdc_type=nmdc_type,
+                    count=self.pool_size,
+                    client_id=client_id,
+                    client_secret=client_secret,
+                )
+                self.pools[nmdc_type].extend(new_ids)
+                return
+            except Exception as e:
+                attempt += 1
+                if attempt >= retries:
+                    raise RuntimeError(
+                        f"Failed to refill ID pool for type '{nmdc_type}' after {retries} attempts: {e}"
+                    )
