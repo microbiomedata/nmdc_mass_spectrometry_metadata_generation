@@ -21,7 +21,7 @@ def validate_yaml_outline(yaml_outline_path=str):
         yaml_outline_path=yaml_outline_path,
         config_path="nmdc_ms_metadata_gen/config.yaml",
         study_id="sdjklfdjsf",  # doesn't matter, wont be called on
-        output_path="sdjfkldsjf",  # doesn't matter, wont be called on
+        database_dump_json_path="sdjfkldsjf",  # doesn't matter, wont be called on
         sample_to_dg_mapping_path="jdksldjfs",  # doesn't matter, won't be called on
         test=True,
     )

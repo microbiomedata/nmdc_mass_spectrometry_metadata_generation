@@ -25,7 +25,7 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
     def __init__(
         self,
         config_path: str,
-        output_path: str,
+        database_dump_json_path: str,
         study_id: str,
         yaml_outline_path: str,
         sample_to_dg_mapping_path: str,
@@ -34,12 +34,12 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
     ):
         super().__init__(
             metadata_file="",
-            database_dump_json_path=output_path,
+            database_dump_json_path=database_dump_json_path,
             raw_data_url="",
             process_data_url="",
         )
         self.config_path = config_path
-        self.output_path = output_path
+        self.database_dump_json_path = database_dump_json_path
         self.study_id = study_id
         self.yaml_outline_path = yaml_outline_path
         self.sample_to_dg_mapping_path = sample_to_dg_mapping_path
@@ -150,11 +150,16 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
         # Output summary and save results
         self.output_summary(reference_mapping, nmdc_database)
         self.dump_nmdc_database(nmdc_database=nmdc_database)
-        self.validate_nmdc_database(self.output_path)
+        self.validate_nmdc_database(self.database_dump_json_path)
         if not output_changesheet.empty:
-            save_to_csv(output_changesheet, f"{self.output_path}_changesheet")
+            save_to_csv(
+                output_changesheet, f"{self.database_dump_json_path}_changesheet.csv"
+            )
         if not output_workflowsheet.empty:
-            save_to_csv(output_workflowsheet, f"{self.output_path}_workflowreference")
+            save_to_csv(
+                output_workflowsheet,
+                f"{self.database_dump_json_path}_workflowreference.csv",
+            )
 
     def map_final_samples(
         self,
@@ -248,7 +253,7 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
         final_output:dict
             Dictionary with final outputs from yaml in placeholder_dict format (for changesheet)
 
-        Json file with generated data saved to specified output_path
+        Json file with generated data saved to specified database_dump_json_path
         """
 
         # track all processed samples that are used as an input or output to any of the steps, making sure all ids have been minted before being referenced
