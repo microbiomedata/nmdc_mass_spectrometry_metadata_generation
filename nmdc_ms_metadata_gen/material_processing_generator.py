@@ -30,6 +30,7 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
         yaml_outline_path: str,
         sample_to_dg_mapping_path: str,
         test: bool,
+        minting_config_creds: str,
     ):
         super().__init__(
             metadata_file="",
@@ -43,6 +44,7 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
         self.yaml_outline_path = yaml_outline_path
         self.sample_to_dg_mapping_path = sample_to_dg_mapping_path
         self.test = test
+        self.minting_config_creds = minting_config_creds
 
     def run(self, sample_specific_info_path=None):
         """
@@ -59,8 +61,9 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
         """
 
         ## Setup
-        CLIENT_ID = os.getenv("CLIENT_ID")
-        CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+        client_id, client_secret = self.load_credentials(
+            config_file=self.minting_config_creds
+        )
         nmdc_database = self.start_nmdc_database()
         output_changesheet = ChangeSheetGenerator.initialize_empty_df()
         output_workflowsheet = WorkflowSheetGenerator.initialize_empty_df()
@@ -122,8 +125,8 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 data=full_outline,
                 placeholder_dict=input_dict,
                 nmdc_database=nmdc_database,
-                CLIENT_ID=CLIENT_ID,
-                CLIENT_SECRET=CLIENT_SECRET,
+                CLIENT_ID=client_id,
+                CLIENT_SECRET=client_secret,
             )
 
             # Match the new final processed sample ids back to raw data files via a changesheet (if dg exists) or a workflowsheet (no dg yet)
