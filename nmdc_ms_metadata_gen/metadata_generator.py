@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 import requests
 import toml
+from id_pool import IDPool
 from linkml_runtime.dumpers import json_dumper
 from nmdc_api_utilities.auth import NMDCAuth
 from nmdc_api_utilities.biosample_search import BiosampleSearch
@@ -25,7 +26,6 @@ from tqdm import tqdm
 
 from nmdc_ms_metadata_gen.data_classes import NmdcTypes
 from nmdc_ms_metadata_gen.metadata_parser import MetadataParser
-from nmdc_ms_metadata_gen.utils import IDPool
 
 ENV = os.getenv("NMDC_ENV", "prod")
 

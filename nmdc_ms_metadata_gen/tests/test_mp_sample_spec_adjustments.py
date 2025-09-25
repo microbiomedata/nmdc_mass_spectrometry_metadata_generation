@@ -125,7 +125,6 @@ def test_map_final_samples():
 
     # SanClements test study
     generator = MaterialProcessingMetadataGenerator(
-        config_path="config.yaml",
         database_dump_json_path="tests/test_data/test_mp_map_samples_output",
         study_id="nmdc:sty-11-8xdqsn54",
         yaml_outline_path="tests/test_data/test_material_processing/SanClements-NOM_test.yaml",
@@ -143,7 +142,6 @@ def test_changesheet_workflowsheet():
 
     # SanClements test study
     generator = MaterialProcessingMetadataGenerator(
-        config_path="config.yaml",
         database_dump_json_path="tests/test_data/test_mp_changesheet_workflowsheet_output",
         study_id="nmdc:sty-11-8xdqsn54",
         yaml_outline_path="tests/test_data/test_material_processing/SanClements-NOM_test.yaml",
@@ -161,4 +159,4 @@ def test_changesheet_workflowsheet():
     assert (changesheet.shape[0] > 0) & (workflowsheet.shape[0] > 0)
 
 
-# test_changesheet_workflowsheet()
+test_changesheet_workflowsheet()

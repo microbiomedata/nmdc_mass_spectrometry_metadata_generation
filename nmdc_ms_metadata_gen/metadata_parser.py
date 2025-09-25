@@ -610,7 +610,7 @@ class YamlSpecifier:
         return data
 
     def yaml_generation(self, sample_specific_info_subset=None, target_outputs=list):
-        """ "
+        """
         Generates yaml outline with biosample specific values (placeholders and quantities)
 
         Parameters
