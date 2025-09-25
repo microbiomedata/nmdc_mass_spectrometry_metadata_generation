@@ -14,6 +14,7 @@ from nmdc_ms_metadata_gen.data_classes import ProcessGeneratorMap
 from nmdc_ms_metadata_gen.metadata_generator import NMDCWorkflowMetadataGenerator
 from nmdc_ms_metadata_gen.metadata_parser import YamlSpecifier
 from nmdc_ms_metadata_gen.study_metadata import MetadataSurveyor
+from nmdc_ms_metadata_gen.utils import output_material_processing_summary, save_to_csv
 
 
 class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
@@ -162,7 +163,7 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 )
 
         # Output summary and save results
-        self.output_summary(reference_mapping, nmdc_database)
+        self.output_material_processing_summary(reference_mapping, nmdc_database)
         self.dump_nmdc_database(nmdc_database=nmdc_database)
         self.validate_nmdc_database(self.database_dump_json_path)
         if not output_changesheet.empty:
@@ -245,35 +246,6 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
         ]
 
         return unmatched_samples_df, output_changesheet, output_workflowsheet
-
-    def output_summary(
-        self, reference_mapping: pd.DataFrame, nmdc_database: nmdc.Database
-    ) -> None:
-        """
-        Print summary statistics.
-
-        Parameters
-        ----------
-        reference_mapping: pd.DataFrame
-            Input reference mapping for biosample -> process
-
-        nmdc_database: dict
-            The NMDC database instance to which the processed objects will be added
-
-        Returns
-        -------
-        None
-
-        """
-        print(
-            f"Total biosample instances: {len(reference_mapping['biosample_id'].unique())}"
-        )
-        print(
-            f"Total material process IDs in database: {len(nmdc_database['material_processing_set'])}"
-        )
-        print(
-            f"Total processed sample IDs in database: {len(nmdc_database['processed_sample_set'])}"
-        )
 
     def json_generation(
         self,

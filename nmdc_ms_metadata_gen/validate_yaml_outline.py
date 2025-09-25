@@ -14,12 +14,11 @@ from nmdc_ms_metadata_gen.metadata_parser import YamlSpecifier
 def validate_yaml_outline(yaml_outline_path=str):
     """
     test to make sure yaml will generate valid json ()
-    command line example : python nmdc_ms_metadata_gen/tests/validate_yaml_outline.py --yaml_outline_path='studies/emp500_sty-11-547rwq94/500_metabolites_bulk_feces.yaml'
+    command line example : python nmdc_ms_metadata_gen/tests/validate_yaml_outline.py --yaml_outline_path='path/to/emp500_sty-11-547rwq94/500_metabolites_bulk_feces.yaml'
     """
 
     generator = MaterialProcessingMetadataGenerator(
         yaml_outline_path=yaml_outline_path,
-        config_path="nmdc_ms_metadata_gen/config.yaml",
         study_id="sdjklfdjsf",  # doesn't matter, wont be called on
         database_dump_json_path="sdjfkldsjf",  # doesn't matter, wont be called on
         sample_to_dg_mapping_path="jdksldjfs",  # doesn't matter, won't be called on
