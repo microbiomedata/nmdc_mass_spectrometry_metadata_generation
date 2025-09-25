@@ -167,18 +167,14 @@ class MetadataSurveyor:
         """
         mapping_df = pd.read_csv(sample_to_dg_mapping_path)
         columns = set(mapping_df.columns)
-        missing_columns = [
-            col
-            for col in [
-                "biosample_id",
-                "raw_data_identifier",
-                "processedsample_placeholder",
-            ]
-            if col not in columns
-        ]
-        if missing_columns:
+        required_columns = {
+            "biosample_id",
+            "raw_data_identifier",
+            "processedsample_placeholder",
+        }
+        if columns != required_columns:
             raise ValueError(
-                f"Missing required columns in DataFrame: {', '.join(missing_columns)}"
+                f"Missing required columns in DataFrame: {', '.join(required_columns - columns)}"
             )
 
         return mapping_df

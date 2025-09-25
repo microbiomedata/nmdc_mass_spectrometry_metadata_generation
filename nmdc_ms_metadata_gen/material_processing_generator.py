@@ -30,7 +30,7 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
         yaml_outline_path: str,
         sample_to_dg_mapping_path: str,
         test: bool,
-        minting_config_creds: str,
+        minting_config_creds: str = None,
     ):
         super().__init__(
             metadata_file="",
@@ -111,7 +111,7 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
             )
 
             # Are there biosample sample specific values?
-            if sample_specific_info is not None:
+            if sample_specific_info:
                 yaml_parameters["sample_specific_info_subset"] = sample_specific_info[
                     sample_specific_info["biosample_id"] == biosample
                 ].reset_index(drop=True)
@@ -263,10 +263,8 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
         # for each step in yaml outline
         for step in data["steps"]:
             # Get process/step specific strings from yaml outline
-            step_num = list(step.keys())[0]
-            step_data = step[step_num]
-            process_type = list(step_data.keys())[0]
-            process_data = step_data[process_type]
+            _, step_data = next(iter(step.items()))
+            process_type, process_data = next(iter(step_data.items()))
 
             # Check that all placeholders in the has_input slot of the yaml outline exist in placeholder_dict, otherwise error because ID hasn't been minted yet
             step_input = []
