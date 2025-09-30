@@ -165,14 +165,13 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
         output_material_processing_summary(reference_mapping, nmdc_database)
         self.dump_nmdc_database(nmdc_database=nmdc_database)
         self.validate_nmdc_database(self.database_dump_json_path)
+        file_path = self.database_dump_json_path.split(".json")[0]
         if not output_changesheet.empty:
-            save_to_csv(
-                output_changesheet, f"{self.database_dump_json_path}_changesheet.csv"
-            )
+            save_to_csv(output_changesheet, f"{file_path}_changesheet.csv")
         if not output_workflowsheet.empty:
             save_to_csv(
                 output_workflowsheet,
-                f"{self.database_dump_json_path}_workflowreference.csv",
+                f"{file_path}_workflowreference.csv",
             )
 
     def map_final_samples(
@@ -253,145 +252,126 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
         nmdc_database: nmdc.Database,
         CLIENT_ID: str,
         CLIENT_SECRET: str,
-    ) -> dict:
+    ):
         """
-        Function that creates the JSON and all minted IDs based on the biosample-adjusted YAML.
-        Ensures all placeholders used as inputs have been created as outputs in previous steps.
-
-        Will invoke any of the following methods to add to the material processing set in the nmdc data base (based on material process):
-            - generate_subsampling_process
-            - generate_extraction
-            - generate_chemical_conversion
-            - generate_chromatographic_separation
-            - generate_dissolving_process
+        Function that creates the json and all minted ids based on the biosample adjusted yaml (tracking ids to make sure they are minted before reference)
 
         Parameters
         ----------
-        data : dict
-            The nested dictionary containing the workflow steps (YAML outline).
-        placeholder_dict : dict
-            Dictionary mapping YAML placeholders to NMDC processed sample attributes.
-        nmdc_database : nmdc.Database
-            NMDC database instance.
-        CLIENT_ID : str
-            Client ID for authentication.
-        CLIENT_SECRET : str
-            Client secret for authentication.
+        data:dict
+            The nested dictionary containing the workflow steps (yaml outline)
+        placeholder_dict:dict
+            Nested dictionary with yaml placeholder (outer key) to generated NMDC processed sample attributes (inner key is slot and inner value is slot value)
+        CLIENT_ID:str
+            The client ID for authentication
+        CLIENT_SECRET:str
+            The client secret for authentication
 
         Returns
         -------
-        final_output : dict
-            Dictionary mapping final outputs from the YAML to NMDC processed sample IDs.
+        final_output:dict
+            Dictionary with final outputs from yaml in placeholder_dict format (for changesheet)
+
+        Json file with generated data saved to specified database_dump_json_path
         """
-        # preprocess `processedsamples` into a dictionary for O(1) lookups
-        processedsamples_map = {
-            output_placeholder: values
-            for dictionary in data["processedsamples"]
-            for output_placeholder, values in dictionary.items()
-        }
 
-        # track IDs used as inputs or outputs across all steps
-        all_input = set()
-        all_output = set()
+        # track all processed samples that are used as an input or output to any of the steps, making sure all ids have been minted before being referenced
+        all_input = []
+        all_output = []
 
-        # iterate through each workflow step in the YAML outline
+        # for each step in yaml outline
         for step in data["steps"]:
-            # Extract step details
+            # Get process/step specific strings from yaml outline
             _, step_data = next(iter(step.items()))
             process_type, process_data = next(iter(step_data.items()))
 
-            # validate 'has_input': all inputs must already exist (previously minted)
+            # Check that all placeholders in the has_input slot of the yaml outline exist in placeholder_dict, otherwise error because ID hasn't been minted yet
             step_input = []
             for input_placeholder in process_data["has_input"]:
-                # ensure the input placeholder has been minted
-                if input_placeholder not in placeholder_dict:
+                if input_placeholder in placeholder_dict:
+                    step_input.append(placeholder_dict[input_placeholder]["id"])
+                    all_input.append(placeholder_dict[input_placeholder]["id"])
+                else:
                     raise ValueError(
-                        f"Placeholder '{input_placeholder}' used as an input "
-                        f"before being minted as an output in a prior step."
+                        f"ProcessedSample {input_placeholder} referenced before creation"
                     )
-                # add its corresponding NMDC ID to step inputs
-                step_input.append(placeholder_dict[input_placeholder]["id"])
-                all_input.add(placeholder_dict[input_placeholder]["id"])
 
-            # process 'has_output': Mint IDs for new outputs
+            # Mint new processed samples for this step's has_output using the placeholder's corresponding outline at the bottom of the yaml under 'processedsamples'
             step_output = []
             for output_placeholder in process_data["has_output"]:
-                # ensure the output placeholder exists in the YAML definition
-                if output_placeholder not in processedsamples_map:
-                    raise ValueError(
-                        f"Output placeholder '{output_placeholder}' not found in processedsamples."
-                    )
+                for dictionary in data["processedsamples"]:
+                    if output_placeholder in dictionary:
+                        placeholder_outline = list(
+                            dictionary[output_placeholder].values()
+                        )[0]
 
-                # get the corresponding outline for the output placeholder
-                placeholder_outline = processedsamples_map[output_placeholder]
-
-                # replace placeholders (<>) in outline with actual NMDC IDs
-                for slot, value in placeholder_outline.items():
-                    if isinstance(value, str):
-                        placeholder_references = re.findall(r"<(.*?)>", value)
-                        for reference in placeholder_references:
-                            if reference not in placeholder_dict:
-                                raise ValueError(
-                                    f"Referenced placeholder '{reference}' in output "
-                                    f"outline has not been minted as an ID yet."
+                        # replace placeholders (<>) in each slot of placeholder_outline with actual nmdc ids if that slot's value is a string (not None which id is until its minted)
+                        for slot in placeholder_outline:
+                            if isinstance(placeholder_outline[slot], str):
+                                placeholder_references = re.findall(
+                                    r"<(.*?)>", placeholder_outline[slot]
                                 )
-                            value = value.replace(
-                                f"<{reference}>", placeholder_dict[reference]["id"]
-                            )
-                        placeholder_outline[slot] = value
+                                for reference in placeholder_references:
+                                    placeholder_outline[slot] = placeholder_outline[
+                                        slot
+                                    ].replace(
+                                        f"<{reference}>",
+                                        placeholder_dict[reference]["id"],
+                                    )
 
-                # generate the processed sample and update the placeholder dictionary
                 processed_sample = self.generate_processed_sample(
                     placeholder_outline,
                     CLIENT_ID=CLIENT_ID,
                     CLIENT_SECRET=CLIENT_SECRET,
                 )
-                placeholder_dict[output_placeholder] = {
-                    key: val for key, val in vars(processed_sample).items() if val
-                }
 
-                # add the new processed sample ID to step outputs
+                # Map the output placeholder and its values to the newly generated processed sample id in placeholder_dict. info used for tracking nmdc id generation in future calls of generate_material_processing_metadata
+                placeholder_dict[output_placeholder] = {}
+                for key, value in processed_sample.__dict__.items():
+                    if value is not None and len(value) > 0:
+                        placeholder_dict[output_placeholder].update({key: value})
+
+                # add the new processed sample id to list of step outputs, used to generate material processing step's has_output slot
                 step_output.append(processed_sample.id)
-                all_output.add(processed_sample.id)
+                all_output.append(placeholder_dict[output_placeholder]["id"])
 
-                # add processed sample to NMDC database
+                # add processed sample to Database
                 nmdc_database.processed_sample_set.append(processed_sample)
 
-            # process material processing metadata
-            # replace placeholders (<>) in process_data with actual NMDC IDs
-            for slot, value in process_data.items():
-                if isinstance(value, str):
-                    placeholder_references = re.findall(r"<(.*?)>", value)
+            ## create new material processing steps
+
+            # replace placeholders (<>) in each slot of process_data with actual nmdc ids if that slot's value is a string (not a list (like has_input) or None (like id until its minted))
+            for slot in process_data:
+                if isinstance(process_data[slot], str):
+                    # print(process_data[slot])
+                    placeholder_references = re.findall(r"<(.*?)>", process_data[slot])
                     for reference in placeholder_references:
-                        if reference not in placeholder_dict:
-                            raise ValueError(
-                                f"Referenced placeholder '{reference}' in process_data "
-                                f"has not been minted as an ID yet."
-                            )
-                        value = value.replace(
+                        # print(reference)
+                        process_data[slot] = process_data[slot].replace(
                             f"<{reference}>", placeholder_dict[reference]["id"]
                         )
-                    process_data[slot] = value
 
+            # `generator_method`` is a saved string, corresponding to a function that generates an NMDC id for this stage of material processing (i.e. chemical conversion) by minting ids and filling out name, has_input,has_output, type)
             generator_method = getattr(
                 self, getattr(ProcessGeneratorMap(), process_type)
             )
+
             material_processing_metadata = generator_method(
                 process_data,
-                input_samp_id=step_input,
-                output_samp_id=step_output,
+                input_samp_id=step_input,  # List of actual NMDC IDs
+                output_samp_id=step_output,  # List of actual NMDC IDs
                 CLIENT_ID=CLIENT_ID,
                 CLIENT_SECRET=CLIENT_SECRET,
             )
 
-            # add material processing metadata to NMDC database
+            # add material processing step to Database
             nmdc_database.material_processing_set.append(material_processing_metadata)
 
-        # determine final outputs (outputs not used as inputs in subsequent steps)
-        final_output = {
-            placeholder: placeholder_dict[placeholder]["id"]
-            for placeholder, attributes in placeholder_dict.items()
-            if attributes["id"] in all_output and attributes["id"] not in all_input
-        }
+        # if the placeholder was an output created from any of these steps but not used as an input to another step, it is a final output
+        final_output = {}
+        for placeholder in placeholder_dict:
+            if placeholder_dict[placeholder]["id"] in set(all_output) - set(all_input):
+                final_output[placeholder] = placeholder_dict[placeholder]["id"]
 
+        # Return the dictionary mapping final outputs of a sampled_portion to an nmdc processed sample id (necessary for change sheet)
         return final_output

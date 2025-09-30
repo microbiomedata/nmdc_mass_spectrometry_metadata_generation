@@ -142,7 +142,7 @@ def test_changesheet_workflowsheet():
 
     # SanClements test study
     generator = MaterialProcessingMetadataGenerator(
-        database_dump_json_path="tests/test_data/test_mp_changesheet_workflowsheet_output",
+        database_dump_json_path="tests/test_data/test_mp_changesheet_workflowsheet_output.json",
         study_id="nmdc:sty-11-8xdqsn54",
         yaml_outline_path="tests/test_data/test_material_processing/SanClements-NOM_test.yaml",
         sample_to_dg_mapping_path="tests/test_data/test_material_processing/changesheet_workflowsheet_test_mapping_input.csv",

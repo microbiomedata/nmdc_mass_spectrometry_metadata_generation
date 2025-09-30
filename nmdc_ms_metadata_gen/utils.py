@@ -20,8 +20,8 @@ def save_to_csv(df: pd.DataFrame, output_path: str | Path):
     None
 
     """
-    df.to_csv(f"{output_path}.csv", index=False)
-    print(f"Sheet saved to {output_path}.csv")
+    df.to_csv(f"{output_path}", index=False)
+    print(f"Sheet saved to {output_path}")
 
 
 def output_material_processing_summary(
