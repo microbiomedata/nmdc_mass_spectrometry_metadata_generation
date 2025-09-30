@@ -8,7 +8,6 @@ from tqdm import tqdm
 from nmdc_ms_metadata_gen.changesheet_generator import (
     ChangeSheetGenerator,
     WorkflowSheetGenerator,
-    save_to_csv,
 )
 from nmdc_ms_metadata_gen.data_classes import ProcessGeneratorMap
 from nmdc_ms_metadata_gen.metadata_generator import NMDCWorkflowMetadataGenerator
@@ -163,7 +162,7 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 )
 
         # Output summary and save results
-        self.output_material_processing_summary(reference_mapping, nmdc_database)
+        output_material_processing_summary(reference_mapping, nmdc_database)
         self.dump_nmdc_database(nmdc_database=nmdc_database)
         self.validate_nmdc_database(self.database_dump_json_path)
         if not output_changesheet.empty:

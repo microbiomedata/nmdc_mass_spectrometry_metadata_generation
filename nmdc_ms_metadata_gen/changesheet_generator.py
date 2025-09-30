@@ -56,6 +56,12 @@ class ChangeSheetGenerator:
 
 
 class WorkflowSheetGenerator:
+    """
+    The workflow sheet provides the last processed sample id and the raw file name it will be associated with.
+    This provides a reference for creating the associated data generation records.
+
+    """
+
     @staticmethod
     def initialize_empty_df() -> pd.DataFrame:
         """
