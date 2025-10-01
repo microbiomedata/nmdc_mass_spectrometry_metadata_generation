@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
-from click.testing import CliRunner
-from datetime import datetime
 import os
 import sys
+from datetime import datetime
 from pathlib import Path
+
+from click.testing import CliRunner
 
 # Add the parent directory to the path to import your CLI
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -106,9 +106,52 @@ def test_cli_gcms_with_url_column():
     assert os.path.exists(output_file)
 
 
+def test_cli_material_processing():
+    """Test CLI functionality to run material processing generator"""
+    runner = CliRunner()
+    current_directory = os.path.dirname(__file__)
+    yaml_file_path = os.path.join(
+        current_directory,
+        "test_data",
+        "test_material_processing",
+        "SanClements-NOM_test.yaml",
+    )
+    sample_to_dg_mapping_path = os.path.join(
+        current_directory,
+        "test_data/test_material_processing/changesheet_workflowsheet_test_mapping_input.csv",
+    )
+    output_file = os.path.join(
+        current_directory,
+        "test_data",
+        f"test_mp_changesheet_workflowsheet_output_{datetime.now().strftime('%Y%m%d%H%M%S')}.json",
+    )
+
+    result = runner.invoke(
+        cli,
+        [
+            "material-processing",
+            "--yaml-outline-path",
+            str(yaml_file_path),
+            "--database-dump-path",
+            str(output_file),
+            "--study-id",
+            "nmdc:sty-11-8xdqsn54",
+            "--sample-to-dg-mapping-path",
+            sample_to_dg_mapping_path,
+            "--test",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert os.path.exists(output_file)
+
+
 def test_info_command_invalid():
     """Test the info command with invalid input."""
     runner = CliRunner()
     result = runner.invoke(cli, ["info", "invalid-command"])
 
     assert result.exit_code != 0  # Should fail for invalid command
+
+
+test_cli_material_processing()

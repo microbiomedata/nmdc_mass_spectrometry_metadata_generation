@@ -24,7 +24,7 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
     Parameters
     ----------
     study_id : str
-        The id of the study the samples are related to
+        The id of the study the samples are related to.
     yaml_outline_path : str
         YAML file that contains the sample processing steps to be analyzed.
     database_dump_json_path : str
@@ -33,6 +33,8 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
         CSV file mapping biosample ids to their data generation record id.
     test : bool
         Value to determine if extra checks are needed based on it being a test run or real run.
+    sample_specific_info_path : str or None
+        Path to a CSV file containing sample specific information.
     minting_config_creds : str, optional
         Path to the configuration file containing the client ID and client secret for minting NMDC IDs. It can also include the bio ontology API key if generating biosample ids is needed.
         If not provided, the CLIENT_ID, CLIENT_SECRET, and BIO_API_KEY environment variables will be used.
@@ -45,6 +47,7 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
         yaml_outline_path: str,
         sample_to_dg_mapping_path: str,
         test: bool,
+        sample_specific_info_path: str = None,
         minting_config_creds: str = None,
     ):
         super().__init__(
@@ -59,15 +62,11 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
         self.sample_to_dg_mapping_path = sample_to_dg_mapping_path
         self.test = test
         self.minting_config_creds = minting_config_creds
+        self.sample_specific_info_path = sample_specific_info_path
 
-    def run(self, sample_specific_info_path=None):
+    def run(self) -> None:
         """
         This main function generates mass spectrometry material processing steps for a given study using provided metadata
-
-        Parameters
-        ----------
-        sample_specific_info_path : str or None
-            The path to the sample specific information csv file, if available
 
         Returns
         -------
@@ -101,8 +100,10 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
         ## Get sample specific info for yaml if its provided
         sample_specific_info = None
-        if sample_specific_info_path:
-            sample_specific_info = survey.additional_info(sample_specific_info_path)
+        if self.sample_specific_info_path:
+            sample_specific_info = survey.additional_info(
+                self.sample_specific_info_path
+            )
 
         ## For each biosample create json of necessary material processing steps and processed samples, as well as output dataframe
         for biosample in tqdm(
