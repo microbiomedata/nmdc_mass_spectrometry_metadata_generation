@@ -545,355 +545,6 @@ class NMDCMetadataGenerator:
         chromatography_config = nmdc.ChromatographyConfiguration(**data_dict)
         return chromatography_config
 
-    def generate_instrument(
-        self,
-        name: str,
-        description: str,
-        CLIENT_ID: str,
-        CLIENT_SECRET: str,
-        vendor: str = None,
-        model: str = None,
-    ) -> nmdc.Instrument:
-        """
-        Create an NMDC Instrument object with the provided metadata.
-
-        This method generates an NMDC Instrument object, populated with the
-        specified metadata.
-
-        Parameters
-        ----------
-        name : str
-            The name of the instrument.
-        description : str
-            A description of the instrument.
-        CLIENT_ID : str
-            The client ID for the NMDC API.
-        CLIENT_SECRET : str
-            The client secret for the NMDC API.
-        vendor : str, optional
-            The vendor/manufacturer of the instrument.
-        model : str, optional
-            The model of the instrument.
-
-        Returns
-        -------
-        nmdc.Instrument
-            An NMDC Instrument object with the specified metadata.
-        """
-
-        nmdc_id = self.id_pool.get_id(
-            nmdc_type=NmdcTypes.Instrument,
-            client_id=CLIENT_ID,
-            client_secret=CLIENT_SECRET,
-        )
-        data_dict = {
-            "id": nmdc_id,
-            "name": name,
-            "description": description,
-            "type": NmdcTypes.Instrument,
-        }
-
-        if vendor:
-            data_dict["vendor"] = vendor
-
-        if model:
-            data_dict["model"] = model
-
-        # Clean the dictionary to remove any None values
-        data_dict = self.clean_dict(data_dict)
-        instrument = nmdc.Instrument(**data_dict)
-        return instrument
-
-    def dump_nmdc_database(self, nmdc_database: nmdc.Database, json_path: Path) -> None:
-        """
-        Dump the NMDC database to a JSON file.
-
-        This method serializes the NMDC Database instance to a JSON file
-        at the specified path.
-
-        Parameters
-        ----------
-        nmdc_database : nmdc.Database
-            The NMDC Database instance to dump.
-        json_path : Path
-            The file path where the JSON dump will be saved.
-
-        Returns
-        -------
-        None
-
-        Side Effects
-        ------------
-        Writes the database content to the file specified by
-        `json_path`.
-        """
-        json_dumper.dump(nmdc_database, json_path)
-        logging.info("Database successfully dumped in %s", json_path)
-
-    def validate_nmdc_database(self, json_path: Path) -> None:
-        """
-        Validate the NMDC database JSON file against the NMDC schema.
-
-        This method checks if the provided JSON file conforms to the NMDC schema.
-        If the validation fails, it raises an exception.
-
-        Parameters
-        ----------
-        json_path : Path
-            The path to the JSON file to validate.
-
-        Returns
-        -------
-        None
-
-        Raises
-        ------
-        ValueError
-            If the JSON file does not conform to the NMDC schema.
-        """
-        api_metadata = Metadata(env=ENV)
-        api_metadata.validate_json(json_path)
-
-    def json_submit(json: dict | str, CLIENT_ID: str, CLIENT_SECRET: str):
-        """
-        Submit the generated JSON metadata to the NMDC API.
-
-        Parameters
-        ----------
-        json : dict | str
-            The JSON metadata to submit. Can be a file path or a JSON string.
-        CLIENT_ID : str
-            The client ID for the NMDC API.
-        CLIENT_SECRET : str
-            The client secret for the NMDC API.
-
-        Returns
-        -------
-        None
-
-        """
-        auth = NMDCAuth(client_id=CLIENT_ID, client_secret=CLIENT_SECRET)
-        md = Metadata(env=ENV, auth=auth)
-        success = md.submit_json(json)
-        if success != 200:
-            logging.error("Failed to submit JSON metadata: %s", json)
-            raise ValueError("Failed to submit JSON metadata")
-
-    @staticmethod
-    def get_start_end_times(file) -> tuple:
-        """
-        Get the start and end times for a given file based on its filesystem metadata.
-
-        This method retrieves the earliest and latest timestamps associated with the file,
-        considering creation, modification, and, if available, birth times.
-
-        Parameters
-        ----------
-        file : Path
-            A pathlib.Path object representing the file.
-
-        Returns
-        -------
-        tuple
-            A tuple containing the start time and end time as formatted strings ("%Y-%m-%d %H:%M:%S").
-        """
-        stat_info = file.stat()
-        timestamps = [stat_info.st_mtime, stat_info.st_ctime]
-        if hasattr(stat_info, "st_birthtime"):
-            timestamps.append(stat_info.st_birthtime)
-        earliest_time = min(timestamps)
-        start_time = datetime.fromtimestamp(earliest_time).strftime("%Y-%m-%d %H:%M:%S")
-        end_time = datetime.fromtimestamp(stat_info.st_mtime).strftime(
-            "%Y-%m-%d %H:%M:%S"
-        )
-        assert start_time <= end_time, "Start time must be before end time."
-        return start_time, end_time
-
-
-class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
-    """
-    Abstract class for generating NMDC metadata objects using provided metadata files and configuration.
-
-    Parameters
-    ----------
-    metadata_file : str
-        Path to the input CSV metadata file.
-    database_dump_json_path : str
-        Path where the output database dump JSON file will be saved.
-    raw_data_url : str
-        Base URL for the raw data files.
-    process_data_url : str
-        Base URL for the processed data files.
-    """
-
-    def __init__(
-        self,
-        metadata_file: str,
-        database_dump_json_path: str,
-        raw_data_url: str,
-        process_data_url: str,
-    ):
-        super().__init__()
-        self.metadata_file = metadata_file
-        self.database_dump_json_path = database_dump_json_path
-        self.raw_data_url = raw_data_url
-        self.process_data_url = process_data_url
-        self.raw_data_category = "instrument_data"
-
-    def load_metadata(self) -> pd.core.frame.DataFrame:
-        """
-        Load and group workflow metadata from a CSV file.
-
-        This method reads the metadata CSV file, checks for uniqueness in
-        specified columns, checks that biosamples exist, and groups the data by biosample ID.
-
-        Returns
-        -------
-        pd.core.frame.DataFrame
-            A DataFrame containing the loaded and grouped metadata.
-
-        Raises
-        ------
-        FileNotFoundError
-            If the `metadata_file` does not exist.
-        ValueError
-            If values in columns 'Raw Data File',
-            and 'Processed Data Directory' are not unique.
-
-        Notes
-        -----
-        See example_metadata_file.csv in this directory for an example of
-        the expected input file format.
-        """
-        try:
-            metadata_df = pd.read_csv(self.metadata_file)
-        except FileNotFoundError:
-            raise FileNotFoundError(f"Metadata file not found: {self.metadata_file}")
-
-        # Check for uniqueness in specified columns
-        columns_to_check = self.unique_columns
-        for column in columns_to_check:
-            if not metadata_df[column].is_unique:
-                raise ValueError(f"Duplicate values found in column '{column}'.")
-
-        # Check that all biosamples exist
-        biosample_ids = metadata_df["biosample_id"].unique()
-        bs_client = BiosampleSearch(env=ENV)
-        if pd.isna(biosample_ids)[0] == np.False_:
-            if not bs_client.check_ids_exist(list(biosample_ids)):
-                raise ValueError("Biosample IDs do not exist in the collection.")
-
-        # Check that all studies exist
-        if "biosample.associated_studies" in metadata_df.columns:
-            # Convert string to list, make sure the values are unique, conmvert
-            try:
-                study_ids = ast.literal_eval(
-                    metadata_df["biosample.associated_studies"].iloc[0]
-                )
-            except SyntaxError:
-                study_ids = [metadata_df["biosample.associated_studies"].iloc[0]]
-            ss_client = StudySearch(env=ENV)
-            if not ss_client.check_ids_exist(study_ids):
-                raise ValueError("Study IDs do not exist in the collection.")
-
-        return metadata_df
-
-    def generate_mass_spectrometry(
-        self,
-        file_path: Path,
-        instrument_id: str,
-        sample_id: str,
-        raw_data_id: str,
-        study_id: str,
-        processing_institution: str,
-        mass_spec_configuration_id: str,
-        start_date: str,
-        end_date: str,
-        CLIENT_ID: str,
-        CLIENT_SECRET: str,
-        instrument_instance_specifier: str = None,
-        lc_config_id: str = None,
-        calibration_id: str = None,
-    ) -> nmdc.DataGeneration:
-        """
-        Create an NMDC DataGeneration object for mass spectrometry and mint an NMDC ID.
-
-        Parameters
-        ----------
-        file_path : Path
-            File path of the mass spectrometry data.
-        instrument_name : str
-            Name of the instrument used for data generation.
-        sample_id : str
-            ID of the input sample associated with the data generation.
-        raw_data_id : str
-            ID of the raw data object associated with the data generation.
-        study_id : str
-            ID of the study associated with the data generation.
-        processing_institution : str
-            Name of the processing institution.
-        mass_spec_config_name : str
-            Name of the mass spectrometry configuration.
-        start_date : str
-            Start date of the data generation.
-        end_date : str
-            End date of the data generation.
-        CLIENT_ID : str
-            The client ID for the NMDC API.
-        CLIENT_SECRET : str
-            The client secret for the NMDC API.
-        instrument_instance_specifier : str, optional
-            Specifier for the instrument instance used in the data generation.
-        lc_config_name : str, optional
-            Name of the liquid chromatography configuration.
-        calibration_id : str, optional
-            ID of the calibration information generated with the data.
-            Default is None, indicating no calibration information.
-
-        Returns
-        -------
-        nmdc.DataGeneration
-            An NMDC DataGeneration object with the provided metadata.
-
-        Notes
-        -----
-        This method uses the nmdc_api_utilities package to fetch IDs for the instrument
-        and configurations. It also mints a new NMDC ID for the DataGeneration object.
-
-        """
-        nmdc_id = self.id_pool.get_id(
-            nmdc_type=NmdcTypes.MassSpectrometry,
-            client_id=CLIENT_ID,
-            client_secret=CLIENT_SECRET,
-        )
-
-        data_dict = {
-            "id": nmdc_id,
-            "name": file_path.stem,
-            "description": self.mass_spec_desc,
-            "add_date": datetime.now().strftime("%Y-%m-%d"),
-            "eluent_introduction_category": self.mass_spec_eluent_intro,
-            "has_mass_spectrometry_configuration": mass_spec_configuration_id,
-            "has_chromatography_configuration": lc_config_id,
-            "analyte_category": self.analyte_category,
-            "instrument_used": instrument_id,
-            "has_input": [sample_id],
-            "has_output": [raw_data_id],
-            "associated_studies": study_id,
-            "processing_institution": processing_institution,
-            "start_date": start_date,
-            "end_date": end_date,
-            "instrument_instance_specifier": instrument_instance_specifier,
-            "type": NmdcTypes.MassSpectrometry,
-        }
-
-        if calibration_id is not None:
-            data_dict["generates_calibration"] = calibration_id
-        data_dict = self.clean_dict(data_dict)
-        mass_spectrometry = nmdc.DataGeneration(**data_dict)
-
-        return mass_spectrometry
-
     def generate_processed_sample(
         self, data: dict, CLIENT_ID: str, CLIENT_SECRET: str
     ) -> nmdc.ProcessedSample:
@@ -1360,7 +1011,66 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         analysis_obj.has_input = parameter_data_id
         analysis_obj.has_output = processed_data_id_list
 
-    def dump_nmdc_database(self, nmdc_database: nmdc.Database) -> None:
+    def generate_instrument(
+        self,
+        name: str,
+        description: str,
+        CLIENT_ID: str,
+        CLIENT_SECRET: str,
+        vendor: str = None,
+        model: str = None,
+    ) -> nmdc.Instrument:
+        """
+        Create an NMDC Instrument object with the provided metadata.
+
+        This method generates an NMDC Instrument object, populated with the
+        specified metadata.
+
+        Parameters
+        ----------
+        name : str
+            The name of the instrument.
+        description : str
+            A description of the instrument.
+        CLIENT_ID : str
+            The client ID for the NMDC API.
+        CLIENT_SECRET : str
+            The client secret for the NMDC API.
+        vendor : str, optional
+            The vendor/manufacturer of the instrument.
+        model : str, optional
+            The model of the instrument.
+
+        Returns
+        -------
+        nmdc.Instrument
+            An NMDC Instrument object with the specified metadata.
+        """
+
+        nmdc_id = self.id_pool.get_id(
+            nmdc_type=NmdcTypes.Instrument,
+            client_id=CLIENT_ID,
+            client_secret=CLIENT_SECRET,
+        )
+        data_dict = {
+            "id": nmdc_id,
+            "name": name,
+            "description": description,
+            "type": NmdcTypes.Instrument,
+        }
+
+        if vendor:
+            data_dict["vendor"] = vendor
+
+        if model:
+            data_dict["model"] = model
+
+        # Clean the dictionary to remove any None values
+        data_dict = self.clean_dict(data_dict)
+        instrument = nmdc.Instrument(**data_dict)
+        return instrument
+
+    def dump_nmdc_database(self, nmdc_database: nmdc.Database, json_path: Path) -> None:
         """
         Dump the NMDC database to a JSON file.
 
@@ -1371,6 +1081,8 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         ----------
         nmdc_database : nmdc.Database
             The NMDC Database instance to dump.
+        json_path : Path
+            The file path where the JSON dump will be saved.
 
         Returns
         -------
@@ -1379,10 +1091,274 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         Side Effects
         ------------
         Writes the database content to the file specified by
-        `self.database_dump_json_path`.
+        `json_path`.
         """
-        super().dump_nmdc_database(nmdc_database, self.database_dump_json_path)
-        logging.info("Database successfully dumped in %s", self.database_dump_json_path)
+        json_dumper.dump(nmdc_database, json_path)
+        logging.info("Database successfully dumped in %s", json_path)
+
+    def validate_nmdc_database(self, json_path: Path) -> None:
+        """
+        Validate the NMDC database JSON file against the NMDC schema.
+
+        This method checks if the provided JSON file conforms to the NMDC schema.
+        If the validation fails, it raises an exception.
+
+        Parameters
+        ----------
+        json_path : Path
+            The path to the JSON file to validate.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        ValueError
+            If the JSON file does not conform to the NMDC schema.
+        """
+        api_metadata = Metadata(env=ENV)
+        api_metadata.validate_json(json_path)
+
+    def json_submit(json: dict | str, CLIENT_ID: str, CLIENT_SECRET: str):
+        """
+        Submit the generated JSON metadata to the NMDC API.
+
+        Parameters
+        ----------
+        json : dict | str
+            The JSON metadata to submit. Can be a file path or a JSON string.
+        CLIENT_ID : str
+            The client ID for the NMDC API.
+        CLIENT_SECRET : str
+            The client secret for the NMDC API.
+
+        Returns
+        -------
+        None
+
+        """
+        auth = NMDCAuth(client_id=CLIENT_ID, client_secret=CLIENT_SECRET)
+        md = Metadata(env=ENV, auth=auth)
+        success = md.submit_json(json)
+        if success != 200:
+            logging.error("Failed to submit JSON metadata: %s", json)
+            raise ValueError("Failed to submit JSON metadata")
+
+    @staticmethod
+    def get_start_end_times(file) -> tuple:
+        """
+        Get the start and end times for a given file based on its filesystem metadata.
+
+        This method retrieves the earliest and latest timestamps associated with the file,
+        considering creation, modification, and, if available, birth times.
+
+        Parameters
+        ----------
+        file : Path
+            A pathlib.Path object representing the file.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the start time and end time as formatted strings ("%Y-%m-%d %H:%M:%S").
+        """
+        stat_info = file.stat()
+        timestamps = [stat_info.st_mtime, stat_info.st_ctime]
+        if hasattr(stat_info, "st_birthtime"):
+            timestamps.append(stat_info.st_birthtime)
+        earliest_time = min(timestamps)
+        start_time = datetime.fromtimestamp(earliest_time).strftime("%Y-%m-%d %H:%M:%S")
+        end_time = datetime.fromtimestamp(stat_info.st_mtime).strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
+        assert start_time <= end_time, "Start time must be before end time."
+        return start_time, end_time
+
+
+class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
+    """
+    Abstract class for generating NMDC metadata objects using provided metadata files and configuration.
+
+    Parameters
+    ----------
+    metadata_file : str
+        Path to the input CSV metadata file.
+    database_dump_json_path : str
+        Path where the output database dump JSON file will be saved.
+    raw_data_url : str
+        Base URL for the raw data files.
+    process_data_url : str
+        Base URL for the processed data files.
+    """
+
+    def __init__(
+        self,
+        metadata_file: str,
+        database_dump_json_path: str,
+        raw_data_url: str,
+        process_data_url: str,
+    ):
+        super().__init__()
+        self.metadata_file = metadata_file
+        self.database_dump_json_path = database_dump_json_path
+        self.raw_data_url = raw_data_url
+        self.process_data_url = process_data_url
+        self.raw_data_category = "instrument_data"
+
+    def load_metadata(self) -> pd.core.frame.DataFrame:
+        """
+        Load and group workflow metadata from a CSV file.
+
+        This method reads the metadata CSV file, checks for uniqueness in
+        specified columns, checks that biosamples exist, and groups the data by biosample ID.
+
+        Returns
+        -------
+        pd.core.frame.DataFrame
+            A DataFrame containing the loaded and grouped metadata.
+
+        Raises
+        ------
+        FileNotFoundError
+            If the `metadata_file` does not exist.
+        ValueError
+            If values in columns 'Raw Data File',
+            and 'Processed Data Directory' are not unique.
+
+        Notes
+        -----
+        See example_metadata_file.csv in this directory for an example of
+        the expected input file format.
+        """
+        try:
+            metadata_df = pd.read_csv(self.metadata_file)
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Metadata file not found: {self.metadata_file}")
+
+        # Check for uniqueness in specified columns
+        columns_to_check = self.unique_columns
+        for column in columns_to_check:
+            if not metadata_df[column].is_unique:
+                raise ValueError(f"Duplicate values found in column '{column}'.")
+
+        # Check that all biosamples exist
+        biosample_ids = metadata_df["biosample_id"].unique()
+        bs_client = BiosampleSearch(env=ENV)
+        if pd.isna(biosample_ids)[0] == np.False_:
+            if not bs_client.check_ids_exist(list(biosample_ids)):
+                raise ValueError("Biosample IDs do not exist in the collection.")
+
+        # Check that all studies exist
+        if "biosample.associated_studies" in metadata_df.columns:
+            # Convert string to list, make sure the values are unique, conmvert
+            try:
+                study_ids = ast.literal_eval(
+                    metadata_df["biosample.associated_studies"].iloc[0]
+                )
+            except SyntaxError:
+                study_ids = [metadata_df["biosample.associated_studies"].iloc[0]]
+            ss_client = StudySearch(env=ENV)
+            if not ss_client.check_ids_exist(study_ids):
+                raise ValueError("Study IDs do not exist in the collection.")
+
+        return metadata_df
+
+    def generate_mass_spectrometry(
+        self,
+        file_path: Path,
+        instrument_id: str,
+        sample_id: str,
+        raw_data_id: str,
+        study_id: str,
+        processing_institution: str,
+        mass_spec_configuration_id: str,
+        start_date: str,
+        end_date: str,
+        CLIENT_ID: str,
+        CLIENT_SECRET: str,
+        instrument_instance_specifier: str = None,
+        lc_config_id: str = None,
+        calibration_id: str = None,
+    ) -> nmdc.DataGeneration:
+        """
+        Create an NMDC DataGeneration object for mass spectrometry and mint an NMDC ID.
+
+        Parameters
+        ----------
+        file_path : Path
+            File path of the mass spectrometry data.
+        instrument_name : str
+            Name of the instrument used for data generation.
+        sample_id : str
+            ID of the input sample associated with the data generation.
+        raw_data_id : str
+            ID of the raw data object associated with the data generation.
+        study_id : str
+            ID of the study associated with the data generation.
+        processing_institution : str
+            Name of the processing institution.
+        mass_spec_config_name : str
+            Name of the mass spectrometry configuration.
+        start_date : str
+            Start date of the data generation.
+        end_date : str
+            End date of the data generation.
+        CLIENT_ID : str
+            The client ID for the NMDC API.
+        CLIENT_SECRET : str
+            The client secret for the NMDC API.
+        instrument_instance_specifier : str, optional
+            Specifier for the instrument instance used in the data generation.
+        lc_config_name : str, optional
+            Name of the liquid chromatography configuration.
+        calibration_id : str, optional
+            ID of the calibration information generated with the data.
+            Default is None, indicating no calibration information.
+
+        Returns
+        -------
+        nmdc.DataGeneration
+            An NMDC DataGeneration object with the provided metadata.
+
+        Notes
+        -----
+        This method uses the nmdc_api_utilities package to fetch IDs for the instrument
+        and configurations. It also mints a new NMDC ID for the DataGeneration object.
+
+        """
+        nmdc_id = self.id_pool.get_id(
+            nmdc_type=NmdcTypes.MassSpectrometry,
+            client_id=CLIENT_ID,
+            client_secret=CLIENT_SECRET,
+        )
+
+        data_dict = {
+            "id": nmdc_id,
+            "name": file_path.stem,
+            "description": self.mass_spec_desc,
+            "add_date": datetime.now().strftime("%Y-%m-%d"),
+            "eluent_introduction_category": self.mass_spec_eluent_intro,
+            "has_mass_spectrometry_configuration": mass_spec_configuration_id,
+            "has_chromatography_configuration": lc_config_id,
+            "analyte_category": self.analyte_category,
+            "instrument_used": instrument_id,
+            "has_input": [sample_id],
+            "has_output": [raw_data_id],
+            "associated_studies": study_id,
+            "processing_institution": processing_institution,
+            "start_date": start_date,
+            "end_date": end_date,
+            "instrument_instance_specifier": instrument_instance_specifier,
+            "type": NmdcTypes.MassSpectrometry,
+        }
+
+        if calibration_id is not None:
+            data_dict["generates_calibration"] = calibration_id
+        data_dict = self.clean_dict(data_dict)
+        mass_spectrometry = nmdc.DataGeneration(**data_dict)
+
+        return mass_spectrometry
 
     def check_for_biosamples(
         self,

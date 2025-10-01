@@ -10,13 +10,13 @@ from nmdc_ms_metadata_gen.changesheet_generator import (
     WorkflowSheetGenerator,
 )
 from nmdc_ms_metadata_gen.data_classes import ProcessGeneratorMap
-from nmdc_ms_metadata_gen.metadata_generator import NMDCWorkflowMetadataGenerator
+from nmdc_ms_metadata_gen.metadata_generator import NMDCMetadataGenerator
 from nmdc_ms_metadata_gen.metadata_parser import YamlSpecifier
 from nmdc_ms_metadata_gen.study_metadata import MetadataSurveyor
 from nmdc_ms_metadata_gen.utils import output_material_processing_summary, save_to_csv
 
 
-class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
+class MaterialProcessingMetadataGenerator(NMDCMetadataGenerator):
     """
     This class provides functionality for generating material processing steps and processed samples based on an adjusted yaml outline and tracking the final outputs for changesheets.
 
@@ -50,12 +50,7 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
         sample_specific_info_path: str = None,
         minting_config_creds: str = None,
     ):
-        super().__init__(
-            metadata_file="",
-            database_dump_json_path=database_dump_json_path,
-            raw_data_url="",
-            process_data_url="",
-        )
+        super().__init__()
         self.database_dump_json_path = database_dump_json_path
         self.study_id = study_id
         self.yaml_outline_path = yaml_outline_path
@@ -164,7 +159,9 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
         # Output summary and save results
         output_material_processing_summary(reference_mapping, nmdc_database)
-        self.dump_nmdc_database(nmdc_database=nmdc_database)
+        self.dump_nmdc_database(
+            nmdc_database=nmdc_database, json_path=self.database_dump_json_path
+        )
         self.validate_nmdc_database(self.database_dump_json_path)
         file_path = self.database_dump_json_path.split(".json")[0]
         if not output_changesheet.empty:
