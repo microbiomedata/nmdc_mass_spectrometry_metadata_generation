@@ -61,9 +61,6 @@ def test_yamlspecifier_add_info():
     ]
 
 
-# test_yamlspecifier_add_info()
-
-
 def test_yamlspecifier_adjust_outputs():
     """
     Test YamlSpecifier: Does it adjust the number of outputs according to number of raw identifiers provided?
@@ -125,7 +122,7 @@ def test_map_final_samples():
 
     # SanClements test study
     generator = MaterialProcessingMetadataGenerator(
-        database_dump_json_path="tests/test_data/test_mp_map_samples_output",
+        database_dump_json_path="tests/test_data/test_mp_map_samples_output.json",
         study_id="nmdc:sty-11-8xdqsn54",
         yaml_outline_path="tests/test_data/test_material_processing/SanClements-NOM_test.yaml",
         sample_to_dg_mapping_path="tests/test_data/test_material_processing/outputs_test_mapping_input.csv",
@@ -150,11 +147,9 @@ def test_changesheet_workflowsheet():
     )
 
     generator.run()
-
-    changesheet = pd.read_csv(f"{generator.database_dump_json_path}_changesheet.csv")
-    workflowsheet = pd.read_csv(
-        f"{generator.database_dump_json_path}_workflowreference.csv"
-    )
+    filepath = generator.database_dump_json_path.split(".json")[0]
+    changesheet = pd.read_csv(f"{filepath}_changesheet.csv")
+    workflowsheet = pd.read_csv(f"{filepath}_workflowreference.csv")
 
     assert (changesheet.shape[0] > 0) & (workflowsheet.shape[0] > 0)
 
