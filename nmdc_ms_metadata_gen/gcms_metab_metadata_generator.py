@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import ast
 import logging
 import os
@@ -104,7 +103,9 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
     # Processed data attributes
     processed_data_category: str = "processed_data"
     processed_data_object_type: str = "GC-MS Metabolomics Results"
-    processed_data_object_description: str = "Metabolomics annotations as a result of a GC/MS metabolomics workflow activity."
+    processed_data_object_description: str = (
+        "Metabolomics annotations as a result of a GC/MS metabolomics workflow activity."
+    )
 
     def __init__(
         self,
@@ -268,7 +269,9 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             nmdc_database_inst.data_object_set.append(processed_data_object)
             nmdc_database_inst.workflow_execution_set.append(metab_analysis)
 
-        self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
+        self.dump_nmdc_database(
+            nmdc_database=nmdc_database_inst, json_path=self.database_dump_json_path
+        )
         self.validate_nmdc_database(json_path=self.database_dump_json_path)
 
     def run(self) -> None:
@@ -458,7 +461,9 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             nmdc_database_inst.data_object_set.append(processed_data_object)
             nmdc_database_inst.workflow_execution_set.append(metab_analysis)
 
-        self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
+        self.dump_nmdc_database(
+            nmdc_database=nmdc_database_inst, json_path=self.database_dump_json_path
+        )
         self.validate_nmdc_database(json_path=self.database_dump_json_path)
         logging.info("Metadata processing completed.")
 

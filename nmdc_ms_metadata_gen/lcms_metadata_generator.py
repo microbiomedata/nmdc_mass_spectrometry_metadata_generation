@@ -1,17 +1,17 @@
-# -*- coding: utf-8 -*-
-from nmdc_ms_metadata_gen.metadata_generator import NMDCWorkflowMetadataGenerator
-from tqdm import tqdm
-from pathlib import Path
-import logging
 import ast
-import pandas as pd
-from nmdc_ms_metadata_gen.data_classes import LCMSLipidWorkflowMetadata
-from nmdc_api_utilities.workflow_execution_search import WorkflowExecutionSearch
-from nmdc_api_utilities.data_object_search import DataObjectSearch
-from nmdc_ms_metadata_gen.data_classes import NmdcTypes
-import re
-from dotenv import load_dotenv
+import logging
 import os
+import re
+from pathlib import Path
+
+import pandas as pd
+from dotenv import load_dotenv
+from nmdc_api_utilities.data_object_search import DataObjectSearch
+from nmdc_api_utilities.workflow_execution_search import WorkflowExecutionSearch
+from tqdm import tqdm
+
+from nmdc_ms_metadata_gen.data_classes import LCMSLipidWorkflowMetadata, NmdcTypes
+from nmdc_ms_metadata_gen.metadata_generator import NMDCWorkflowMetadataGenerator
 
 load_dotenv()
 ENV = os.getenv("NMDC_ENV", "prod")
@@ -299,7 +299,9 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 None,
             )
 
-        self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
+        self.dump_nmdc_database(
+            nmdc_database=nmdc_database_inst, json_path=self.database_dump_json_path
+        )
         self.validate_nmdc_database(json_path=self.database_dump_json_path)
         logging.info("Metadata processing completed.")
 
@@ -515,7 +517,9 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 None,
             )
 
-        self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
+        self.dump_nmdc_database(
+            nmdc_database=nmdc_database_inst, json_path=self.database_dump_json_path
+        )
         self.validate_nmdc_database(json_path=self.database_dump_json_path)
         logging.info("Metadata processing completed.")
 
