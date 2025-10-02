@@ -316,9 +316,12 @@ class MaterialProcessingMetadataGenerator(NMDCMetadataGenerator):
                                         f"<{reference}>",
                                         placeholder_dict[reference]["id"],
                                     )
+                # remove id and type
+                placeholder_outline.pop("id", None)
+                placeholder_outline.pop("type", None)
 
                 processed_sample = self.generate_processed_sample(
-                    placeholder_outline,
+                    **placeholder_outline,
                     CLIENT_ID=CLIENT_ID,
                     CLIENT_SECRET=CLIENT_SECRET,
                 )
@@ -355,9 +358,9 @@ class MaterialProcessingMetadataGenerator(NMDCMetadataGenerator):
             )
 
             material_processing_metadata = generator_method(
-                process_data,
-                input_samp_id=step_input,  # List of actual NMDC IDs
-                output_samp_id=step_output,  # List of actual NMDC IDs
+                **process_data,
+                has_input=step_input,  # List of actual NMDC IDs
+                has_output=step_output,  # List of actual NMDC IDs
                 CLIENT_ID=CLIENT_ID,
                 CLIENT_SECRET=CLIENT_SECRET,
             )
