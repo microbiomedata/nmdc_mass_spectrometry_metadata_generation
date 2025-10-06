@@ -1009,57 +1009,6 @@ class NMDCMetadataGenerator:
 
         return metab_analysis
 
-    def update_outputs(
-        self,
-        analysis_obj: object,
-        raw_data_obj_id: str,
-        parameter_data_id: str,
-        processed_data_id_list: list,
-        mass_spec_obj: object = None,
-        rerun: bool = False,
-    ) -> None:
-        """
-        Update output references for Mass Spectrometry and Workflow Analysis objects.
-
-        This method assigns the output references for a Mass Spectrometry object
-        and a Workflow Execution Analysis object. It sets `mass_spec_obj.has_output`
-        to the ID of `raw_data_obj` and `analysis_obj.has_output` to a list of
-        processed data IDs.
-
-        Parameters
-        ----------
-        analysis_obj : object
-            The Workflow Execution Analysis object to update
-            (e.g., MetabolomicsAnalysis).
-        raw_data_obj_id : str
-            The Raw Data Object associated with the Mass Spectrometry.
-        parameter_data_id : str
-            ID of the data object representing the parameter data used for the analysis.
-        processed_data_id_list : list
-            List of IDs representing processed data objects associated with
-            the Workflow Execution.
-        mass_spec_obj : object , optional
-            The Mass Spectrometry object to update. Optional for rerun cases.
-        rerun : bool, optional
-            If True, this indicates the run is a rerun, and the method will not set `mass_spec_obj.has_output` because there is not one.
-            Default is False.
-
-        Returns
-        -------
-        None
-
-        Notes
-        ------
-        - Sets `mass_spec_obj.has_output` to [raw_data_obj.id].
-        - Sets `analysis_obj.has_output` to `processed_data_id_list`.
-
-        """
-        if not rerun:
-            # if it is not a rerun, set the mass spec object, otherwise there will not be a mass spec object
-            mass_spec_obj.has_output = [raw_data_obj_id]
-        analysis_obj.has_input = parameter_data_id
-        analysis_obj.has_output = processed_data_id_list
-
     def generate_instrument(
         self,
         name: str,
@@ -1632,6 +1581,57 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
                 CLIENT_ID=CLIENT_ID,
                 CLIENT_SECRET=CLIENT_SECRET,
             )
+
+    def update_outputs(
+        self,
+        analysis_obj: object,
+        raw_data_obj_id: str,
+        parameter_data_id: str,
+        processed_data_id_list: list,
+        mass_spec_obj: object = None,
+        rerun: bool = False,
+    ) -> None:
+        """
+        Update output references for Mass Spectrometry and Workflow Analysis objects.
+
+        This method assigns the output references for a Mass Spectrometry object
+        and a Workflow Execution Analysis object. It sets `mass_spec_obj.has_output`
+        to the ID of `raw_data_obj` and `analysis_obj.has_output` to a list of
+        processed data IDs.
+
+        Parameters
+        ----------
+        analysis_obj : object
+            The Workflow Execution Analysis object to update
+            (e.g., MetabolomicsAnalysis).
+        raw_data_obj_id : str
+            The Raw Data Object associated with the Mass Spectrometry.
+        parameter_data_id : str
+            ID of the data object representing the parameter data used for the analysis.
+        processed_data_id_list : list
+            List of IDs representing processed data objects associated with
+            the Workflow Execution.
+        mass_spec_obj : object , optional
+            The Mass Spectrometry object to update. Optional for rerun cases.
+        rerun : bool, optional
+            If True, this indicates the run is a rerun, and the method will not set `mass_spec_obj.has_output` because there is not one.
+            Default is False.
+
+        Returns
+        -------
+        None
+
+        Notes
+        ------
+        - Sets `mass_spec_obj.has_output` to [raw_data_obj.id].
+        - Sets `analysis_obj.has_output` to `processed_data_id_list`.
+
+        """
+        if not rerun:
+            # if it is not a rerun, set the mass spec object, otherwise there will not be a mass spec object
+            mass_spec_obj.has_output = [raw_data_obj_id]
+        analysis_obj.has_input = parameter_data_id
+        analysis_obj.has_output = processed_data_id_list
 
     def generate_mass_spec_fields(
         self,
