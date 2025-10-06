@@ -356,7 +356,9 @@ class MaterialProcessingMetadataGenerator(NMDCMetadataGenerator):
             generator_method = getattr(
                 self, getattr(ProcessGeneratorMap(), process_type)
             )
-
+            # remove dict values that have the same name (but incorrect values) as slots in nmdc object
+            for key in ["has_input", "has_output", "id", "type"]:
+                process_data.pop(key, None)
             material_processing_metadata = generator_method(
                 **process_data,
                 has_input=step_input,  # List of actual NMDC IDs
