@@ -5,10 +5,11 @@ from nmdc_api_utilities.data_object_search import DataObjectSearch
 
 class MetadataSurveyor:
     """
-    Provides functionality to link NMDC biosample ids in a study to a result of a certain analyte type.
-        - If a CSV is provided, the result will be a filename, presumably because data generation records have not been created yet.
-        - If no CSV is provided, the result will be a data generation id, presumably because this is a retrospective generation of material processing steps.
-    Additionally, it connects NMDC biosample identifiers (id and samp_name) to additional, sample specific, material processing information that is relevant to the study.
+    Tests input files for the necessary columns and provides functionality to obtain all mass spectrometry records for a study from MongoDB, along with relevent metadata
+    Uses this information to test:
+    1) if the existing metadata includes generation records that already have a processsed sample as input (material processing steps already exist)
+    2) if either the biosample or nmdc generation id cannot be found in mongo
+    3) if the provided raw data identifier is the name of an existing generation record for that biosample (data generation record exists and should be used instead of filename)
 
     Parameters
     ----------
@@ -181,7 +182,7 @@ class MetadataSurveyor:
 
     def metadata_test(self, mapping_df: pd.DataFrame):
         """
-        Error if the metadata csv has a biosample id and raw data identifier already in mongo
+        Check for potential problems with the input sheet
 
         Parameters
         ----------

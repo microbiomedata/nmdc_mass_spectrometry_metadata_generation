@@ -5,7 +5,7 @@ import nmdc_schema.nmdc as nmdc
 import pandas as pd
 from tqdm import tqdm
 
-from nmdc_ms_metadata_gen.changesheet_generator import (
+from nmdc_ms_metadata_gen.sheet_generator import (
     ChangeSheetGenerator,
     WorkflowSheetGenerator,
 )
@@ -18,8 +18,8 @@ from nmdc_ms_metadata_gen.utils import output_material_processing_summary, save_
 
 class MaterialProcessingMetadataGenerator(NMDCMetadataGenerator):
     """
-    This class provides functionality for generating material processing steps and processed samples based on an adjusted yaml outline and tracking the final outputs for changesheets.
-
+    This class provides functionality for generating material processing steps and processed samples based on an adjusted yaml outline and 
+    tracking the final outputs for changesheets (datageneration records exist in mongo) or workflowsheets (no data generation records in mongo)
 
     Parameters
     ----------
@@ -61,7 +61,7 @@ class MaterialProcessingMetadataGenerator(NMDCMetadataGenerator):
 
     def run(self) -> None:
         """
-        This main function generates mass spectrometry material processing steps for a given study using provided metadata
+        This main function generates mass spectrometry material processing steps for a given study using a yaml outline and sample specific metadata
 
         Returns
         -------
@@ -85,7 +85,7 @@ class MaterialProcessingMetadataGenerator(NMDCMetadataGenerator):
         if self.test == False:
             survey.metadata_test(reference_mapping)
 
-        ## Determine number of biosamples with each number of expected final outputs (ex 10 biosamples with 1 final output, 100 biosamples with 2 final outputs)
+        ## Determine number of biosamples with each number of final outputs (ex 10 biosamples with 1 final output, 100 biosamples with 2 final outputs)
         pattern_counts = (
             reference_mapping.groupby("biosample_id")["processedsample_placeholder"]
             .apply(lambda x: " + ".join(sorted(x.unique())))
@@ -180,7 +180,8 @@ class MaterialProcessingMetadataGenerator(NMDCMetadataGenerator):
         output_changesheet: pd.DataFrame,
         output_workflowsheet: pd.DataFrame,
     ):
-        """Use the final processed samples to create necessary changesheets or workflowsheets depicting what goes into data generation records
+        """
+        Use the final processed samples to create changesheets and/or workflowsheets capturing input for the data generation records
 
         Parameters
         ----------
