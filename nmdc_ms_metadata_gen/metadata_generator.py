@@ -601,6 +601,7 @@ class NMDCMetadataGenerator:
         CLIENT_SECRET: str,
         processing_institution: str = None,
         mass: dict = None,
+        protocol_link: nmdc.Protocol | None = None,
     ) -> nmdc.SubSamplingProcess:
         """
         Generate a subsampling process object from the provided data.
@@ -623,6 +624,8 @@ class NMDCMetadataGenerator:
             The client ID for the NMDC API.
         CLIENT_SECRET : str
             The client secret for the NMDC API.
+        protocol_link : nmdc.Protocol, optional
+            A link to the protocol referencing the subsampling process.
         """
         nmdc_id = self.id_pool.get_id(
             nmdc_type=NmdcTypes.SubSamplingProcess,
@@ -639,6 +642,7 @@ class NMDCMetadataGenerator:
             "description": description,
             "processing_institution": processing_institution,
             "mass": mass,
+            "protocol_link":protocol_link,
         }
 
         return nmdc.SubSamplingProcess(**data_dict)
@@ -722,6 +726,7 @@ class NMDCMetadataGenerator:
         extraction_targets: list = None,
         input_mass: dict = None,
         temperature: dict = None,
+        protocol_link: dict = None,
     ) -> nmdc.Extraction:
         """
         Generate an extraction object from the provided data.
@@ -746,6 +751,8 @@ class NMDCMetadataGenerator:
             The client ID for the NMDC API.
         CLIENT_SECRET : str
             The client secret for the NMDC API.
+        protocol_link :dict, optional
+            Link to the protocol.
 
         Returns
         -------
@@ -770,6 +777,7 @@ class NMDCMetadataGenerator:
             "has_input": has_input,
             "has_output": has_output,
             "type": NmdcTypes.Extraction,
+            "protocol_link": protocol_link,
         }
 
         return nmdc.Extraction(**data_dict)
@@ -856,6 +864,7 @@ class NMDCMetadataGenerator:
         CLIENT_SECRET: str,
         processing_institution: str = None,
         protocol_link: dict = None,
+        substances_used: List[nmdc.PortionOfSubstance] | None = None,
     ) -> nmdc.DissolvingProcess:
         """
         Generate a dissolving process object from the provided data.
@@ -878,6 +887,8 @@ class NMDCMetadataGenerator:
             The client ID for the NMDC API.
         CLIENT_SECRET : str
             The client secret for the NMDC API.
+        substances_used : List[nmdc.PortionOfSubstance], optional
+            A list of PortionOfSubstance objects used in the dissolving process.
 
         Returns
         -------
@@ -900,6 +911,7 @@ class NMDCMetadataGenerator:
             "description": description,
             "processing_institution": processing_institution,
             "protocol_link": protocol_link,
+            "substances_used": substances_used
         }
 
         return nmdc.DissolvingProcess(**data_dict)

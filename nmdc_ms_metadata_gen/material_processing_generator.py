@@ -12,7 +12,7 @@ from nmdc_ms_metadata_gen.sheet_generator import (
 from nmdc_ms_metadata_gen.data_classes import ProcessGeneratorMap
 from nmdc_ms_metadata_gen.metadata_generator import NMDCMetadataGenerator
 from nmdc_ms_metadata_gen.metadata_parser import YamlSpecifier
-from nmdc_ms_metadata_gen.study_metadata import MetadataSurveyor
+from nmdc_ms_metadata_gen.metadata_input_check import MetadataSurveyor
 from nmdc_ms_metadata_gen.utils import output_material_processing_summary, save_to_csv
 
 
