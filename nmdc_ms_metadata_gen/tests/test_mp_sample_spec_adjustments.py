@@ -127,6 +127,7 @@ def test_map_final_samples():
         yaml_outline_path="tests/test_data/test_material_processing/SanClements-NOM_test.yaml",
         sample_to_dg_mapping_path="tests/test_data/test_material_processing/outputs_test_mapping_input.csv",
         test=True,
+        #minting_config_creds='../config.toml',
     )
 
     generator.run()
@@ -143,7 +144,8 @@ def test_changesheet_workflowsheet():
         study_id="nmdc:sty-11-8xdqsn54",
         yaml_outline_path="tests/test_data/test_material_processing/SanClements-NOM_test.yaml",
         sample_to_dg_mapping_path="tests/test_data/test_material_processing/changesheet_workflowsheet_test_mapping_input.csv",
-        test=True,
+        #minting_config_creds='../config.toml',
+        test=True
     )
 
     generator.run()

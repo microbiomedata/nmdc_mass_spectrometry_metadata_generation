@@ -647,6 +647,66 @@ class NMDCMetadataGenerator:
 
         return nmdc.SubSamplingProcess(**data_dict)
 
+    def generate_filtration_process(
+        self,
+        name: str,
+        description: str,
+        has_input: list,
+        has_output: list,
+        CLIENT_ID: str,
+        CLIENT_SECRET: str,
+        filter_material: str,
+        filter_pore_size: dict,
+        processing_institution: str = None,
+        protocol_link: nmdc.Protocol | None = None,
+    ) -> nmdc.FiltrationProcess:
+        """
+        Generate a filtration process object from the provided data.
+
+        Parameters
+        ----------
+        name : str
+            The name of the filtration process.
+        description : str
+            A description of the filtration process.
+        processing_institution : str, optional
+            The institution responsible for processing.
+        has_input : list
+            A list of input sample IDs for the filtration process.
+        has_output : list
+            A list of output sample IDs for the filtration process.
+        CLIENT_ID : str
+            The client ID for the NMDC API.
+        CLIENT_SECRET : str
+            The client secret for the NMDC API.
+        protocol_link : nmdc.Protocol, optional
+            A link to the protocol referencing the filtration process.
+        filter_material: str
+            A porous material on which solid particles present in air or other fluid which flows through it are largely caught and retained.
+        filter_pore_size: dict
+            A quantitative or qualitative measurement of the physical dimensions of the pores in a material.
+        """
+        nmdc_id = self.id_pool.get_id(
+            nmdc_type=NmdcTypes.FiltrationProcess,
+            client_id=CLIENT_ID,
+            client_secret=CLIENT_SECRET,
+        )
+
+        data_dict = {
+            "id": nmdc_id,
+            "has_input": has_input,
+            "has_output": has_output,
+            "type": NmdcTypes.FiltrationProcess,
+            "name": name,
+            "description": description,
+            "processing_institution": processing_institution,
+            "protocol_link":protocol_link,
+            "filter_material": filter_material,
+            "filter_pore_size": filter_pore_size,
+        }
+
+        return nmdc.FiltrationProcess(**data_dict)
+
     def generate_chemical_conversion(
         self,
         name: str,
@@ -727,6 +787,7 @@ class NMDCMetadataGenerator:
         input_mass: dict = None,
         temperature: dict = None,
         protocol_link: dict = None,
+        volume: dict = None,
     ) -> nmdc.Extraction:
         """
         Generate an extraction object from the provided data.
@@ -753,6 +814,8 @@ class NMDCMetadataGenerator:
             The client secret for the NMDC API.
         protocol_link :dict, optional
             Link to the protocol.
+        volume :dict, optional
+            Volume of extraction
 
         Returns
         -------
@@ -778,6 +841,7 @@ class NMDCMetadataGenerator:
             "has_output": has_output,
             "type": NmdcTypes.Extraction,
             "protocol_link": protocol_link,
+            "volume": volume,
         }
 
         return nmdc.Extraction(**data_dict)

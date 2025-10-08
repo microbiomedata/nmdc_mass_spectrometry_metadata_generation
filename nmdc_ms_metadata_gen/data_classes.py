@@ -66,6 +66,8 @@ class NmdcTypes:
         NMDC type for Processed Sample.
     DissolvingProcess : str
         NMDC type for Dissolving Process.
+    FiltrationProcess : str
+        NMDC type for Filtration Process.
     """
 
     Biosample: str = "nmdc:Biosample"
@@ -95,6 +97,7 @@ class NmdcTypes:
     Extraction: str = "nmdc:Extraction"
     ProcessedSample: str = "nmdc:ProcessedSample"
     DissolvingProcess: str = "nmdc:DissolvingProcess"
+    FiltrationProcess: str = "nmdc:FiltrationProcess"
 
 
 @dataclass
@@ -279,3 +282,4 @@ class ProcessGeneratorMap:
     ChemicalConversionProcess: str = "generate_chemical_conversion"
     ChromatographicSeparationProcess: str = "generate_chromatographic_separation"
     DissolvingProcess: str = "generate_dissolving_process"
+    FiltrationProcess: str = "generate_filtration_process"
