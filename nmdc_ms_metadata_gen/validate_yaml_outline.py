@@ -1,9 +1,4 @@
 import argparse
-import os
-import sys
-
-# clarifying path variable for relative imports
-#sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
 from nmdc_ms_metadata_gen.material_processing_generator import (
     MaterialProcessingMetadataGenerator,
@@ -13,9 +8,18 @@ from nmdc_ms_metadata_gen.metadata_parser import YamlSpecifier
 
 def validate_yaml_outline(yaml_outline_path=str):
     """
-    test to make sure yaml will generate valid json () if given a random biosample (no adjustments for dg/filename)
-    command line example, run in nmdc_mass_spectrometry_metadata_generation : 
-    python -m nmdc_ms_metadata_gen.validate_yaml_outline --yaml_outline_path='{path_to_yaml}/GROW_sty-11-5tgfr349/GROW_NOM_sediment.yaml'
+    Test to make sure yaml will generate valid json if given a random biosample (no adjustments for dg/filename)
+
+    Parameters
+    ----------
+    yaml_outline_path: str
+        Path to yaml outline to validate
+
+    Examples
+    --------
+    Command line example
+    From the nmdc_mass_spectrometry_metadata_generation directory run:
+    `python -m nmdc_ms_metadata_gen.validate_yaml_outline --yaml_outline_path='path_to_yaml/example.yaml'`
     """
 
     generator = MaterialProcessingMetadataGenerator(
@@ -24,11 +28,11 @@ def validate_yaml_outline(yaml_outline_path=str):
         database_dump_json_path="Latest_Tested_Outline_Output",
         sample_to_dg_mapping_path="jdksldjfs",  # doesn't matter, won't be called on
         test=True,
-        minting_config_creds='config.toml',
+        minting_config_creds="config.toml",
     )
     client_id, client_secret = generator.load_credentials(
-            config_file=generator.minting_config_creds
-        )
+        config_file=generator.minting_config_creds
+    )
     nmdc_database = generator.start_nmdc_database()
     data_parser = YamlSpecifier(yaml_outline_path=yaml_outline_path)
 
@@ -37,10 +41,16 @@ def validate_yaml_outline(yaml_outline_path=str):
     input_dict = {"Biosample": {"id": test_biosample}}
 
     generator.json_generation(
-        data=outline, placeholder_dict=input_dict, nmdc_database=nmdc_database, CLIENT_ID=client_id, CLIENT_SECRET=client_secret
+        data=outline,
+        placeholder_dict=input_dict,
+        nmdc_database=nmdc_database,
+        CLIENT_ID=client_id,
+        CLIENT_SECRET=client_secret,
     )
-    generator.dump_nmdc_database(nmdc_database=nmdc_database,json_path=generator.database_dump_json_path)
-    response = generator.validate_nmdc_database(generator.database_dump_json_path)
+    generator.dump_nmdc_database(
+        nmdc_database=nmdc_database, json_path=generator.database_dump_json_path
+    )
+    generator.validate_nmdc_database(generator.database_dump_json_path)
 
 
 def main():

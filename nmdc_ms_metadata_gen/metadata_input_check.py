@@ -26,6 +26,10 @@ class MetadataSurveyor:
         """
         Gather all data generation records for all omics types produced by mass spectrometry (lipidomics, metabolomics, proteomics, nom)
 
+        Returns
+        -------
+        list
+            List of mass spectrometry data generation records associated with the study
         """
         data_gen_records = self.collection_client.get_record_by_filter(
             filter=f'{{"associated_studies":"{self.study}","analyte_category": {{"$in": ["lipidome", "metabolome", "nom", "metaproteome"]}}}}',
@@ -38,6 +42,11 @@ class MetadataSurveyor:
     def study_dataobject_records(self) -> list:
         """
         Gather all data objects associated with a study id
+
+        Returns
+        -------
+        list
+            List of data object records associated with the study
         """
         do_records = self.dataobject_client.get_data_objects_for_studies(
             study_id=f"{self.study}", max_page_size=1000
@@ -55,7 +64,7 @@ class MetadataSurveyor:
 
         # reformat data into dataframe (keeping biosample id)
         data_objects = []
-        for index, row in do_records.iterrows():
+        for _, row in do_records.iterrows():
             bio_id = row["biosample_id"]
             row_out = pd.json_normalize(row["data_objects"])
             row_out["biosample_id"] = bio_id
@@ -66,6 +75,16 @@ class MetadataSurveyor:
     def data_generation_metadata(self, extra_dg_columns=[]) -> pd.DataFrame:
         """
         Gather data generation records for this study into a pandas dataframe
+
+        Parameters
+        ----------
+        extra_dg_columns: list, optional
+            List of additional data generation columns to include in the output dataframe
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame of data generation records for this study
         """
 
         ## get mass spectrometry data generation records for this study
@@ -92,7 +111,11 @@ class MetadataSurveyor:
             ]
             data_gen_df = data_gen_df.explode("has_output")
             data_gen_df["analyte"] = data_gen_df["analyte_category"].replace(
-                {"metabolome": "metabolite", "lipidome": "lipid", "metaproteome": "protein"}
+                {
+                    "metabolome": "metabolite",
+                    "lipidome": "lipid",
+                    "metaproteome": "protein",
+                }
             )
             data_gen_df = data_gen_df.drop("analyte_category", axis=1)
 
@@ -110,13 +133,23 @@ class MetadataSurveyor:
     def existing_metadata(self, extra_dg_columns=[]) -> pd.DataFrame:
         """
         Connect biosamples to data generation records by matching the output from data generation to the list of data objects associated with each biosample
+
+        Parameters
+        ----------
+        extra_dg_columns: list, optional
+            List of additional data generation columns to include in the output dataframe
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame of existing metadata for this study
         """
         try:
             existing_study_dg_metadata = self.data_generation_metadata(extra_dg_columns)
             existing_study_dataobjects = self.study_dataobject_metadata()
 
             if existing_study_dg_metadata is None:
-                existing_study_metadata = existing_study_dataobjects[['biosample_id']]
+                existing_study_metadata = existing_study_dataobjects[["biosample_id"]]
 
             else:
                 existing_study_metadata = existing_study_dg_metadata.merge(
@@ -144,6 +177,11 @@ class MetadataSurveyor:
         ----------
         sample_specific_info_path: pd.DataFrame
             Path to CSV of additional info
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame of additional sample information
         """
         addinfo_df = pd.read_csv(sample_specific_info_path)
         columns = set(addinfo_df.columns)
@@ -173,6 +211,11 @@ class MetadataSurveyor:
         ----------
         sample_to_dg_mapping_path: pd.DataFrame
             Path to CSV of biosample to data generation mappings for this study
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame of biosample to data generation mappings for this study
         """
         mapping_df = pd.read_csv(sample_to_dg_mapping_path)
         columns = set(mapping_df.columns)
@@ -189,7 +232,7 @@ class MetadataSurveyor:
 
         return mapping_df
 
-    def metadata_test(self, mapping_df: pd.DataFrame):
+    def metadata_test(self, mapping_df: pd.DataFrame) -> None:
         """
         Check for potential problems with the input sheet
 
@@ -197,6 +240,16 @@ class MetadataSurveyor:
         ----------
         mapping_df: pd.DataFrame
             Pandas dataframe generated from provided CSV of biosample to filename mappings for this study
+
+        Raises
+        ------
+        ValueError
+            If any of the following conditions are met:
+            1) A data generation record already has a processed sample as input, indicating that material
+                processing steps likely already exist for this biosample.
+            2) Either the biosample ID or the raw data identifier cannot be found in the existing metadata from MongoDB.
+            3) The provided raw data identifier is not an NMDC ID, but matches the name of an existing data generation record for that biosample.
+
         """
         existing_metadata = self.existing_metadata()
         if not mapping_df.empty:
@@ -209,8 +262,7 @@ class MetadataSurveyor:
                     existing_raw_input = existing_metadata[
                         (
                             existing_metadata["biosample_id"]
-                            ==biosample_id & 
-                            existing_metadata["raw_data_identifier"]
+                            == biosample_id & existing_metadata["raw_data_identifier"]
                             == raw_data_identifier
                         )
                     ]["raw_data_input"]
@@ -225,7 +277,7 @@ class MetadataSurveyor:
                             f"Provided mapping info contains nmdc ids for biosample {biosample_id} and raw identifier {raw_data_identifier} but one or both not found in mongodb"
                         )
                 else:
-                    if 'raw_file_name' in existing_metadata.columns:
+                    if "raw_file_name" in existing_metadata.columns:
                         existing_dgnames_for_biosample = existing_metadata[
                             existing_metadata["biosample_id"] == biosample_id
                         ]["raw_file_name"].tolist()
