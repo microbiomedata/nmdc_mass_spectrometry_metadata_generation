@@ -839,7 +839,9 @@ class NMDCMetadataGenerator:
                 NMDCDatabase(**in_docs)
             except Exception as e:
                 return {"result": "errors", "detail": str(e)}
-        return {"result": "All Okay!"}
+            return {"result": "All Okay!"}
+        else:
+            return {"result": "errors", "detail": validation_errors}
 
 
 class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
