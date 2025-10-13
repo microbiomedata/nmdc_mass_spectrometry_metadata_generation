@@ -1,9 +1,11 @@
-# -*- coding: utf-8 -*-
-from click.testing import CliRunner
-from datetime import datetime
 import os
 import sys
+from datetime import datetime
 from pathlib import Path
+
+from click.testing import CliRunner
+
+from nmdc_ms_metadata_gen.metadata_generator import NMDCMetadataGenerator
 
 # Add the parent directory to the path to import your CLI
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -39,6 +41,9 @@ def test_cli_lcms_lipid():
     )
     assert result.exit_code == 0
     assert os.path.exists(output_file)
+    generator = NMDCMetadataGenerator()
+    result = generator.validate_json_no_api(in_docs=result.return_value)
+    assert result["result"] == "All Okay!"
 
 
 def test_cli_lcms_lipid_rerun():
@@ -73,6 +78,10 @@ def test_cli_lcms_lipid_rerun():
     assert result.exit_code == 0
     assert os.path.exists(output_file)
 
+    generator = NMDCMetadataGenerator()
+    result = generator.validate_json_no_api(in_docs=result.return_value)
+    assert result["result"] == "All Okay!"
+
 
 def test_cli_gcms_with_url_column():
     """Test CLI functionality when using raw_data_url column in metadata file."""
@@ -100,10 +109,13 @@ def test_cli_gcms_with_url_column():
             "--configuration-file",
             "emsl_gcms_corems_params.toml",
         ],
+        standalone_mode=False,
     )
-
     assert result.exit_code == 0
     assert os.path.exists(output_file)
+    generator = NMDCMetadataGenerator()
+    result = generator.validate_json_no_api(in_docs=result.return_value)
+    assert result["result"] == "All Okay!"
 
 
 def test_info_command_invalid():
