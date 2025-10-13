@@ -1,17 +1,18 @@
-# -*- coding: utf-8 -*-
-from nmdc_ms_metadata_gen.metadata_generator import NMDCWorkflowMetadataGenerator
-from tqdm import tqdm
-from pathlib import Path
-import logging
 import ast
-import pandas as pd
-from nmdc_ms_metadata_gen.data_classes import LCMSLipidWorkflowMetadata
-from nmdc_api_utilities.workflow_execution_search import WorkflowExecutionSearch
-from nmdc_api_utilities.data_object_search import DataObjectSearch
-from nmdc_ms_metadata_gen.data_classes import NmdcTypes
-import re
-from dotenv import load_dotenv
+import logging
 import os
+import re
+from pathlib import Path
+
+import nmdc_schema.nmdc as nmdc
+import pandas as pd
+from dotenv import load_dotenv
+from nmdc_api_utilities.data_object_search import DataObjectSearch
+from nmdc_api_utilities.workflow_execution_search import WorkflowExecutionSearch
+from tqdm import tqdm
+
+from nmdc_ms_metadata_gen.data_classes import LCMSLipidWorkflowMetadata, NmdcTypes
+from nmdc_ms_metadata_gen.metadata_generator import NMDCWorkflowMetadataGenerator
 
 load_dotenv()
 ENV = os.getenv("NMDC_ENV", "prod")
@@ -41,7 +42,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             process_data_url=process_data_url,
         )
 
-    def run(self) -> None:
+    def run(self) -> nmdc.Database:
         """
         Execute the metadata generation process for lipidomics data.
 
@@ -57,7 +58,8 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
         Returns
         -------
-        None
+        nmdc.Database
+            The generated NMDC database instance containing all generated metadata objects.
 
         Raises
         ------
@@ -300,10 +302,10 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             )
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
-        self.validate_nmdc_database(json_path=self.database_dump_json_path)
         logging.info("Metadata processing completed.")
+        return nmdc_database_inst
 
-    def rerun(self) -> None:
+    def rerun(self) -> nmdc.Database:
         """
         Execute a rerun of the metadata generation process for metabolomics data.
 
@@ -318,7 +320,8 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
         Returns
         -------
-        None
+        nmdc.Database
+            The generated NMDC database instance containing all generated metadata objects.
 
         Raises
         ------
@@ -516,8 +519,8 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             )
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
-        self.validate_nmdc_database(json_path=self.database_dump_json_path)
         logging.info("Metadata processing completed.")
+        return nmdc_database_inst
 
     def create_workflow_metadata(
         self, row: dict[str, str]

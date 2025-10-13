@@ -44,7 +44,7 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
         self.sample_to_dg_mapping_path = sample_to_dg_mapping_path
         self.test = test
 
-    def run(self, sample_specific_info_path=None):
+    def run(self, sample_specific_info_path=None) -> nmdc.Database:
         """
         This main function generates mass spectrometry material processing steps for a given study using provided metadata
 
@@ -55,7 +55,8 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
         Returns
         -------
-        None
+        nmdc.Database
+            The generated NMDC database instance containing all generated metadata objects.
         """
 
         ## Setup
@@ -147,11 +148,11 @@ class MaterialProcessingMetadataGenerator(NMDCWorkflowMetadataGenerator):
         # Output summary and save results
         self.output_summary(reference_mapping, nmdc_database)
         self.dump_nmdc_database(nmdc_database=nmdc_database)
-        self.validate_nmdc_database(self.output_path)
         if not output_changesheet.empty:
             save_to_csv(output_changesheet, f"{self.output_path}_changesheet")
         if not output_workflowsheet.empty:
             save_to_csv(output_workflowsheet, f"{self.output_path}_workflowreference")
+        return nmdc_database
 
     def map_final_samples(
         self,

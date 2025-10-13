@@ -1,10 +1,11 @@
-# -*- coding: utf-8 -*-
 # This script will serve as a test for the lipdomics metadata generation script.
+import json
 import os
 from datetime import datetime
-from nmdc_ms_metadata_gen.di_nom_metadata_generator import DINOMMetaDataGenerator
+
 from dotenv import load_dotenv
-import json
+
+from nmdc_ms_metadata_gen.di_nom_metadata_generator import DINOMMetaDataGenerator
 
 load_dotenv()
 
@@ -34,10 +35,12 @@ def test_di_nom_metadata_gen():
     )
 
     # Run the metadata generation process
-    generator.run()
+    metadata = generator.run()
+    validate = generator.validate_json_no_api(in_docs=metadata)
+    assert validate["result"] == "All Okay!"
     assert os.path.exists(output_file)
 
-    file = open(output_file, "r")
+    file = open(output_file)
     working_data = json.load(file)
     file.close()
     exists = any(
@@ -56,9 +59,6 @@ def test_di_nom_metadata_gen():
         "specifier"
         in working_data["data_generation_set"][0]["instrument_instance_specifier"]
     )
-
-
-test_di_nom_metadata_gen()
 
 
 def test_di_nom_metadata_gen_rerun():
@@ -81,11 +81,12 @@ def test_di_nom_metadata_gen_rerun():
         process_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_nom/",
     )
 
-    # Run the metadata generation process
-    generator.rerun()
+    metadata = generator.rerun()
+    validate = generator.validate_json_no_api(in_docs=metadata)
+    assert validate["result"] == "All Okay!"
     assert os.path.exists(output_file)
 
-    file = open(output_file, "r")
+    file = open(output_file)
     working_data = json.load(file)
     file.close()
     exists = any(
@@ -122,10 +123,12 @@ def test_di_nom_biosample_gen_more_fields():
     )
 
     # Run the metadata generation process
-    generator.run()
+    metadata = generator.run()
+    validate = generator.validate_json_no_api(in_docs=metadata)
+    assert validate["result"] == "All Okay!"
     assert os.path.exists(output_file)
 
-    file = open(output_file, "r")
+    file = open(output_file)
     working_data = json.load(file)
     file.close()
     assert len(working_data["biosample_set"]) == 2
@@ -164,10 +167,12 @@ def test_di_nom_biosample_gen_no_biosample():
     )
 
     # Run the metadata generation process
-    generator.run()
+    metadata = generator.run()
+    validate = generator.validate_json_no_api(in_docs=metadata)
+    assert validate["result"] == "All Okay!"
     assert os.path.exists(output_file)
 
-    file = open(output_file, "r")
+    file = open(output_file)
     working_data = json.load(file)
     file.close()
     assert len(working_data["biosample_set"]) == 2
@@ -207,9 +212,12 @@ def test_di_nom_config_file():
     )
 
     # Run the metadata generation process
-    generator.run()
+    metadata = generator.run()
+    validate = generator.validate_json_no_api(in_docs=metadata)
+    assert validate["result"] == "All Okay!"
+
     assert os.path.exists(output_file)
-    file = open(output_file, "r")
+    file = open(output_file)
     working_data = json.load(file)
     file.close()
 

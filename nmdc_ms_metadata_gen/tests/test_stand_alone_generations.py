@@ -12,6 +12,8 @@ python_path = os.getenv("PYTHONPATH")
 if python_path:
     os.environ["PYTHONPATH"] = python_path
 
+import json
+
 
 def test_mass_spec_configuration_generation():
     """
@@ -51,7 +53,11 @@ def test_mass_spec_configuration_generation():
 
     # Save the database and run json validation
     generator.dump_nmdc_database(nmdc_database=db, json_path=output_file)
-    generator.validate_nmdc_database(json_path=output_file)
+    file = open(output_file)
+    working_data = json.load(file)
+    file.close()
+    validate = generator.validate_json_no_api(in_docs=working_data)
+    assert validate["result"] == "All Okay!"
 
 
 def test_chromatography_configuration_generation():
@@ -126,7 +132,11 @@ def test_chromatography_configuration_generation():
 
     # Save the database and run json validation
     generator.dump_nmdc_database(nmdc_database=db, json_path=output_file)
-    generator.validate_nmdc_database(json_path=output_file)
+    file = open(output_file)
+    working_data = json.load(file)
+    file.close()
+    validate = generator.validate_json_no_api(in_docs=working_data)
+    assert validate["result"] == "All Okay!"
 
 
 def test_instrument_generation():
@@ -163,7 +173,11 @@ def test_instrument_generation():
 
     # Save the database and run json validation
     generator.dump_nmdc_database(nmdc_database=db, json_path=output_file)
-    generator.validate_nmdc_database(json_path=output_file)
+    file = open(output_file)
+    working_data = json.load(file)
+    file.close()
+    validate = generator.validate_json_no_api(in_docs=working_data)
+    assert validate["result"] == "All Okay!"
 
 
 def test_json_validate_no_api_pass():

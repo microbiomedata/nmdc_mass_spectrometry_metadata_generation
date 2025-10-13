@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 # This script will serve as a test for the lipdomics metadata generation script.
-from datetime import datetime
 import json
 import os
+from datetime import datetime
 
 from dotenv import load_dotenv
 
@@ -35,7 +34,10 @@ def test_gcms_metadata_gen():
     )
 
     # Run the metadata generation process
-    generator.run()
+    metadata = generator.run()
+    validate = generator.validate_json_no_api(in_docs=metadata)
+    assert validate["result"] == "All Okay!"
+
     assert os.path.exists(output_file)
 
 
@@ -57,10 +59,12 @@ def test_gcms_metadata_rerun_gen():
     )
 
     # Run the metadata generation process
-    generator.rerun()
+    metadata = generator.rerun()
+    validate = generator.validate_json_no_api(in_docs=metadata)
+    assert validate["result"] == "All Okay!"
     assert os.path.exists(output_file)
 
-    file = open(output_file, "r")
+    file = open(output_file)
     working_data = json.load(file)
     for workflow_execution in working_data["workflow_execution_set"]:
         assert "has_metabolite_identifications" in workflow_execution
@@ -86,10 +90,12 @@ def test_gcms_biosample_gen():
     )
 
     # Run the metadata generation process
-    generator.run()
+    metadata = generator.run()
+    validate = generator.validate_json_no_api(in_docs=metadata)
+    assert validate["result"] == "All Okay!"
     assert os.path.exists(output_file)
 
-    file = open(output_file, "r")
+    file = open(output_file)
     working_data = json.load(file)
     file.close()
     assert len(working_data["biosample_set"]) == 1
@@ -116,5 +122,7 @@ def test_gcms_calibration_manifest_exists():
     )
 
     # Run the metadata generation process
-    generator.run()
+    metadata = generator.run()
+    validate = generator.validate_json_no_api(in_docs=metadata)
+    assert validate["result"] == "All Okay!"
     assert os.path.exists(output_file)

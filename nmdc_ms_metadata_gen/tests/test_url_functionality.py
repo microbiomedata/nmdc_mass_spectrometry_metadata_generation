@@ -1,15 +1,14 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 Test passing in raw data urls in the metadata file functionality for metadata generation.
 """
 
+import os
+from datetime import datetime
+
 from nmdc_ms_metadata_gen.gcms_metab_metadata_generator import (
     GCMSMetabolomicsMetadataGenerator,
 )
-
-import os
-from datetime import datetime
 
 python_path = os.getenv("PYTHONPATH")
 if python_path:
@@ -38,6 +37,8 @@ def test_workflow_metadata_creation_with_urls():
     )
 
     # Run the metadata generation
-    generator.run()
+    metadata = generator.run()
+    validate = generator.validate_json_no_api(in_docs=metadata)
+    assert validate["result"] == "All Okay!"
     # Check if the output file was created
     assert os.path.exists(output_file)
