@@ -1,9 +1,10 @@
-# -*- coding: utf-8 -*-
 # This script will serve as a test for the generation of `MassSpectrometryConfiguration` and `ChromatographyConfiguration` records
 import os
 from datetime import datetime
-from nmdc_ms_metadata_gen.metadata_generator import NMDCMetadataGenerator
+
 from dotenv import load_dotenv
+
+from nmdc_ms_metadata_gen.metadata_generator import NMDCMetadataGenerator
 
 load_dotenv()
 
@@ -163,3 +164,77 @@ def test_instrument_generation():
     # Save the database and run json validation
     generator.dump_nmdc_database(nmdc_database=db, json_path=output_file)
     generator.validate_nmdc_database(json_path=output_file)
+
+
+def test_json_validate_no_api():
+    """
+    Test the JSON validation function that does not use the API.
+    This function validates directly against the JSON schema.
+    """
+    in_docs = {
+        "data_object_set": [
+            {
+                "id": "nmdc:dobj-12-5d8wce28",
+                "type": "nmdc:DataObject",
+                "name": "nom_sample_1.png",
+                "description": "EnviroMS QC plots representing a Direct Infusion NOM analysis.",
+                "data_category": "processed_data",
+                "data_object_type": "Direct Infusion FT-ICR MS QC Plots",
+                "file_size_bytes": 320594,
+                "md5_checksum": "b23430d45421845c62664742a8512fbc",
+                "url": "https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_nom/nom_sample_1/nom_sample_1.png",
+                "was_generated_by": "nmdc:wfnom-11-65b8j621.2",
+            },
+            {
+                "id": "nmdc:dobj-12-gw3hjz30",
+                "type": "nmdc:DataObject",
+                "name": "nom_sample_1.csv",
+                "description": "EnviroMS natural organic matter workflow molecular formula assignment output details",
+                "data_category": "processed_data",
+                "data_object_type": "Direct Infusion FT-ICR MS Analysis Results",
+                "file_size_bytes": 914178,
+                "md5_checksum": "a93ab26c9b8b452f3b6d54c2fb9d1ef7",
+                "url": "https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_nom/nom_sample_1/nom_sample_1.csv",
+                "was_generated_by": "nmdc:wfnom-11-65b8j621.2",
+            },
+            {
+                "id": "nmdc:dobj-12-r5gam483",
+                "type": "nmdc:DataObject",
+                "name": "nom_sample_1.json",
+                "description": "EnviroMS processing parameters for natural organic matter analysis.",
+                "data_category": "workflow_parameter_data",
+                "data_object_type": "Analysis Tool Parameter File",
+                "file_size_bytes": 5788,
+                "md5_checksum": "e38a1a2f4b54dd082e544b7826a57dbb",
+                "url": "https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_nom/nom_sample_1/nom_sample_1.json",
+                "was_generated_by": "nmdc:wfnom-11-65b8j621.2",
+            },
+        ],
+        "workflow_execution_set": [
+            {
+                "id": "nmdc:wfnom-11-65b8j621.2",
+                "type": "nmdc:NomAnalysis",
+                "name": "NOM Analysis for Blanchard_MeOHExt_H-17-AB-M_20Feb18_000001.zip",
+                "description": "Processing of raw DI FT-ICR MS data for natural organic matter identification",
+                "has_input": ["nmdc:dobj-12-r5gam483", "nmdc:dobj-11-dmqrkq30"],
+                "has_output": ["nmdc:dobj-12-5d8wce28", "nmdc:dobj-12-gw3hjz30"],
+                "processing_institution": "NMDC",
+                "git_url": "https://github.com/microbiomedata/enviroMS/blob/master/wdl/di_fticr_ms.wdl",
+                "started_at_time": "2025-08-05 12:14:07",
+                "was_informed_by": ["nmdc:dgms-11-n80fvn39"],
+                "ended_at_time": "2025-08-05 12:14:07",
+                "execution_resource": "EMSL-RZR",
+                "version": "5.0.0",
+                "uses_calibration": "nmdc:calib-14-hhn3qb47",
+            }
+        ],
+        "@type": "Database",
+    }
+
+    gen = NMDCMetadataGenerator()
+    results = gen.validate_json_no_api(in_docs=in_docs)
+
+    assert results["result"] == "All Okay!"
+
+
+test_json_validate_no_api()
