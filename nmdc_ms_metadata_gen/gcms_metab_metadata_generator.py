@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import ast
 import logging
 import os
@@ -104,7 +103,9 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
     # Processed data attributes
     processed_data_category: str = "processed_data"
     processed_data_object_type: str = "GC-MS Metabolomics Results"
-    processed_data_object_description: str = "Metabolomics annotations as a result of a GC/MS metabolomics workflow activity."
+    processed_data_object_description: str = (
+        "Metabolomics annotations as a result of a GC/MS metabolomics workflow activity."
+    )
 
     def __init__(
         self,
@@ -135,7 +136,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         # Workflow Configuration attributes
         self.configuration_file_name = configuration_file_name
 
-    def rerun(self) -> None:
+    def rerun(self) -> nmdc.Database:
         """
         Execute a re run of the metadata generation process for GC/MS metabolomics data.
 
@@ -146,11 +147,11 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         5. Update outputs for the Metabolomics Analysis object.
         6. Append generated objects to the NMDC Database.
         7. Dump the NMDC Database to a JSON file.
-        8. Validate the JSON file using the NMDC API.
 
         Returns
         -------
-        None
+        nmdc.Database
+            The generated NMDC database instance containing all generated metadata objects.
 
         Raises
         ------
@@ -269,9 +270,9 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             nmdc_database_inst.workflow_execution_set.append(metab_analysis)
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
-        self.validate_nmdc_database(json_path=self.database_dump_json_path)
+        return nmdc_database_inst
 
-    def run(self) -> None:
+    def run(self) -> nmdc.Database:
         """
         Execute the metadata generation process for GC/MS metabolomics data.
 
@@ -284,11 +285,11 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         5. Update outputs for Mass Spectrometry and Metabolomics Analysis objects.
         6. Append generated objects to the NMDC Database.
         7. Dump the NMDC Database to a JSON file.
-        8. Validate the JSON file using the NMDC API.
 
         Returns
         -------
-        None
+        nmdc.Database
+            The generated NMDC database instance containing all generated metadata objects.
 
         Raises
         ------
@@ -459,8 +460,8 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             nmdc_database_inst.workflow_execution_set.append(metab_analysis)
 
         self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
-        self.validate_nmdc_database(json_path=self.database_dump_json_path)
         logging.info("Metadata processing completed.")
+        return nmdc_database_inst
 
     def generate_calibration_id(
         self,

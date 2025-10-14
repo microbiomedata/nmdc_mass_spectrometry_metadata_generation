@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This script will serve as a test for the lipdomics metadata generation script.
 import json
 import os
@@ -36,10 +35,13 @@ def test_lcms_metab_metadata_gen():
         process_data_url="https://nmdcdemo.emsl.pnnl.gov/lipidomics/test_data/test_processed_lcms_lipid/",
     )
     # Run the metadata generation process
-    generator.run()
+    metadata = generator.run()
+    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
+    assert validate["result"] == "All Okay!"
+
     assert os.path.exists(output_file)
 
-    file = open(output_file, "r")
+    file = open(output_file)
     working_data = json.load(file)
     file.close()
     # expect metabolite identifications for each workflow_execution records
@@ -66,7 +68,10 @@ def test_lcms_metab_metadata_gen_rerun():
         process_data_url="https://nmdcdemo.emsl.pnnl.gov/lipidomics/test_data/test_processed_lcms_lipid/",
     )
     # Run the metadata generation process
-    generator.rerun()
+    metadata = generator.rerun()
+    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
+    assert validate["result"] == "All Okay!"
+
     assert os.path.exists(output_file)
 
 
@@ -91,9 +96,12 @@ def test_lcms_metab_biosample_gen():
         process_data_url="https://nmdcdemo.emsl.pnnl.gov/lipidomics/test_data/test_processed_lcms_lipid/",
     )
     # Run the metadata generation process
-    generator.run()
+    metadata = generator.run()
+    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
+    assert validate["result"] == "All Okay!"
+
     assert os.path.exists(output_file)
-    file = open(output_file, "r")
+    file = open(output_file)
     working_data = json.load(file)
     file.close()
     # expecting 1 since we only have 1 unique biosample name in the csv

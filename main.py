@@ -1,4 +1,10 @@
-# -*- coding: utf-8 -*-
+import ast
+from functools import wraps
+
+import click
+import pandas as pd
+
+from nmdc_ms_metadata_gen.di_nom_metadata_generator import DINOMMetaDataGenerator
 from nmdc_ms_metadata_gen.gcms_metab_metadata_generator import (
     GCMSMetabolomicsMetadataGenerator,
 )
@@ -9,11 +15,6 @@ from nmdc_ms_metadata_gen.lcms_metab_metadata_generator import (
     LCMSMetabolomicsMetadataGenerator,
 )
 from nmdc_ms_metadata_gen.lcms_nom_metadata_generator import LCMSNOMMetadataGenerator
-from nmdc_ms_metadata_gen.di_nom_metadata_generator import DINOMMetaDataGenerator
-import click
-from functools import wraps
-import pandas as pd
-import ast
 
 
 @click.group()
@@ -127,9 +128,10 @@ def di_nom(
         workflow_version=workflow_version,
     )
     if rerun:
-        generator.rerun()
+        metadata = generator.rerun()
     else:
-        generator.run()
+        metadata = generator.run()
+    return metadata
 
 
 @cli.command()
@@ -153,9 +155,10 @@ def lcms_nom(
         workflow_version=workflow_version,
     )
     if rerun:
-        generator.rerun()
+        metadata = generator.rerun()
     else:
-        generator.run()
+        metadata = generator.run()
+    return metadata
 
 
 @cli.command()
@@ -182,9 +185,10 @@ def lcms_lipid(
         existing_data_objects=ast.literal_eval(existing_data_objects),
     )
     if rerun:
-        generator.rerun()
+        metadata = generator.rerun()
     else:
-        generator.run()
+        metadata = generator.run()
+    return metadata
 
 
 @cli.command()
@@ -211,9 +215,10 @@ def lcms_metab(
         existing_data_objects=ast.literal_eval(existing_data_objects),
     )
     if rerun:
-        generator.rerun()
+        metadata = generator.rerun()
     else:
-        generator.run()
+        metadata = generator.run()
+    return metadata
 
 
 @cli.command()
@@ -242,9 +247,10 @@ def gcms_metab(
         configuration_file_name=configuration_file,
     )
     if rerun:
-        generator.rerun()
+        metadata = generator.rerun()
     else:
-        generator.run()
+        metadata = generator.run()
+    return metadata
 
 
 if __name__ == "__main__":

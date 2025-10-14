@@ -1,10 +1,11 @@
-# -*- coding: utf-8 -*-
 # This script will serve as a test for the lipdomics metadata generation script.
+import json
 import os
 from datetime import datetime
-from nmdc_ms_metadata_gen.lcms_nom_metadata_generator import LCMSNOMMetadataGenerator
+
 from dotenv import load_dotenv
-import json
+
+from nmdc_ms_metadata_gen.lcms_nom_metadata_generator import LCMSNOMMetadataGenerator
 
 load_dotenv()
 
@@ -34,10 +35,13 @@ def test_lcms_nom_metadata_gen():
     )
 
     # Run the metadata generation process
-    generator.run()
+    metadata = generator.run()
+    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
+    assert validate["result"] == "All Okay!"
+
     assert os.path.exists(output_file)
 
-    file = open(output_file, "r")
+    file = open(output_file)
     working_data = json.load(file)
     file.close()
 
@@ -76,5 +80,7 @@ def test_lcms_nom_metadata_gen_rerun():
     )
 
     # Run the metadata generation process
-    generator.rerun()
+    metadata = generator.rerun()
+    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
+    assert validate["result"] == "All Okay!"
     assert os.path.exists(output_file)

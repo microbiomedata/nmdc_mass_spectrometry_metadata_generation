@@ -61,9 +61,6 @@ def test_yamlspecifier_add_info():
     ]
 
 
-# test_yamlspecifier_add_info()
-
-
 def test_yamlspecifier_adjust_outputs():
     """
     Test YamlSpecifier: Does it adjust the number of outputs according to number of raw identifiers provided?
@@ -133,7 +130,9 @@ def test_map_final_samples():
         test=True,
     )
 
-    generator.run()
+    metadata = generator.run()
+    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
+    assert validate["result"] == "All Okay!"
 
 
 def test_changesheet_workflowsheet():
@@ -151,12 +150,11 @@ def test_changesheet_workflowsheet():
         test=True,
     )
 
-    generator.run()
+    metadata = generator.run()
+    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
+    assert validate["result"] == "All Okay!"
 
     changesheet = pd.read_csv(f"{generator.output_path}_changesheet.csv")
     workflowsheet = pd.read_csv(f"{generator.output_path}_workflowreference.csv")
 
     assert (changesheet.shape[0] > 0) & (workflowsheet.shape[0] > 0)
-
-
-# test_changesheet_workflowsheet()
