@@ -56,7 +56,7 @@ def test_mass_spec_configuration_generation():
     file = open(output_file)
     working_data = json.load(file)
     file.close()
-    validate = generator.validate_json_no_api(in_docs=working_data)
+    validate = generator.validate_nmdc_database(json=working_data, use_api=False)
     assert validate["result"] == "All Okay!"
 
 
@@ -135,7 +135,7 @@ def test_chromatography_configuration_generation():
     file = open(output_file)
     working_data = json.load(file)
     file.close()
-    validate = generator.validate_json_no_api(in_docs=working_data)
+    validate = generator.validate_nmdc_database(json=working_data, use_api=False)
     assert validate["result"] == "All Okay!"
 
 
@@ -176,7 +176,7 @@ def test_instrument_generation():
     file = open(output_file)
     working_data = json.load(file)
     file.close()
-    validate = generator.validate_json_no_api(in_docs=working_data)
+    validate = generator.validate_nmdc_database(json=working_data, use_api=False)
     assert validate["result"] == "All Okay!"
 
 
@@ -246,7 +246,7 @@ def test_json_validate_no_api_pass():
     }
 
     gen = NMDCMetadataGenerator()
-    results = gen.validate_json_no_api(in_docs=in_docs)
+    results = gen.validate_nmdc_database(json=in_docs, use_api=False)
 
     assert results["result"] == "All Okay!"
 
@@ -292,6 +292,6 @@ def test_json_validate_no_api_fail():
     }
 
     gen = NMDCMetadataGenerator()
-    results = gen.validate_json_no_api(in_docs=in_docs)
+    results = gen.validate_nmdc_database(json=in_docs, use_api=False)
     assert results["result"] == "errors"
     assert "'id' is a required property" in results["detail"]["data_object_set"]

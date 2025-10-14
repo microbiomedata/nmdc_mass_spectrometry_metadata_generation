@@ -54,7 +54,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
         4. Update outputs for Mass Spectrometry and Metabolomics Analysis objects.
         5. Append generated objects to the NMDC Database.
         6. Dump the NMDC Database to a JSON file.
-        7. Validate the JSON file using the NMDC API.
+
 
         Returns
         -------
@@ -316,7 +316,6 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
         4. Update outputs for the Metabolomics Analysis object.
         5. Append generated objects to the NMDC Database.
         6. Dump the NMDC Database to a JSON file.
-        7. Validate the JSON file using the NMDC API.
 
         Returns
         -------

@@ -36,7 +36,7 @@ def test_lcms_nom_metadata_gen():
 
     # Run the metadata generation process
     metadata = generator.run()
-    validate = generator.validate_json_no_api(in_docs=metadata)
+    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
     assert validate["result"] == "All Okay!"
 
     assert os.path.exists(output_file)
@@ -81,6 +81,6 @@ def test_lcms_nom_metadata_gen_rerun():
 
     # Run the metadata generation process
     metadata = generator.rerun()
-    validate = generator.validate_json_no_api(in_docs=metadata)
+    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
     assert validate["result"] == "All Okay!"
     assert os.path.exists(output_file)

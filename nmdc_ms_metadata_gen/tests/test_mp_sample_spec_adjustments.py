@@ -131,7 +131,7 @@ def test_map_final_samples():
     )
 
     metadata = generator.run()
-    validate = generator.validate_json_no_api(in_docs=metadata)
+    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
     assert validate["result"] == "All Okay!"
 
 
@@ -151,7 +151,7 @@ def test_changesheet_workflowsheet():
     )
 
     metadata = generator.run()
-    validate = generator.validate_json_no_api(in_docs=metadata)
+    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
     assert validate["result"] == "All Okay!"
 
     changesheet = pd.read_csv(f"{generator.output_path}_changesheet.csv")

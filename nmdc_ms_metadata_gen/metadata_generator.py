@@ -639,29 +639,48 @@ class NMDCMetadataGenerator:
         json_dumper.dump(nmdc_database, json_path)
         logging.info("Database successfully dumped in %s", json_path)
 
-    def validate_nmdc_database(self, json_path: Path) -> None:
+    def validate_nmdc_database(self, json: str | dict, use_api: bool = True) -> dict:
         """
-        Validate the NMDC database JSON file against the NMDC schema.
+        Validate the NMDC database JSON object against the NMDC schema.
 
         This method checks if the provided JSON file conforms to the NMDC schema.
-        If the validation fails, it raises an exception.
+        If the validation fails, it returns the errors.
+
 
         Parameters
         ----------
-        json_path : Path
-            The path to the JSON file to validate.
+        json : str | dict
+            The JSON object or path to the JSON file to validate.
+
+        use_api : bool
+            Whether to use the NMDC API for validation. If False, uses local validation.
 
         Returns
         -------
-        None
+        dict
+            A dictionary with the validation result.
+            If valid, returns {"result": "All okay!"}.
+            If errors, returns {"result": "errors", "detail": [list of errors]}.
+
 
         Raises
         ------
         ValueError
             If the JSON file does not conform to the NMDC schema.
         """
-        api_metadata = Metadata(env=ENV)
-        api_metadata.validate_json(json_path)
+        if use_api:
+            api_metadata = Metadata(env=ENV)
+            api_metadata.validate_json(json)
+            return {"result": "All okay!"}
+        else:
+            if isinstance(json, str):
+                with open(json) as f:
+                    data = json.load(f)
+            else:
+                data = json
+
+            validation_result = self._validate_json_no_api(metadata=data)
+            return validation_result
 
     def json_submit(json: dict | str, CLIENT_ID: str, CLIENT_SECRET: str):
         """
@@ -719,7 +738,7 @@ class NMDCMetadataGenerator:
         return start_time, end_time
 
     @staticmethod
-    def validate_json_no_api(in_docs: dict) -> dict:
+    def _validate_json_no_api(metadata: dict) -> dict:
         """
         Checks whether the input dictionary represents a valid instance of the nmdc `Database` class
         defined in the NMDC Schema.
@@ -795,7 +814,7 @@ class NMDCMetadataGenerator:
             return names
 
         validator = Draft7Validator(get_nmdc_json_schema())
-        docs = deepcopy(in_docs)
+        docs = deepcopy(metadata)
         validation_errors = {}
 
         known_coll_names = set(nmdc_database_collection_names())
@@ -805,7 +824,7 @@ class NMDCMetadataGenerator:
                 # for JSON-LD, used for JSON serialization of e.g. LinkML objects. That is, the value of `@type` lets a
                 # client know that the JSON object (a dict in Python) should be interpreted as a
                 # <https://w3id.org/nmdc/Database>. If `@type` is present as a key, and its value indicates that
-                # `in_docs` is indeed a nmdc:Database, that's fine, and we don't want to raise an exception.
+                # `metadata` is indeed a nmdc:Database, that's fine, and we don't want to raise an exception.
                 #
                 # prompted by: https://github.com/microbiomedata/nmdc-runtime/discussions/858
                 if coll_name == "@type" and coll_docs in ("Database", "nmdc:Database"):
@@ -828,9 +847,9 @@ class NMDCMetadataGenerator:
 
         if all(len(v) == 0 for v in validation_errors.values()):
             # Second pass. Try instantiating linkml-sourced dataclass
-            in_docs.pop("@type", None)
+            metadata.pop("@type", None)
             try:
-                NMDCDatabase(**in_docs)
+                NMDCDatabase(**metadata)
             except Exception as e:
                 return {"result": "errors", "detail": str(e)}
             return {"result": "All Okay!"}

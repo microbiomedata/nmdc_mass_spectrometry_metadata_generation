@@ -147,7 +147,6 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         5. Update outputs for the Metabolomics Analysis object.
         6. Append generated objects to the NMDC Database.
         7. Dump the NMDC Database to a JSON file.
-        8. Validate the JSON file using the NMDC API.
 
         Returns
         -------
@@ -286,7 +285,6 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         5. Update outputs for Mass Spectrometry and Metabolomics Analysis objects.
         6. Append generated objects to the NMDC Database.
         7. Dump the NMDC Database to a JSON file.
-        8. Validate the JSON file using the NMDC API.
 
         Returns
         -------
