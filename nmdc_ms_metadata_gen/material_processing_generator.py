@@ -5,20 +5,20 @@ import nmdc_schema.nmdc as nmdc
 import pandas as pd
 from tqdm import tqdm
 
+from nmdc_ms_metadata_gen.data_classes import ProcessGeneratorMap
+from nmdc_ms_metadata_gen.metadata_generator import NMDCMetadataGenerator
+from nmdc_ms_metadata_gen.metadata_input_check import MetadataSurveyor
+from nmdc_ms_metadata_gen.metadata_parser import YamlSpecifier
 from nmdc_ms_metadata_gen.sheet_generator import (
     ChangeSheetGenerator,
     WorkflowSheetGenerator,
 )
-from nmdc_ms_metadata_gen.data_classes import ProcessGeneratorMap
-from nmdc_ms_metadata_gen.metadata_generator import NMDCMetadataGenerator
-from nmdc_ms_metadata_gen.metadata_parser import YamlSpecifier
-from nmdc_ms_metadata_gen.metadata_input_check import MetadataSurveyor
 from nmdc_ms_metadata_gen.utils import output_material_processing_summary, save_to_csv
 
 
 class MaterialProcessingMetadataGenerator(NMDCMetadataGenerator):
     """
-    This class provides functionality for generating material processing steps and processed samples based on an adjusted yaml outline and 
+    This class provides functionality for generating material processing steps and processed samples based on an adjusted yaml outline and
     tracking the final outputs for changesheets (datageneration records exist in mongo) or workflowsheets (no data generation records in mongo)
 
     Parameters
@@ -59,13 +59,14 @@ class MaterialProcessingMetadataGenerator(NMDCMetadataGenerator):
         self.minting_config_creds = minting_config_creds
         self.sample_specific_info_path = sample_specific_info_path
 
-    def run(self) -> None:
+    def run(self) -> nmdc.Database:
         """
         This main function generates mass spectrometry material processing steps for a given study using a yaml outline and sample specific metadata
 
         Returns
         -------
-        None
+        nmdc.Database
+            The generated NMDC database instance containing all generated metadata objects.
         """
 
         ## Setup
@@ -171,6 +172,7 @@ class MaterialProcessingMetadataGenerator(NMDCMetadataGenerator):
                 output_workflowsheet,
                 f"{file_path}_workflowreference.csv",
             )
+        return nmdc_database
 
     def map_final_samples(
         self,

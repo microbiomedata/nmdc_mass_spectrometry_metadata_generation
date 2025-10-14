@@ -4,6 +4,7 @@ import os
 import re
 from pathlib import Path
 
+import nmdc_schema.nmdc as nmdc
 import pandas as pd
 from dotenv import load_dotenv
 from nmdc_api_utilities.data_object_search import DataObjectSearch
@@ -41,7 +42,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             process_data_url=process_data_url,
         )
 
-    def run(self) -> None:
+    def run(self) -> nmdc.Database:
         """
         Execute the metadata generation process for lipidomics data.
 
@@ -53,11 +54,12 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
         4. Update outputs for Mass Spectrometry and Metabolomics Analysis objects.
         5. Append generated objects to the NMDC Database.
         6. Dump the NMDC Database to a JSON file.
-        7. Validate the JSON file using the NMDC API.
+
 
         Returns
         -------
-        None
+        nmdc.Database
+            The generated NMDC database instance containing all generated metadata objects.
 
         Raises
         ------
@@ -302,10 +304,10 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
         self.dump_nmdc_database(
             nmdc_database=nmdc_database_inst, json_path=self.database_dump_json_path
         )
-        self.validate_nmdc_database(json_path=self.database_dump_json_path)
         logging.info("Metadata processing completed.")
+        return nmdc_database_inst
 
-    def rerun(self) -> None:
+    def rerun(self) -> nmdc.Database:
         """
         Execute a rerun of the metadata generation process for metabolomics data.
 
@@ -316,11 +318,11 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
         4. Update outputs for the Metabolomics Analysis object.
         5. Append generated objects to the NMDC Database.
         6. Dump the NMDC Database to a JSON file.
-        7. Validate the JSON file using the NMDC API.
 
         Returns
         -------
-        None
+        nmdc.Database
+            The generated NMDC database instance containing all generated metadata objects.
 
         Raises
         ------
@@ -520,8 +522,8 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
         self.dump_nmdc_database(
             nmdc_database=nmdc_database_inst, json_path=self.database_dump_json_path
         )
-        self.validate_nmdc_database(json_path=self.database_dump_json_path)
         logging.info("Metadata processing completed.")
+        return nmdc_database_inst
 
     def create_workflow_metadata(
         self, row: dict[str, str]

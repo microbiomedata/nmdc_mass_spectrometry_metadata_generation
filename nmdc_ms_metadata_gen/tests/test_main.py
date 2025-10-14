@@ -5,6 +5,8 @@ from pathlib import Path
 
 from click.testing import CliRunner
 
+from nmdc_ms_metadata_gen.metadata_generator import NMDCMetadataGenerator
+
 # Add the parent directory to the path to import your CLI
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from main import cli  # Import your Click CLI group
@@ -36,9 +38,13 @@ def test_cli_lcms_lipid():
             "--process-data-url",
             "https://nmdcdemo.emsl.pnnl.gov/lipidomics/test_data/test_processed_lcms_lipid/",
         ],
+        standalone_mode=False,
     )
     assert result.exit_code == 0
     assert os.path.exists(output_file)
+    generator = NMDCMetadataGenerator()
+    result = generator.validate_nmdc_database(json=result.return_value, use_api=False)
+    assert result["result"] == "All Okay!"
 
 
 def test_cli_lcms_lipid_rerun():
@@ -68,10 +74,15 @@ def test_cli_lcms_lipid_rerun():
             "https://nmdcdemo.emsl.pnnl.gov/lipidomics/test_data/test_processed_lcms_lipid/",
             "--rerun",  # Click boolean flags don't need a value
         ],
+        standalone_mode=False,
     )
 
     assert result.exit_code == 0
     assert os.path.exists(output_file)
+
+    generator = NMDCMetadataGenerator()
+    result = generator.validate_nmdc_database(json=result.return_value, use_api=False)
+    assert result["result"] == "All Okay!"
 
 
 def test_cli_gcms_with_url_column():
@@ -100,10 +111,13 @@ def test_cli_gcms_with_url_column():
             "--configuration-file",
             "emsl_gcms_corems_params.toml",
         ],
+        standalone_mode=False,
     )
-
     assert result.exit_code == 0
     assert os.path.exists(output_file)
+    generator = NMDCMetadataGenerator()
+    result = generator.validate_nmdc_database(json=result.return_value, use_api=False)
+    assert result["result"] == "All Okay!"
 
 
 def test_cli_material_processing():
@@ -140,10 +154,13 @@ def test_cli_material_processing():
             sample_to_dg_mapping_path,
             "--test",
         ],
+        standalone_mode=False,
     )
-
     assert result.exit_code == 0
     assert os.path.exists(output_file)
+    generator = NMDCMetadataGenerator()
+    result = generator.validate_nmdc_database(json=result.return_value, use_api=False)
+    assert result["result"] == "All Okay!"
 
 
 def test_info_command_invalid():
@@ -152,6 +169,3 @@ def test_info_command_invalid():
     result = runner.invoke(cli, ["info", "invalid-command"])
 
     assert result.exit_code != 0  # Should fail for invalid command
-
-
-test_cli_material_processing()

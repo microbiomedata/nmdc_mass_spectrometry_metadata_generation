@@ -41,7 +41,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             process_data_url=process_data_url,
         )
 
-    def rerun(self):
+    def rerun(self) -> nmdc.Database:
         """
         Execute a rerun of the metadata generation process.
 
@@ -49,6 +49,11 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         and metadata, and manages the workflow for generating NOM analysis data.
 
         Assumes raw data for NOM are on minio and that the raw data object URL field is populated.
+
+        Returns
+        -------
+        nmdc.Database
+            The generated NMDC database instance containing all generated metadata objects.
         """
         do_client = DataObjectSearch(env=ENV)
         wf_client = WorkflowExecutionSearch(env=ENV)
@@ -158,14 +163,19 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         self.dump_nmdc_database(
             nmdc_database=nmdc_database_inst, json_path=self.database_dump_json_path
         )
-        self.validate_nmdc_database(json_path=self.database_dump_json_path)
+        return nmdc_database_inst
 
-    def run(self):
+    def run(self) -> nmdc.Database:
         """
         Execute the metadata generation process.
 
         This method processes the metadata file, generates biosamples (if needed)
         and metadata, and manages the workflow for generating NOM analysis data.
+
+        Returns
+        -------
+        nmdc.Database
+            The generated NMDC database instance containing all generated metadata objects.
         """
         client_id, client_secret = self.load_credentials(
             config_file=self.minting_config_creds
@@ -290,7 +300,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         self.dump_nmdc_database(
             nmdc_database=nmdc_database_inst, json_path=self.database_dump_json_path
         )
-        self.validate_nmdc_database(json_path=self.database_dump_json_path)
+        return nmdc_database_inst
 
     def get_calibration_id(
         self,

@@ -1,10 +1,16 @@
 import ast
 import hashlib
+
+# json validate imports
+import json
 import logging
 import os
+import pkgutil
 import re
 from abc import ABC
+from copy import deepcopy
 from datetime import datetime
+from io import BytesIO
 from pathlib import Path
 from typing import Dict, List
 
@@ -13,6 +19,8 @@ import numpy as np
 import pandas as pd
 import requests
 import toml
+from jsonschema import Draft7Validator
+from linkml_runtime import SchemaView
 from linkml_runtime.dumpers import json_dumper
 from nmdc_api_utilities.auth import NMDCAuth
 from nmdc_api_utilities.biosample_search import BiosampleSearch
@@ -21,6 +29,7 @@ from nmdc_api_utilities.data_object_search import DataObjectSearch
 from nmdc_api_utilities.instrument_search import InstrumentSearch
 from nmdc_api_utilities.metadata import Metadata
 from nmdc_api_utilities.study_search import StudySearch
+from nmdc_schema.nmdc import Database as NMDCDatabase
 from tqdm import tqdm
 
 from nmdc_ms_metadata_gen.data_classes import NmdcTypes
@@ -642,7 +651,7 @@ class NMDCMetadataGenerator:
             "description": description,
             "processing_institution": processing_institution,
             "mass": mass,
-            "protocol_link":protocol_link,
+            "protocol_link": protocol_link,
         }
 
         return nmdc.SubSamplingProcess(**data_dict)
@@ -700,7 +709,7 @@ class NMDCMetadataGenerator:
             "name": name,
             "description": description,
             "processing_institution": processing_institution,
-            "protocol_link":protocol_link,
+            "protocol_link": protocol_link,
             "filter_material": filter_material,
             "filter_pore_size": filter_pore_size,
         }
@@ -975,7 +984,7 @@ class NMDCMetadataGenerator:
             "description": description,
             "processing_institution": processing_institution,
             "protocol_link": protocol_link,
-            "substances_used": substances_used
+            "substances_used": substances_used,
         }
 
         return nmdc.DissolvingProcess(**data_dict)
@@ -1170,29 +1179,48 @@ class NMDCMetadataGenerator:
         json_dumper.dump(nmdc_database, json_path)
         logging.info("Database successfully dumped in %s", json_path)
 
-    def validate_nmdc_database(self, json_path: Path) -> None:
+    def validate_nmdc_database(self, json: str | dict, use_api: bool = True) -> dict:
         """
-        Validate the NMDC database JSON file against the NMDC schema.
+        Validate the NMDC database JSON object against the NMDC schema.
 
         This method checks if the provided JSON file conforms to the NMDC schema.
-        If the validation fails, it raises an exception.
+        If the validation fails, it returns the errors.
+
 
         Parameters
         ----------
-        json_path : Path
-            The path to the JSON file to validate.
+        json : str | dict
+            The JSON object or path to the JSON file to validate.
+
+        use_api : bool
+            Whether to use the NMDC API for validation. If False, uses local validation.
 
         Returns
         -------
-        None
+        dict
+            A dictionary with the validation result.
+            If valid, returns {"result": "All okay!"}.
+            If errors, returns {"result": "errors", "detail": [list of errors]}.
+
 
         Raises
         ------
         ValueError
             If the JSON file does not conform to the NMDC schema.
         """
-        api_metadata = Metadata(env=ENV)
-        api_metadata.validate_json(json_path)
+        if use_api:
+            api_metadata = Metadata(env=ENV)
+            api_metadata.validate_json(json)
+            return {"result": "All okay!"}
+        else:
+            if isinstance(json, str):
+                with open(json) as f:
+                    data = json.load(f)
+            else:
+                data = json
+
+            validation_result = self._validate_json_no_api(metadata=data)
+            return validation_result
 
     def json_submit(json: dict | str, CLIENT_ID: str, CLIENT_SECRET: str):
         """
@@ -1248,6 +1276,125 @@ class NMDCMetadataGenerator:
         )
         assert start_time <= end_time, "Start time must be before end time."
         return start_time, end_time
+
+    @staticmethod
+    def _validate_json_no_api(metadata: dict) -> dict:
+        """
+        Checks whether the input dictionary represents a valid instance of the nmdc `Database` class
+        defined in the NMDC Schema.
+
+        This code was grabbed from nmdc-runtime and modified to be a static method here.
+
+        Parameters
+        ----------
+        in_docs: dict
+            The dictionary you want to validate.
+
+        Returns
+        -------
+        dict
+            A dictionary with two keys: `result` and `detail`. The value of `result` is either `"valid"` or `"invalid"`,
+              and the value of `detail` is a list of validation error messages (if any).
+
+        Example
+        -------
+        {
+            "biosample_set": [
+                {"id": "nmdc:bsm-00-000001", ...},
+                {"id": "nmdc:bsm-00-000002", ...}
+            ],
+            "study_set": [
+                {"id": "nmdc:sty-00-000001", ...},
+                {"id": "nmdc:sty-00-000002", ...}
+            ]
+        }
+        """
+
+        def get_nmdc_json_schema():
+            """Get NMDC JSON Schema with materialized patterns (for identifier regexes). Gets the schema from the nmdc_schema package.
+            Validates against the most recent release of nmdc_schema.
+
+            Returns
+            -------
+            dict
+                The NMDC JSON Schema as a dictionary.
+            """
+
+            d = json.loads(
+                BytesIO(
+                    pkgutil.get_data(
+                        "nmdc_schema", "nmdc_materialized_patterns.schema.json"
+                    )
+                )
+                .getvalue()
+                .decode("utf-8")
+            )
+            return d
+
+        def get_nmdc_yaml_view() -> SchemaView:
+            nmdc_schema_bytes = pkgutil.get_data(
+                "nmdc_schema", "nmdc_materialized_patterns.yaml"
+            )
+            nmdc_schema_yaml_string = str(nmdc_schema_bytes, "utf-8")
+            nmdc_view = SchemaView(nmdc_schema_yaml_string)
+            return nmdc_view
+
+        def nmdc_database_collection_names():
+            """
+            This function was designed to return a list of names of all Database slots that represents database
+                collections
+            """
+            names = []
+            view = get_nmdc_yaml_view()
+            all_classes = set(view.all_classes())
+            for slot in view.class_slots("Database"):
+                rng = getattr(view.get_slot(slot), "range", None)
+                if rng in all_classes:
+                    names.append(slot)
+            return names
+
+        validator = Draft7Validator(get_nmdc_json_schema())
+        docs = deepcopy(metadata)
+        validation_errors = {}
+
+        known_coll_names = set(nmdc_database_collection_names())
+        for coll_name, coll_docs in docs.items():
+            if coll_name not in known_coll_names:
+                # We expect each key in `in_docs` to be a known schema collection name. However, `@type` is a special key
+                # for JSON-LD, used for JSON serialization of e.g. LinkML objects. That is, the value of `@type` lets a
+                # client know that the JSON object (a dict in Python) should be interpreted as a
+                # <https://w3id.org/nmdc/Database>. If `@type` is present as a key, and its value indicates that
+                # `metadata` is indeed a nmdc:Database, that's fine, and we don't want to raise an exception.
+                #
+                # prompted by: https://github.com/microbiomedata/nmdc-runtime/discussions/858
+                if coll_name == "@type" and coll_docs in ("Database", "nmdc:Database"):
+                    continue
+                else:
+                    validation_errors[coll_name] = [
+                        f"'{coll_name}' is not a known schema collection name"
+                    ]
+                    continue
+
+            errors = list(validator.iter_errors({coll_name: coll_docs}))
+            validation_errors[coll_name] = [e.message for e in errors]
+            if coll_docs:
+                if not isinstance(coll_docs, list):
+                    validation_errors[coll_name].append("value must be a list")
+                elif not all(isinstance(d, dict) for d in coll_docs):
+                    validation_errors[coll_name].append(
+                        "all elements of list must be dicts"
+                    )
+
+        if all(len(v) == 0 for v in validation_errors.values()):
+            # Second pass. Try instantiating linkml-sourced dataclass
+            metadata.pop("@type", None)
+            try:
+                NMDCDatabase(**metadata)
+            except Exception as e:
+                return {"result": "errors", "detail": str(e)}
+            return {"result": "All Okay!"}
+        else:
+            return {"result": "errors", "detail": validation_errors}
 
 
 class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):

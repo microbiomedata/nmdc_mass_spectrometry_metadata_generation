@@ -127,10 +127,12 @@ def test_map_final_samples():
         yaml_outline_path="tests/test_data/test_material_processing/SanClements-NOM_test.yaml",
         sample_to_dg_mapping_path="tests/test_data/test_material_processing/outputs_test_mapping_input.csv",
         test=True,
-        #minting_config_creds='../config.toml',
+        # minting_config_creds='../config.toml',
     )
 
-    generator.run()
+    metadata = generator.run()
+    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
+    assert validate["result"] == "All Okay!"
 
 
 def test_changesheet_workflowsheet():
@@ -144,16 +146,15 @@ def test_changesheet_workflowsheet():
         study_id="nmdc:sty-11-8xdqsn54",
         yaml_outline_path="tests/test_data/test_material_processing/SanClements-NOM_test.yaml",
         sample_to_dg_mapping_path="tests/test_data/test_material_processing/changesheet_workflowsheet_test_mapping_input.csv",
-        #minting_config_creds='../config.toml',
-        test=True
+        # minting_config_creds='../config.toml',
+        test=True,
     )
 
-    generator.run()
+    metadata = generator.run()
+    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
+    assert validate["result"] == "All Okay!"
     filepath = generator.database_dump_json_path.split(".json")[0]
     changesheet = pd.read_csv(f"{filepath}_changesheet.csv")
     workflowsheet = pd.read_csv(f"{filepath}_workflowreference.csv")
 
     assert (changesheet.shape[0] > 0) & (workflowsheet.shape[0] > 0)
-
-
-test_changesheet_workflowsheet()

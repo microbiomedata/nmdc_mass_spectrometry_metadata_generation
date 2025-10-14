@@ -178,9 +178,10 @@ def di_nom(
         workflow_version=workflow_version,
     )
     if rerun:
-        generator.rerun()
+        metadata = generator.rerun()
     else:
-        generator.run()
+        metadata = generator.run()
+    return metadata
 
 
 @cli.command()
@@ -204,9 +205,10 @@ def lcms_nom(
         workflow_version=workflow_version,
     )
     if rerun:
-        generator.rerun()
+        metadata = generator.rerun()
     else:
-        generator.run()
+        metadata = generator.run()
+    return metadata
 
 
 @cli.command()
@@ -233,9 +235,10 @@ def lcms_lipid(
         existing_data_objects=ast.literal_eval(existing_data_objects),
     )
     if rerun:
-        generator.rerun()
+        metadata = generator.rerun()
     else:
-        generator.run()
+        metadata = generator.run()
+    return metadata
 
 
 @cli.command()
@@ -262,9 +265,10 @@ def lcms_metab(
         existing_data_objects=ast.literal_eval(existing_data_objects),
     )
     if rerun:
-        generator.rerun()
+        metadata = generator.rerun()
     else:
-        generator.run()
+        metadata = generator.run()
+    return metadata
 
 
 @cli.command()
@@ -293,9 +297,10 @@ def gcms_metab(
         configuration_file_name=configuration_file,
     )
     if rerun:
-        generator.rerun()
+        metadata = generator.rerun()
     else:
-        generator.run()
+        metadata = generator.run()
+    return metadata
 
 
 @cli.command()
@@ -319,7 +324,8 @@ def material_processing(
         sample_specific_info_path=sample_specific_info_path,
         test=test,
     )
-    generator.run()
+    metadata = generator.run()
+    return metadata
 
 
 if __name__ == "__main__":
