@@ -465,9 +465,14 @@ class YamlSpecifier:
     def __init__(self, yaml_outline_path: str):
         self.yaml_outline_path = yaml_outline_path
 
-    def load_material_processing(self):
+    def load_yaml(self) -> dict:
         """
-        Takes the yaml file that outlines the material processing steps and processed samples, then return something pythonic
+        Loads the yaml_outline_path that outlines the material processing steps and processed samples.
+
+        Returns
+        -------
+        dict
+            Yaml outline as a dictionary
         """
 
         with open(self.yaml_outline_path) as f:
@@ -605,7 +610,7 @@ class YamlSpecifier:
         return data
 
     def yaml_generation(self, sample_specific_info_subset=None, target_outputs=list):
-        """ "
+        """
         Generates yaml outline with biosample specific values (placeholders and quantities)
 
         Parameters
@@ -622,7 +627,7 @@ class YamlSpecifier:
         """
 
         # yaml outline (no sample specific information)
-        outline = self.load_material_processing()
+        outline = self.load_yaml()
 
         # add sample specific values from dictionary to outline
         if sample_specific_info_subset is not None:

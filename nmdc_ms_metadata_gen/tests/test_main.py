@@ -38,6 +38,7 @@ def test_cli_lcms_lipid():
             "--process-data-url",
             "https://nmdcdemo.emsl.pnnl.gov/lipidomics/test_data/test_processed_lcms_lipid/",
         ],
+        standalone_mode=False,
     )
     assert result.exit_code == 0
     assert os.path.exists(output_file)
@@ -73,6 +74,7 @@ def test_cli_lcms_lipid_rerun():
             "https://nmdcdemo.emsl.pnnl.gov/lipidomics/test_data/test_processed_lcms_lipid/",
             "--rerun",  # Click boolean flags don't need a value
         ],
+        standalone_mode=False,
     )
 
     assert result.exit_code == 0
@@ -108,6 +110,49 @@ def test_cli_gcms_with_url_column():
             "https://nmdcdemo.emsl.pnnl.gov/metabolomics/test_data/test_processed_gcms_metab/",
             "--configuration-file",
             "emsl_gcms_corems_params.toml",
+        ],
+        standalone_mode=False,
+    )
+    assert result.exit_code == 0
+    assert os.path.exists(output_file)
+    generator = NMDCMetadataGenerator()
+    result = generator.validate_nmdc_database(json=result.return_value, use_api=False)
+    assert result["result"] == "All Okay!"
+
+
+def test_cli_material_processing():
+    """Test CLI functionality to run material processing generator"""
+    runner = CliRunner()
+    current_directory = os.path.dirname(__file__)
+    yaml_file_path = os.path.join(
+        current_directory,
+        "test_data",
+        "test_material_processing",
+        "SanClements-NOM_test.yaml",
+    )
+    sample_to_dg_mapping_path = os.path.join(
+        current_directory,
+        "test_data/test_material_processing/changesheet_workflowsheet_test_mapping_input.csv",
+    )
+    output_file = os.path.join(
+        current_directory,
+        "test_data",
+        f"test_mp_changesheet_workflowsheet_output_{datetime.now().strftime('%Y%m%d%H%M%S')}.json",
+    )
+
+    result = runner.invoke(
+        cli,
+        [
+            "material-processing",
+            "--yaml-outline-path",
+            str(yaml_file_path),
+            "--database-dump-path",
+            str(output_file),
+            "--study-id",
+            "nmdc:sty-11-8xdqsn54",
+            "--sample-to-dg-mapping-path",
+            sample_to_dg_mapping_path,
+            "--test",
         ],
         standalone_mode=False,
     )

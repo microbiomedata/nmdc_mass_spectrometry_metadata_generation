@@ -22,11 +22,19 @@ Metadata Generator Base Class
    :show-inheritance:
 
 Metadata Workflow Generator Base Class
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: nmdc_ms_metadata_gen.metadata_generator.NMDCWorkflowMetadataGenerator
    :members:
    :undoc-members:
    :show-inheritance:
+
+Material Processing Metadata Generator Base Class
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: nmdc_ms_metadata_gen.material_processing_generator.MaterialProcessingMetadataGenerator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
 LC/MS Metadata Generator Base Class
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -84,6 +92,33 @@ LC NOM Metadata Generator Subclass
    :members:
    :undoc-members:
    :show-inheritance:
+
+Validate YAML Outline Function
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autofunction:: nmdc_ms_metadata_gen.validate_yaml_outline
+   :noindex:
+
+Change Sheet Generator
+~~~~~~~~~~~~~~~~
+.. autoclass:: nmdc_ms_metadata_gen.sheet_generator.ChangeSheetGenerator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Workflow Sheet Generator
+~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: nmdc_ms_metadata_gen.sheet_generator.WorkflowSheetGenerator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+ID Pool
+~~~~~~~~~~~~~~~~
+.. autoclass:: nmdc_ms_metadata_gen.id_pool.IDPool
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
 Main CLI Class
 ~~~~~~~~~~~~~~~~~~~~

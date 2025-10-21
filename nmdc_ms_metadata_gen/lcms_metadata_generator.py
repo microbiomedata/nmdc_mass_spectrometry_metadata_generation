@@ -301,7 +301,9 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 None,
             )
 
-        self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
+        self.dump_nmdc_database(
+            nmdc_database=nmdc_database_inst, json_path=self.database_dump_json_path
+        )
         logging.info("Metadata processing completed.")
         return nmdc_database_inst
 
@@ -517,7 +519,9 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 None,
             )
 
-        self.dump_nmdc_database(nmdc_database=nmdc_database_inst)
+        self.dump_nmdc_database(
+            nmdc_database=nmdc_database_inst, json_path=self.database_dump_json_path
+        )
         logging.info("Metadata processing completed.")
         return nmdc_database_inst
 

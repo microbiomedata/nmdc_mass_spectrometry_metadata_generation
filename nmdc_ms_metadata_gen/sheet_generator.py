@@ -1,13 +1,16 @@
-from pathlib import Path
-
 import pandas as pd
 
 
 class ChangeSheetGenerator:
+    """
+    A class to assist in prgrammatically creating change sheets. More documentation can be found here https://docs.microbiomedata.org/runtime/howto-guides/author-changesheets/
+    """
+
     @staticmethod
     def initialize_empty_df() -> pd.DataFrame:
         """
-        Create an empty DataFrame with required columns
+        Create an empty DataFrame with required columns.
+        Required columns are: id, action, attribute, value
 
         Parameters
         ----------
@@ -53,6 +56,12 @@ class ChangeSheetGenerator:
 
 
 class WorkflowSheetGenerator:
+    """
+    The workflow sheet provides the last processed sample id and the raw file name it will be associated with.
+    This provides a reference for creating the associated data generation records.
+
+    """
+
     @staticmethod
     def initialize_empty_df() -> pd.DataFrame:
         """
@@ -106,24 +115,3 @@ class WorkflowSheetGenerator:
 
         # Changed self.df to df since we're using static method
         return pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
-
-
-@staticmethod
-def save_to_csv(df: pd.DataFrame, output_path: str | Path):
-    """
-    Save the DataFrame to a CSV file.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        The DataFrame to save
-    output_path : str or Path
-        The path where the CSV should be saved
-
-    Returns
-    -------
-    None
-
-    """
-    df.to_csv(f"{output_path}.csv", index=False)
-    print(f"Sheet saved to {output_path}.csv")

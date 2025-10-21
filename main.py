@@ -15,6 +15,9 @@ from nmdc_ms_metadata_gen.lcms_metab_metadata_generator import (
     LCMSMetabolomicsMetadataGenerator,
 )
 from nmdc_ms_metadata_gen.lcms_nom_metadata_generator import LCMSNOMMetadataGenerator
+from nmdc_ms_metadata_gen.material_processing_generator import (
+    MaterialProcessingMetadataGenerator,
+)
 
 
 @click.group()
@@ -55,6 +58,53 @@ def global_options(f):
         "--process-data-url",
         required=True,
         help="URL base for the processed data files.",
+    )
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        return f(*args, **kwargs)
+
+    return wrapper
+
+
+def material_processing_options(f):
+    """Decorator to add material processing options to commands"""
+
+    @click.option(
+        "--minting-config-creds",
+        default=None,
+        help="Path to the config file with credentials.",
+    )
+    @click.option(
+        "--yaml-outline-path",
+        required=True,
+        help="Path to YAML file that contains the sample processing steps.",
+    )
+    @click.option(
+        "--sample-to-dg-mapping-path",
+        required=True,
+        help="Path to CSV file mapping biosample ids to their data generation record id.",
+    )
+    @click.option(
+        "--sample-specific-info-path",
+        required=False,
+        default=None,
+        help="Path to a CSV file containing sample specific information.",
+    )
+    @click.option(
+        "--database-dump-path",
+        required=True,
+        help="Path where the output database dump JSON file will be saved",
+    )
+    @click.option(
+        "--study-id",
+        required=True,
+        help="The id of the study the samples are related to.",
+    )
+    @click.option(
+        "--test",
+        is_flag=True,
+        default=False,
+        help="Deliminates the run as a test to skip extra mongo db checks.",
     )
     @wraps(f)
     def wrapper(*args, **kwargs):
@@ -250,6 +300,31 @@ def gcms_metab(
         metadata = generator.rerun()
     else:
         metadata = generator.run()
+    return metadata
+
+
+@cli.command()
+@material_processing_options
+def material_processing(
+    minting_config_creds: str,
+    yaml_outline_path: str,
+    database_dump_path: str,
+    study_id: str,
+    sample_to_dg_mapping_path: str,
+    sample_specific_info_path: str,
+    test: bool,
+):
+    """Generate Material Processing metadata"""
+    generator = MaterialProcessingMetadataGenerator(
+        database_dump_json_path=database_dump_path,
+        study_id=study_id,
+        yaml_outline_path=yaml_outline_path,
+        sample_to_dg_mapping_path=sample_to_dg_mapping_path,
+        minting_config_creds=minting_config_creds,
+        sample_specific_info_path=sample_specific_info_path,
+        test=test,
+    )
+    metadata = generator.run()
     return metadata
 
 
