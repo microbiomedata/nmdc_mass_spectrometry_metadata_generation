@@ -294,4 +294,6 @@ def test_json_validate_no_api_fail():
     gen = NMDCMetadataGenerator()
     results = gen.validate_nmdc_database(json=in_docs, use_api=False)
     assert results["result"] == "errors"
-    assert "'id' is a required property" in results["detail"]["data_object_set"]
+
+    print(results)
+    assert "'id' is a required property" in results["detail"]["data_object_set"][0]
