@@ -297,3 +297,44 @@ def test_json_validate_no_api_fail():
 
     print(results)
     assert "'id' is a required property" in results["detail"]["data_object_set"][0]
+
+
+def test_json_validate_units_fail():
+    """
+    Test the JSON validation function that does not use the API against the unit validator.
+    This function validates directly against the JSON schema.
+    """
+
+    in_docs = {
+        "configuration_set": [
+            {
+                "id": "nmdc:chrcon-11-trmb8z05",
+                "type": "nmdc:ChromatographyConfiguration",
+                "name": "JGI/LBNL Metabolomics Standard LC Method - Polar HILIC-Z",
+                "description": "HILIC Chromatography configuration for standard JGI/LBNL Metabolomics analysis for polar compounds. This configuration uses a HILIC column (InfinityLab Poroshell 120 HILIC-Z, 2.1x150 mm, 2.7 um, Agilent, #683775-924) held at 40 degC, with mobile phase solvents running at a flow rate of 0.45 mL/min. For each sample, 2 uL were injected onto the column.",
+                "protocol_link": {
+                    "type": "nmdc:Protocol",
+                    "url": "https://www.protocols.io/view/jgi-lbnl-metabolomics-standard-lc-ms-ms-esi-method-kxygxydwkl8j/v1",
+                    "name": "JGI/LBNL Metabolomics - Standard LC-MS/MS ESI Method - Polar HILIC-Z",
+                },
+                "chromatographic_category": "liquid_chromatography",
+                "stationary_phase": "HILIC",
+                "ordered_mobile_phases": [
+                    {
+                        "type": "nmdc:MobilePhaseSegment",
+                        "duration": {
+                            "type": "nmdc:QuantityValue",
+                            "has_numeric_value": 11,
+                            "has_unit": "minute",
+                        },
+                    }
+                ],
+            }
+        ],
+        "@type": "Database",
+    }
+
+    gen = NMDCMetadataGenerator()
+    results = gen.validate_nmdc_database(json=in_docs, use_api=False)
+    assert results["result"] == "errors"
+    assert "'minute' is not one of [" in results["detail"]["configuration_set"][0]
