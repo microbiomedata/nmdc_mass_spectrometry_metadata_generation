@@ -2,6 +2,7 @@ import ast
 import hashlib
 
 # json validate imports
+import importlib.resources
 import json
 import logging
 import os
@@ -20,6 +21,8 @@ import pandas as pd
 import requests
 import toml
 from jsonschema import Draft7Validator
+from linkml.validator import Validator
+from linkml.validator.plugins import JsonschemaValidationPlugin
 from linkml_runtime import SchemaView
 from linkml_runtime.dumpers import json_dumper
 from nmdc_api_utilities.auth import NMDCAuth
@@ -29,6 +32,7 @@ from nmdc_api_utilities.data_object_search import DataObjectSearch
 from nmdc_api_utilities.instrument_search import InstrumentSearch
 from nmdc_api_utilities.metadata import Metadata
 from nmdc_api_utilities.study_search import StudySearch
+from nmdc_schema import NmdcSchemaValidationPlugin
 from nmdc_schema.nmdc import Database as NMDCDatabase
 from tqdm import tqdm
 
@@ -1353,7 +1357,29 @@ class NMDCMetadataGenerator:
                     names.append(slot)
             return names
 
-        validator = Draft7Validator(get_nmdc_json_schema())
+        def get_nmdc_jsonschema_path() -> Path:
+            """Get path to NMDC JSON Schema file."""
+            with importlib.resources.path(
+                "nmdc_schema", "nmdc_materialized_patterns.schema.json"
+            ) as p:
+                return p
+
+        def get_nmdc_schema_validator() -> Validator:
+            schema_view = get_nmdc_yaml_view()
+            return Validator(
+                schema_view.schema,
+                validation_plugins=[
+                    JsonschemaValidationPlugin(
+                        closed=True,
+                        # Since the `nmdc-schema` package exports a pre-built JSON Schema file, use that
+                        # instead of relying on the plugin to generate one on the fly.
+                        json_schema_path=get_nmdc_jsonschema_path(),
+                    ),
+                    NmdcSchemaValidationPlugin(),
+                ],
+            )
+
+        validator = get_nmdc_schema_validator()
         docs = deepcopy(metadata)
         validation_errors = {}
 
@@ -1375,7 +1401,9 @@ class NMDCMetadataGenerator:
                     ]
                     continue
 
-            errors = list(validator.iter_errors({coll_name: coll_docs}))
+            errors = list(
+                validator.iter_results({coll_name: coll_docs}, target_class="Database")
+            )
             validation_errors[coll_name] = [e.message for e in errors]
             if coll_docs:
                 if not isinstance(coll_docs, list):
