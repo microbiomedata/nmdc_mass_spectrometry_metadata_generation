@@ -1183,7 +1183,7 @@ class NMDCMetadataGenerator:
         json_dumper.dump(nmdc_database, json_path)
         logging.info("Database successfully dumped in %s", json_path)
 
-    def validate_nmdc_database(self, json: dict, use_api: bool = True) -> dict:
+    def validate_nmdc_database(self, json: dict | str, use_api: bool = True) -> dict:
         """
         Validate the NMDC database JSON object against the NMDC schema.
 
@@ -1212,6 +1212,10 @@ class NMDCMetadataGenerator:
         ValueError
             If the JSON file does not conform to the NMDC schema.
         """
+        import json as json_lib
+
+        if type(json) == str:
+            json = json_lib.load(open(json))
         if use_api:
             api_metadata = Metadata(env=ENV)
             api_metadata.validate_json(json)
@@ -1418,6 +1422,24 @@ class NMDCMetadataGenerator:
             return {"result": "All Okay!"}
         else:
             return {"result": "errors", "detail": validation_errors}
+
+    def nmdc_db_to_dict(self, nmdc_db: nmdc.Database) -> dict:
+        """
+        Convert an NMDC Database object to a dictionary.
+
+        This method serializes the NMDC Database instance to a dictionary.
+
+        Parameters
+        ----------
+        nmdc_db : nmdc.Database
+            The NMDC Database instance to convert.
+
+        Returns
+        -------
+        dict
+            A dictionary representation of the NMDC Database.
+        """
+        return json_dumper.to_dict(nmdc_db)
 
 
 class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):

@@ -40,9 +40,7 @@ def test_workflow_metadata_creation_with_urls():
 
     # Run the metadata generation
     metadata = generator.run()
-    validate = generator.validate_nmdc_database(
-        json=json.loads(json_dumper.dumps(metadata)), use_api=False
-    )
+    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
     assert validate["result"] == "All Okay!"
     # Check if the output file was created
     assert os.path.exists(output_file)

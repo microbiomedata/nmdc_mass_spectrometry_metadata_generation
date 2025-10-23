@@ -45,9 +45,7 @@ def test_cli_lcms_lipid():
     assert result.exit_code == 0
     assert os.path.exists(output_file)
     generator = NMDCMetadataGenerator()
-    result = generator.validate_nmdc_database(
-        json=json.loads(json_dumper.dumps(result.return_value)), use_api=False
-    )
+    result = generator.validate_nmdc_database(json=result.return_value, use_api=False)
     assert result["result"] == "All Okay!"
 
 
@@ -85,9 +83,7 @@ def test_cli_lcms_lipid_rerun():
     assert os.path.exists(output_file)
 
     generator = NMDCMetadataGenerator()
-    result = generator.validate_nmdc_database(
-        json=json.loads(json_dumper.dumps(result.return_value)), use_api=False
-    )
+    result = generator.validate_nmdc_database(json=result.return_value, use_api=False)
     assert result["result"] == "All Okay!"
 
 
@@ -122,9 +118,7 @@ def test_cli_gcms_with_url_column():
     assert result.exit_code == 0
     assert os.path.exists(output_file)
     generator = NMDCMetadataGenerator()
-    result = generator.validate_nmdc_database(
-        json=json.loads(json_dumper.dumps(result.return_value)), use_api=False
-    )
+    result = generator.validate_nmdc_database(json=result.return_value, use_api=False)
     assert result["result"] == "All Okay!"
 
 
@@ -167,9 +161,7 @@ def test_cli_material_processing():
     assert result.exit_code == 0
     assert os.path.exists(output_file)
     generator = NMDCMetadataGenerator()
-    result = generator.validate_nmdc_database(
-        json=json.loads(json_dumper.dumps(result.return_value)), use_api=False
-    )
+    result = generator.validate_nmdc_database(json=result.return_value, use_api=False)
     assert result["result"] == "All Okay!"
 
 

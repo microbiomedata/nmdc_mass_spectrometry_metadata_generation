@@ -171,7 +171,8 @@ class MaterialProcessingMetadataGenerator(NMDCMetadataGenerator):
                 output_workflowsheet,
                 f"{file_path}_workflowreference.csv",
             )
-        return nmdc_database
+        # change db object to dict
+        return self.nmdc_db_to_dict(nmdc_database)
 
     def map_final_samples(
         self,

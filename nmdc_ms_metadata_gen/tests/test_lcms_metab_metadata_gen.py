@@ -37,9 +37,7 @@ def test_lcms_metab_metadata_gen():
     )
     # Run the metadata generation process
     metadata = generator.run()
-    validate = generator.validate_nmdc_database(
-        json=json.loads(json_dumper.dumps(metadata)), use_api=False
-    )
+    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
     assert validate["result"] == "All Okay!"
 
     assert os.path.exists(output_file)
@@ -72,9 +70,7 @@ def test_lcms_metab_metadata_gen_rerun():
     )
     # Run the metadata generation process
     metadata = generator.rerun()
-    validate = generator.validate_nmdc_database(
-        json=json.loads(json_dumper.dumps(metadata)), use_api=False
-    )
+    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
     assert validate["result"] == "All Okay!"
 
     assert os.path.exists(output_file)
@@ -102,9 +98,7 @@ def test_lcms_metab_biosample_gen():
     )
     # Run the metadata generation process
     metadata = generator.run()
-    validate = generator.validate_nmdc_database(
-        json=json.loads(json_dumper.dumps(metadata)), use_api=False
-    )
+    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
     assert validate["result"] == "All Okay!"
 
     assert os.path.exists(output_file)
