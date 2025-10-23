@@ -37,7 +37,7 @@ def test_gcms_metadata_gen():
     # Run the metadata generation process
     metadata = generator.run()
     validate = generator.validate_nmdc_database(
-        json=json_dumper.dumps(metadata), use_api=False
+        json=json.loads(json_dumper.dumps(metadata)), use_api=False
     )
     assert validate["result"] == "All Okay!"
 
@@ -64,7 +64,7 @@ def test_gcms_metadata_rerun_gen():
     # Run the metadata generation process
     metadata = generator.rerun()
     validate = generator.validate_nmdc_database(
-        json=json_dumper.dumps(metadata), use_api=False
+        json=json.loads(json_dumper.dumps(metadata)), use_api=False
     )
     assert validate["result"] == "All Okay!"
     assert os.path.exists(output_file)
@@ -97,7 +97,7 @@ def test_gcms_biosample_gen():
     # Run the metadata generation process
     metadata = generator.run()
     validate = generator.validate_nmdc_database(
-        json=json_dumper.dumps(metadata), use_api=False
+        json=json.loads(json_dumper.dumps(metadata)), use_api=False
     )
     assert validate["result"] == "All Okay!"
     assert os.path.exists(output_file)
@@ -131,7 +131,7 @@ def test_gcms_calibration_manifest_exists():
     # Run the metadata generation process
     metadata = generator.run()
     validate = generator.validate_nmdc_database(
-        json=json_dumper.dumps(metadata), use_api=False
+        json=json.loads(json_dumper.dumps(metadata)), use_api=False
     )
     assert validate["result"] == "All Okay!"
     assert os.path.exists(output_file)

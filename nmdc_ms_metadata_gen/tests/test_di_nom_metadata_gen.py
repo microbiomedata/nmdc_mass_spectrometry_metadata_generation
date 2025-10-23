@@ -38,7 +38,7 @@ def test_di_nom_metadata_gen():
     # Run the metadata generation process
     metadata = generator.run()
     validate = generator.validate_nmdc_database(
-        json=json_dumper.dumps(metadata), use_api=False
+        json=json.loads(json_dumper.dumps(metadata)), use_api=False
     )
     assert validate["result"] == "All Okay!"
     assert os.path.exists(output_file)
@@ -86,7 +86,7 @@ def test_di_nom_metadata_gen_rerun():
 
     metadata = generator.rerun()
     validate = generator.validate_nmdc_database(
-        json=json_dumper.dumps(metadata), use_api=False
+        json=json.loads(json_dumper.dumps(metadata)), use_api=False
     )
     assert validate["result"] == "All Okay!"
     assert os.path.exists(output_file)
@@ -105,6 +105,9 @@ def test_di_nom_metadata_gen_rerun():
         if any("QC" in str(value) for value in d.values())
     )
     assert count >= 1
+
+
+test_di_nom_metadata_gen_rerun()
 
 
 def test_di_nom_biosample_gen_more_fields():
@@ -130,7 +133,7 @@ def test_di_nom_biosample_gen_more_fields():
     # Run the metadata generation process
     metadata = generator.run()
     validate = generator.validate_nmdc_database(
-        json=json_dumper.dumps(metadata), use_api=False
+        json=json.loads(json_dumper.dumps(metadata)), use_api=False
     )
     assert validate["result"] == "All Okay!"
     assert os.path.exists(output_file)
@@ -176,7 +179,7 @@ def test_di_nom_biosample_gen_no_biosample():
     # Run the metadata generation process
     metadata = generator.run()
     validate = generator.validate_nmdc_database(
-        json=json_dumper.dumps(metadata), use_api=False
+        json=json.loads(json_dumper.dumps(metadata)), use_api=False
     )
     assert validate["result"] == "All Okay!"
     assert os.path.exists(output_file)
@@ -223,7 +226,7 @@ def test_di_nom_config_file():
     # Run the metadata generation process
     metadata = generator.run()
     validate = generator.validate_nmdc_database(
-        json=json_dumper.dumps(metadata), use_api=False
+        json=json.loads(json_dumper.dumps(metadata)), use_api=False
     )
     assert validate["result"] == "All Okay!"
 

@@ -41,7 +41,7 @@ def test_lcms_lipid_metadata_gen():
     # Run the metadata generation process
     metadata = generator.run()
     validate = generator.validate_nmdc_database(
-        json=json_dumper.dumps(metadata), use_api=False
+        json=json.loads(json_dumper.dumps(metadata)), use_api=False
     )
     assert validate["result"] == "All Okay!"
 
@@ -74,7 +74,7 @@ def test_lcms_lipid_metadata_gen_rerun():
     # Run the metadata generation process
     metadata = generator.rerun()
     validate = generator.validate_nmdc_database(
-        json=json_dumper.dumps(metadata), use_api=False
+        json=json.loads(json_dumper.dumps(metadata)), use_api=False
     )
     assert validate["result"] == "All Okay!"
 
@@ -105,7 +105,7 @@ def test_lcms_lipid_biosample_gen():
     # Run the metadata generation process
     metadata = generator.run()
     validate = generator.validate_nmdc_database(
-        json=json_dumper.dumps(metadata), use_api=False
+        json=json.loads(json_dumper.dumps(metadata)), use_api=False
     )
     assert validate["result"] == "All Okay!"
 

@@ -2,7 +2,7 @@
 """
 Test passing in raw data urls in the metadata file functionality for metadata generation.
 """
-
+import json
 import os
 from datetime import datetime
 
@@ -22,7 +22,7 @@ def test_workflow_metadata_creation_with_urls():
 
     Also tests metadata generation without instrument_analysis_start_date or instrument_analysis_end_date
     """
-    # Set up output file with datetime stame
+    # Set up output file with datetime stamp
     output_file = (
         "tests/test_data/test_database_gcms_raw_urls_"
         + datetime.now().strftime("%Y%m%d%H%M%S")
@@ -41,7 +41,7 @@ def test_workflow_metadata_creation_with_urls():
     # Run the metadata generation
     metadata = generator.run()
     validate = generator.validate_nmdc_database(
-        json=json_dumper.dumps(metadata), use_api=False
+        json=json.loads(json_dumper.dumps(metadata)), use_api=False
     )
     assert validate["result"] == "All Okay!"
     # Check if the output file was created

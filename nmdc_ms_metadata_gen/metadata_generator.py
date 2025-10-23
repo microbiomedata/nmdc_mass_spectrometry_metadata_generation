@@ -1183,7 +1183,7 @@ class NMDCMetadataGenerator:
         json_dumper.dump(nmdc_database, json_path)
         logging.info("Database successfully dumped in %s", json_path)
 
-    def validate_nmdc_database(self, json: str | dict, use_api: bool = True) -> dict:
+    def validate_nmdc_database(self, json: dict, use_api: bool = True) -> dict:
         """
         Validate the NMDC database JSON object against the NMDC schema.
 
@@ -1217,16 +1217,11 @@ class NMDCMetadataGenerator:
             api_metadata.validate_json(json)
             return {"result": "All okay!"}
         else:
-            if isinstance(json, str):
-                with open(json) as f:
-                    data = json.load(f)
-            else:
-                data = json
 
-            validation_result = self._validate_json_no_api(metadata=data)
+            validation_result = self._validate_json_no_api(metadata=json)
             return validation_result
 
-    def json_submit(json: dict | str, CLIENT_ID: str, CLIENT_SECRET: str):
+    def json_submit(json: dict, CLIENT_ID: str, CLIENT_SECRET: str):
         """
         Submit the generated JSON metadata to the NMDC API.
 

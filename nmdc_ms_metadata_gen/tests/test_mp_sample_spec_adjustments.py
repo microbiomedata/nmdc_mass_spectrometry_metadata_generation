@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 
@@ -133,7 +134,7 @@ def test_map_final_samples():
 
     metadata = generator.run()
     validate = generator.validate_nmdc_database(
-        json=json_dumper.dumps(metadata), use_api=False
+        json=json.loads(json_dumper.dumps(metadata)), use_api=False
     )
     assert validate["result"] == "All Okay!"
 
@@ -155,7 +156,7 @@ def test_changesheet_workflowsheet():
 
     metadata = generator.run()
     validate = generator.validate_nmdc_database(
-        json=json_dumper.dumps(metadata), use_api=False
+        json=json.loads(json_dumper.dumps(metadata)), use_api=False
     )
     assert validate["result"] == "All Okay!"
     filepath = generator.database_dump_json_path.split(".json")[0]
