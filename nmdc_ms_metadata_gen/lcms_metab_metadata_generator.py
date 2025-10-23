@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
-from typing import List
 from pathlib import Path
+from typing import List
 
 import nmdc_schema.nmdc as nmdc
 import pandas as pd
@@ -76,7 +75,9 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
 
     unique_columns: list[str] = ["processed_data_directory"]
     # Data Generation attributes
-    mass_spec_desc: str = "Generation of mass spectrometry data for the analysis of metabolomics using liquid chromatography."
+    mass_spec_desc: str = (
+        "Generation of mass spectrometry data for the analysis of metabolomics using liquid chromatography."
+    )
     mass_spec_eluent_intro: str = "liquid_chromatography"
     analyte_category: str = "metabolome"
     raw_data_obj_type: str = "LC-DDA-MS/MS Raw Data"
@@ -87,7 +88,9 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
     workflow_description: str = (
         "Analysis of raw mass spectrometry data for the annotation of metabolites."
     )
-    workflow_git_url: str = "https://github.com/microbiomedata/metaMS/blob/master/wdl/metaMS_lcms_metabolomics.wdl"
+    workflow_git_url: str = (
+        "https://github.com/microbiomedata/metaMS/blob/master/wdl/metaMS_lcms_metabolomics.wdl"
+    )
     workflow_version: str
     workflow_category: str = "lc_ms_metabolomics"
     add_metabolite_ids: bool = True
@@ -200,7 +203,7 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
         return metabolite_identifications
 
     def rerun(self):
-        super().rerun()
+        return super().rerun()
 
     def run(self):
-        super().run()
+        return super().run()

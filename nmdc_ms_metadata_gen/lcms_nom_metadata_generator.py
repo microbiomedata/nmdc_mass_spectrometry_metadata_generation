@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from nmdc_ms_metadata_gen.nom_metadata_generator import NOMMetadataGenerator
 
 
@@ -58,17 +57,23 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
     processed_data_category: str = "processed_data"
     analyte_category: str = "nom"
     workflow_analysis_name: str = "LC FT-ICR MS NOM Analysis"
-    workflow_param_data_object_desc: str = "EnviroMS processing parameters for natural organic matter analysis when acquired using liquid chromatography."
+    workflow_param_data_object_desc: str = (
+        "EnviroMS processing parameters for natural organic matter analysis when acquired using liquid chromatography."
+    )
     workflow_param_data_category: str = "workflow_parameter_data"
     workflow_param_data_object_type: str = "Analysis Tool Parameter File"
     unique_columns: list[str] = ["processed_data_directory"]
     mass_spec_eluent_intro: str = "liquid_chromatography"
-    mass_spec_desc: str = "Generation of mass spectrometry data for the analysis of NOM when acquired using liquid chromatography."
+    mass_spec_desc: str = (
+        "Generation of mass spectrometry data for the analysis of NOM when acquired using liquid chromatography."
+    )
     workflow_git_url: str = (
         "https://github.com/microbiomedata/enviroMS/blob/master/wdl/lc_ftirc_ms.wdl"
     )
     workflow_version: str
-    workflow_description: str = "Processing of raw liquid chromatography FT-ICR MS data for natural organic matter identification."
+    workflow_description: str = (
+        "Processing of raw liquid chromatography FT-ICR MS data for natural organic matter identification."
+    )
     # on the mass spec records, you will need to add has_chromatograohy_configuration - created in parent metadata gen class
 
     def __init__(
@@ -93,7 +98,7 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
         self.minting_config_creds = minting_config_creds
 
     def rerun(self):
-        super().rerun()
+        return super().rerun()
 
     def run(self):
-        super().run()
+        return super().run()

@@ -6,6 +6,8 @@ Test passing in raw data urls in the metadata file functionality for metadata ge
 import os
 from datetime import datetime
 
+from linkml_runtime.dumpers import json_dumper
+
 from nmdc_ms_metadata_gen.gcms_metab_metadata_generator import (
     GCMSMetabolomicsMetadataGenerator,
 )
@@ -38,7 +40,9 @@ def test_workflow_metadata_creation_with_urls():
 
     # Run the metadata generation
     metadata = generator.run()
-    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
+    validate = generator.validate_nmdc_database(
+        json=json_dumper.dumps(metadata), use_api=False
+    )
     assert validate["result"] == "All Okay!"
     # Check if the output file was created
     assert os.path.exists(output_file)

@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 
 from dotenv import load_dotenv
+from linkml_runtime.dumpers import json_dumper
 
 from nmdc_ms_metadata_gen.lcms_lipid_metadata_generator import (
     LCMSLipidomicsMetadataGenerator,
@@ -39,7 +40,9 @@ def test_lcms_lipid_metadata_gen():
     )
     # Run the metadata generation process
     metadata = generator.run()
-    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
+    validate = generator.validate_nmdc_database(
+        json=json_dumper.dumps(metadata), use_api=False
+    )
     assert validate["result"] == "All Okay!"
 
     file = open(output_file)
@@ -70,7 +73,9 @@ def test_lcms_lipid_metadata_gen_rerun():
     )
     # Run the metadata generation process
     metadata = generator.rerun()
-    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
+    validate = generator.validate_nmdc_database(
+        json=json_dumper.dumps(metadata), use_api=False
+    )
     assert validate["result"] == "All Okay!"
 
     assert os.path.exists(output_file)
@@ -99,7 +104,9 @@ def test_lcms_lipid_biosample_gen():
     )
     # Run the metadata generation process
     metadata = generator.run()
-    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
+    validate = generator.validate_nmdc_database(
+        json=json_dumper.dumps(metadata), use_api=False
+    )
     assert validate["result"] == "All Okay!"
 
     assert os.path.exists(output_file)

@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 
 from dotenv import load_dotenv
+from linkml_runtime.dumpers import json_dumper
 
 from nmdc_ms_metadata_gen.gcms_metab_metadata_generator import (
     GCMSMetabolomicsMetadataGenerator,
@@ -35,7 +36,9 @@ def test_gcms_metadata_gen():
 
     # Run the metadata generation process
     metadata = generator.run()
-    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
+    validate = generator.validate_nmdc_database(
+        json=json_dumper.dumps(metadata), use_api=False
+    )
     assert validate["result"] == "All Okay!"
 
     assert os.path.exists(output_file)
@@ -60,7 +63,9 @@ def test_gcms_metadata_rerun_gen():
 
     # Run the metadata generation process
     metadata = generator.rerun()
-    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
+    validate = generator.validate_nmdc_database(
+        json=json_dumper.dumps(metadata), use_api=False
+    )
     assert validate["result"] == "All Okay!"
     assert os.path.exists(output_file)
 
@@ -91,7 +96,9 @@ def test_gcms_biosample_gen():
 
     # Run the metadata generation process
     metadata = generator.run()
-    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
+    validate = generator.validate_nmdc_database(
+        json=json_dumper.dumps(metadata), use_api=False
+    )
     assert validate["result"] == "All Okay!"
     assert os.path.exists(output_file)
 
@@ -123,6 +130,8 @@ def test_gcms_calibration_manifest_exists():
 
     # Run the metadata generation process
     metadata = generator.run()
-    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
+    validate = generator.validate_nmdc_database(
+        json=json_dumper.dumps(metadata), use_api=False
+    )
     assert validate["result"] == "All Okay!"
     assert os.path.exists(output_file)

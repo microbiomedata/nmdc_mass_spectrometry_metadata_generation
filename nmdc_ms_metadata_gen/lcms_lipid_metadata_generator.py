@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
-from nmdc_ms_metadata_gen.lcms_metadata_generator import LCMSMetadataGenerator
 from typing import List
+
+from nmdc_ms_metadata_gen.lcms_metadata_generator import LCMSMetadataGenerator
 
 
 class LCMSLipidomicsMetadataGenerator(LCMSMetadataGenerator):
@@ -133,7 +133,7 @@ class LCMSLipidomicsMetadataGenerator(LCMSMetadataGenerator):
         self.existing_data_objects = existing_data_objects
 
     def rerun(self):
-        super().rerun()
+        return super().rerun()
 
     def run(self):
-        super().run()
+        return super().run()
