@@ -163,7 +163,6 @@ class MaterialProcessingMetadataGenerator(NMDCMetadataGenerator):
         self.dump_nmdc_database(
             nmdc_database=nmdc_database, json_path=self.database_dump_json_path
         )
-        self.validate_nmdc_database(self.database_dump_json_path)
         file_path = self.database_dump_json_path.split(".json")[0]
         if not output_changesheet.empty:
             save_to_csv(output_changesheet, f"{file_path}_changesheet.csv")
@@ -172,7 +171,8 @@ class MaterialProcessingMetadataGenerator(NMDCMetadataGenerator):
                 output_workflowsheet,
                 f"{file_path}_workflowreference.csv",
             )
-        return nmdc_database
+        # change db object to dict
+        return self.nmdc_db_to_dict(nmdc_database)
 
     def map_final_samples(
         self,

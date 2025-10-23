@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 
 from dotenv import load_dotenv
+from linkml_runtime.dumpers import json_dumper
 
 from nmdc_ms_metadata_gen.gcms_metab_metadata_generator import (
     GCMSMetabolomicsMetadataGenerator,

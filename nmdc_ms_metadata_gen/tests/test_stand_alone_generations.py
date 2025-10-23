@@ -2,6 +2,7 @@
 import os
 from datetime import datetime
 
+import pytest
 from dotenv import load_dotenv
 
 from nmdc_ms_metadata_gen.metadata_generator import NMDCMetadataGenerator

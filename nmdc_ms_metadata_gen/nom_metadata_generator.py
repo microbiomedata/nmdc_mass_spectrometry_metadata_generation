@@ -163,7 +163,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         self.dump_nmdc_database(
             nmdc_database=nmdc_database_inst, json_path=self.database_dump_json_path
         )
-        return nmdc_database_inst
+        # change db object to dict
+        return self.nmdc_db_to_dict(nmdc_database_inst)
 
     def run(self) -> nmdc.Database:
         """
@@ -300,7 +301,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         self.dump_nmdc_database(
             nmdc_database=nmdc_database_inst, json_path=self.database_dump_json_path
         )
-        return nmdc_database_inst
+        # change db object to dict
+        return self.nmdc_db_to_dict(nmdc_database_inst)
 
     def get_calibration_id(
         self,

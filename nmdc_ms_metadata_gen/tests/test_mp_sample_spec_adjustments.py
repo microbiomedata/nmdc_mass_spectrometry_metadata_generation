@@ -1,7 +1,9 @@
+import json
 import os
 import sys
 
 import pandas as pd
+from linkml_runtime.dumpers import json_dumper
 
 # clarifying path variable for relative imports
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))

@@ -1,9 +1,11 @@
+import json
 import os
 import sys
 from datetime import datetime
 from pathlib import Path
 
 from click.testing import CliRunner
+from linkml_runtime.dumpers import json_dumper
 
 from nmdc_ms_metadata_gen.metadata_generator import NMDCMetadataGenerator
 
@@ -161,6 +163,9 @@ def test_cli_material_processing():
     generator = NMDCMetadataGenerator()
     result = generator.validate_nmdc_database(json=result.return_value, use_api=False)
     assert result["result"] == "All Okay!"
+
+
+test_cli_material_processing()
 
 
 def test_info_command_invalid():

@@ -305,7 +305,8 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             nmdc_database=nmdc_database_inst, json_path=self.database_dump_json_path
         )
         logging.info("Metadata processing completed.")
-        return nmdc_database_inst
+        # change db object to dict
+        return self.nmdc_db_to_dict(nmdc_database_inst)
 
     def rerun(self) -> nmdc.Database:
         """
@@ -523,7 +524,8 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             nmdc_database=nmdc_database_inst, json_path=self.database_dump_json_path
         )
         logging.info("Metadata processing completed.")
-        return nmdc_database_inst
+        # change db object to dict
+        return self.nmdc_db_to_dict(nmdc_database_inst)
 
     def create_workflow_metadata(
         self, row: dict[str, str]

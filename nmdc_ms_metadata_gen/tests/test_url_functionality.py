@@ -2,9 +2,11 @@
 """
 Test passing in raw data urls in the metadata file functionality for metadata generation.
 """
-
+import json
 import os
 from datetime import datetime
+
+from linkml_runtime.dumpers import json_dumper
 
 from nmdc_ms_metadata_gen.gcms_metab_metadata_generator import (
     GCMSMetabolomicsMetadataGenerator,
@@ -20,7 +22,7 @@ def test_workflow_metadata_creation_with_urls():
 
     Also tests metadata generation without instrument_analysis_start_date or instrument_analysis_end_date
     """
-    # Set up output file with datetime stame
+    # Set up output file with datetime stamp
     output_file = (
         "tests/test_data/test_database_gcms_raw_urls_"
         + datetime.now().strftime("%Y%m%d%H%M%S")

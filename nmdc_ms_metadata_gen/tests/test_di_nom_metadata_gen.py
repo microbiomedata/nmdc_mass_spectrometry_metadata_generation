@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 
 from dotenv import load_dotenv
+from linkml_runtime.dumpers import json_dumper
 
 from nmdc_ms_metadata_gen.di_nom_metadata_generator import DINOMMetaDataGenerator
 
@@ -100,6 +101,9 @@ def test_di_nom_metadata_gen_rerun():
         if any("QC" in str(value) for value in d.values())
     )
     assert count >= 1
+
+
+test_di_nom_metadata_gen_rerun()
 
 
 def test_di_nom_biosample_gen_more_fields():

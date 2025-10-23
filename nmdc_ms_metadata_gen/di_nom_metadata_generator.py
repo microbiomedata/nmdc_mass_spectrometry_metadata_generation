@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from nmdc_ms_metadata_gen.nom_metadata_generator import NOMMetadataGenerator
 
 
@@ -99,7 +98,7 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
         self.minting_config_creds = minting_config_creds
 
     def rerun(self):
-        super().rerun()
+        return super().rerun()
 
     def run(self):
-        super().run()
+        return super().run()
