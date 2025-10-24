@@ -15,21 +15,12 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
 ]
-dependencies = [
-    "nmdc-schema==11.9.1",
-    "requests~=2.32.3",
-    "requests-oauthlib~=2.0.0",
-    "pyyaml~=6.0.2",
-    "tqdm~=4.66.5",
-    "pandas~=2.2.3",
-    "python-dotenv==1.0.1",
-    "typing-inspect~=0.9.0",
-    "nmdc_api_utilities==0.4.0",
-    "toml~=0.10.2"
-]
+dynamic = ["dependencies"]
 license = { file = "LICENSE" }
 [tool.setuptools]
 py-modules = ["main"]  # This tells setuptools to include main.py
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
 [project.scripts]
 nmdc-ms-metadata-gen = "main:cli"
 [tool.setuptools.packages.find]
