@@ -1225,7 +1225,7 @@ class NMDCMetadataGenerator:
             validation_result = self._validate_json_no_api(metadata=json)
             return validation_result
 
-    def json_submit(json: dict, CLIENT_ID: str, CLIENT_SECRET: str):
+    def json_submit(self, json: dict | str, CLIENT_ID: str, CLIENT_SECRET: str):
         """
         Submit the generated JSON metadata to the NMDC API.
 
@@ -1243,6 +1243,10 @@ class NMDCMetadataGenerator:
         None
 
         """
+        import json as json_lib
+
+        if type(json) == str:
+            json = json_lib.load(open(json))
         auth = NMDCAuth(client_id=CLIENT_ID, client_secret=CLIENT_SECRET)
         md = Metadata(env=ENV, auth=auth)
         success = md.submit_json(json)
