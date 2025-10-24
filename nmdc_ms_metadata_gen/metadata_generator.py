@@ -1214,8 +1214,9 @@ class NMDCMetadataGenerator:
         """
         import json as json_lib
 
-        if type(json) == str:
-            json = json_lib.load(open(json))
+        if isinstance(json, str):
+            with open(json) as f:
+                json = json_lib.load(f)
         if use_api:
             api_metadata = Metadata(env=ENV)
             api_metadata.validate_json(json)
@@ -1245,8 +1246,9 @@ class NMDCMetadataGenerator:
         """
         import json as json_lib
 
-        if type(json) == str:
-            json = json_lib.load(open(json))
+        if isinstance(json, str):
+            with open(json) as f:
+                json = json_lib.load(f)
         auth = NMDCAuth(client_id=CLIENT_ID, client_secret=CLIENT_SECRET)
         md = Metadata(env=ENV, auth=auth)
         success = md.submit_json(json)
