@@ -18,8 +18,8 @@ class MetadataSurveyor:
     """
 
     def __init__(self, study: str):
-        self.collection_client = CollectionSearch("data_generation_set")
-        self.dataobject_client = DataObjectSearch()
+        self.dg_client = CollectionSearch("data_generation_set")
+        self.bsmp_client = CollectionSearch("biosample_set")
         self.study = study
 
     def mass_spec_records(self) -> list:
@@ -31,7 +31,7 @@ class MetadataSurveyor:
         list
             List of mass spectrometry data generation records associated with the study
         """
-        data_gen_records = self.collection_client.get_record_by_filter(
+        data_gen_records = self.dg_client.get_record_by_filter(
             filter=f'{{"associated_studies":"{self.study}","analyte_category": {{"$in": ["lipidome", "metabolome", "nom", "metaproteome"]}}}}',
             max_page_size=1000,
             all_pages=True,
@@ -39,38 +39,22 @@ class MetadataSurveyor:
 
         return data_gen_records
 
-    def study_dataobject_records(self) -> list:
+    def biosample_records(self) -> list:
         """
-        Gather all data objects associated with a study id
+        Gather all biosample records for a certain study
 
         Returns
         -------
         list
-            List of data object records associated with the study
+            List of biosample records associated with the study
         """
-        do_records = self.dataobject_client.get_data_objects_for_studies(
-            study_id=f"{self.study}", max_page_size=1000
+        biosample_records = self.bsmp_client.get_record_by_filter(
+            filter=f'{{"associated_studies":"{self.study}"}}',
+            max_page_size=1000,
+            all_pages=True,
         )
 
-        return do_records
-
-    def study_dataobject_metadata(self) -> pd.DataFrame:
-        """
-        Gather data objects from this study into a pandas dataframe
-        """
-        # get data objects for this study
-        do_records = self.study_dataobject_records()
-        do_records = pd.DataFrame(do_records)
-
-        # reformat data into dataframe (keeping biosample id)
-        data_objects = []
-        for _, row in do_records.iterrows():
-            bio_id = row["biosample_id"]
-            row_out = pd.json_normalize(row["data_objects"])
-            row_out["biosample_id"] = bio_id
-            data_objects.append(row_out)
-        data_objects = pd.concat(data_objects)[["id", "biosample_id"]]
-        return data_objects
+        return biosample_records
 
     def data_generation_metadata(self, extra_dg_columns=[]) -> pd.DataFrame:
         """
@@ -129,45 +113,39 @@ class MetadataSurveyor:
             )
 
         return data_gen_df
-
-    def existing_metadata(self, extra_dg_columns=[]) -> pd.DataFrame:
+    
+    def biosample_metadata(self) -> pd.DataFrame:
         """
-        Connect biosamples to data generation records by matching the output from data generation to the list of data objects associated with each biosample
-
-        Parameters
-        ----------
-        extra_dg_columns: list, optional
-            List of additional data generation columns to include in the output dataframe
+        Gather biosample records for this study into a pandas dataframe
 
         Returns
         -------
         pd.DataFrame
-            DataFrame of existing metadata for this study
+            DataFrame of biosample records for this study
         """
-        try:
-            existing_study_dg_metadata = self.data_generation_metadata(extra_dg_columns)
-            existing_study_dataobjects = self.study_dataobject_metadata()
 
-            if existing_study_dg_metadata is None:
-                existing_study_metadata = existing_study_dataobjects[["biosample_id"]]
+        ## get biosample records for this study
+        biosample_records = self.biosample_records()
+        biosample_df = pd.DataFrame(biosample_records)
 
-            else:
-                existing_study_metadata = existing_study_dg_metadata.merge(
-                    existing_study_dataobjects, left_on="has_output", right_on="id"
-                )
-                keep_cols = [
-                    "biosample_id",
-                    "raw_data_identifier",
-                    "raw_file_name",
-                    "analyte",
-                    "raw_data_input",
-                ] + extra_dg_columns
-                existing_study_metadata = existing_study_metadata[keep_cols]
+        if biosample_df.empty:
+            return None
 
-        except Exception as e:
-            raise ValueError("no existing metadata for this study") from e
+        else:
+            keep_cols = [
+                "id", #can expand in future
+            ]
+            biosample_df = biosample_df[keep_cols]
 
-        return existing_study_metadata
+            # rename overlapping columns
+            biosample_df = biosample_df.rename(
+                columns={
+                    "id": "biosample_id",
+                }
+            )
+
+        return biosample_df
+
 
     def additional_info(self, sample_specific_info_path: str) -> pd.DataFrame:
         """
@@ -189,7 +167,6 @@ class MetadataSurveyor:
             col
             for col in [
                 "biosample_id",
-                "raw_data_identifier",
                 "stepname",
                 "slotname",
                 "value",
@@ -232,7 +209,7 @@ class MetadataSurveyor:
 
         return mapping_df
 
-    def metadata_test(self, mapping_df: pd.DataFrame) -> None:
+    def metadata_test(self, mapping_df: pd.DataFrame, extra_dg_columns=[]) -> None:
         """
         Check for potential problems with the input sheet
 
@@ -251,35 +228,60 @@ class MetadataSurveyor:
             3) The provided raw data identifier is not an NMDC ID, but matches the name of an existing data generation record for that biosample.
 
         """
-        existing_metadata = self.existing_metadata()
+        existing_study_dg_metadata = self.data_generation_metadata(extra_dg_columns)
+        existing_study_biosamples = self.biosample_metadata()
+
+        #provided biosamples exist
+        missing_values = mapping_df[~mapping_df['biosample_id'].isin(existing_study_biosamples['biosample_id'])]['biosample_id']
+        if len(missing_values)>0:
+            raise ValueError(
+                f"Provided mapping info contains biosample ids {missing_values} that were not found in mongodb"
+            )
+
         if not mapping_df.empty:
             for __, row in mapping_df.iterrows():
                 biosample_id = row["biosample_id"]
                 raw_data_identifier = row["raw_data_identifier"]
 
+                # if nmdc id provided as raw identifier, the mongodb records for that raw identifier exist and contain the indicated biosample
                 if "nmdc:" in raw_data_identifier:
 
-                    existing_raw_input = existing_metadata[
+                    existing_raw_input = existing_study_dg_metadata[
                         (
-                            existing_metadata["biosample_id"]
-                            == biosample_id & existing_metadata["raw_data_identifier"]
-                            == raw_data_identifier
+                            (existing_study_dg_metadata["raw_data_identifier"]
+                            == raw_data_identifier)
                         )
                     ]["raw_data_input"]
 
-                    if existing_raw_input:
-                        if existing_raw_input.str.startswith("nmdc:procsm"):
-                            raise ValueError(
-                                f"Data generation record {raw_data_identifier} already has processed sample as input and likely already has material processing steps created"
-                            )
+                    #raw id in mongo
+                    if not existing_raw_input.empty:
+
+                        # raw input is biosample
+                        if not existing_raw_input.str.contains(biosample_id, na=False).any():
+
+                            # raw input not biosample but processed sample
+                            if existing_raw_input.str.startswith("nmdc:procsm").any():
+                                raise ValueError(
+                                    f"Data generation record {raw_data_identifier} already has processed sample as input and likely already has material processing steps created"
+                                )
+                            
+                            #raw input a biosample but not the one indicated
+                            else:
+                                raise ValueError(
+                                    f"Data generation record {raw_data_identifier} does not have {biosample_id} as input, instead its {existing_raw_input}. Provided mapping info out of sync with mongodb"
+                                )
+                            
+                    #raw id not in mongo
                     else:
                         raise ValueError(
-                            f"Provided mapping info contains nmdc ids for biosample {biosample_id} and raw identifier {raw_data_identifier} but one or both not found in mongodb"
+                            f"Provided mapping info contains nmdc ids for raw identifier {raw_data_identifier} but that id was not found in search of mongodb's mass spec records"
                         )
+                
+                # if the provided raw identifier is not an nmdc id, it does not match any existing record names in mongo
                 else:
-                    if "raw_file_name" in existing_metadata.columns:
-                        existing_dgnames_for_biosample = existing_metadata[
-                            existing_metadata["biosample_id"] == biosample_id
+                    if "raw_file_name" in existing_study_dg_metadata.columns:
+                        existing_dgnames_for_biosample = existing_study_dg_metadata[
+                            existing_study_dg_metadata["raw_data_input"] == biosample_id
                         ]["raw_file_name"].tolist()
                         for name in existing_dgnames_for_biosample:
                             if raw_data_identifier in name:
