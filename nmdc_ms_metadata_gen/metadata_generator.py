@@ -670,6 +670,13 @@ class NMDCMetadataGenerator:
         CLIENT_SECRET: str,
         filter_material: str,
         filter_pore_size: dict,
+        start_date: str,
+        end_date: str,
+        container_size: dict,
+        filtration_category:str,
+        is_pressurized: bool,
+        separation_method: str,
+        volume: dict,
         processing_institution: str = None,
         protocol_link: nmdc.Protocol | None = None,
     ) -> nmdc.FiltrationProcess:
@@ -698,6 +705,20 @@ class NMDCMetadataGenerator:
             A porous material on which solid particles present in air or other fluid which flows through it are largely caught and retained.
         filter_pore_size: dict
             A quantitative or qualitative measurement of the physical dimensions of the pores in a material.
+        start_data: str
+            The date on which any process or activity was started
+        end_data: str
+            The date on which any process or activity was ended
+        container_size: dict
+            The volume of the container an analyte is stored in or an activity takes place in
+        filtration_category: str
+            The type of conditioning applied to a filter, device, etc.
+        is_pressurized: bool
+            Whether or not pressure was applied to a thing or process.
+        separation_method: str
+            The method that was used to separate a substance from a solution or mixture.
+        volume: dict
+            The volume of a substance.
         """
         nmdc_id = self.id_pool.get_id(
             nmdc_type=NmdcTypes.FiltrationProcess,
@@ -716,6 +737,13 @@ class NMDCMetadataGenerator:
             "protocol_link": protocol_link,
             "filter_material": filter_material,
             "filter_pore_size": filter_pore_size,
+            "start_date": start_date,
+            "end_date": end_date,
+            "container_size": container_size,
+            "filtration_category":filtration_category,
+            "is_pressurized": is_pressurized,
+            "separation_method": separation_method,
+            "volume": volume,
         }
 
         return nmdc.FiltrationProcess(**data_dict)
@@ -728,8 +756,11 @@ class NMDCMetadataGenerator:
         has_output: list,
         CLIENT_ID: str,
         CLIENT_SECRET: str,
+        start_date: str,
+        end_date: str,
         processing_institution: str = None,
         chemical_conversion_category: str = None,
+        substances_used: dict = None,
         protocol_link: dict = None,
         temperature: dict = None,
     ) -> nmdc.ChemicalConversionProcess:
@@ -750,6 +781,10 @@ class NMDCMetadataGenerator:
             Link to the protocol.
         temperature : dict, optional
             The value of a temperature measurement or temperature used in a process
+        start_data: str
+            The date on which any process or activity was started
+        end_data: str
+            The date on which any process or activity was ended
         has_input : list
             A list of input sample IDs for the chemical conversion process.
         has_output : list
@@ -758,6 +793,7 @@ class NMDCMetadataGenerator:
             The client ID for the NMDC API.
         CLIENT_SECRET : str
             The client secret for the NMDC API.
+        substances_used : dict, optional
 
         Returns
         -------
@@ -782,6 +818,8 @@ class NMDCMetadataGenerator:
             "protocol_link": protocol_link,
             "temperature": temperature,
             "type": NmdcTypes.ChemicalConversionProcess,
+            "start_date": start_date,
+            "end_date": end_date,
         }
 
         return nmdc.ChemicalConversionProcess(**data_dict)

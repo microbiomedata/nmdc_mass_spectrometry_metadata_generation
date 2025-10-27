@@ -122,7 +122,7 @@ class MaterialProcessingMetadataGenerator(NMDCMetadataGenerator):
             )
 
             # Are there biosample sample specific values?
-            if sample_specific_info:
+            if not sample_specific_info.empty:
                 yaml_parameters["sample_specific_info_subset"] = sample_specific_info[
                     sample_specific_info["biosample_id"] == biosample
                 ].reset_index(drop=True)
