@@ -13,7 +13,7 @@ class NmdcTypes:
     Attributes
     ----------
     Biosample : str
-        NMDC type for Biosample.
+        NMDC type for sample.
     MassSpectrometry : str
         NMDC type for Mass Spectrometry.
     MetabolomicsAnalysis : str
@@ -107,8 +107,8 @@ class GCMSMetabWorkflowMetadata:
 
     Attributes
     ----------
-    biosample_id: str
-        Identifier for the biosample.s
+    sample_id: str
+        Identifier for the sample.
     nmdc_study : str
         Identifier for the NMDC study.
     processed_data_file : str
@@ -144,7 +144,7 @@ class GCMSMetabWorkflowMetadata:
         Specifier for the instrument instance used in the analysis.
     """
 
-    biosample_id: str
+    sample_id: str
     nmdc_study: str
     processed_data_file: str
     raw_data_file: str
@@ -231,8 +231,8 @@ class NOMMetadata:
         Directory containing processed data files.
     associated_studies : list
         List of associated study identifiers.
-    biosample_id : str
-        Identifier for the biosample.
+    sample_id : str
+        Identifier for the sample.
     instrument_id : str
         Identifier for the instrument used for analysis.
     mass_spec_configuration_id : str
@@ -256,7 +256,7 @@ class NOMMetadata:
     raw_data_file: str
     processed_data_directory: str
     associated_studies: list
-    biosample_id: str
+    sample_id: str
     instrument_id: str
     mass_spec_configuration_id: str
     lc_config_id: str

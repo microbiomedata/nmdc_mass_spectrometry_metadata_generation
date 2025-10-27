@@ -31,6 +31,7 @@ from nmdc_api_utilities.configuration_search import ConfigurationSearch
 from nmdc_api_utilities.data_object_search import DataObjectSearch
 from nmdc_api_utilities.instrument_search import InstrumentSearch
 from nmdc_api_utilities.metadata import Metadata
+from nmdc_api_utilities.processed_sample_search import ProcessedSampleSearch
 from nmdc_api_utilities.study_search import StudySearch
 from nmdc_schema import NmdcSchemaValidationPlugin
 from nmdc_schema.nmdc import Database as NMDCDatabase
@@ -1514,12 +1515,22 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             if not metadata_df[column].is_unique:
                 raise ValueError(f"Duplicate values found in column '{column}'.")
 
-        # Check that all biosamples exist
-        biosample_ids = metadata_df["biosample_id"].unique()
-        bs_client = BiosampleSearch(env=ENV)
-        if pd.isna(biosample_ids)[0] == np.False_:
-            if not bs_client.check_ids_exist(list(biosample_ids)):
-                raise ValueError("Biosample IDs do not exist in the collection.")
+        # Check that all samples exist
+        sample_ids = metadata_df["sample_id"].unique()
+        # determine sample type
+        if pd.isna(sample_ids)[0] == np.False_:
+            sample_type = "biosample" if "bsm" in sample_ids[0] else "processed"
+        else:
+            sample_type = ""
+
+        if sample_type == "biosample":
+            sample_client = BiosampleSearch(env=ENV)
+        else:
+            sample_client = ProcessedSampleSearch(env=ENV)
+
+        if pd.isna(sample_ids)[0] == np.False_:
+            if not sample_client.check_ids_exist(list(sample_ids)):
+                raise ValueError("IDs do not exist in the collection.")
 
         # Check that all studies exist
         if "biosample.associated_studies" in metadata_df.columns:
@@ -1640,10 +1651,10 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         CLIENT_SECRET: str,
     ) -> None:
         """
-        This method verifies the presence of the 'biosample_id' in the provided metadata DataFrame. It will loop over each row to verify the presence of the 'biosample_id', giving the option for some rows to need generation and some to already exist.
-        If the 'biosample_id' is missing, it checks for the presence of required columns to generate a new biosample_id using the NMDC API. If they are all there, the function calls the dynam_parse_biosample_metadata method from the MetadataParser class to create the JSON for the biosample.
-        If the required columns are missing and there is no biosample_id - it raises a ValueError.
-        After the biosample_id is generated,it updates the DataFrame row with the newly minted biosample_id and the NMDC database instance with the new biosample JSON.
+        This method verifies the presence of the 'sample_id' in the provided metadata DataFrame. It will loop over each row to verify the presence of the 'sample_id', giving the option for some rows to need generation and some to already exist.
+        If the 'sample_id' is missing, it checks for the presence of required columns to generate a new sample_id using the NMDC API. If they are all there, the function calls the dynam_parse_biosample_metadata method from the MetadataParser class to create the JSON for the biosample.
+        If the required columns are missing and there is no sample_id - it raises a ValueError.
+        After the sample_id is generated,it updates the DataFrame row with the newly minted sample_id and the NMDC database instance with the new biosample JSON.
 
         Parameters
         ----------
@@ -1663,27 +1674,27 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         Raises
         ------
         ValueError
-            If the 'biosample.name' column is missing and 'biosample_id' is empty.
+            If the 'biosample.name' column is missing and 'sample_id' is empty.
             If any required columns for biosample generation are missing.
 
         """
         parser = MetadataParser()
-        metadata_df["biosample_id"] = metadata_df["biosample_id"].astype("object")
+        metadata_df["sample_id"] = metadata_df["sample_id"].astype("object")
 
         if "biosample.name" not in metadata_df.columns:
-            # if biosample.name does not exists check if biosample_id is empty. biosample_id should not be empty if biosample.name does not exist
-            if len(metadata_df["biosample_id"]) == len(
-                metadata_df.dropna(subset=["biosample_id"])
+            # if biosample.name does not exist check if sample_id is empty. sample_id should not be empty if biosample.name does not exist
+            if len(metadata_df["sample_id"]) == len(
+                metadata_df.dropna(subset=["sample_id"])
             ):
                 return
             else:
                 raise ValueError(
-                    "biosample.name column is missing from the metadata file. Please provide biosample.name or biosample_id for each row. biosample.name is required to generate new biosample_id."
+                    "biosample.name column is missing from the metadata file. Please provide biosample.name or sample_id for each row. biosample.name is required to generate new sample_id."
                 )
         rows = metadata_df.groupby("biosample.name")
         for _, group in rows:
             row = group.iloc[0]
-            if pd.isnull(row.get("biosample_id")):
+            if pd.isnull(row.get("sample_id")):
                 required_columns = [
                     "biosample.name",
                     "biosample.associated_studies",
@@ -1702,7 +1713,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
                 bio_api_key = self.load_bio_credentials(
                     config_file=self.minting_config_creds
                 )
-                # Generate biosamples if no biosample_id in spreadsheet
+                # Generate biosamples if no sample_id in spreadsheet
                 biosample_metadata = parser.dynam_parse_biosample_metadata(
                     row=row, bio_api_key=bio_api_key
                 )
@@ -1711,11 +1722,11 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
                     CLIENT_ID=CLIENT_ID,
                     CLIENT_SECRET=CLIENT_SECRET,
                 )
-                biosample_id = biosample.id
+                sample_id = biosample.id
                 metadata_df.loc[
                     metadata_df["biosample.name"] == row["biosample.name"],
-                    "biosample_id",
-                ] = biosample_id
+                    "sample_id",
+                ] = sample_id
                 nmdc_database_inst.biosample_set.append(biosample)
 
     def check_doj_urls(self, metadata_df: pd.DataFrame, url_columns: List) -> None:

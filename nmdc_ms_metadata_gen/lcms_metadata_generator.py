@@ -119,7 +119,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             mass_spec = self.generate_mass_spectrometry(
                 file_path=Path(workflow_metadata.raw_data_file),
                 instrument_id=workflow_metadata.instrument_id,
-                sample_id=data["biosample_id"],
+                sample_id=data["sample_id"],
                 raw_data_id="nmdc:placeholder",
                 study_id=ast.literal_eval(data["biosample.associated_studies"]),
                 processing_institution=(

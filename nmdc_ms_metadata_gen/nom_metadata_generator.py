@@ -219,7 +219,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             mass_spec = self.generate_mass_spectrometry(
                 file_path=Path(workflow_metadata_obj.raw_data_file),
                 instrument_id=workflow_metadata_obj.instrument_id,
-                sample_id=workflow_metadata_obj.biosample_id,
+                sample_id=workflow_metadata_obj.sample_id,
                 raw_data_id="nmdc:placeholder",
                 study_id=workflow_metadata_obj.associated_studies,
                 # check which processing institution to use
@@ -444,9 +444,9 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 if parser.get_value(row, "associated_studies")
                 else None
             ),
-            biosample_id=(
-                parser.get_value(row, "biosample_id")
-                if parser.get_value(row, "biosample_id") or parser.get_value(row, "id")
+            sample_id=(
+                parser.get_value(row, "sample_id")
+                if parser.get_value(row, "sample_id") or parser.get_value(row, "id")
                 else None
             ),
             instrument_id=(
