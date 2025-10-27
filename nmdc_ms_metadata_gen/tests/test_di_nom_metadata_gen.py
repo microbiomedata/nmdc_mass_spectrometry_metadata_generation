@@ -150,9 +150,6 @@ def test_di_nom_biosample_gen_more_fields():
     assert count >= 3
 
 
-test_di_nom_biosample_gen_more_fields()
-
-
 def test_di_nom_biosample_gen_no_biosample():
     """
     Test the DI NOM metadata generation script.
