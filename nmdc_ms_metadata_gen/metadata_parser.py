@@ -518,7 +518,7 @@ class YamlSpecifier:
                                         f"{value} {entity_to_update['has_unit']}"
                                     )
                             elif not entity_to_update: #update empty string
-                                entity_to_update = value
+                                process[slotname] = value
 
         return data
 
