@@ -51,6 +51,42 @@ def test_lcms_lipid_metadata_gen():
         assert "nmdc:dobj-11-00095294" in record["has_input"]
 
 
+def test_lcms_lipid_metadata_gen():
+    current_directory = os.path.dirname(__file__)
+    csv_file_path = os.path.join(
+        current_directory,
+        "test_data",
+        "test_metadata_file_lcms_lipid_processed_sample.csv",
+    )
+    # Set up output file with datetime stame
+    output_file = (
+        "tests/test_data/test_database_lcms_lipid_processed_sample_"
+        + datetime.now().strftime("%Y%m%d%H%M%S")
+        + ".json"
+    )
+    # Start the metadata generation setup
+    generator = LCMSLipidomicsMetadataGenerator(
+        metadata_file=csv_file_path,
+        database_dump_json_path=output_file,
+        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/lipidomics/test_data/test_raw_lcms_lipid/",
+        process_data_url="https://nmdcdemo.emsl.pnnl.gov/lipidomics/test_data/test_processed_lcms_lipid/",
+        existing_data_objects=[
+            "nmdc:dobj-11-00095294"
+        ],  # random, existing data object for testing
+    )
+    # Run the metadata generation process
+    metadata = generator.run()
+    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
+    assert validate["result"] == "All Okay!"
+
+    file = open(output_file)
+    working_data = json.load(file)
+    file.close()
+    assert os.path.exists(output_file)
+    for record in working_data["workflow_execution_set"]:
+        assert "nmdc:dobj-11-00095294" in record["has_input"]
+
+
 def test_lcms_lipid_metadata_gen_rerun():
     current_directory = os.path.dirname(__file__)
     csv_file_path = os.path.join(
