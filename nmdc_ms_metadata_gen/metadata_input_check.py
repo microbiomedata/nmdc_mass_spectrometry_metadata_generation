@@ -279,12 +279,13 @@ class MetadataSurveyor:
                 
                 # if the provided raw identifier is not an nmdc id, it does not match any existing record names in mongo
                 else:
-                    if "raw_file_name" in existing_study_dg_metadata.columns:
-                        existing_dgnames_for_biosample = existing_study_dg_metadata[
-                            existing_study_dg_metadata["raw_data_input"] == biosample_id
-                        ]["raw_file_name"].tolist()
-                        for name in existing_dgnames_for_biosample:
-                            if raw_data_identifier in name:
-                                raise ValueError(
-                                    f"{biosample_id} doesn't have an nmdc id as the `raw_data_identifier` ({raw_data_identifier}) but there is a data generation record for this biosample in mongo with {raw_data_identifier} in the file name"
-                                )
+                    if existing_study_dg_metadata:
+                        if "raw_file_name" in existing_study_dg_metadata.columns:
+                            existing_dgnames_for_biosample = existing_study_dg_metadata[
+                                existing_study_dg_metadata["raw_data_input"] == biosample_id
+                            ]["raw_file_name"].tolist()
+                            for name in existing_dgnames_for_biosample:
+                                if raw_data_identifier in name:
+                                    raise ValueError(
+                                        f"{biosample_id} doesn't have an nmdc id as the `raw_data_identifier` ({raw_data_identifier}) but there is a data generation record for this biosample in mongo with {raw_data_identifier} in the file name"
+                                    )
