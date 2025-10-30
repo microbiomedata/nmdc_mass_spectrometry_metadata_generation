@@ -373,7 +373,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             mass_spec = self.generate_mass_spectrometry(
                 file_path=Path(workflow_metadata_obj.raw_data_file),
                 instrument_id=workflow_metadata_obj.instrument_id,
-                sample_id=workflow_metadata_obj.biosample_id,
+                sample_id=workflow_metadata_obj.sample_id,
                 raw_data_id="nmdc:placeholder",
                 study_id=workflow_metadata_obj.nmdc_study,
                 processing_institution=(
@@ -619,7 +619,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
         """
         return GCMSMetabWorkflowMetadata(
-            biosample_id=row["biosample_id"],
+            sample_id=row["sample_id"],
             nmdc_study=ast.literal_eval(row["biosample.associated_studies"]),
             processing_institution=row.get("processing_institution"),
             processing_institution_generation=row.get(

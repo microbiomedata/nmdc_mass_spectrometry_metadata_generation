@@ -236,3 +236,50 @@ def test_di_nom_config_file():
         if any("QC" in str(value) for value in d.values())
     )
     assert count >= 5
+
+
+def test_di_nom_metadata_gen_processed_sample():
+    """
+    Test the DI NOM metadata generation script.
+    Test case includes using processed sample ids
+    """
+    # Set up output file with datetime stame
+    output_file = (
+        "tests/test_data/test_database_nom_processed_sample_"
+        + datetime.now().strftime("%Y%m%d%H%M%S")
+        + ".json"
+    )
+
+    # Start the metadata generation setup
+    generator = DINOMMetaDataGenerator(
+        metadata_file="tests/test_data/test_metadata_file_nom_processed_sample.csv",
+        database_dump_json_path=output_file,
+        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_raw_nom/",
+        process_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_nom/",
+    )
+
+    # Run the metadata generation process
+    metadata = generator.run()
+    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
+    assert validate["result"] == "All Okay!"
+    assert os.path.exists(output_file)
+
+    file = open(output_file)
+    working_data = json.load(file)
+    file.close()
+    exists = any(
+        any("QC" in str(value) for value in d.values())
+        for d in working_data["data_object_set"]
+    )
+    assert exists
+    count = sum(
+        1
+        for d in working_data["data_object_set"]
+        if any("QC" in str(value) for value in d.values())
+    )
+    assert count >= 1
+
+    assert (
+        "specifier"
+        in working_data["data_generation_set"][0]["instrument_instance_specifier"]
+    )
