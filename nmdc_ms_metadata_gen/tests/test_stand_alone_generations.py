@@ -339,3 +339,15 @@ def test_json_validate_units_fail():
     results = gen.validate_nmdc_database(json=in_docs, use_api=False)
     assert results["result"] == "errors"
     assert "'minute' is not one of [" in results["detail"]["configuration_set"][0]
+
+
+def test_get_associated_ids():
+    """
+    Test getting multiple associated ids.
+    """
+    ids = ["nmdc:bsm-11-002vgm56", "nmdc:bsm-11-006pnx90"]
+    gen = NMDCMetadataGenerator()
+    resp = gen.find_associated_ids(ids=ids)
+
+    for id in ids:
+        assert id in resp.keys()

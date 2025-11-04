@@ -20,7 +20,6 @@ import numpy as np
 import pandas as pd
 import requests
 import toml
-from jsonschema import Draft7Validator
 from linkml.validator import Validator
 from linkml.validator.plugins import JsonschemaValidationPlugin
 from linkml_runtime import SchemaView
@@ -119,6 +118,33 @@ class NMDCMetadataGenerator:
 
         """
         return nmdc.Database()
+
+    def find_associated_ids(self, ids: list[str]):
+        """
+        Given a list of sample ids, find the associated study ids.
+
+        Parameters
+        ----------
+        ids : list[str]
+            The ids to search for.
+
+        Returns
+        -------
+        """
+        url = "https://api.microbiomedata.org/nmdcschema/linked_instances"
+        params = {"types": "nmdc:Study", "ids": ids}
+        resources = requests.get(url=url, params=params).json()["resources"]
+
+        associated_studies = {}
+        for record in resources:
+            study_id = record["id"]
+            if "_upstream_of" in record:
+                for upstream_id in record["_upstream_of"]:
+                    if upstream_id not in associated_studies:
+                        associated_studies[upstream_id] = []
+                    associated_studies[upstream_id].append(study_id)
+
+        return associated_studies
 
     def load_bio_credentials(self, config_file: str = None) -> str:
         """
