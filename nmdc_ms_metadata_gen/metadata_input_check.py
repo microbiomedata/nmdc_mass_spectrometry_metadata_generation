@@ -1,6 +1,6 @@
 import pandas as pd
-from nmdc_api_utilities.collection_search import CollectionSearch
-from nmdc_api_utilities.data_object_search import DataObjectSearch
+from nmdc_api_utilities.biosample_search import BiosampleSearch
+from nmdc_api_utilities.data_generation_search import DataGenerationSearch
 
 
 class MetadataSurveyor:
@@ -17,9 +17,9 @@ class MetadataSurveyor:
         The study identifier.
     """
 
-    def __init__(self, study: str):
-        self.dg_client = CollectionSearch("data_generation_set")
-        self.bsmp_client = CollectionSearch("biosample_set")
+    def __init__(self, study: str, ENV="prod"):
+        self.dg_client = DataGenerationSearch(env=ENV)
+        self.bsmp_client = BiosampleSearch(env=ENV)
         self.study = study
 
     def mass_spec_records(self) -> list:
@@ -113,7 +113,7 @@ class MetadataSurveyor:
             )
 
         return data_gen_df
-    
+
     def biosample_metadata(self) -> pd.DataFrame:
         """
         Gather biosample records for this study into a pandas dataframe
@@ -133,7 +133,7 @@ class MetadataSurveyor:
 
         else:
             keep_cols = [
-                "id", #can expand in future
+                "id",  # can expand in future
             ]
             biosample_df = biosample_df[keep_cols]
 
@@ -145,7 +145,6 @@ class MetadataSurveyor:
             )
 
         return biosample_df
-
 
     def additional_info(self, sample_specific_info_path: str) -> pd.DataFrame:
         """
@@ -231,9 +230,11 @@ class MetadataSurveyor:
         existing_study_dg_metadata = self.data_generation_metadata(extra_dg_columns)
         existing_study_biosamples = self.biosample_metadata()
 
-        #provided biosamples exist
-        missing_values = mapping_df[~mapping_df['biosample_id'].isin(existing_study_biosamples['biosample_id'])]['biosample_id']
-        if len(missing_values)>0:
+        # provided biosamples exist
+        missing_values = mapping_df[
+            ~mapping_df["biosample_id"].isin(existing_study_biosamples["biosample_id"])
+        ]["biosample_id"]
+        if len(missing_values) > 0:
             raise ValueError(
                 f"Provided mapping info contains biosample ids {missing_values} that were not found in mongodb"
             )
@@ -248,41 +249,44 @@ class MetadataSurveyor:
 
                     existing_raw_input = existing_study_dg_metadata[
                         (
-                            (existing_study_dg_metadata["raw_data_identifier"]
-                            == raw_data_identifier)
+                            existing_study_dg_metadata["raw_data_identifier"]
+                            == raw_data_identifier
                         )
                     ]["raw_data_input"]
 
-                    #raw id in mongo
+                    # raw id in mongo
                     if not existing_raw_input.empty:
 
                         # raw input is biosample
-                        if not existing_raw_input.str.contains(biosample_id, na=False).any():
+                        if not existing_raw_input.str.contains(
+                            biosample_id, na=False
+                        ).any():
 
                             # raw input not biosample but processed sample
                             if existing_raw_input.str.startswith("nmdc:procsm").any():
                                 raise ValueError(
                                     f"Data generation record {raw_data_identifier} already has processed sample as input and likely already has material processing steps created"
                                 )
-                            
-                            #raw input a biosample but not the one indicated
+
+                            # raw input a biosample but not the one indicated
                             else:
                                 raise ValueError(
                                     f"Data generation record {raw_data_identifier} does not have {biosample_id} as input, instead its {existing_raw_input}. Provided mapping info out of sync with mongodb"
                                 )
-                            
-                    #raw id not in mongo
+
+                    # raw id not in mongo
                     else:
                         raise ValueError(
                             f"Provided mapping info contains nmdc ids for raw identifier {raw_data_identifier} but that id was not found in search of mongodb's mass spec records"
                         )
-                
+
                 # if the provided raw identifier is not an nmdc id, it does not match any existing record names in mongo
                 else:
                     if existing_study_dg_metadata:
                         if "raw_file_name" in existing_study_dg_metadata.columns:
                             existing_dgnames_for_biosample = existing_study_dg_metadata[
-                                existing_study_dg_metadata["raw_data_input"] == biosample_id
+                                existing_study_dg_metadata["raw_data_input"]
+                                == biosample_id
                             ]["raw_file_name"].tolist()
                             for name in existing_dgnames_for_biosample:
                                 if raw_data_identifier in name:

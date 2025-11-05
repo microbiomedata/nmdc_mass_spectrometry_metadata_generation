@@ -673,7 +673,7 @@ class NMDCMetadataGenerator:
         start_date: str = None,
         end_date: str = None,
         container_size: dict = None,
-        filtration_category:str = None,
+        filtration_category: str = None,
         is_pressurized: bool = None,
         separation_method: str = None,
         volume: dict = None,
@@ -705,9 +705,9 @@ class NMDCMetadataGenerator:
             A porous material on which solid particles present in air or other fluid which flows through it are largely caught and retained.
         filter_pore_size: dict
             A quantitative or qualitative measurement of the physical dimensions of the pores in a material.
-        start_data: str
+        start_date: str
             The date on which any process or activity was started
-        end_data: str
+        end_date: str
             The date on which any process or activity was ended
         container_size: dict
             The volume of the container an analyte is stored in or an activity takes place in
@@ -740,7 +740,7 @@ class NMDCMetadataGenerator:
             "start_date": start_date,
             "end_date": end_date,
             "container_size": container_size,
-            "filtration_category":filtration_category,
+            "filtration_category": filtration_category,
             "is_pressurized": is_pressurized,
             "separation_method": separation_method,
             "volume": volume,
@@ -781,9 +781,9 @@ class NMDCMetadataGenerator:
             Link to the protocol.
         temperature : dict, optional
             The value of a temperature measurement or temperature used in a process
-        start_data: str
+        start_date: str
             The date on which any process or activity was started
-        end_data: str
+        end_date: str
             The date on which any process or activity was ended
         has_input : list
             A list of input sample IDs for the chemical conversion process.
@@ -820,7 +820,7 @@ class NMDCMetadataGenerator:
             "type": NmdcTypes.ChemicalConversionProcess,
             "start_date": start_date,
             "end_date": end_date,
-            "substances_used":substances_used,
+            "substances_used": substances_used,
         }
 
         return nmdc.ChemicalConversionProcess(**data_dict)

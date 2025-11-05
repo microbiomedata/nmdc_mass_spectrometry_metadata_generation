@@ -508,7 +508,9 @@ class YamlSpecifier:
                         process = content[stepname]
                         if slotname in process:
                             entity_to_update = process[slotname]
-                            if isinstance(entity_to_update,dict): #update quantity value
+                            if isinstance(
+                                entity_to_update, dict
+                            ):  # update quantity value
                                 if (
                                     "type" in entity_to_update
                                     and entity_to_update["type"] == "nmdc:QuantityValue"
@@ -517,7 +519,7 @@ class YamlSpecifier:
                                     entity_to_update["has_raw_value"] = (
                                         f"{value} {entity_to_update['has_unit']}"
                                     )
-                            elif not entity_to_update: #update empty string
+                            elif not entity_to_update:  # update empty string
                                 process[slotname] = value
 
         return data
