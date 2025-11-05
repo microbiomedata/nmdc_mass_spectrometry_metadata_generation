@@ -478,45 +478,49 @@ class YamlSpecifier:
         with open(self.yaml_outline_path) as f:
             return yaml.safe_load(f)
 
-    def update_quantity_value(
+    def update_value(
         self, data: dict, sample_specific_info_subset: pd.DataFrame
     ) -> dict:
         """
-        Updates any slot with a quantity value based on step number and name.
+        Updates any slot with a quantity or string value based on step number and name.
 
         Parameters:
         -----------
         data : dict
             The nested dictionary containing the workflow steps (yaml outline)
         sample_specific_info_subset : pd.DataFrame
-            Rows of pandas dataframe relevant to biosample with info to update a QuantityValue: biosample_id, stepname, slotname, value
+            Rows of pandas dataframe relevant to biosample with info to update a QuantityValue or string: biosample_id, stepname, slotname, value
 
         Returns:
         --------
         data
-            Updated dictionary with new quantity values
+            Updated dictionary with new values
         """
 
         for index, row in sample_specific_info_subset.iterrows():
             stepname = row["stepname"]
             slotname = row["slotname"]
-            has_numeric_value = row["value"]
+            value = row["value"]
 
             for step in data.get("steps", []):
                 for name, content in step.items():
                     if stepname in content:
                         process = content[stepname]
                         if slotname in process:
-                            quantity_dict = process[slotname]
-                            if (
-                                isinstance(quantity_dict, dict)
-                                and "type" in quantity_dict
-                                and quantity_dict["type"] == "nmdc:QuantityValue"
-                            ):
-                                quantity_dict["has_numeric_value"] = has_numeric_value
-                                quantity_dict["has_raw_value"] = (
-                                    f"{has_numeric_value} {quantity_dict['has_unit']}"
-                                )
+                            entity_to_update = process[slotname]
+                            if isinstance(
+                                entity_to_update, dict
+                            ):  # update quantity value
+                                if (
+                                    "type" in entity_to_update
+                                    and entity_to_update["type"] == "nmdc:QuantityValue"
+                                ):
+                                    entity_to_update["has_numeric_value"] = value
+                                    entity_to_update["has_raw_value"] = (
+                                        f"{value} {entity_to_update['has_unit']}"
+                                    )
+                            elif not entity_to_update:  # update empty string
+                                process[slotname] = value
 
         return data
 
@@ -631,7 +635,7 @@ class YamlSpecifier:
 
         # add sample specific values from dictionary to outline
         if sample_specific_info_subset is not None:
-            outline = self.update_quantity_value(
+            outline = self.update_value(
                 data=outline, sample_specific_info_subset=sample_specific_info_subset
             )
 

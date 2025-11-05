@@ -112,7 +112,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
         for _, data in tqdm(
             metadata_df.iterrows(),
             total=metadata_df.shape[0],
-            desc="Processing LCMS biosamples",
+            desc="Processing LCMS samples",
         ):
             workflow_metadata = self.create_workflow_metadata(data)
 
@@ -360,7 +360,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
         for _, data in tqdm(
             metadata_df.iterrows(),
             total=metadata_df.shape[0],
-            desc="Processing LCMS biosamples",
+            desc="Processing LCMS samples",
         ):
             # workflow_metadata = self.create_workflow_metadata(data)
             raw_data_object_id = do_client.get_record_by_attribute(
