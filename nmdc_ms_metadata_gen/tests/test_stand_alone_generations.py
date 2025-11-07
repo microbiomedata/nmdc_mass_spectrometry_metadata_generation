@@ -345,9 +345,20 @@ def test_get_associated_ids():
     """
     Test getting multiple associated ids.
     """
-    ids = ["nmdc:bsm-11-002vgm56", "nmdc:bsm-11-006pnx90"]
-    gen = NMDCMetadataGenerator()
-    resp = gen.find_associated_ids(ids=ids)
+    import time
 
-    for id in ids:
+    from nmdc_api_utilities.biosample_search import BiosampleSearch
+
+    bs = BiosampleSearch()
+    ids = bs.get_records(max_page_size=2000, fields="id")
+    id_list = [x["id"] for x in ids][:500]
+    # id_list = ["nmdc:bsm-11-002vgm56", "nmdc:bsm-11-006pnx90"]
+    print(time.time())
+    gen = NMDCMetadataGenerator()
+    resp = gen.find_associated_ids(ids=id_list)
+    print(time.time())
+    for id in id_list:
         assert id in resp.keys()
+
+
+test_get_associated_ids()

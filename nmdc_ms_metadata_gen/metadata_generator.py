@@ -131,12 +131,25 @@ class NMDCMetadataGenerator:
         Returns
         -------
         """
+        batch_size = 250
         url = "https://api.microbiomedata.org/nmdcschema/linked_instances"
-        params = {"types": "nmdc:Study", "ids": ids}
-        resources = requests.get(url=url, params=params).json()["resources"]
+        batch_records = []
+
+        # split the ids into batches
+        for i in range(0, len(ids), batch_size):
+            batch = ids[i : i + batch_size]
+            params = {"types": "nmdc:Study", "ids": batch}
+            response = requests.get(url=url, params=params)
+            if response.status_code == 200:
+                batch_resources = response.json().get("resources", [])
+                batch_records.extend(batch_resources)
+            else:
+                print(
+                    f"Error: Failed to fetch batch starting at index {i}, Status Code: {response.status_code}"
+                )
 
         associated_studies = {}
-        for record in resources:
+        for record in batch_records:
             study_id = record["id"]
             if "_upstream_of" in record:
                 for upstream_id in record["_upstream_of"]:
