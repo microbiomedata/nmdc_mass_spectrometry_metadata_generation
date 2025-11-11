@@ -2,13 +2,13 @@
 import os
 from datetime import datetime
 
-import pytest
 from dotenv import load_dotenv
+from nmdc_api_utilities.biosample_search import BiosampleSearch
 
 from nmdc_ms_metadata_gen.metadata_generator import NMDCMetadataGenerator
 
 load_dotenv()
-
+ENV = os.getenv("NMDC_ENV", "prod")
 python_path = os.getenv("PYTHONPATH")
 if python_path:
     os.environ["PYTHONPATH"] = python_path
@@ -339,3 +339,19 @@ def test_json_validate_units_fail():
     results = gen.validate_nmdc_database(json=in_docs, use_api=False)
     assert results["result"] == "errors"
     assert "'minute' is not one of [" in results["detail"]["configuration_set"][0]
+
+
+def test_get_associated_ids():
+    """
+    Test getting multiple associated ids.
+    """
+
+    bs = BiosampleSearch(env=ENV)
+    ids = bs.get_records(max_page_size=500, fields="id")
+    id_list = [x["id"] for x in ids]
+
+    gen = NMDCMetadataGenerator()
+    resp = gen.find_associated_ids(ids=id_list)
+
+    for id in id_list:
+        assert id in resp.keys()

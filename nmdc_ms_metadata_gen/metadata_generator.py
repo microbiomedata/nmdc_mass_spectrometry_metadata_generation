@@ -20,7 +20,6 @@ import numpy as np
 import pandas as pd
 import requests
 import toml
-from jsonschema import Draft7Validator
 from linkml.validator import Validator
 from linkml.validator.plugins import JsonschemaValidationPlugin
 from linkml_runtime import SchemaView
@@ -119,6 +118,59 @@ class NMDCMetadataGenerator:
 
         """
         return nmdc.Database()
+
+    def find_associated_ids(self, ids: list[str]):
+        """
+        Given a list of sample ids, find the associated study ids.
+
+        Parameters
+        ----------
+        ids : list[str]
+            The ids to search for.
+
+        Returns
+        -------
+        """
+        batch_size = 250
+        url = "https://api-dev.microbiomedata.org/nmdcschema/linked_instances"
+        batch_records = []
+
+        # split the ids into batches
+        for i in range(0, len(ids), batch_size):
+            batch = ids[i : i + batch_size]
+            params = {"types": "nmdc:Study", "ids": batch}
+            response = requests.get(url=url, params=params)
+            if response.status_code == 200:
+                batch_resources = response.json().get("resources", [])
+                next_page = response.json().get("next_page_token", None)
+                batch_records.extend(batch_resources)
+                if next_page:
+                    while next_page:
+                        params = {
+                            "types": "nmdc:Study",
+                            "ids": batch,
+                            "page_token": next_page,
+                        }
+                        response = requests.get(url=url, params=params)
+                        if response.status_code == 200:
+                            batch_resources = response.json().get("resources", [])
+                            batch_records.extend(batch_resources)
+                            next_page = response.json().get("next_page_token", None)
+            else:
+                print(
+                    f"Error: Failed to fetch batch starting at index {i}, Status Code: {response.status_code}"
+                )
+
+        associated_studies = {}
+        for record in batch_records:
+            study_id = record["id"]
+            if "_upstream_of" in record:
+                for upstream_id in record["_upstream_of"]:
+                    if upstream_id not in associated_studies:
+                        associated_studies[upstream_id] = []
+                    associated_studies[upstream_id].append(study_id)
+
+        return associated_studies
 
     def load_bio_credentials(self, config_file: str = None) -> str:
         """
