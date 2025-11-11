@@ -2,13 +2,13 @@
 import os
 from datetime import datetime
 
-import pytest
 from dotenv import load_dotenv
+from nmdc_api_utilities.biosample_search import BiosampleSearch
 
 from nmdc_ms_metadata_gen.metadata_generator import NMDCMetadataGenerator
 
 load_dotenv()
-
+ENV = os.getenv("NMDC_ENV", "prod")
 python_path = os.getenv("PYTHONPATH")
 if python_path:
     os.environ["PYTHONPATH"] = python_path
@@ -345,20 +345,13 @@ def test_get_associated_ids():
     """
     Test getting multiple associated ids.
     """
-    import time
 
-    from nmdc_api_utilities.biosample_search import BiosampleSearch
+    bs = BiosampleSearch(env=ENV)
+    ids = bs.get_records(max_page_size=500, fields="id")
+    id_list = [x["id"] for x in ids]
 
-    bs = BiosampleSearch()
-    ids = bs.get_records(max_page_size=2000, fields="id")
-    id_list = [x["id"] for x in ids][:500]
-    # id_list = ["nmdc:bsm-11-002vgm56", "nmdc:bsm-11-006pnx90"]
-    print(time.time())
     gen = NMDCMetadataGenerator()
     resp = gen.find_associated_ids(ids=id_list)
-    print(time.time())
+
     for id in id_list:
         assert id in resp.keys()
-
-
-test_get_associated_ids()
