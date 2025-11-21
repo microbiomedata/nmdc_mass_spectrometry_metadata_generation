@@ -38,7 +38,7 @@ def validate_yaml_outline(yaml_outline_path=str):
 
     outline = data_parser.load_yaml()
     test_biosample = "nmdc:bsm-11-64vz3p24"  # random biosample id
-    input_dict = {"Biosample": {"id": test_biosample}}
+    input_dict = {"Biosample": test_biosample}
 
     generator.json_generation(
         data=outline,
