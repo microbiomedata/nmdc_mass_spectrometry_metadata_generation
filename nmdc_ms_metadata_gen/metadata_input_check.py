@@ -1,7 +1,7 @@
 import pandas as pd
 from nmdc_api_utilities.biosample_search import BiosampleSearch
 from nmdc_api_utilities.data_generation_search import DataGenerationSearch
-
+import os
 
 class MetadataSurveyor:
     """
