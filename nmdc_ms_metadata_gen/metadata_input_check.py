@@ -17,7 +17,9 @@ class MetadataSurveyor:
         The study identifier.
     """
 
-    def __init__(self, study: str, ENV="prod"):
+    ENV = os.getenv("NMDC_ENV", "prod")
+
+    def __init__(self, study: str, ENV=ENV):
         self.dg_client = DataGenerationSearch(env=ENV)
         self.bsmp_client = BiosampleSearch(env=ENV)
         self.study = study
