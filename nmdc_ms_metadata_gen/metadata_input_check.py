@@ -1,7 +1,11 @@
+import os
+
 import pandas as pd
 from nmdc_api_utilities.biosample_search import BiosampleSearch
 from nmdc_api_utilities.data_generation_search import DataGenerationSearch
-import os
+
+ENV = os.getenv("NMDC_ENV", "prod")
+
 
 class MetadataSurveyor:
     """
@@ -17,9 +21,7 @@ class MetadataSurveyor:
         The study identifier.
     """
 
-    ENV = os.getenv("NMDC_ENV", "prod")
-
-    def __init__(self, study: str, ENV=ENV):
+    def __init__(self, study: str):
         self.dg_client = DataGenerationSearch(env=ENV)
         self.bsmp_client = BiosampleSearch(env=ENV)
         self.study = study
