@@ -30,6 +30,7 @@ from nmdc_api_utilities.configuration_search import ConfigurationSearch
 from nmdc_api_utilities.data_object_search import DataObjectSearch
 from nmdc_api_utilities.instrument_search import InstrumentSearch
 from nmdc_api_utilities.metadata import Metadata
+from nmdc_api_utilities.nmdc_search import NMDCSearch
 from nmdc_api_utilities.processed_sample_search import ProcessedSampleSearch
 from nmdc_api_utilities.study_search import StudySearch
 from nmdc_schema import NmdcSchemaValidationPlugin
@@ -131,46 +132,11 @@ class NMDCMetadataGenerator:
         Returns
         -------
         """
-        batch_size = 250
-        url = "https://api-dev.microbiomedata.org/nmdcschema/linked_instances"
-        batch_records = []
-
-        # split the ids into batches
-        for i in range(0, len(ids), batch_size):
-            batch = ids[i : i + batch_size]
-            params = {"types": "nmdc:Study", "ids": batch}
-            response = requests.get(url=url, params=params)
-            if response.status_code == 200:
-                batch_resources = response.json().get("resources", [])
-                next_page = response.json().get("next_page_token", None)
-                batch_records.extend(batch_resources)
-                if next_page:
-                    while next_page:
-                        params = {
-                            "types": "nmdc:Study",
-                            "ids": batch,
-                            "page_token": next_page,
-                        }
-                        response = requests.get(url=url, params=params)
-                        if response.status_code == 200:
-                            batch_resources = response.json().get("resources", [])
-                            batch_records.extend(batch_resources)
-                            next_page = response.json().get("next_page_token", None)
-            else:
-                print(
-                    f"Error: Failed to fetch batch starting at index {i}, Status Code: {response.status_code}"
-                )
-
-        associated_studies = {}
-        for record in batch_records:
-            study_id = record["id"]
-            if "_upstream_of" in record:
-                for upstream_id in record["_upstream_of"]:
-                    if upstream_id not in associated_studies:
-                        associated_studies[upstream_id] = []
-                    associated_studies[upstream_id].append(study_id)
-
-        return associated_studies
+        search_obj = NMDCSearch(env=ENV)
+        resp = search_obj.get_linked_instances_and_associate_ids(
+            ids=ids, types="nmdc:Study"
+        )
+        return resp
 
     def load_bio_credentials(self, config_file: str = None) -> str:
         """
@@ -1596,6 +1562,21 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             ss_client = StudySearch(env=ENV)
             if not ss_client.check_ids_exist(study_ids):
                 raise ValueError("Study IDs do not exist in the collection.")
+        else:
+            # make a call to find_associated_ids to get the associated studies
+            # build the ID list from the input samples
+            sample_ids = metadata_df["sample_id"].unique().tolist()
+            # call the function
+            associations = self.find_associated_ids(ids=sample_ids)
+            # map the ids back to the df before returning. associations will be a list of dictionaries with study ids
+            for assoc in associations:
+                sample_id = assoc.get("id")
+                studies = assoc.get("associated_studies", [])
+                study_str = str(studies)
+                metadata_df.loc[
+                    metadata_df["sample_id"] == sample_id,
+                    "biosample.associated_studies",
+                ] = study_str
 
         return metadata_df
 
