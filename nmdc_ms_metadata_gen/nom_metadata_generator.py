@@ -15,7 +15,6 @@ from tqdm import tqdm
 
 from nmdc_ms_metadata_gen.data_classes import NmdcTypes, NOMMetadata
 from nmdc_ms_metadata_gen.metadata_generator import NMDCWorkflowMetadataGenerator
-from nmdc_ms_metadata_gen.metadata_parser import MetadataParser
 
 load_dotenv()
 ENV = os.getenv("NMDC_ENV", "prod")
@@ -184,13 +183,6 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         nmdc_database_inst = self.start_nmdc_database()
         metadata_df = self.load_metadata()
         tqdm.write("\033[92mStarting metadata processing...\033[0m")
-
-        self.check_for_biosamples(
-            metadata_df=metadata_df,
-            nmdc_database_inst=nmdc_database_inst,
-            CLIENT_ID=client_id,
-            CLIENT_SECRET=client_secret,
-        )
 
         # check if manifest ids are provided or if we need to generate them
         self.check_manifest(
@@ -435,65 +427,24 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         NOMMetadata
 
         """
-        parser = MetadataParser()
         return NOMMetadata(
-            raw_data_file=parser.get_value(row, "raw_data_file"),
-            processed_data_directory=parser.get_value(row, "processed_data_directory"),
-            associated_studies=(
-                ast.literal_eval(parser.get_value(row, "associated_studies"))
-                if parser.get_value(row, "associated_studies")
-                else None
+            raw_data_file=row.get("raw_data_file"),
+            processed_data_directory=row.get("processed_data_directory"),
+            associated_studies=ast.literal_eval(
+                row.get("biosample.associated_studies", None)
             ),
-            sample_id=(
-                parser.get_value(row, "sample_id")
-                if parser.get_value(row, "sample_id") or parser.get_value(row, "id")
-                else None
+            sample_id=row.get("sample_id"),
+            instrument_id=row.get("instrument_id"),
+            mass_spec_configuration_id=row.get("mass_spec_configuration_id"),
+            lc_config_id=row.get("lc_config_id"),
+            manifest_id=row.get("manifest_id"),
+            execution_resource=row.get("execution_resource"),
+            processing_institution_generation=row.get(
+                "processing_institution_generation"
             ),
-            instrument_id=(
-                parser.get_value(row, "instrument_id")
-                if parser.get_value(row, "instrument_id")
-                else None
-            ),
-            mass_spec_configuration_id=(
-                parser.get_value(row, "mass_spec_configuration_id")
-                if parser.get_value(row, "mass_spec_configuration_id")
-                else None
-            ),
-            lc_config_id=(
-                parser.get_value(row, "lc_config_id")
-                if parser.get_value(row, "lc_config_id")
-                else None
-            ),
-            manifest_id=(
-                parser.get_value(row, "manifest_id")
-                if parser.get_value(row, "manifest_id")
-                else None
-            ),
-            execution_resource=(
-                parser.get_value(row, "execution_resource")
-                if parser.get_value(row, "execution_resource")
-                else None
-            ),
-            processing_institution_generation=(
-                parser.get_value(row, "processing_institution_generation")
-                if parser.get_value(row, "processing_institution_generation")
-                else None
-            ),
-            processing_institution_workflow=(
-                parser.get_value(row, "processing_institution_workflow")
-                if parser.get_value(row, "processing_institution_workflow")
-                else None
-            ),
-            processing_institution=(
-                parser.get_value(row, "processing_institution")
-                if parser.get_value(row, "processing_institution")
-                else None
-            ),
-            instrument_instance_specifier=(
-                parser.get_value(row, "instrument_instance_specifier")
-                if parser.get_value(row, "instrument_instance_specifier")
-                else None
-            ),
+            processing_institution_workflow=row.get("processing_institution_workflow"),
+            processing_institution=row.get("processing_institution"),
+            instrument_instance_specifier=row.get("instrument_instance_specifier"),
         )
 
     def create_processed_data_objects(

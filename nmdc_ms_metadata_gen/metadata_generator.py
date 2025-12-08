@@ -39,7 +39,6 @@ from tqdm import tqdm
 
 from nmdc_ms_metadata_gen.data_classes import NmdcTypes
 from nmdc_ms_metadata_gen.id_pool import IDPool
-from nmdc_ms_metadata_gen.metadata_parser import MetadataParser
 
 ENV = os.getenv("NMDC_ENV", "prod")
 
@@ -92,7 +91,7 @@ class NMDCMetadataGenerator:
                     raise ValueError("Error decoding TOML from the config file.")
                 except KeyError:
                     raise ValueError(
-                        "Config file must contain CLIENT_ID and CLIENT_SECRET. If generating biosample ids BIO_API_KEY is required."
+                        "Config file must contain CLIENT_ID and CLIENT_SECRET."
                     )
 
         if not client_id or not client_secret:
@@ -119,52 +118,6 @@ class NMDCMetadataGenerator:
 
         """
         return nmdc.Database()
-
-    def load_bio_credentials(self, config_file: str = None) -> str:
-        """
-        Load bio ontology API key from the environment or a configuration file.
-
-        Parameters
-        ----------
-        config_file: str
-            The path to the configuration file.
-
-        Returns
-        -------
-        str
-            The bio ontology API key.
-
-        Raises
-        ------
-        FileNotFoundError
-            If the configuration file is not found, and the API key is not set in the environment.
-        ValueError
-            If the configuration file is not valid or does not contain the API key.
-
-        """
-        BIO_API_KEY = os.getenv("BIO_API_KEY")
-
-        if not BIO_API_KEY:
-            if config_file:
-                config_file = Path(config_file)
-                try:
-                    config = toml.load(config_file)
-                    BIO_API_KEY = config.get("BIO_API_KEY")
-                except FileNotFoundError:
-                    raise FileNotFoundError(f"Config file {config_file} not found.")
-                except toml.TomlDecodeError:
-                    raise ValueError("Error decoding TOML from the config file.")
-                except KeyError:
-                    raise ValueError(
-                        "Config file must contain BIO_API_KEY to generate biosample ids."
-                    )
-
-        if not BIO_API_KEY:
-            raise ValueError(
-                "BIO_API_KEY must be set either in environment variable or passed in the config file. It must be named BIO_API_KEY."
-            )
-
-        return BIO_API_KEY
 
     def clean_dict(self, dict: Dict) -> Dict:
         """
@@ -1682,92 +1635,6 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
 
         return mass_spectrometry
 
-    def check_for_biosamples(
-        self,
-        metadata_df: pd.DataFrame,
-        nmdc_database_inst: nmdc.Database,
-        CLIENT_ID: str,
-        CLIENT_SECRET: str,
-    ) -> None:
-        """
-        This method verifies the presence of the 'sample_id' in the provided metadata DataFrame. It will loop over each row to verify the presence of the 'sample_id', giving the option for some rows to need generation and some to already exist.
-        If the 'sample_id' is missing, it checks for the presence of required columns to generate a new sample_id using the NMDC API. If they are all there, the function calls the dynam_parse_biosample_metadata method from the MetadataParser class to create the JSON for the biosample.
-        If the required columns are missing and there is no sample_id - it raises a ValueError.
-        After the sample_id is generated,it updates the DataFrame row with the newly minted sample_id and the NMDC database instance with the new biosample JSON.
-
-        Parameters
-        ----------
-        metadata_df : pd.DataFrame
-            the dataframe containing the metadata information.
-        nmdc_database_inst : nmdc.Database
-            The NMDC Database instance to add the biosample to if one needs to be generated.
-        CLIENT_ID : str
-            The client ID for the NMDC API. Used to mint a biosmaple id if one does not exist.
-        CLIENT_SECRET : str
-            The client secret for the NMDC API. Used to mint a biosmaple id if one does not exist.
-
-        Returns
-        -------
-        None
-
-        Raises
-        ------
-        ValueError
-            If the 'biosample.name' column is missing and 'sample_id' is empty.
-            If any required columns for biosample generation are missing.
-
-        """
-        parser = MetadataParser()
-        metadata_df["sample_id"] = metadata_df["sample_id"].astype("object")
-
-        if "biosample.name" not in metadata_df.columns:
-            # if biosample.name does not exist check if sample_id is empty. sample_id should not be empty if biosample.name does not exist
-            if len(metadata_df["sample_id"]) == len(
-                metadata_df.dropna(subset=["sample_id"])
-            ):
-                return
-            else:
-                raise ValueError(
-                    "biosample.name column is missing from the metadata file. Please provide biosample.name or sample_id for each row. biosample.name is required to generate new sample_id."
-                )
-        rows = metadata_df.groupby("biosample.name")
-        for _, group in rows:
-            row = group.iloc[0]
-            if pd.isnull(row.get("sample_id")):
-                required_columns = [
-                    "biosample.name",
-                    "biosample.associated_studies",
-                    "biosample.env_broad_scale",
-                    "biosample.env_local_scale",
-                    "biosample.env_medium",
-                ]
-                # Check for the existence of all required columns
-                missing_columns = [
-                    col for col in required_columns if col not in metadata_df.columns
-                ]
-                if missing_columns:
-                    raise ValueError(
-                        f"The following required columns are missing from the DataFrame: {', '.join(missing_columns)}"
-                    )
-                bio_api_key = self.load_bio_credentials(
-                    config_file=self.minting_config_creds
-                )
-                # Generate biosamples if no sample_id in spreadsheet
-                biosample_metadata = parser.dynam_parse_biosample_metadata(
-                    row=row, bio_api_key=bio_api_key
-                )
-                biosample = self.generate_biosample(
-                    biosamp_metadata=biosample_metadata,
-                    CLIENT_ID=CLIENT_ID,
-                    CLIENT_SECRET=CLIENT_SECRET,
-                )
-                sample_id = biosample.id
-                metadata_df.loc[
-                    metadata_df["biosample.name"] == row["biosample.name"],
-                    "sample_id",
-                ] = sample_id
-                nmdc_database_inst.biosample_set.append(biosample)
-
     def check_doj_urls(self, metadata_df: pd.DataFrame, url_columns: List) -> None:
         """
         Check if the URLs in the input list already exist in the database.
@@ -2106,43 +1973,6 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         metadata_df["manifest_id"] = metadata_df["manifest_name"].map(
             manifest_id_mapping
         )
-
-    def generate_biosample(
-        self, biosamp_metadata: dict, CLIENT_ID: str, CLIENT_SECRET: str
-    ) -> nmdc.Biosample:
-        """
-        Mint a biosample id from the given metadata and create a biosample instance.
-
-        Parameters
-        ----------
-        biosamp_metadata : dict
-            The metadata object containing biosample information.
-        CLIENT_ID : str
-            The client ID for the NMDC API.
-        CLIENT_SECRET : str
-            The client secret for the NMDC API.
-
-        Returns
-        -------
-        nmdc.Biosample
-            The generated biosample instance.
-
-        """
-
-        # If no biosample id in spreadsheet, mint biosample ids
-        if biosamp_metadata["id"] is None:
-            biosamp_metadata["id"] = self.id_pool.get_id(
-                nmdc_type=NmdcTypes.Biosample,
-                client_id=CLIENT_ID,
-                client_secret=CLIENT_SECRET,
-            )
-
-        # Filter dictionary to remove any key/value pairs with None as the value
-        biosamp_dict = self.clean_dict(biosamp_metadata)
-
-        biosample_object = nmdc.Biosample(**biosamp_dict)
-
-        return biosample_object
 
     def get_workflow_version(self, workflow_version_git_url: str) -> str:
         """

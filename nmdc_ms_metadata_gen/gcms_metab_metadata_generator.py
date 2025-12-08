@@ -316,12 +316,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         nmdc_database_inst = self.start_nmdc_database()
         df = self.load_metadata()
         metadata_df = df.apply(lambda x: x.reset_index(drop=True))
-        self.check_for_biosamples(
-            metadata_df=metadata_df,
-            nmdc_database_inst=nmdc_database_inst,
-            CLIENT_ID=client_id,
-            CLIENT_SECRET=client_secret,
-        )
+
         # check if the raw data url is directly passed in or needs to be built with raw data file
         raw_col = (
             "raw_data_url" if "raw_data_url" in metadata_df.columns else "raw_data_file"
