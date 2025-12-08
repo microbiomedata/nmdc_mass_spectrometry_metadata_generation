@@ -1569,9 +1569,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             # call the function
             associations = self.find_associated_ids(ids=sample_ids)
             # map the ids back to the df before returning. associations will be a list of dictionaries with study ids
-            for assoc in associations:
-                sample_id = assoc.get("id")
-                studies = assoc.get("associated_studies", [])
+            for sample_id, studies in associations.items():
                 study_str = str(studies)
                 metadata_df.loc[
                     metadata_df["sample_id"] == sample_id,
