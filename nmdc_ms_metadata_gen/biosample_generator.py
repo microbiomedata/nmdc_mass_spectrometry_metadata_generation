@@ -29,24 +29,26 @@ class BiosampleGenerator(NMDCMetadataGenerator):
     def __init__(
         self,
         metadata_file: str,
+        database_dump_json_path: str,
         minting_config_creds: str = None,
         id_pool_size: int = 50,
         id_refill_threshold: int = 10,
     ):
         self.metadata_file = metadata_file
+        self.database_dump_json_path = database_dump_json_path
         self.minting_config_creds = minting_config_creds
         # Initialize ID pool
         self.id_pool = IDPool(
             pool_size=id_pool_size, refill_threshold=id_refill_threshold
         )
 
-    def run(self) -> nmdc.Database:
+    def run(self) -> dict:
         """
         Main method to run the biosample generation process.
 
         Returns
         -------
-            The generated NMDC database instance containing all generated biosample records.
+            The generated NMDC database instance containing all generated biosample records as a dictionary.
         """
         # load file
         try:
@@ -61,16 +63,20 @@ class BiosampleGenerator(NMDCMetadataGenerator):
         )
         bio_api_key = self.load_bio_credentials(config_file=self.minting_config_creds)
 
-        self.check_for_biosamples(
+        self.check_biosample_rows(
             metadata_df=metadata_df,
             nmdc_database_inst=nmdc_database_inst,
             BIO_API_KEY=bio_api_key,
             CLIENT_ID=client_id,
             CLIENT_SECRET=client_secret,
         )
-        return nmdc_database_inst
+        self.dump_nmdc_database(
+            nmdc_database=nmdc_database_inst, json_path=self.database_dump_json_path
+        )
+        # change db object to dict
+        return self.nmdc_db_to_dict(nmdc_database_inst)
 
-    def check_for_biosamples(
+    def check_biosample_rows(
         self,
         metadata_df: pd.DataFrame,
         nmdc_database_inst: nmdc.Database,
@@ -102,23 +108,16 @@ class BiosampleGenerator(NMDCMetadataGenerator):
         Raises
         ------
         ValueError
-            If the 'biosample.name' column is missing and 'sample_id' is empty.
+            If the 'biosample.name' column is missing and 'biosample_id' is empty.
             If any required columns for biosample generation are missing.
 
         """
         parser = BiosampleMetadataParser()
-        metadata_df["biosample_id"] = metadata_df["biosample_id"].astype("object")
 
         if "biosample.name" not in metadata_df.columns:
-            # if biosample.name does not exist check if biosample_id is empty. biosample_id should not be empty if biosample.name does not exist
-            if len(metadata_df["biosample_id"]) == len(
-                metadata_df.dropna(subset=["biosample_id"])
-            ):
-                return
-            else:
-                raise ValueError(
-                    "biosample.name column is missing from the metadata file. Please provide biosample.name or biosample_id for each row. biosample.name is required to generate new biosample_id."
-                )
+            raise ValueError(
+                "The 'biosample.name' column is required to create biosamples."
+            )
         rows = metadata_df.groupby("biosample.name")
         for _, group in rows:
             row = group.iloc[0]
