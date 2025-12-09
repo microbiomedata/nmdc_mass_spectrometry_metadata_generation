@@ -98,11 +98,11 @@ class BiosampleGenerator(NMDCMetadataGenerator):
         metadata_df : pd.DataFrame
             the dataframe containing the metadata information.
         nmdc_database_inst : nmdc.Database
-            The NMDC Database instance to add the biosample to if one needs to be generated.
+            The NMDC Database instance to add the biosample to.
         CLIENT_ID : str
-            The client ID for the NMDC API. Used to mint a biosmaple id if one does not exist.
+            The client ID for the NMDC API. Used to mint a biosmaple id.
         CLIENT_SECRET : str
-            The client secret for the NMDC API. Used to mint a biosmaple id if one does not exist.
+            The client secret for the NMDC API. Used to mint a biosmaple id.
 
         Returns
         -------
