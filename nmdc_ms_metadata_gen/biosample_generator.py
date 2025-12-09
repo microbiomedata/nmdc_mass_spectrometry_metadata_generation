@@ -18,6 +18,10 @@ class BiosampleGenerator(NMDCMetadataGenerator):
 
     Parameters
     ----------
+    metadata_file : str
+        Path to the metadata CSV file containing biosample information.
+    database_dump_json_path : str
+        Path to output the generated NMDC database JSON file.
     minting_config_creds : str, optional
         Path to the configuration file containing credentials for minting biosample IDs.
     id_pool_size : int, optional

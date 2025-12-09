@@ -4,6 +4,7 @@ from functools import wraps
 import click
 import pandas as pd
 
+from nmdc_ms_metadata_gen.biosample_generator import BiosampleGenerator
 from nmdc_ms_metadata_gen.di_nom_metadata_generator import DINOMMetaDataGenerator
 from nmdc_ms_metadata_gen.gcms_metab_metadata_generator import (
     GCMSMetabolomicsMetadataGenerator,
@@ -140,6 +141,39 @@ def configuration_options(f):
         "--configuration-file",
         required=True,
         help="Path to the configuration file for the GCMS metadata generator",
+    )
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        return f(*args, **kwargs)
+
+    return wrapper
+
+
+def biosample_generation_options(f):
+    """Decorator for biosample generation options"""
+
+    @click.option(
+        "--metadata-file", required=True, help="Path to the input CSV metadata file"
+    )
+    @click.option(
+        "--minting-config-creds",
+        default=None,
+        help="Path to the config file with credentials.",
+    )
+    @click.option(
+        "--database-dump-path",
+        required=True,
+        help="Path where the output database dump JSON file will be saved",
+    )
+    @click.option(
+        "--id-pool-size",
+        default=50,
+        help="The size of the ID pool to maintain for minting biosample IDs. Default is 50.",
+    )
+    @click.option(
+        "--id-refill-threshold",
+        default=10,
+        help="The threshold at which to refill the ID pool. Default is 10.",
     )
     @wraps(f)
     def wrapper(*args, **kwargs):
@@ -324,6 +358,27 @@ def material_processing(
         sample_specific_info_path=sample_specific_info_path,
         test=test,
     )
+    metadata = generator.run()
+    return metadata
+
+
+@cli.command()
+@biosample_generation_options
+def biosample_generation(
+    metadata_file: str,
+    minting_config_creds: str,
+    database_dump_path: str,
+    id_pool_size: int,
+    id_refill_threshold: int,
+):
+    generator = BiosampleGenerator(
+        metadata_file=metadata_file,
+        database_dump_json_path=database_dump_path,
+        minting_config_creds=minting_config_creds,
+        id_pool_size=id_pool_size,
+        id_refill_threshold=id_refill_threshold,
+    )
+
     metadata = generator.run()
     return metadata
 
