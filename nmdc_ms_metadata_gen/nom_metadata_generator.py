@@ -427,12 +427,9 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         NOMMetadata
 
         """
-        return NOMMetadata(
+        data = NOMMetadata(
             raw_data_file=row.get("raw_data_file"),
             processed_data_directory=row.get("processed_data_directory"),
-            associated_studies=ast.literal_eval(
-                row.get("biosample.associated_studies", None)
-            ),
             sample_id=row.get("sample_id"),
             instrument_id=row.get("instrument_id"),
             mass_spec_configuration_id=row.get("mass_spec_configuration_id"),
@@ -442,10 +439,16 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             processing_institution_generation=row.get(
                 "processing_institution_generation"
             ),
+            associated_studies=(
+                ast.literal_eval(row.get("biosample.associated_studies"))
+                if row.get("biosample.associated_studies") is not None
+                else None
+            ),
             processing_institution_workflow=row.get("processing_institution_workflow"),
             processing_institution=row.get("processing_institution"),
             instrument_instance_specifier=row.get("instrument_instance_specifier"),
         )
+        return data
 
     def create_processed_data_objects(
         self,
