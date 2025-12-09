@@ -4,7 +4,6 @@ from pathlib import Path
 import nmdc_schema.nmdc as nmdc
 import pandas as pd
 import toml
-from nmdc_schema.nmdc import Database as NMDCDatabase
 
 from nmdc_ms_metadata_gen.data_classes import NmdcTypes
 from nmdc_ms_metadata_gen.id_pool import IDPool
@@ -90,8 +89,8 @@ class BiosampleGenerator(NMDCMetadataGenerator):
     ) -> None:
         """
         This method verifies the presence of the 'biosample_id' in the provided metadata DataFrame. It will loop over each row to verify the presence of the 'biosample_id', giving the option for some rows to need generation and some to already exist.
-        If the 'sample_id' is missing, it checks for the presence of required columns to generate a new biosample_id using the NMDC API. If they are all there, the function calls the dynam_parse_biosample_metadata method from the MetadataParser class to create the JSON for the biosample.
-        If the required columns are missing and there is no biosample_id - it raises a ValueError.
+        It checks for the presence of required columns to generate a new biosample_id using the NMDC API. If they are all there, the function calls the dynam_parse_biosample_metadata method from the MetadataParser class to create the JSON for the biosample.
+        If the required columns are missing it raises a ValueError.
         After the biosample_id is generated, it updates the DataFrame row with the newly minted biosample_id and the NMDC database instance with the new biosample JSON.
 
         Parameters

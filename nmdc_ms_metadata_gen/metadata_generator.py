@@ -1312,27 +1312,6 @@ class NMDCMetadataGenerator:
         }
         """
 
-        def get_nmdc_json_schema():
-            """Get NMDC JSON Schema with materialized patterns (for identifier regexes). Gets the schema from the nmdc_schema package.
-            Validates against the most recent release of nmdc_schema.
-
-            Returns
-            -------
-            dict
-                The NMDC JSON Schema as a dictionary.
-            """
-
-            d = json.loads(
-                BytesIO(
-                    pkgutil.get_data(
-                        "nmdc_schema", "nmdc_materialized_patterns.schema.json"
-                    )
-                )
-                .getvalue()
-                .decode("utf-8")
-            )
-            return d
-
         def get_nmdc_yaml_view() -> SchemaView:
             nmdc_schema_bytes = pkgutil.get_data(
                 "nmdc_schema", "nmdc_materialized_patterns.yaml"
@@ -1476,7 +1455,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         Load and group workflow metadata from a CSV file.
 
         This method reads the metadata CSV file, checks for uniqueness in
-        specified columns, checks that biosamples exist, and groups the data by biosample ID.
+        specified columns, checks that samples exist, and groups the data by sample ID.
 
         Returns
         -------
