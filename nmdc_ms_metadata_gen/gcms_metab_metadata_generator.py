@@ -615,7 +615,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         """
         return GCMSMetabWorkflowMetadata(
             sample_id=row["sample_id"],
-            nmdc_study=ast.literal_eval(row["biosample.associated_studies"]),
+            nmdc_study=ast.literal_eval(row["associated_studies"]),
             processing_institution=row.get("processing_institution"),
             processing_institution_generation=row.get(
                 "processing_institution_generation"

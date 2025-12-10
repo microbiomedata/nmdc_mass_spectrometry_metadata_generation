@@ -1521,31 +1521,17 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             if not sample_client.check_ids_exist(list(sample_ids)):
                 raise ValueError("IDs do not exist in the collection.")
 
-        # Check that all studies exist
-        if "biosample.associated_studies" in metadata_df.columns:
-            # Convert string to list, make sure the values are unique, conmvert
-            try:
-                study_ids = ast.literal_eval(
-                    metadata_df["biosample.associated_studies"].iloc[0]
-                )
-            except SyntaxError:
-                study_ids = [metadata_df["biosample.associated_studies"].iloc[0]]
-            ss_client = StudySearch(env=ENV)
-            if not ss_client.check_ids_exist(study_ids):
-                raise ValueError("Study IDs do not exist in the collection.")
-        else:
-            # make a call to find_associated_ids to get the associated studies
-            # build the ID list from the input samples
-            sample_ids = metadata_df["sample_id"].unique().tolist()
-            # call the function
-            associations = self.find_associated_ids(ids=sample_ids)
-            # map the ids back to the df before returning. associations will be a list of dictionaries with study ids
-            for sample_id, studies in associations.items():
-                study_str = str(studies)
-                metadata_df.loc[
-                    metadata_df["sample_id"] == sample_id,
-                    "biosample.associated_studies",
-                ] = study_str
+        # make a call to find_associated_ids to get the associated studies
+        # build the ID list from the input samples
+        sample_ids = metadata_df["sample_id"].unique().tolist()
+        associations = self.find_associated_ids(ids=sample_ids)
+        # map the ids back to the df before returning. associations will be a list of dictionaries with study ids
+        for sample_id, studies in associations.items():
+            study_str = str(studies)
+            metadata_df.loc[
+                metadata_df["sample_id"] == sample_id,
+                "associated_studies",
+            ] = study_str
 
         return metadata_df
 

@@ -115,7 +115,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 instrument_id=workflow_metadata.instrument_id,
                 sample_id=data["sample_id"],
                 raw_data_id="nmdc:placeholder",
-                study_id=ast.literal_eval(data["biosample.associated_studies"]),
+                study_id=ast.literal_eval(data["associated_studies"]),
                 processing_institution=(
                     workflow_metadata.processing_institution_generation
                     if workflow_metadata.processing_institution_generation
