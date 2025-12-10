@@ -82,12 +82,6 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
         )
         nmdc_database_inst = self.start_nmdc_database()
         metadata_df = self.load_metadata()
-        self.check_for_biosamples(
-            metadata_df=metadata_df,
-            nmdc_database_inst=nmdc_database_inst,
-            CLIENT_ID=client_id,
-            CLIENT_SECRET=client_secret,
-        )
 
         # check if manifest ids are provided or if we need to generate them
         self.check_manifest(
@@ -112,7 +106,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
         for _, data in tqdm(
             metadata_df.iterrows(),
             total=metadata_df.shape[0],
-            desc="Processing LCMS biosamples",
+            desc="Processing LCMS samples",
         ):
             workflow_metadata = self.create_workflow_metadata(data)
 
@@ -360,7 +354,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
         for _, data in tqdm(
             metadata_df.iterrows(),
             total=metadata_df.shape[0],
-            desc="Processing LCMS biosamples",
+            desc="Processing LCMS samples",
         ):
             # workflow_metadata = self.create_workflow_metadata(data)
             raw_data_object_id = do_client.get_record_by_attribute(

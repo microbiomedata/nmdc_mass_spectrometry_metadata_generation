@@ -1,4 +1,4 @@
-# This script will serve as a test for the lipdomics metadata generation script.
+# This script will serve as a test for the di nom metadata generation script.
 import json
 import os
 from datetime import datetime
@@ -18,7 +18,6 @@ if python_path:
 def test_di_nom_metadata_gen():
     """
     Test the DI NOM metadata generation script.
-    Test case does not include generating a biosample
     """
     # Set up output file with datetime stame
     output_file = (
@@ -101,97 +100,6 @@ def test_di_nom_metadata_gen_rerun():
         if any("QC" in str(value) for value in d.values())
     )
     assert count >= 1
-
-
-test_di_nom_metadata_gen_rerun()
-
-
-def test_di_nom_biosample_gen_more_fields():
-    """
-    Test the DI NOM metadata generation script.
-    Test case includes generating a biosample with more than the required fields
-    """
-    # Set up output file with datetime stame
-    output_file = (
-        "tests/test_data/test_database_nom_no_biosample_weird_data_"
-        + datetime.now().strftime("%Y%m%d%H%M%S")
-        + ".json"
-    )
-
-    # Start the metadata generation setup
-    generator = DINOMMetaDataGenerator(
-        metadata_file="tests/test_data/test_metadata_file_nom_no_biosample_id_weird_data.csv",
-        database_dump_json_path=output_file,
-        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_raw_nom/",
-        process_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_nom/",
-    )
-
-    # Run the metadata generation process
-    metadata = generator.run()
-    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
-    assert validate["result"] == "All Okay!"
-    assert os.path.exists(output_file)
-
-    file = open(output_file)
-    working_data = json.load(file)
-    file.close()
-    assert len(working_data["biosample_set"]) == 2
-
-    exists = any(
-        any("QC" in str(value) for value in d.values())
-        for d in working_data["data_object_set"]
-    )
-    assert exists
-    count = sum(
-        1
-        for d in working_data["data_object_set"]
-        if any("QC" in str(value) for value in d.values())
-    )
-    assert count >= 3
-
-
-def test_di_nom_biosample_gen_no_biosample():
-    """
-    Test the DI NOM metadata generation script.
-    Test case includes generating a biosample with no biosample id
-    """
-    # Set up output file with datetime stame
-    output_file = (
-        "tests/test_data/test_database_nom_no_biosample_"
-        + datetime.now().strftime("%Y%m%d%H%M%S")
-        + ".json"
-    )
-
-    # Start the metadata generation setup
-    generator = DINOMMetaDataGenerator(
-        metadata_file="tests/test_data/test_metadata_file_nom_no_biosample_id.csv",
-        database_dump_json_path=output_file,
-        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_raw_nom/",
-        process_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_nom/",
-    )
-
-    # Run the metadata generation process
-    metadata = generator.run()
-    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
-    assert validate["result"] == "All Okay!"
-    assert os.path.exists(output_file)
-
-    file = open(output_file)
-    working_data = json.load(file)
-    file.close()
-    assert len(working_data["biosample_set"]) == 2
-
-    exists = any(
-        any("QC" in str(value) for value in d.values())
-        for d in working_data["data_object_set"]
-    )
-    assert exists
-    count = sum(
-        1
-        for d in working_data["data_object_set"]
-        if any("QC" in str(value) for value in d.values())
-    )
-    assert count >= 2
 
 
 def test_di_nom_config_file():
