@@ -165,7 +165,35 @@ def test_cli_material_processing():
     assert result["result"] == "All Okay!"
 
 
-test_cli_material_processing()
+def test_cli_biosample_gen():
+    """Test the biosample generation command."""
+    runner = CliRunner()
+    current_directory = os.path.dirname(__file__)
+    csv_file_path = os.path.join(
+        current_directory, "test_data", "test_metadata_file_biosample_generation.csv"
+    )
+    output_file = os.path.join(
+        current_directory,
+        "test_data",
+        f"test_database_biosample_cli_{datetime.now().strftime('%Y%m%d%H%M%S')}.json",
+    )
+
+    result = runner.invoke(
+        cli,
+        [
+            "biosample-generation",
+            "--metadata-file",
+            str(csv_file_path),
+            "--database-dump-path",
+            str(output_file),
+        ],
+        standalone_mode=False,
+    )
+    assert result.exit_code == 0
+    assert os.path.exists(output_file)
+    generator = NMDCMetadataGenerator()
+    result = generator.validate_nmdc_database(json=result.return_value, use_api=False)
+    assert result["result"] == "All Okay!"
 
 
 def test_info_command_invalid():

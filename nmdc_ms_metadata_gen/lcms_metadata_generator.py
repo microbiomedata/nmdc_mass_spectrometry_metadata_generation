@@ -82,12 +82,6 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
         )
         nmdc_database_inst = self.start_nmdc_database()
         metadata_df = self.load_metadata()
-        self.check_for_biosamples(
-            metadata_df=metadata_df,
-            nmdc_database_inst=nmdc_database_inst,
-            CLIENT_ID=client_id,
-            CLIENT_SECRET=client_secret,
-        )
 
         # check if manifest ids are provided or if we need to generate them
         self.check_manifest(

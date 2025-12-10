@@ -7,13 +7,18 @@ Bio Ontology API Class
    :undoc-members:
    :show-inheritance:
 
-Metadata Parser Base Class
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. autoclass:: nmdc_ms_metadata_gen.metadata_parser.MetadataParser
+Biosample Metadata Parser Base Class
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser
    :members:
    :undoc-members:
    :show-inheritance:
 
+Biosample Generator Class
+~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: nmdc_ms_metadata_gen.biosample_generator.BiosampleGenerator
+   :members:
+   :undoc-members:
 Metadata Generator Base Class
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator
@@ -80,14 +85,14 @@ GC/MS Metabolomics Metadata Generator Subclass
    :show-inheritance:
 
 Direct Infusion NOM Metadata Generator Subclass
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator
    :members:
    :undoc-members:
    :show-inheritance:
 
 LC NOM Metadata Generator Subclass
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator
    :members:
    :undoc-members:
@@ -99,7 +104,7 @@ Validate YAML Outline Function
    :noindex:
 
 Change Sheet Generator
-~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: nmdc_ms_metadata_gen.sheet_generator.ChangeSheetGenerator
    :members:
    :undoc-members:

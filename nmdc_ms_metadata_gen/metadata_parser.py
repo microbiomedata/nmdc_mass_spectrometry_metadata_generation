@@ -23,8 +23,8 @@ from nmdc_ms_metadata_gen.bio_ontology_api import BioOntologyInfoRetriever
 from nmdc_ms_metadata_gen.data_classes import NmdcTypes
 
 
-class MetadataParser:
-    """Parsers metadata from input metadata spreadsheet."""
+class BiosampleMetadataParser:
+    """Parses biosample metadata from input metadata spreadsheet."""
 
     def __init__(self):
         pass
