@@ -170,6 +170,7 @@ class MetadataSurveyor:
             col
             for col in [
                 "biosample_id",
+                "material_processing_protocol_id",
                 "stepname",
                 "slotname",
                 "value",
@@ -202,6 +203,7 @@ class MetadataSurveyor:
         required_columns = {
             "biosample_id",
             "raw_data_identifier",
+            "material_processing_protocol_id",
             "processedsample_placeholder",
         }
         missing_columns = required_columns - columns

@@ -126,6 +126,15 @@ class MaterialProcessingMetadataGenerator(NMDCMetadataGenerator):
                     sample_specific_info["biosample_id"] == biosample
                 ].reset_index(drop=True)
 
+            # Which outline?
+            protocol_id = sample_mapping["material_processing_protocol_id"].unique()
+            if len(protocol_id) > 1:
+                raise ValueError(
+                    f"{biosample} has more than one protocol id : {protocol_id}"
+                )
+
+            yaml_parameters["protocol_id"] = protocol_id[0]
+
             # Use the biosample specific values and target output information to adjust the yaml outline for this biosample
             full_outline = data_parser.yaml_generation(**yaml_parameters)
 

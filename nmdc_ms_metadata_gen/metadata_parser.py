@@ -465,18 +465,24 @@ class YamlSpecifier:
     def __init__(self, yaml_outline_path: str):
         self.yaml_outline_path = yaml_outline_path
 
-    def load_yaml(self) -> dict:
+    def load_yaml(self, protocol_id) -> dict:
         """
         Loads the yaml_outline_path that outlines the material processing steps and processed samples.
+
+        Parameters:
+        -----------
+        protocol_id: str
+            Protocol id referencing the specific yaml outline for this biosample
 
         Returns
         -------
         dict
-            Yaml outline as a dictionary
+            relevant yaml outline for this biosample as a dictionary
         """
 
         with open(self.yaml_outline_path) as f:
-            return yaml.safe_load(f)
+            outline = yaml.safe_load(f)
+        return outline[protocol_id]
 
     def update_value(
         self, data: dict, sample_specific_info_subset: pd.DataFrame
@@ -597,9 +603,9 @@ class YamlSpecifier:
             step_info = list(step[step_key].values())[0]
             step_info["has_output"] = list(step_output_cache.get(step_key, []))
 
-        data["steps"] = sorted(
-            required_steps, key=lambda x: int(list(x.keys())[0].split()[1])
-        )
+        # Keep original order by filtering steps list to only include required steps
+        required_steps_set = {id(step) for step in required_steps}
+        data["steps"] = [step for step in steps if id(step) in required_steps_set]
 
         # Update list of processedsamples to required processedsamples
         required_outputs_set = set(
@@ -613,12 +619,16 @@ class YamlSpecifier:
 
         return data
 
-    def yaml_generation(self, sample_specific_info_subset=None, target_outputs=list):
+    def yaml_generation(
+        self, protocol_id, sample_specific_info_subset=None, target_outputs=list
+    ):
         """
         Generates yaml outline with biosample specific values (placeholders and quantities)
 
         Parameters
         ----------
+        protocol_id : str
+            Protocol id referencing the specific yaml outline to be used for this biosample
         sample_specific_info_subset : pd.DataFrame
             Rows of pandas dataframe relevant to biosample with info to update a QuantityValue: biosample_id, step_number, slot_name, value
         target_map: pd.DataFrame
@@ -631,7 +641,7 @@ class YamlSpecifier:
         """
 
         # yaml outline (no sample specific information)
-        outline = self.load_yaml()
+        outline = self.load_yaml(protocol_id)
 
         # add sample specific values from dictionary to outline
         if sample_specific_info_subset is not None:
