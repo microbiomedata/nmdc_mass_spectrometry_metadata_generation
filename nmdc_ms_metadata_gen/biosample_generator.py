@@ -5,6 +5,7 @@ import nmdc_schema.nmdc as nmdc
 import pandas as pd
 import toml
 
+import nmdc_ms_metadata_gen
 from nmdc_ms_metadata_gen.data_classes import NmdcTypes
 from nmdc_ms_metadata_gen.id_pool import IDPool
 from nmdc_ms_metadata_gen.metadata_generator import NMDCMetadataGenerator
@@ -122,6 +123,10 @@ class BiosampleGenerator(NMDCMetadataGenerator):
                 "The 'biosample.name' column is required to create biosamples."
             )
         rows = metadata_df.groupby("biosample.name")
+
+        # Prepare biosample provenance metadata
+        self._provenance_metadata = self._generate_biosample_provenance_metadata()
+
         for _, group in rows:
             row = group.iloc[0]
             if pd.isnull(row.get("biosample_id")):
@@ -189,10 +194,32 @@ class BiosampleGenerator(NMDCMetadataGenerator):
 
         # Filter dictionary to remove any key/value pairs with None as the value
         biosamp_dict = self.clean_dict(biosamp_metadata)
+        biosamp_dict["provenance_metadata"] = self._provenance_metadata
 
         biosample_record = nmdc.Biosample(**biosamp_dict)
 
         return biosample_record
+
+    def _generate_biosample_provenance_metadata(self) -> nmdc.ProvenanceMetadata:
+        """
+        Generate a ProvenanceMetadata record for the biosample.
+
+        Returns
+        -------
+        nmdc.ProvenanceMetadata
+            The generated ProvenanceMetadata instance.
+        """
+        type_str = NmdcTypes.ProvenanceMetadata
+        git_url = "https://github.com/microbiomedata/nmdc_mass_spectrometry_metadata_generation"
+        version = nmdc_ms_metadata_gen.__version__
+        source_system_of_record = "custom"
+        provenance_metadata = nmdc.ProvenanceMetadata(
+            type=type_str,
+            git_url=git_url,
+            version=version,
+            source_system_of_record=source_system_of_record,
+        )
+        return provenance_metadata
 
     def load_bio_credentials(self, config_file: str = None) -> str:
         """

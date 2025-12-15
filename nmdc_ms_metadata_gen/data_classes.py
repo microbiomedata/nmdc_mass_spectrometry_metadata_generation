@@ -68,6 +68,8 @@ class NmdcTypes:
         NMDC type for Dissolving Process.
     FiltrationProcess : str
         NMDC type for Filtration Process.
+    ProvenanceMetadata : str
+        NMDC type for Provenance Metadata.
     """
 
     Biosample: str = "nmdc:Biosample"
@@ -98,6 +100,7 @@ class NmdcTypes:
     ProcessedSample: str = "nmdc:ProcessedSample"
     DissolvingProcess: str = "nmdc:DissolvingProcess"
     FiltrationProcess: str = "nmdc:FiltrationProcess"
+    ProvenanceMetadata: str = "nmdc:ProvenanceMetadata"
 
 
 @dataclass
