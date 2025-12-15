@@ -32,6 +32,7 @@ jobs:
             pip install -r requirements-dev.txt
             pip uninstall -y nmdc-schema
             pip install --pre nmdc-schema
+            pip install -e .
       - name: Run tests
         working-directory: ./nmdc_ms_metadata_gen
         env:
