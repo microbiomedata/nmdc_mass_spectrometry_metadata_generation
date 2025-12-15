@@ -20,7 +20,6 @@ import numpy as np
 import pandas as pd
 import requests
 import toml
-from jsonschema import Draft7Validator
 from linkml.validator import Validator
 from linkml.validator.plugins import JsonschemaValidationPlugin
 from linkml_runtime import SchemaView
@@ -31,6 +30,7 @@ from nmdc_api_utilities.configuration_search import ConfigurationSearch
 from nmdc_api_utilities.data_object_search import DataObjectSearch
 from nmdc_api_utilities.instrument_search import InstrumentSearch
 from nmdc_api_utilities.metadata import Metadata
+from nmdc_api_utilities.nmdc_search import NMDCSearch
 from nmdc_api_utilities.processed_sample_search import ProcessedSampleSearch
 from nmdc_api_utilities.study_search import StudySearch
 from nmdc_schema import NmdcSchemaValidationPlugin
@@ -118,6 +118,24 @@ class NMDCMetadataGenerator:
 
         """
         return nmdc.Database()
+
+    def find_associated_ids(self, ids: list[str]):
+        """
+        Given a list of sample ids, find the associated study ids.
+
+        Parameters
+        ----------
+        ids : list[str]
+            The ids to search for.
+
+        Returns
+        -------
+        """
+        search_obj = NMDCSearch(env=ENV)
+        resp = search_obj.get_linked_instances_and_associate_ids(
+            ids=ids, types="nmdc:Study"
+        )
+        return resp
 
     def clean_dict(self, dict: Dict) -> Dict:
         """
@@ -1503,18 +1521,17 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             if not sample_client.check_ids_exist(list(sample_ids)):
                 raise ValueError("IDs do not exist in the collection.")
 
-        # Check that all studies exist
-        if "biosample.associated_studies" in metadata_df.columns:
-            # Convert string to list, make sure the values are unique, conmvert
-            try:
-                study_ids = ast.literal_eval(
-                    metadata_df["biosample.associated_studies"].iloc[0]
-                )
-            except SyntaxError:
-                study_ids = [metadata_df["biosample.associated_studies"].iloc[0]]
-            ss_client = StudySearch(env=ENV)
-            if not ss_client.check_ids_exist(study_ids):
-                raise ValueError("Study IDs do not exist in the collection.")
+        # make a call to find_associated_ids to get the associated studies
+        # build the ID list from the input samples
+        sample_ids = metadata_df["sample_id"].unique().tolist()
+        associations = self.find_associated_ids(ids=sample_ids)
+        # map the ids back to the df before returning. associations will be a list of dictionaries with study ids
+        for sample_id, studies in associations.items():
+            study_str = str(studies)
+            metadata_df.loc[
+                metadata_df["sample_id"] == sample_id,
+                "associated_studies",
+            ] = study_str
 
         return metadata_df
 

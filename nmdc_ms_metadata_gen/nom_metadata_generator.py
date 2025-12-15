@@ -440,8 +440,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 "processing_institution_generation"
             ),
             associated_studies=(
-                ast.literal_eval(row.get("biosample.associated_studies"))
-                if row.get("biosample.associated_studies") is not None
+                ast.literal_eval(row.get("associated_studies"))
+                if row.get("associated_studies") is not None
                 else None
             ),
             processing_institution_workflow=row.get("processing_institution_workflow"),
