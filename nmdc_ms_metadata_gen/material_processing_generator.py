@@ -97,7 +97,8 @@ class MaterialProcessingMetadataGenerator(NMDCMetadataGenerator):
         ## Get sample specific info for yaml if its provided
         if self.sample_specific_info_path:
             sample_specific_info = survey.additional_info(
-                self.sample_specific_info_path
+                self.sample_specific_info_path,
+                reference_mapping["biosample_id"].unique().tolist(),
             )
 
         ## For each biosample create json of necessary material processing steps and processed samples, as well as output dataframe

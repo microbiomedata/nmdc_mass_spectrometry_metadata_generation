@@ -150,14 +150,18 @@ class MetadataSurveyor:
 
         return biosample_df
 
-    def additional_info(self, sample_specific_info_path: str) -> pd.DataFrame:
+    def additional_info(
+        self, sample_specific_info_path: str, mapped_biosamples: list
+    ) -> pd.DataFrame:
         """
-        Read in csv with additional sample information, checking that the required column names and analyte types are present
+        Read in csv with additional sample information, checking that the required column names are present and referenced biosamples are also in mapping info
 
         Parameters
         ----------
         sample_specific_info_path: pd.DataFrame
             Path to CSV of additional info
+        mapped_biosamples: list
+            List of biosamples provided in mapped dataframe
 
         Returns
         -------
@@ -170,7 +174,6 @@ class MetadataSurveyor:
             col
             for col in [
                 "biosample_id",
-                "material_processing_protocol_id",
                 "stepname",
                 "slotname",
                 "value",
@@ -182,11 +185,17 @@ class MetadataSurveyor:
                 f"Missing required columns in DataFrame: {', '.join(missing_columns)}"
             )
 
+        missing_biosamples = set(addinfo_df["biosample_id"]) - set(mapped_biosamples)
+        if missing_biosamples:
+            raise ValueError(
+                f"Biosamples in sample_specific_info that are not in mapping info: {missing_biosamples}"
+            )
+
         return addinfo_df
 
     def mapping_info(self, sample_to_dg_mapping_path: str) -> pd.DataFrame:
         """
-        Read in csv with mapping information, checking that the required column names and analyte types are present
+        Read in csv with mapping information, checking that the required column names and each biosample has only one protocol id
 
         Parameters
         ----------
@@ -210,6 +219,16 @@ class MetadataSurveyor:
         if missing_columns:
             raise ValueError(
                 f"Missing required columns in DataFrame: {', '.join(missing_columns)}"
+            )
+        duplicate_protocols = mapping_df.groupby("biosample_id")[
+            "material_processing_protocol_id"
+        ].nunique()
+        if (duplicate_protocols > 1).any():
+            problem_biosamples = duplicate_protocols[
+                duplicate_protocols > 1
+            ].index.tolist()
+            raise ValueError(
+                f"More than one `material_processing_protocol_id` for biosamples: {problem_biosamples}"
             )
 
         return mapping_df

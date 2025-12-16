@@ -8,7 +8,6 @@ import numpy as np
 # Third-Party Libraries
 import pandas as pd
 import typing_inspect
-import yaml
 from nmdc_schema.nmdc import (
     Biosample,
     ControlledIdentifiedTermValue,
@@ -17,6 +16,7 @@ from nmdc_schema.nmdc import (
     TextValue,
     TimestampValue,
 )
+from ruamel.yaml import YAML
 
 # Local Modules
 from nmdc_ms_metadata_gen.bio_ontology_api import BioOntologyInfoRetriever
@@ -481,7 +481,8 @@ class YamlSpecifier:
         """
 
         with open(self.yaml_outline_path) as f:
-            outline = yaml.safe_load(f)
+            yaml = YAML()
+            outline = yaml.load(f)
         return outline[protocol_id]
 
     def update_value(
@@ -640,7 +641,7 @@ class YamlSpecifier:
             Updated yaml outline with sample specific adjustments
         """
 
-        # yaml outline (no sample specific information)
+        # yaml outline for sample protocol
         outline = self.load_yaml(protocol_id)
 
         # add sample specific values from dictionary to outline

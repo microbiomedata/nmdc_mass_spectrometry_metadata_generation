@@ -1,0 +1,426 @@
+GROW_NOM_water:
+  steps:
+
+  - Step 1_GROW_NOM_water: # filtered into sampling container in the field
+      FiltrationProcess:
+        id: # nmdc:filtpr-{shoulder}-{blade}
+        type: nmdc:FiltrationProcess
+        name: <Biosample>_syringe_filtration
+        description: Syringe filtration of <Biosample>
+        has_input:
+        - Biosample
+        has_output:
+        - ProcessedSample1_GROW_NOM_water
+        protocol_link:
+          name: "Toyoda et al 2020. WHONDRS Summer 2019 Sampling Campaign: Global River Corridor Surface Water FTICR-MS, NPOC, TN, Anions, Stable Isotopes, Bacterial Abundance, and Dissolved Inorganic Carbon (v7)."
+          url: https://doi.org/10.15485/1603775
+          type: nmdc:Protocol
+        start_date: # sampling date on Biosample
+        end_date: # sampling date on Biosample
+        container_size:
+          type: nmdc:QuantityValue
+          has_raw_value: 40 mL
+          has_unit: mL
+          has_numeric_value: 40
+        filter_material: polyethersulfone
+        filter_pore_size:
+          type: nmdc:QuantityValue
+          has_raw_value: 0.22 um
+          has_unit: um
+          has_numeric_value: 0.22
+        filtration_category: field syringe collection
+        is_pressurized: true
+        separation_method: syringe
+        volume:
+          type: nmdc:QuantityValue
+          has_raw_value: 20 mL
+          has_unit: mL
+          has_numeric_value: 20
+
+  - Step 2_GROW_NOM_water: # sampled into acidified containers
+      ChemicalConversionProcess:
+        id: # nmdc:chcpr-{shoulder}-{blade}
+        type: nmdc:ChemicalConversionProcess
+        name: <Biosample>_acidification
+        description: Collection of <Biosample> into a vial containing acid
+        has_input:
+        - ProcessedSample1_GROW_NOM_water
+        has_output:
+        - ProcessedSample2_GROW_NOM_water
+        protocol_link:
+          name: "Toyoda et al 2020. WHONDRS Summer 2019 Sampling Campaign: Global River Corridor Surface Water FTICR-MS, NPOC, TN, Anions, Stable Isotopes, Bacterial Abundance, and Dissolved Inorganic Carbon (v7)."
+          url: https://doi.org/10.15485/1603775
+          type: nmdc:Protocol
+        start_date: # sampling date
+        end_date: # sampling date
+        chemical_conversion_category: acid_base
+        substances_used:
+        - type: nmdc:PortionOfSubstance
+          known_as: phosphoric_acid
+          substance_role: acid
+          source_concentration:
+            type: nmdc:QuantityValue
+            has_raw_value: 85 percent
+            has_unit: '%'
+            has_numeric_value: 85
+          volume:
+            type: nmdc:QuantityValue
+            has_raw_value: 10 uL
+            has_unit: uL
+            has_numeric_value: 10
+        - type: nmdc:PortionOfSubstance
+          known_as: water   # containing sample
+          volume:
+            type: nmdc:QuantityValue
+            has_raw_value: 20 mL
+            has_unit: mL
+            has_numeric_value: 20
+
+# frozen storage / thaw (not modeled)
+
+  - Step 3_GROW_NOM_water: # subsampled for NPOC (not modeled) and FTICR
+      SubSamplingProcess:
+        id: # nmdc:subspr-{shoulder}-{blade}
+        type: nmdc:SubSamplingProcess
+        name: <Biosample>_subsampling
+        description: Subsampling of <Biosample> for lab processing for FT-ICR analysis
+        has_input:
+        - ProcessedSample2_GROW_NOM_water
+        has_output:
+        - ProcessedSample3_GROW_NOM_water
+        processing_institution: EMSL
+        protocol_link:
+          name: "Toyoda et al 2020. WHONDRS Summer 2019 Sampling Campaign: Global River Corridor Surface Water FTICR-MS, NPOC, TN, Anions, Stable Isotopes, Bacterial Abundance, and Dissolved Inorganic Carbon (v7)."
+          url: https://doi.org/10.15485/1603775
+          type: nmdc:Protocol
+
+# no extraction, it's water
+# incubation (not modeled)
+
+  - Step 4_GROW_NOM_water: # Dilute based on carbon concentration
+      DissolvingProcess:
+        id: # nmdc:dispro-{shoulder}-{blade}
+        type: nmdc:DissolvingProcess
+        name: <Biosample>_water_dilution
+        description: Water dilution of <Biosample> water extracts to uniform concentration of 1.5 mg/L non-purgeable organic carbon
+        has_input:
+        - ProcessedSample3_GROW_NOM_water
+        has_output:
+        - ProcessedSample4_GROW_NOM_water
+        processing_institution: EMSL
+        protocol_link:
+          name: "Toyoda et al 2020. WHONDRS Summer 2019 Sampling Campaign: Global River Corridor Surface Water FTICR-MS, NPOC, TN, Anions, Stable Isotopes, Bacterial Abundance, and Dissolved Inorganic Carbon (v7)."
+          url: https://doi.org/10.15485/1603775
+          type: nmdc:Protocol
+        substances_used:
+        - type: nmdc:PortionOfSubstance
+          known_as: water
+          substance_role: solvent
+          final_concentration:
+            type: nmdc:QuantityValue
+            has_raw_value: 1.5 mg/L
+            has_unit: mg/L
+            has_numeric_value: 1.5
+
+  - Step 5_GROW_NOM_water: # SPE cleanup
+      ChromatographicSeparationProcess:
+        id: # nmdc:cspro-{shoulder}-{blade}
+        type: nmdc:ChromatographicSeparationProcess
+        name: <Biosample>_SPE
+        description: Solid phase extraction cleanup of acidified and diluted water sample <Biosample>
+        has_input:
+        - ProcessedSample4_GROW_NOM_water
+        has_output:
+        - ProcessedSample5_GROW_NOM_water
+        processing_institution: EMSL
+        protocol_link:
+          url: https://doi.org/10.4319/lom.2008.6.230
+          name: Dittmar et al 2008. A simple and efficient method for the solid-phase extraction of dissolved organic matter (SPE-DOM) from seawater
+          type: nmdc:Protocol
+        chromatographic_category: solid_phase_extraction
+        ordered_mobile_phases:
+        - type: nmdc:MobilePhaseSegment   # "Load the acidified sample onto the cartridge"
+          substances_used:
+          - type: nmdc:PortionOfSubstance
+            known_as: water     # containing sample
+            substance_role: solvent
+        - type: nmdc:MobilePhaseSegment   # Wash the cartridge 17+x with HCl"
+          substances_used:
+          - type: nmdc:PortionOfSubstance
+            known_as: hydrochloric_acid
+            substance_role: acid
+            source_concentration:
+              type: nmdc:QuantityValue
+              has_raw_value: 10 mmol/L
+              has_unit: mmol/L
+              has_numeric_value: 10
+            volume:
+              type: nmdc:QuantityValue
+              has_raw_value: 3 mL
+              has_unit: mL
+              has_numeric_value: 3
+        - type: nmdc:MobilePhaseSegment   # "Elute with 1.5 mL methanol"
+          substances_used:
+          - type: nmdc:PortionOfSubstance
+            known_as: methanol
+            substance_role: solvent
+            volume:
+              type: nmdc:QuantityValue
+              has_raw_value: 1.5 mL
+              has_unit: mL
+              has_numeric_value: 1.5
+        stationary_phase: PS-DVB
+
+  processedsamples:
+
+  - ProcessedSample1_GROW_NOM_water:
+      ProcessedSample:
+        id: #nmdc:
+        type: nmdc:ProcessedSample
+        name: <Biosample>_filtered
+        description: Filtered water from <Biosample>
+        sampled_portion:
+        - aqueous_layer
+
+  - ProcessedSample2_GROW_NOM_water:
+      ProcessedSample:
+        id: #nmdc:
+        type: nmdc:ProcessedSample
+        name: <Biosample>_acidified
+        description: <Biosample> stored in acidified vial
+        sampled_portion:
+        - aqueous_layer
+
+  - ProcessedSample3_GROW_NOM_water:
+      ProcessedSample:
+        id: #nmdc:
+        type: nmdc:ProcessedSample
+        name: <Biosample>_subsample
+        description: <Biosample> subsampled for analysis
+        sampled_portion:
+        - aqueous_layer
+
+  - ProcessedSample4_GROW_NOM_water:
+      ProcessedSample:
+        id: #nmdc:
+        type: nmdc:ProcessedSample
+        name: <Biosample>_diluted
+        description: <Biosample> diluted to normalize carbon concentrations across samples
+        sampled_portion:
+        - aqueous_layer
+
+  - ProcessedSample5_GROW_NOM_water:
+      ProcessedSample:
+        id: #nmdc:
+        type: nmdc:ProcessedSample
+        name: <Biosample>_SPE_NOM
+        description: NOM from SPE cleanup of <Biosample>
+        sampled_portion:
+        - aqueous_layer
+GROW_NOM_sediment:
+  steps:
+  - Step 1_GROW_NOM_sediment:
+      SubSamplingProcess:
+        id: # nmdc:subspr-{shoulder}-{blade}
+        type: nmdc:SubSamplingProcess
+        name: <Biosample>_subsampling
+        description: Subsampling of <Biosample> for lab processing for FT-ICR analysis
+        has_input:
+        - Biosample
+        has_output:
+        - ProcessedSample1_GROW_NOM_sediment
+        processing_institution: EMSL
+        protocol_link:
+          name: "Goldman et al 2020. WHONDRS Summer 2019 Sampling Campaign: Global River Corridor Sediment FTICR-MS, Dissolved Organic Carbon, Aerobic Respiration, Elemental Composition, Grain Size, Total Nitrogen and Organic Carbon Content, Bacterial Abundance, and Stable Isotopes (v8)"
+          url: https://doi.org/10.15485/1729719
+          type: nmdc:Protocol
+
+# incubation (not modeled)
+# frozen storage / thaw (not modeled)
+
+  - Step 2_GROW_NOM_sediment:
+      Extraction:
+        id: # nmdc:extrp-{shoulder}-{blade}
+        type: nmdc:Extraction
+        name: <Biosample>_water_Extraction
+        description: Water extraction of <Biosample>
+        has_input:
+        - ProcessedSample1_GROW_NOM_sediment
+        has_output:
+        - ProcessedSample2_GROW_NOM_sediment
+        processing_institution: EMSL
+        extraction_targets:
+        - natural organic matter
+        substances_used:
+        - type: nmdc:PortionOfSubstance
+          known_as: water
+          substance_role: solvent
+          volume:
+            type: nmdc:QuantityValue
+            has_raw_value: 10 mL
+            has_unit: mL
+            has_numeric_value: 10
+        protocol_link:
+          name: "Goldman et al 2020. WHONDRS Summer 2019 Sampling Campaign: Global River Corridor Sediment FTICR-MS, Dissolved Organic Carbon, Aerobic Respiration, Elemental Composition, Grain Size, Total Nitrogen and Organic Carbon Content, Bacterial Abundance, and Stable Isotopes (v8)"
+          url: https://doi.org/10.15485/1729719
+          type: nmdc:Protocol
+        volume: # 5 mL sediment but mass not specified
+          type: nmdc:QuantityValue
+          has_raw_value: 5 mL
+          has_unit: mL
+          has_numeric_value: 5
+
+  - Step 3_GROW_NOM_sediment:
+      FiltrationProcess:
+        id: # nmdc:filtpr-{shoulder}-{blade}
+        type: nmdc:FiltrationProcess
+        name: <Biosample>_extract_filtration
+        description: Filtering NOM extract of <Biosample>
+        has_input:
+        - ProcessedSample2_GROW_NOM_sediment
+        has_output:
+        - ProcessedSample3_GROW_NOM_sediment
+        protocol_link:
+          name: "Goldman et al 2020. WHONDRS Summer 2019 Sampling Campaign: Global River Corridor Sediment FTICR-MS, Dissolved Organic Carbon, Aerobic Respiration, Elemental Composition, Grain Size, Total Nitrogen and Organic Carbon Content, Bacterial Abundance, and Stable Isotopes (v8)"
+          url: https://doi.org/10.15485/1729719
+          type: nmdc:Protocol
+        filter_material: polyethersulfone
+        filter_pore_size:
+          type: nmdc:QuantityValue
+          has_raw_value: 0.22 um
+          has_unit: um
+          has_numeric_value: 0.22
+
+  - Step 4_GROW_NOM_sediment:
+      DissolvingProcess:
+        id: # nmdc:dispro-{shoulder}-{blade}
+        type: nmdc:DissolvingProcess
+        name: <Biosample>_water_dilution
+        description: Water dilution of <Biosample> water extracts to uniform concentration of 1.5 mg/L non-purgeable organic carbon
+        has_input:
+        - ProcessedSample3_GROW_NOM_sediment
+        has_output:
+        - ProcessedSample4_GROW_NOM_sediment
+        processing_institution: EMSL
+        protocol_link:
+          name: "Goldman et al 2020. WHONDRS Summer 2019 Sampling Campaign: Global River Corridor Sediment FTICR-MS, Dissolved Organic Carbon, Aerobic Respiration, Elemental Composition, Grain Size, Total Nitrogen and Organic Carbon Content, Bacterial Abundance, and Stable Isotopes (v8)"
+          url: https://doi.org/10.15485/1729719
+          type: nmdc:Protocol
+        substances_used:
+        - type: nmdc:PortionOfSubstance
+          known_as: water
+          substance_role: solvent
+          final_concentration:
+            type: nmdc:QuantityValue
+            has_raw_value: 1.5 mg/L
+            has_unit: mg/L
+            has_numeric_value: 1.5
+
+  - Step 5_GROW_NOM_sediment:
+      ChromatographicSeparationProcess:
+        id: # nmdc:cspro-{shoulder}-{blade}
+        type: nmdc:ChromatographicSeparationProcess
+        name: Water extract SPE
+        description: Solid phase extraction of water-extracted NOM from <Biosample>
+        has_input:
+        - ProcessedSample4_GROW_NOM_sediment
+        has_output:
+        - ProcessedSample5_GROW_NOM_sediment
+        processing_institution: EMSL
+        protocol_link:
+          url: https://doi.org/10.4319/lom.2008.6.230
+          name: Dittmar et al 2008. A simple and efficient method for the solid-phase extraction of dissolved organic matter (SPE-DOM) from seawater
+          type: nmdc:Protocol
+        chromatographic_category: solid_phase_extraction
+        ordered_mobile_phases:
+        - type: nmdc:MobilePhaseSegment   # incorporating acidification step here
+          substances_used:
+          - type: nmdc:PortionOfSubstance
+            known_as: phosphoric_acid
+            substance_role: acid
+            source_concentration:
+              type: nmdc:QuantityValue
+              has_raw_value: 85%
+              has_unit: '%'
+              has_numeric_value: 85
+          - type: nmdc:PortionOfSubstance
+            known_as: water     # containing sample
+            substance_role: solvent
+            volume:
+              type: nmdc:QuantityValue
+              has_raw_value: 15 mL
+              has_unit: mL
+              has_numeric_value: 15
+        - type: nmdc:MobilePhaseSegment   # Wash the cartridge 17+x with HCl"
+          substances_used:
+          - type: nmdc:PortionOfSubstance
+            known_as: hydrochloric_acid
+            substance_role: acid
+            source_concentration:
+              type: nmdc:QuantityValue
+              has_raw_value: 10 mmol/L
+              has_unit: mmol/L
+              has_numeric_value: 10
+            volume:
+              type: nmdc:QuantityValue
+              has_raw_value: 3 mL
+              has_unit: mL
+              has_numeric_value: 3
+        - type: nmdc:MobilePhaseSegment   # "Elute with 1.5 mL methanol"
+          substances_used:
+          - type: nmdc:PortionOfSubstance
+            known_as: methanol
+            substance_role: solvent
+            volume:
+              type: nmdc:QuantityValue
+              has_raw_value: 1.5 mL
+              has_unit: mL
+              has_numeric_value: 1.5
+        stationary_phase: PS-DVB
+
+  processedsamples:
+
+  - ProcessedSample1_GROW_NOM_sediment:
+      ProcessedSample:
+        id: #nmdc:
+        type: nmdc:ProcessedSample
+        name: <Biosample>_subsample
+        description: <Biosample> subsampled for analysis
+        sampled_portion:
+        - aqueous_layer
+
+  - ProcessedSample2_GROW_NOM_sediment:
+      ProcessedSample:
+        id: #nmdc:
+        type: nmdc:ProcessedSample
+        name: <Biosample>_extracted
+        description: NOM extracted from <Biosample> sediment
+        sampled_portion:
+        - aqueous_layer
+
+  - ProcessedSample3_GROW_NOM_sediment:
+      ProcessedSample:
+        id: #nmdc:
+        type: nmdc:ProcessedSample
+        name: <Biosample>_filtered
+        description: Filtered NOM extracted from <Biosample>
+        sampled_portion:
+        - aqueous_layer
+
+  - ProcessedSample4_GROW_NOM_sediment:
+      ProcessedSample:
+        id: #nmdc:
+        type: nmdc:ProcessedSample
+        name: <Biosample>_diluted
+        description: <Biosample> diluted to normalize carbon concentrations across samples
+        sampled_portion:
+        - aqueous_layer
+
+  - ProcessedSample5_GROW_NOM_sediment:
+      ProcessedSample:
+        id: #nmdc:
+        type: nmdc:ProcessedSample
+        name: <Biosample>_SPE_NOM
+        description: NOM from SPE cleanup of <Biosample>
+        sampled_portion:
+        - aqueous_layer

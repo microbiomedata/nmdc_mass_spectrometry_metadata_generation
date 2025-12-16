@@ -19,15 +19,14 @@ def test_yamlspecifier_add_info():
     Test YamlSpecifier: Does it add biosample specific info to the yaml outline when provided as additional tsv?
     """
 
-    # Spruce test study
     yaml_outline_path = (
-        "tests/test_data/test_material_processing/spruce_proteins_test.yaml"
+        "tests/test_data/test_material_processing/test_yaml_for_add_info_test.yaml"
     )
     sample_to_dg_mapping_path = (
-        "tests/test_data/test_material_processing/add_info_test_mapping_input.csv"
+        "tests/test_data/test_material_processing/mapping_input_for_add_info_test.csv"
     )
     sample_specific_info_path = (
-        "tests/test_data/test_material_processing/add_info_test_input.csv"
+        "tests/test_data/test_material_processing/add_info_input_for_add_info_test.csv"
     )
 
     yaml_parameters = {}
@@ -35,8 +34,8 @@ def test_yamlspecifier_add_info():
     sample_specific_info = pd.read_csv(sample_specific_info_path)
     sample_to_dg_mapping_path = pd.read_csv(sample_to_dg_mapping_path)
 
-    # Subset to one biosample test
-    test_biosample = sample_to_dg_mapping_path["biosample_id"].iloc[0]
+    # Subset to the second biosample test
+    test_biosample = sample_to_dg_mapping_path["biosample_id"].iloc[1]
     sample_mapping = sample_to_dg_mapping_path[
         sample_to_dg_mapping_path["biosample_id"] == test_biosample
     ].reset_index(drop=True)
@@ -46,26 +45,32 @@ def test_yamlspecifier_add_info():
     yaml_parameters["sample_specific_info_subset"] = sample_specific_info[
         sample_specific_info["biosample_id"] == test_biosample
     ].reset_index(drop=True)
+    protocol_id = sample_mapping["material_processing_protocol_id"].unique()
+    yaml_parameters["protocol_id"] = protocol_id[0]
 
-    # See if updated yaml outline has QuantityValue filled out
-    data_parser = YamlSpecifier(yaml_outline_path=yaml_outline_path)
+    # See if updated yaml outline has slots filled out
+    data_parser = YamlSpecifier(
+        yaml_outline_path=yaml_outline_path,
+    )
     full_outline = data_parser.yaml_generation(**yaml_parameters)
 
-    assert full_outline["steps"][0]["Step 1"]["SubSamplingProcess"]["mass"][
-        "has_raw_value"
+    assert full_outline["steps"][0]["Step 1_GROW_NOM_water"]["FiltrationProcess"][
+        "start_date"
     ]
-    assert full_outline["steps"][0]["Step 1"]["SubSamplingProcess"]["mass"][
-        "has_numeric_value"
+    assert full_outline["steps"][0]["Step 1_GROW_NOM_water"]["FiltrationProcess"][
+        "end_date"
     ]
-    assert full_outline["steps"][0]["Step 1"]["SubSamplingProcess"]["mass"]["has_unit"]
-    assert full_outline["steps"][1]["Step 2"]["Extraction"]["input_mass"][
-        "has_raw_value"
-    ]
+    assert full_outline["steps"][1]["Step 2_GROW_NOM_water"][
+        "ChemicalConversionProcess"
+    ]["start_date"]
+    assert full_outline["steps"][1]["Step 2_GROW_NOM_water"][
+        "ChemicalConversionProcess"
+    ]["end_date"]
 
 
 def test_yamlspecifier_adjust_outputs():
     """
-    Test YamlSpecifier: Does it adjust the number of outputs according to number of raw identifiers provided?
+    Test YamlSpecifier: Does it adjust the number of outputs for each protocol according to the number of raw identifiers provided?
     i.e. reduce to only one output if only one data generation record
     """
 
@@ -83,11 +88,9 @@ def test_yamlspecifier_adjust_outputs():
 
     yaml_parameters = {}
     yaml_outline_path = (
-        "tests/test_data/test_material_processing/SanClements-NOM_test.yaml"
+        "tests/test_data/test_material_processing/test_yaml_for_output_adjust_test.yaml"
     )
-    sample_to_dg_mapping_path = (
-        "tests/test_data/test_material_processing/outputs_test_mapping_input.csv"
-    )
+    sample_to_dg_mapping_path = "tests/test_data/test_material_processing/mapping_input_for_output_adjust_test.csv"
     sample_to_dg_mapping = pd.read_csv(sample_to_dg_mapping_path)
 
     # Subset to biosamples with varying number of outputs
@@ -98,6 +101,8 @@ def test_yamlspecifier_adjust_outputs():
         yaml_parameters["target_outputs"] = (
             sample_mapping["processedsample_placeholder"].unique().tolist()
         )
+        protocol_id = sample_mapping["material_processing_protocol_id"].unique()
+        yaml_parameters["protocol_id"] = protocol_id[0]
         data_parser = YamlSpecifier(yaml_outline_path=yaml_outline_path)
         full_outline = data_parser.yaml_generation(**yaml_parameters)
 
@@ -126,10 +131,10 @@ def test_map_final_samples():
     generator = MaterialProcessingMetadataGenerator(
         database_dump_json_path="tests/test_data/test_mp_map_samples_output.json",
         study_id="nmdc:sty-11-8xdqsn54",
-        yaml_outline_path="tests/test_data/test_material_processing/SanClements-NOM_test.yaml",
-        sample_to_dg_mapping_path="tests/test_data/test_material_processing/outputs_test_mapping_input.csv",
+        yaml_outline_path="tests/test_data/test_material_processing/test_yaml_for_output_adjust_test.yaml",
+        sample_to_dg_mapping_path="tests/test_data/test_material_processing/mapping_input_for_output_adjust_test.csv",
         test=True,
-        # minting_config_creds='../config.toml',
+        minting_config_creds="../config.toml",
     )
 
     metadata = generator.run()
@@ -146,9 +151,9 @@ def test_changesheet_workflowsheet():
     generator = MaterialProcessingMetadataGenerator(
         database_dump_json_path="tests/test_data/test_mp_changesheet_workflowsheet_output.json",
         study_id="nmdc:sty-11-8xdqsn54",
-        yaml_outline_path="tests/test_data/test_material_processing/SanClements-NOM_test.yaml",
-        sample_to_dg_mapping_path="tests/test_data/test_material_processing/changesheet_workflowsheet_test_mapping_input.csv",
-        # minting_config_creds='../config.toml',
+        yaml_outline_path="tests/test_data/test_material_processing/test_yaml_for_output_adjust_test.yaml",
+        sample_to_dg_mapping_path="tests/test_data/test_material_processing/mapping_input_for_changesheet_workflowsheet_test.csv",
+        minting_config_creds="../config.toml",
         test=True,
     )
 

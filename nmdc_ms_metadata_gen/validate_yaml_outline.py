@@ -23,7 +23,7 @@ def validate_yaml_outline(yaml_outline_path: str, protocol_id_list: str, use_api
     --------
     Command line example
     From the nmdc_mass_spectrometry_metadata_generation directory run:
-    `python -m nmdc_ms_metadata_gen.validate_yaml_outline --yaml_outline_path 'path_to_yaml/example.yaml' --protocol_id_list 'example_protocol1' --use_api False`
+    `python -m nmdc_ms_metadata_gen.validate_yaml_outline --yaml_outline_path 'path_to_yaml/example.yaml' --protocol_id_list 'example_protocol1,example_protocol2' --use_api False`
     """
 
     protocol_id_list = [p.strip() for p in protocol_id_list.split(",")]
