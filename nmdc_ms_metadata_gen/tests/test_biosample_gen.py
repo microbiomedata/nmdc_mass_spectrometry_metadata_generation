@@ -4,6 +4,7 @@ from datetime import datetime
 
 from dotenv import load_dotenv
 
+import nmdc_ms_metadata_gen
 from nmdc_ms_metadata_gen.biosample_generator import BiosampleGenerator
 
 load_dotenv()
@@ -41,6 +42,11 @@ def test_di_nom_biosample_gen_more_fields():
     working_data = json.load(file)
     file.close()
     assert len(working_data["biosample_set"]) == 2
+    assert "provenance_metadata" in working_data["biosample_set"][0]
+    assert (
+        working_data["biosample_set"][0]["provenance_metadata"]["version"]
+        == nmdc_ms_metadata_gen.__version__
+    )
 
 
 def test_biosample_gen():

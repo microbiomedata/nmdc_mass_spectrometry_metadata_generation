@@ -5,6 +5,7 @@ import nmdc_schema.nmdc as nmdc
 import pandas as pd
 import toml
 
+import nmdc_ms_metadata_gen
 from nmdc_ms_metadata_gen.data_classes import NmdcTypes
 from nmdc_ms_metadata_gen.id_pool import IDPool
 from nmdc_ms_metadata_gen.metadata_generator import NMDCMetadataGenerator
@@ -37,13 +38,15 @@ class BiosampleGenerator(NMDCMetadataGenerator):
         id_pool_size: int = 50,
         id_refill_threshold: int = 10,
     ):
+        # Initialize superclass with ID pool parameters
+        super().__init__(
+            id_pool_size=id_pool_size, id_refill_threshold=id_refill_threshold
+        )
+
+        # Add class-specific attributes
         self.metadata_file = metadata_file
         self.database_dump_json_path = database_dump_json_path
         self.minting_config_creds = minting_config_creds
-        # Initialize ID pool
-        self.id_pool = IDPool(
-            pool_size=id_pool_size, refill_threshold=id_refill_threshold
-        )
 
     def run(self) -> dict:
         """
@@ -122,6 +125,7 @@ class BiosampleGenerator(NMDCMetadataGenerator):
                 "The 'biosample.name' column is required to create biosamples."
             )
         rows = metadata_df.groupby("biosample.name")
+
         for _, group in rows:
             row = group.iloc[0]
             if pd.isnull(row.get("biosample_id")):
@@ -189,6 +193,9 @@ class BiosampleGenerator(NMDCMetadataGenerator):
 
         # Filter dictionary to remove any key/value pairs with None as the value
         biosamp_dict = self.clean_dict(biosamp_metadata)
+
+        # Add provenance metadata
+        biosamp_dict["provenance_metadata"] = self.provenance_metadata
 
         biosample_record = nmdc.Biosample(**biosamp_dict)
 

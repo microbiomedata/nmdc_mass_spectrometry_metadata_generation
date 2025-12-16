@@ -37,6 +37,7 @@ from nmdc_schema import NmdcSchemaValidationPlugin
 from nmdc_schema.nmdc import Database as NMDCDatabase
 from tqdm import tqdm
 
+import nmdc_ms_metadata_gen
 from nmdc_ms_metadata_gen.data_classes import NmdcTypes
 from nmdc_ms_metadata_gen.id_pool import IDPool
 
@@ -52,6 +53,20 @@ logging.basicConfig(
 class NMDCMetadataGenerator:
     """
     Generic base class for generating and validating NMDC metadata
+
+    Parameters
+    ----------
+    id_pool_size : int
+        The size of the ID pool to maintain for minting NMDC IDs. Default is 100.
+    id_refill_threshold : int
+        The threshold at which to refill the ID pool. Default is 10.
+
+    Attributes
+    ----------
+    id_pool : IDPool
+        An instance of the IDPool class for managing NMDC ID minting.
+    provenance_metadata : nmdc.ProvenanceMetadata
+        An instance of the ProvenanceMetadata associated with this metadata generation process.
     """
 
     def __init__(self, id_pool_size: int = 100, id_refill_threshold: int = 10):
@@ -59,6 +74,41 @@ class NMDCMetadataGenerator:
         self.id_pool = IDPool(
             pool_size=id_pool_size, refill_threshold=id_refill_threshold
         )
+        # Add provenance metadata
+        self.provenance_metadata = self._generate_provenance_metadata()
+
+    def _generate_provenance_metadata(self) -> nmdc.ProvenanceMetadata:
+        """
+        Generate ProvenanceMetadata associated with this metadata generation process.
+
+        This method creates a ProvenanceMetadata instance that captures
+        information about the metadata generation process and is subsequently
+        associated with generated NMDC instances as appropriate.
+
+        Returns
+        -------
+        nmdc.ProvenanceMetadata
+            The generated ProvenanceMetadata instance.
+        """
+        type_str = NmdcTypes.ProvenanceMetadata
+        git_url = "https://github.com/microbiomedata/nmdc_mass_spectrometry_metadata_generation"
+        version = nmdc_ms_metadata_gen.__version__
+
+        # Warn if using development version (package not installed properly)
+        if version == "0.0.0-dev":
+            logging.warning(
+                "Using development version '0.0.0-dev'. Install the package with 'pip install -e .' to use the actual version from pyproject.toml"
+            )
+
+        source_system_of_record = "custom"
+        provenance_metadata = nmdc.ProvenanceMetadata(
+            type=type_str,
+            git_url=git_url,
+            version=version,
+            source_system_of_record=source_system_of_record,
+        )
+
+        return provenance_metadata
 
     def load_credentials(self, config_file: str = None) -> tuple:
         """
