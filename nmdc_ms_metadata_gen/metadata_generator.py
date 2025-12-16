@@ -53,6 +53,20 @@ logging.basicConfig(
 class NMDCMetadataGenerator:
     """
     Generic base class for generating and validating NMDC metadata
+
+    Parameters
+    ----------
+    id_pool_size : int
+        The size of the ID pool to maintain for minting NMDC IDs. Default is 100.
+    id_refill_threshold : int
+        The threshold at which to refill the ID pool. Default is 10.
+
+    Attributes
+    ----------
+    id_pool : IDPool
+        An instance of the IDPool class for managing NMDC ID minting.
+    provenance_metadata : nmdc.ProvenanceMetadata
+        An instance of the ProvenanceMetadata associated with this metadata generation process.
     """
 
     def __init__(self, id_pool_size: int = 100, id_refill_threshold: int = 10):
@@ -60,6 +74,8 @@ class NMDCMetadataGenerator:
         self.id_pool = IDPool(
             pool_size=id_pool_size, refill_threshold=id_refill_threshold
         )
+        # Add provenance metadata
+        self._add_provenance_metadata()
 
     def _add_provenance_metadata(self) -> nmdc.ProvenanceMetadata:
         """
