@@ -75,11 +75,11 @@ class NMDCMetadataGenerator:
             pool_size=id_pool_size, refill_threshold=id_refill_threshold
         )
         # Add provenance metadata
-        self.provenance_metadata = self._add_provenance_metadata()
+        self.provenance_metadata = self._generate_provenance_metadata()
 
-    def _add_provenance_metadata(self) -> nmdc.ProvenanceMetadata:
+    def _generate_provenance_metadata(self) -> nmdc.ProvenanceMetadata:
         """
-        Add ProvenanceMetadata associated with this metadata generation process.
+        Generate ProvenanceMetadata associated with this metadata generation process.
 
         This method creates a ProvenanceMetadata instance that captures
         information about the metadata generation process and is subsequently
