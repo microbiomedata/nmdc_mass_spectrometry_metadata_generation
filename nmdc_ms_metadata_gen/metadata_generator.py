@@ -75,7 +75,7 @@ class NMDCMetadataGenerator:
             pool_size=id_pool_size, refill_threshold=id_refill_threshold
         )
         # Add provenance metadata
-        self._add_provenance_metadata()
+        self.provenance_metadata = self._add_provenance_metadata()
 
     def _add_provenance_metadata(self) -> nmdc.ProvenanceMetadata:
         """
@@ -108,7 +108,7 @@ class NMDCMetadataGenerator:
             source_system_of_record=source_system_of_record,
         )
 
-        self.provenance_metadata = provenance_metadata
+        return provenance_metadata
 
     def load_credentials(self, config_file: str = None) -> tuple:
         """
