@@ -124,9 +124,6 @@ class BiosampleGenerator(NMDCMetadataGenerator):
             )
         rows = metadata_df.groupby("biosample.name")
 
-        # Prepare biosample provenance metadata
-        self._provenance_metadata = self._generate_biosample_provenance_metadata()
-
         for _, group in rows:
             row = group.iloc[0]
             if pd.isnull(row.get("biosample_id")):
