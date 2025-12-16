@@ -38,13 +38,15 @@ class BiosampleGenerator(NMDCMetadataGenerator):
         id_pool_size: int = 50,
         id_refill_threshold: int = 10,
     ):
-        self.metadata_file = metadata_file
-        self.database_dump_json_path = database_dump_json_path
-        self.minting_config_creds = minting_config_creds
-        # Initialize ID pool
+        # Initialize superclass with ID pool parameters
         super().__init__(
             id_pool_size=id_pool_size, id_refill_threshold=id_refill_threshold
         )
+
+        # Add class-specific attributes
+        self.metadata_file = metadata_file
+        self.database_dump_json_path = database_dump_json_path
+        self.minting_config_creds = minting_config_creds
 
     def run(self) -> dict:
         """
