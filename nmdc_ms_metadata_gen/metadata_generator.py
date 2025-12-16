@@ -37,6 +37,7 @@ from nmdc_schema import NmdcSchemaValidationPlugin
 from nmdc_schema.nmdc import Database as NMDCDatabase
 from tqdm import tqdm
 
+import nmdc_ms_metadata_gen
 from nmdc_ms_metadata_gen.data_classes import NmdcTypes
 from nmdc_ms_metadata_gen.id_pool import IDPool
 
@@ -59,6 +60,39 @@ class NMDCMetadataGenerator:
         self.id_pool = IDPool(
             pool_size=id_pool_size, refill_threshold=id_refill_threshold
         )
+
+    def _add_provenance_metadata(self) -> nmdc.ProvenanceMetadata:
+        """
+        Add ProvenanceMetadata associated with this metadata generation process.
+
+        This method creates a ProvenanceMetadata instance that captures
+        information about the metadata generation process and is subsequently
+        associated with generated NMDC instances as appropriate.
+
+        Returns
+        -------
+        nmdc.ProvenanceMetadata
+            The generated ProvenanceMetadata instance.
+        """
+        type_str = NmdcTypes.ProvenanceMetadata
+        git_url = "https://github.com/microbiomedata/nmdc_mass_spectrometry_metadata_generation"
+        version = nmdc_ms_metadata_gen.__version__
+
+        # Warn if using development version (package not installed properly)
+        if version == "0.0.0-dev":
+            logging.warning(
+                "Using development version '0.0.0-dev'. Install the package with 'pip install -e .' to use the actual version from pyproject.toml"
+            )
+
+        source_system_of_record = "custom"
+        provenance_metadata = nmdc.ProvenanceMetadata(
+            type=type_str,
+            git_url=git_url,
+            version=version,
+            source_system_of_record=source_system_of_record,
+        )
+
+        self.provenance_metadata = provenance_metadata
 
     def load_credentials(self, config_file: str = None) -> tuple:
         """

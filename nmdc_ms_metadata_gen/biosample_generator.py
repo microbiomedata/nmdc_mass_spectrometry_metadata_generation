@@ -194,32 +194,13 @@ class BiosampleGenerator(NMDCMetadataGenerator):
 
         # Filter dictionary to remove any key/value pairs with None as the value
         biosamp_dict = self.clean_dict(biosamp_metadata)
-        biosamp_dict["provenance_metadata"] = self._provenance_metadata
+
+        # Add provenance metadata
+        biosamp_dict["provenance_metadata"] = self.provenance_metadata
 
         biosample_record = nmdc.Biosample(**biosamp_dict)
 
         return biosample_record
-
-    def _generate_biosample_provenance_metadata(self) -> nmdc.ProvenanceMetadata:
-        """
-        Generate a ProvenanceMetadata record for the biosample.
-
-        Returns
-        -------
-        nmdc.ProvenanceMetadata
-            The generated ProvenanceMetadata instance.
-        """
-        type_str = NmdcTypes.ProvenanceMetadata
-        git_url = "https://github.com/microbiomedata/nmdc_mass_spectrometry_metadata_generation"
-        version = nmdc_ms_metadata_gen.__version__
-        source_system_of_record = "custom"
-        provenance_metadata = nmdc.ProvenanceMetadata(
-            type=type_str,
-            git_url=git_url,
-            version=version,
-            source_system_of_record=source_system_of_record,
-        )
-        return provenance_metadata
 
     def load_bio_credentials(self, config_file: str = None) -> str:
         """
