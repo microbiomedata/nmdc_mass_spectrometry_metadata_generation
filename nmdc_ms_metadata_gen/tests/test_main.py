@@ -130,7 +130,7 @@ def test_cli_material_processing():
         current_directory,
         "test_data",
         "test_material_processing",
-        "test_yaml_for_output_adjust_test",
+        "test_yaml_for_output_adjust_test.yaml",
     )
     sample_to_dg_mapping_path = os.path.join(
         current_directory,
