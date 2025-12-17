@@ -130,11 +130,11 @@ def test_cli_material_processing():
         current_directory,
         "test_data",
         "test_material_processing",
-        "SanClements-NOM_test.yaml",
+        "test_yaml_for_output_adjust_test",
     )
     sample_to_dg_mapping_path = os.path.join(
         current_directory,
-        "test_data/test_material_processing/changesheet_workflowsheet_test_mapping_input.csv",
+        "test_data/test_material_processing/mapping_input_for_output_adjust_test.csv",
     )
     output_file = os.path.join(
         current_directory,
