@@ -1,5 +1,5 @@
-stepname,slotname,biosample_id,value
-FiltrationProcess,start_date,nmdc:bsm-11-dqz3q682,2019-09-08
-FiltrationProcess,end_date,nmdc:bsm-11-dqz3q682,2019-09-08
-ChemicalConversionProcess,start_date,nmdc:bsm-11-dqz3q682,2019-09-08
-ChemicalConversionProcess,end_date,nmdc:bsm-11-dqz3q682,2019-09-08
+stepname,slotname,biosample_id,value,material_processing_protocol_id
+FiltrationProcess,start_date,nmdc:bsm-11-dqz3q682,2019-09-08,NOM_water
+FiltrationProcess,end_date,nmdc:bsm-11-dqz3q682,2019-09-08,NOM_water
+ChemicalConversionProcess,start_date,nmdc:bsm-11-dqz3q682,2019-09-08,NOM_water
+ChemicalConversionProcess,end_date,nmdc:bsm-11-dqz3q682,2019-09-08,NOM_water

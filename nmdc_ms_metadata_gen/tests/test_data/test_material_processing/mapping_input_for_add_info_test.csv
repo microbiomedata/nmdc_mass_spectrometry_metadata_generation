@@ -1,5 +1,5 @@
 biosample_id,raw_data_identifier,processedsample_placeholder,material_processing_protocol_id
-nmdc:bsm-11-p2xdkc25,nmdc:omprc-11-sq4r1v59,ProcessedSample5_GROW_NOM_sediment,GROW_NOM_sediment
-nmdc:bsm-11-dqz3q682,nmdc:omprc-11-3czmzz18,ProcessedSample5_GROW_NOM_water,GROW_NOM_water
-nmdc:bsm-11-dqz3q682,nmdc:omprc-11-5ry9kw84,ProcessedSample5_GROW_NOM_water,GROW_NOM_water
-nmdc:bsm-11-dqz3q682,nmdc:omprc-11-j6vrbe62,ProcessedSample5_GROW_NOM_water,GROW_NOM_water
+nmdc:bsm-11-p2xdkc25,nmdc:omprc-11-sq4r1v59,ProcessedSample5_NOM_sediment,NOM_sediment
+nmdc:bsm-11-dqz3q682,nmdc:omprc-11-3czmzz18,ProcessedSample5_NOM_water,NOM_water
+nmdc:bsm-11-dqz3q682,nmdc:omprc-11-5ry9kw84,ProcessedSample5_NOM_water,NOM_water
+nmdc:bsm-11-dqz3q682,nmdc:omprc-11-j6vrbe62,ProcessedSample5_NOM_water,NOM_water

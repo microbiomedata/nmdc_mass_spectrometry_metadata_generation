@@ -1,7 +1,7 @@
-GROW_NOM_water:
+NOM_water:
   steps:
 
-  - Step 1_GROW_NOM_water: # filtered into sampling container in the field
+  - Step 1_NOM_water: # filtered into sampling container in the field
       FiltrationProcess:
         id: # nmdc:filtpr-{shoulder}-{blade}
         type: nmdc:FiltrationProcess
@@ -10,7 +10,7 @@ GROW_NOM_water:
         has_input:
         - Biosample
         has_output:
-        - ProcessedSample1_GROW_NOM_water
+        - ProcessedSample1_NOM_water
         protocol_link:
           name: "Toyoda et al 2020. WHONDRS Summer 2019 Sampling Campaign: Global River Corridor Surface Water FTICR-MS, NPOC, TN, Anions, Stable Isotopes, Bacterial Abundance, and Dissolved Inorganic Carbon (v7)."
           url: https://doi.org/10.15485/1603775
@@ -37,16 +37,16 @@ GROW_NOM_water:
           has_unit: mL
           has_numeric_value: 20
 
-  - Step 2_GROW_NOM_water: # sampled into acidified containers
+  - Step 2_NOM_water: # sampled into acidified containers
       ChemicalConversionProcess:
         id: # nmdc:chcpr-{shoulder}-{blade}
         type: nmdc:ChemicalConversionProcess
         name: <Biosample>_acidification
         description: Collection of <Biosample> into a vial containing acid
         has_input:
-        - ProcessedSample1_GROW_NOM_water
+        - ProcessedSample1_NOM_water
         has_output:
-        - ProcessedSample2_GROW_NOM_water
+        - ProcessedSample2_NOM_water
         protocol_link:
           name: "Toyoda et al 2020. WHONDRS Summer 2019 Sampling Campaign: Global River Corridor Surface Water FTICR-MS, NPOC, TN, Anions, Stable Isotopes, Bacterial Abundance, and Dissolved Inorganic Carbon (v7)."
           url: https://doi.org/10.15485/1603775
@@ -78,16 +78,16 @@ GROW_NOM_water:
 
 # frozen storage / thaw (not modeled)
 
-  - Step 3_GROW_NOM_water: # subsampled for NPOC (not modeled) and FTICR
+  - Step 3_NOM_water: # subsampled for NPOC (not modeled) and FTICR
       SubSamplingProcess:
         id: # nmdc:subspr-{shoulder}-{blade}
         type: nmdc:SubSamplingProcess
         name: <Biosample>_subsampling
         description: Subsampling of <Biosample> for lab processing for FT-ICR analysis
         has_input:
-        - ProcessedSample2_GROW_NOM_water
+        - ProcessedSample2_NOM_water
         has_output:
-        - ProcessedSample3_GROW_NOM_water
+        - ProcessedSample3_NOM_water
         processing_institution: EMSL
         protocol_link:
           name: "Toyoda et al 2020. WHONDRS Summer 2019 Sampling Campaign: Global River Corridor Surface Water FTICR-MS, NPOC, TN, Anions, Stable Isotopes, Bacterial Abundance, and Dissolved Inorganic Carbon (v7)."
@@ -97,16 +97,16 @@ GROW_NOM_water:
 # no extraction, it's water
 # incubation (not modeled)
 
-  - Step 4_GROW_NOM_water: # Dilute based on carbon concentration
+  - Step 4_NOM_water: # Dilute based on carbon concentration
       DissolvingProcess:
         id: # nmdc:dispro-{shoulder}-{blade}
         type: nmdc:DissolvingProcess
         name: <Biosample>_water_dilution
         description: Water dilution of <Biosample> water extracts to uniform concentration of 1.5 mg/L non-purgeable organic carbon
         has_input:
-        - ProcessedSample3_GROW_NOM_water
+        - ProcessedSample3_NOM_water
         has_output:
-        - ProcessedSample4_GROW_NOM_water
+        - ProcessedSample4_NOM_water
         processing_institution: EMSL
         protocol_link:
           name: "Toyoda et al 2020. WHONDRS Summer 2019 Sampling Campaign: Global River Corridor Surface Water FTICR-MS, NPOC, TN, Anions, Stable Isotopes, Bacterial Abundance, and Dissolved Inorganic Carbon (v7)."
@@ -122,16 +122,16 @@ GROW_NOM_water:
             has_unit: mg/L
             has_numeric_value: 1.5
 
-  - Step 5_GROW_NOM_water: # SPE cleanup
+  - Step 5_NOM_water: # SPE cleanup
       ChromatographicSeparationProcess:
         id: # nmdc:cspro-{shoulder}-{blade}
         type: nmdc:ChromatographicSeparationProcess
         name: <Biosample>_SPE
         description: Solid phase extraction cleanup of acidified and diluted water sample <Biosample>
         has_input:
-        - ProcessedSample4_GROW_NOM_water
+        - ProcessedSample4_NOM_water
         has_output:
-        - ProcessedSample5_GROW_NOM_water
+        - ProcessedSample5_NOM_water
         processing_institution: EMSL
         protocol_link:
           url: https://doi.org/10.4319/lom.2008.6.230
@@ -173,7 +173,7 @@ GROW_NOM_water:
 
   processedsamples:
 
-  - ProcessedSample1_GROW_NOM_water:
+  - ProcessedSample1_NOM_water:
       ProcessedSample:
         id: #nmdc:
         type: nmdc:ProcessedSample
@@ -182,7 +182,7 @@ GROW_NOM_water:
         sampled_portion:
         - aqueous_layer
 
-  - ProcessedSample2_GROW_NOM_water:
+  - ProcessedSample2_NOM_water:
       ProcessedSample:
         id: #nmdc:
         type: nmdc:ProcessedSample
@@ -191,7 +191,7 @@ GROW_NOM_water:
         sampled_portion:
         - aqueous_layer
 
-  - ProcessedSample3_GROW_NOM_water:
+  - ProcessedSample3_NOM_water:
       ProcessedSample:
         id: #nmdc:
         type: nmdc:ProcessedSample
@@ -200,7 +200,7 @@ GROW_NOM_water:
         sampled_portion:
         - aqueous_layer
 
-  - ProcessedSample4_GROW_NOM_water:
+  - ProcessedSample4_NOM_water:
       ProcessedSample:
         id: #nmdc:
         type: nmdc:ProcessedSample
@@ -209,7 +209,7 @@ GROW_NOM_water:
         sampled_portion:
         - aqueous_layer
 
-  - ProcessedSample5_GROW_NOM_water:
+  - ProcessedSample5_NOM_water:
       ProcessedSample:
         id: #nmdc:
         type: nmdc:ProcessedSample
@@ -217,9 +217,9 @@ GROW_NOM_water:
         description: NOM from SPE cleanup of <Biosample>
         sampled_portion:
         - aqueous_layer
-GROW_NOM_sediment:
+NOM_sediment:
   steps:
-  - Step 1_GROW_NOM_sediment:
+  - Step 1_NOM_sediment:
       SubSamplingProcess:
         id: # nmdc:subspr-{shoulder}-{blade}
         type: nmdc:SubSamplingProcess
@@ -228,7 +228,7 @@ GROW_NOM_sediment:
         has_input:
         - Biosample
         has_output:
-        - ProcessedSample1_GROW_NOM_sediment
+        - ProcessedSample1_NOM_sediment
         processing_institution: EMSL
         protocol_link:
           name: "Goldman et al 2020. WHONDRS Summer 2019 Sampling Campaign: Global River Corridor Sediment FTICR-MS, Dissolved Organic Carbon, Aerobic Respiration, Elemental Composition, Grain Size, Total Nitrogen and Organic Carbon Content, Bacterial Abundance, and Stable Isotopes (v8)"
@@ -238,16 +238,16 @@ GROW_NOM_sediment:
 # incubation (not modeled)
 # frozen storage / thaw (not modeled)
 
-  - Step 2_GROW_NOM_sediment:
+  - Step 2_NOM_sediment:
       Extraction:
         id: # nmdc:extrp-{shoulder}-{blade}
         type: nmdc:Extraction
         name: <Biosample>_water_Extraction
         description: Water extraction of <Biosample>
         has_input:
-        - ProcessedSample1_GROW_NOM_sediment
+        - ProcessedSample1_NOM_sediment
         has_output:
-        - ProcessedSample2_GROW_NOM_sediment
+        - ProcessedSample2_NOM_sediment
         processing_institution: EMSL
         extraction_targets:
         - natural organic matter
@@ -270,16 +270,16 @@ GROW_NOM_sediment:
           has_unit: mL
           has_numeric_value: 5
 
-  - Step 3_GROW_NOM_sediment:
+  - Step 3_NOM_sediment:
       FiltrationProcess:
         id: # nmdc:filtpr-{shoulder}-{blade}
         type: nmdc:FiltrationProcess
         name: <Biosample>_extract_filtration
         description: Filtering NOM extract of <Biosample>
         has_input:
-        - ProcessedSample2_GROW_NOM_sediment
+        - ProcessedSample2_NOM_sediment
         has_output:
-        - ProcessedSample3_GROW_NOM_sediment
+        - ProcessedSample3_NOM_sediment
         protocol_link:
           name: "Goldman et al 2020. WHONDRS Summer 2019 Sampling Campaign: Global River Corridor Sediment FTICR-MS, Dissolved Organic Carbon, Aerobic Respiration, Elemental Composition, Grain Size, Total Nitrogen and Organic Carbon Content, Bacterial Abundance, and Stable Isotopes (v8)"
           url: https://doi.org/10.15485/1729719
@@ -291,16 +291,16 @@ GROW_NOM_sediment:
           has_unit: um
           has_numeric_value: 0.22
 
-  - Step 4_GROW_NOM_sediment:
+  - Step 4_NOM_sediment:
       DissolvingProcess:
         id: # nmdc:dispro-{shoulder}-{blade}
         type: nmdc:DissolvingProcess
         name: <Biosample>_water_dilution
         description: Water dilution of <Biosample> water extracts to uniform concentration of 1.5 mg/L non-purgeable organic carbon
         has_input:
-        - ProcessedSample3_GROW_NOM_sediment
+        - ProcessedSample3_NOM_sediment
         has_output:
-        - ProcessedSample4_GROW_NOM_sediment
+        - ProcessedSample4_NOM_sediment
         processing_institution: EMSL
         protocol_link:
           name: "Goldman et al 2020. WHONDRS Summer 2019 Sampling Campaign: Global River Corridor Sediment FTICR-MS, Dissolved Organic Carbon, Aerobic Respiration, Elemental Composition, Grain Size, Total Nitrogen and Organic Carbon Content, Bacterial Abundance, and Stable Isotopes (v8)"
@@ -316,16 +316,16 @@ GROW_NOM_sediment:
             has_unit: mg/L
             has_numeric_value: 1.5
 
-  - Step 5_GROW_NOM_sediment:
+  - Step 5_NOM_sediment:
       ChromatographicSeparationProcess:
         id: # nmdc:cspro-{shoulder}-{blade}
         type: nmdc:ChromatographicSeparationProcess
         name: Water extract SPE
         description: Solid phase extraction of water-extracted NOM from <Biosample>
         has_input:
-        - ProcessedSample4_GROW_NOM_sediment
+        - ProcessedSample4_NOM_sediment
         has_output:
-        - ProcessedSample5_GROW_NOM_sediment
+        - ProcessedSample5_NOM_sediment
         processing_institution: EMSL
         protocol_link:
           url: https://doi.org/10.4319/lom.2008.6.230
@@ -380,7 +380,7 @@ GROW_NOM_sediment:
 
   processedsamples:
 
-  - ProcessedSample1_GROW_NOM_sediment:
+  - ProcessedSample1_NOM_sediment:
       ProcessedSample:
         id: #nmdc:
         type: nmdc:ProcessedSample
@@ -389,7 +389,7 @@ GROW_NOM_sediment:
         sampled_portion:
         - aqueous_layer
 
-  - ProcessedSample2_GROW_NOM_sediment:
+  - ProcessedSample2_NOM_sediment:
       ProcessedSample:
         id: #nmdc:
         type: nmdc:ProcessedSample
@@ -398,7 +398,7 @@ GROW_NOM_sediment:
         sampled_portion:
         - aqueous_layer
 
-  - ProcessedSample3_GROW_NOM_sediment:
+  - ProcessedSample3_NOM_sediment:
       ProcessedSample:
         id: #nmdc:
         type: nmdc:ProcessedSample
@@ -407,7 +407,7 @@ GROW_NOM_sediment:
         sampled_portion:
         - aqueous_layer
 
-  - ProcessedSample4_GROW_NOM_sediment:
+  - ProcessedSample4_NOM_sediment:
       ProcessedSample:
         id: #nmdc:
         type: nmdc:ProcessedSample
@@ -416,7 +416,7 @@ GROW_NOM_sediment:
         sampled_portion:
         - aqueous_layer
 
-  - ProcessedSample5_GROW_NOM_sediment:
+  - ProcessedSample5_NOM_sediment:
       ProcessedSample:
         id: #nmdc:
         type: nmdc:ProcessedSample

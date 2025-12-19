@@ -177,6 +177,7 @@ class MetadataSurveyor:
                 "stepname",
                 "slotname",
                 "value",
+                "material_processing_protocol_id",
             ]
             if col not in columns
         ]
@@ -195,7 +196,11 @@ class MetadataSurveyor:
 
     def mapping_info(self, sample_to_dg_mapping_path: str) -> pd.DataFrame:
         """
-        Read in csv with mapping information, checking that the required column names and each biosample has only one protocol id
+        Read in csv with mapping information, checking that:
+          - the required column names are present
+          - each `raw_data_identifier` only maps to one `biosample_id`
+          - each pair of `biosample_id` and `raw_data_identifier` has a unique `processedsample_placeholder`
+          - each pair of `biosample_id` and `raw_data_identifier` has a unique `material_processing_protocol_id`
 
         Parameters
         ----------
@@ -208,6 +213,8 @@ class MetadataSurveyor:
             DataFrame of biosample to data generation mappings for this study
         """
         mapping_df = pd.read_csv(sample_to_dg_mapping_path)
+
+        # Check for required columns
         columns = set(mapping_df.columns)
         required_columns = {
             "biosample_id",
@@ -220,15 +227,40 @@ class MetadataSurveyor:
             raise ValueError(
                 f"Missing required columns in DataFrame: {', '.join(missing_columns)}"
             )
-        duplicate_protocols = mapping_df.groupby("biosample_id")[
-            "material_processing_protocol_id"
+
+        # Unique the dataframe as a whole
+        mapping_df = mapping_df.drop_duplicates()
+
+        # Check that each `raw_data_identifier` only maps to one `biosample_id`
+        duplicate_rawfiles = mapping_df.groupby("raw_data_identifier")[
+            "biosample_id"
         ].nunique()
-        if (duplicate_protocols > 1).any():
-            problem_biosamples = duplicate_protocols[
-                duplicate_protocols > 1
+        if (duplicate_rawfiles > 1).any():
+            problem_rawfiles = duplicate_rawfiles[duplicate_rawfiles > 1].index.tolist()
+            raise ValueError(
+                f"More than one `biosample_id` for `raw_data_identifier`: {problem_rawfiles}"
+            )
+
+        # Check that each pair of `biosample_id` and `raw_data_identifier` has a unique `processedsample_placeholder`
+        duplicate_ps_pairs = mapping_df.groupby(
+            ["biosample_id", "raw_data_identifier"]
+        )["processedsample_placeholder"].nunique()
+        if (duplicate_ps_pairs > 1).any():
+            problem_dp_pairs = duplicate_ps_pairs[duplicate_ps_pairs > 1].index.tolist()
+            raise ValueError(
+                f"More than one `processedsample_placeholder` for pairs: {problem_dp_pairs}"
+            )
+
+        # Check that each pair of `biosample_id` and `raw_data_identifier` has a unique `material_processing_protocol_id`
+        duplicate_protocol_pairs = mapping_df.groupby(
+            ["biosample_id", "raw_data_identifier"]
+        )["material_processing_protocol_id"].nunique()
+        if (duplicate_protocol_pairs > 1).any():
+            problem_protocol_pairs = duplicate_protocol_pairs[
+                duplicate_protocol_pairs > 1
             ].index.tolist()
             raise ValueError(
-                f"More than one `material_processing_protocol_id` for biosamples: {problem_biosamples}"
+                f"More than one `material_processing_protocol_id` for pairs: {problem_protocol_pairs}"
             )
 
         return mapping_df

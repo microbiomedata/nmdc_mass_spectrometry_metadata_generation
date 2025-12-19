@@ -1,7 +1,7 @@
-SanClements_NOM:
+NOM:
 # Water extraction and SPE
   steps:
-  - Step 1_SanClements_NOM:
+  - Step 1_NOM:
       SubSamplingProcess:
         id: # nmdc:subspr-{shoulder}-{blade}
         type: nmdc:SubSamplingProcess
@@ -10,7 +10,7 @@ SanClements_NOM:
         has_input:
         - Biosample
         has_output:
-        - ProcessedSample1_SanClements_NOM
+        - ProcessedSample1_NOM
         processing_institution: EMSL
         mass:
           type: nmdc:QuantityValue
@@ -18,17 +18,17 @@ SanClements_NOM:
           has_unit: g
           has_numeric_value: 1
 
-  - Step 2_SanClements_NOM:
+  - Step 2_NOM:
       Extraction:
         id: # nmdc:extrp-{shoulder}-{blade}
         type: nmdc:Extraction
         name: Cold_water_extraction_NOM
-        description: Cold water extraction of <ProcessedSample1_SanClements_NOM>
+        description: Cold water extraction of <ProcessedSample1_NOM>
         has_input:
-        - ProcessedSample1_SanClements_NOM
+        - ProcessedSample1_NOM
         has_output:
-        - ProcessedSample2_SanClements_NOM # goes to Step 4 SPE
-        - ProcessedSample3_SanClements_NOM # soil for next extraction
+        - ProcessedSample2_NOM # goes to Step 4 SPE
+        - ProcessedSample3_NOM # soil for next extraction
         processing_institution: EMSL
         extraction_targets:
         - natural organic matter
@@ -52,16 +52,16 @@ SanClements_NOM:
           has_numeric_value: 20
           has_unit: Cel
 
-  - Step 3_SanClements_NOM:
+  - Step 3_NOM:
       Extraction:
         id: # nmdc:extrp-{shoulder}-{blade}
         type: nmdc:Extraction
         name: Hot_water_extraction_NOM
-        description: Hot water extraction of <ProcessedSample3_SanClements_NOM>
+        description: Hot water extraction of <ProcessedSample3_NOM>
         has_input:
-        - ProcessedSample3_SanClements_NOM # from first extraction step
+        - ProcessedSample3_NOM # from first extraction step
         has_output:
-        - ProcessedSample4_SanClements_NOM # goes to Step 5 SPE
+        - ProcessedSample4_NOM # goes to Step 5 SPE
         processing_institution: EMSL
         extraction_targets:
         - natural organic matter
@@ -80,16 +80,16 @@ SanClements_NOM:
           has_numeric_value: 80
           has_unit: Cel
 
-  - Step 4_SanClements_NOM:
+  - Step 4_NOM:
       ChromatographicSeparationProcess:
         id: # nmdc:cspro-{shoulder}-{blade}
         type: nmdc:ChromatographicSeparationProcess
         name: Water extract SPE
-        description: Solid phase extraction of dissolved organic matter from <ProcessedSample2_SanClements_NOM>
+        description: Solid phase extraction of dissolved organic matter from <ProcessedSample2_NOM>
         has_input:
-        - ProcessedSample2_SanClements_NOM # cold water extracts
+        - ProcessedSample2_NOM # cold water extracts
         has_output:
-        - ProcessedSample5_SanClements_NOM # input to cold water DataGeneration records
+        - ProcessedSample5_NOM # input to cold water DataGeneration records
         processing_institution: EMSL
         protocol_link:
           url: https://doi.org/10.4319/lom.2008.6.230
@@ -147,16 +147,16 @@ SanClements_NOM:
               has_numeric_value: 1.5
         stationary_phase: PS-DVB
 
-  - Step 5_SanClements_NOM:
+  - Step 5_NOM:
       ChromatographicSeparationProcess:
         id: # nmdc:cspro-{shoulder}-{blade}
         type: nmdc:ChromatographicSeparationProcess
         name: Water extract SPE
-        description: Solid phase extraction of dissolved organic matter from <ProcessedSample4_SanClements_NOM>
+        description: Solid phase extraction of dissolved organic matter from <ProcessedSample4_NOM>
         has_input:
-        - ProcessedSample4_SanClements_NOM # hot water extracts from earlier
+        - ProcessedSample4_NOM # hot water extracts from earlier
         has_output:
-        - ProcessedSample6_SanClements_NOM # input to hot water DataGeneration records
+        - ProcessedSample6_NOM # input to hot water DataGeneration records
         processing_institution: EMSL
         protocol_link:
           url: https://doi.org/10.4319/lom.2008.6.230
@@ -216,14 +216,14 @@ SanClements_NOM:
 
   processedsamples:
 
-  - ProcessedSample1_SanClements_NOM:
+  - ProcessedSample1_NOM:
       ProcessedSample:
         id: #nmdc:
         type: nmdc:ProcessedSample
         name: <Biosample>_subsample
         description: The output from subsampling <Biosample> for extraction
 
-  - ProcessedSample2_SanClements_NOM:
+  - ProcessedSample2_NOM:
       ProcessedSample:
         id: #nmdc:
         type: nmdc:ProcessedSample
@@ -231,7 +231,7 @@ SanClements_NOM:
         description: Cold water extract of <Biosample>
         sampled_portion: aqueous_layer
 
-  - ProcessedSample3_SanClements_NOM:
+  - ProcessedSample3_NOM:
       ProcessedSample:
         id: #nmdc:
         type: nmdc:ProcessedSample
@@ -239,7 +239,7 @@ SanClements_NOM:
         description: Water-extracted soil for hot water extraction of <Biosample>
         sampled_portion: pellet
 
-  - ProcessedSample4_SanClements_NOM:
+  - ProcessedSample4_NOM:
       ProcessedSample:
         id: #nmdc:
         type: nmdc:ProcessedSample
@@ -247,7 +247,7 @@ SanClements_NOM:
         description: Hot water extract of <Biosample>
         sampled_portion: aqueous_layer
 
-  - ProcessedSample5_SanClements_NOM:
+  - ProcessedSample5_NOM:
       ProcessedSample:
         id: #nmdc:
         type: nmdc:ProcessedSample
@@ -255,7 +255,7 @@ SanClements_NOM:
         description: NOM from cold water and solid phase extraction of <Biosample>
         sampled_portion: aqueous_layer
 
-  - ProcessedSample6_SanClements_NOM:
+  - ProcessedSample6_NOM:
       ProcessedSample:
         id: #nmdc:
         type: nmdc:ProcessedSample
