@@ -13,7 +13,7 @@ from nmdc_ms_metadata_gen.sheet_generator import (
     ChangeSheetGenerator,
     WorkflowSheetGenerator,
 )
-from nmdc_ms_metadata_gen.utils import output_material_processing_summary, save_to_csv
+from nmdc_ms_metadata_gen.utils import save_to_csv, validate_generated_output
 
 
 class MaterialProcessingMetadataGenerator(NMDCMetadataGenerator):
@@ -97,7 +97,8 @@ class MaterialProcessingMetadataGenerator(NMDCMetadataGenerator):
         ## Get sample specific info for yaml if its provided
         if self.sample_specific_info_path:
             sample_specific_info = survey.additional_info(
-                self.sample_specific_info_path
+                self.sample_specific_info_path,
+                reference_mapping["biosample_id"].unique().tolist(),
             )
 
         ## For each biosample create json of necessary material processing steps and processed samples, as well as output dataframe
@@ -108,62 +109,102 @@ class MaterialProcessingMetadataGenerator(NMDCMetadataGenerator):
             dynamic_ncols=True,
             leave=True,
         ):
-            yaml_parameters = {}
 
-            # Get biosample's mapping to results
+            # Get mapping info for this biosample
             sample_mapping = reference_mapping[
                 reference_mapping["biosample_id"] == biosample
             ].reset_index(drop=True)
 
-            # Placeholders to match to outline outputs
-            yaml_parameters["target_outputs"] = (
-                sample_mapping["processedsample_placeholder"].unique().tolist()
-            )
-
-            # Are there biosample sample specific values?
+            # Get any additional info for this biosample
             if self.sample_specific_info_path and not sample_specific_info.empty:
-                yaml_parameters["sample_specific_info_subset"] = sample_specific_info[
+                sample_specific_info_subset = sample_specific_info[
                     sample_specific_info["biosample_id"] == biosample
                 ].reset_index(drop=True)
 
-            # Use the biosample specific values and target output information to adjust the yaml outline for this biosample
-            full_outline = data_parser.yaml_generation(**yaml_parameters)
-
-            # Create necessary material processing and processed sample ids to link each biosample to a final processed sample that will be the new input to the data generation records
-            input_dict = {
-                "Biosample": biosample
-            }  # placeholder is key, value is nmdc id
-            final_processed_samples = self.json_generation(
-                data=full_outline,
-                placeholder_dict=input_dict,
-                nmdc_database=nmdc_database,
-                CLIENT_ID=client_id,
-                CLIENT_SECRET=client_secret,
+            # Get protocols for this biosample
+            protocols = (
+                sample_mapping["material_processing_protocol_id"].unique().tolist()
             )
 
-            # Match the new final processed sample ids back to raw data files via a changesheet (if dg exists) or a workflowsheet (no dg yet)
-            (
-                unmatched_current,
-                output_changesheet,
-                output_workflowsheet,
-            ) = self.map_final_samples(
-                biosample,
-                final_processed_samples,
-                sample_mapping,
-                output_changesheet,
-                output_workflowsheet,
-            )
+            # Iterate through each protocol
+            for protocol in protocols:
 
-            if not unmatched_current.empty:
-                raise ValueError(
-                    f"{biosample} had {unmatched_current.shape[0]} unmatched final processed sample(s):\n {unmatched_current}"
+                yaml_parameters = {}
+                yaml_parameters["protocol_id"] = protocol
+
+                # Get mapping info for this protocol
+                protocol_mapping = sample_mapping[
+                    sample_mapping["material_processing_protocol_id"] == protocol
+                ].reset_index(drop=True)
+
+                # Get any additional info for this protocol
+                if self.sample_specific_info_path and not sample_specific_info.empty:
+                    yaml_parameters["sample_specific_info_protocol_subset"] = (
+                        sample_specific_info_subset[
+                            sample_specific_info_subset[
+                                "material_processing_protocol_id"
+                            ]
+                            == protocol
+                        ].reset_index(drop=True)
+                    )
+
+                # Get placeholders for this protocol
+                yaml_parameters["target_outputs"] = (
+                    protocol_mapping["processedsample_placeholder"].unique().tolist()
                 )
 
-        # Output summary and save results
-        output_material_processing_summary(reference_mapping, nmdc_database)
+                # Use the additional info and target output information to adjust the yaml outline for this biosample and protocol
+                full_outline = data_parser.yaml_generation(**yaml_parameters)
+
+                # Create necessary material processing and processed sample ids to link this biosample to a final processed sample that will be the new input to the data generation records
+                input_dict = {
+                    "Biosample": biosample
+                }  # placeholder is key, value is nmdc id
+                final_processed_samples = self.json_generation(
+                    data=full_outline,
+                    placeholder_dict=input_dict,
+                    nmdc_database=nmdc_database,
+                    CLIENT_ID=client_id,
+                    CLIENT_SECRET=client_secret,
+                )
+
+                # Match the new final processed sample ids back to raw data files via a changesheet (if dg exists) or a workflowsheet (no dg yet)
+                (
+                    unmatched_current,
+                    output_changesheet,
+                    output_workflowsheet,
+                ) = self.map_final_samples(
+                    biosample,
+                    final_processed_samples,
+                    protocol_mapping,
+                    output_changesheet,
+                    output_workflowsheet,
+                )
+
+                if not unmatched_current.empty:
+                    raise ValueError(
+                        f"{biosample} had {unmatched_current.shape[0]} unmatched final processed sample(s):\n {unmatched_current}"
+                    )
+
+        # Validate output based on expected counts before saving
+        file_path = self.database_dump_json_path.split(".json")[0]
+        validation_passed = validate_generated_output(
+            reference_mapping,
+            nmdc_database,
+            self.yaml_outline_path,
+            f"{file_path}_validation.txt",
+        )
+        if not validation_passed:
+            print(
+                "\n⚠️  WARNING: Validation failed but continuing with output generation"
+            )
+
+        # Save database
         self.dump_nmdc_database(
             nmdc_database=nmdc_database, json_path=self.database_dump_json_path
         )
+
+        # Save output sheets
         file_path = self.database_dump_json_path.split(".json")[0]
         if not output_changesheet.empty:
             save_to_csv(output_changesheet, f"{file_path}_changesheet.csv")
@@ -179,7 +220,7 @@ class MaterialProcessingMetadataGenerator(NMDCMetadataGenerator):
         self,
         biosample: str,
         final_processed_samples: dict,
-        sample_mapping: pd.DataFrame,
+        protocol_mapping: pd.DataFrame,
         output_changesheet: pd.DataFrame,
         output_workflowsheet: pd.DataFrame,
     ):
@@ -192,7 +233,7 @@ class MaterialProcessingMetadataGenerator(NMDCMetadataGenerator):
             biosample id to map
         final_processed_samples: dict
 
-        sample_mapping: pd.DataFrame
+        protocol_mapping: pd.DataFrame
 
         output_changesheet: pd.DataFrame
             Dataframe that holds necessary changes to upload to the database.
@@ -205,14 +246,14 @@ class MaterialProcessingMetadataGenerator(NMDCMetadataGenerator):
         """
 
         # all raw identifiers for sample
-        unmatched_samples = sample_mapping["raw_data_identifier"].unique().tolist()
+        unmatched_samples = protocol_mapping["raw_data_identifier"].unique().tolist()
 
         # Get the final processed samples associated with each of the raw files
         for ps_placeholder, ps_id in final_processed_samples.items():
             # Build changesheet or workflowsheet based on raw identifiers for this placeholder
             rawids = (
-                sample_mapping[
-                    sample_mapping["processedsample_placeholder"] == ps_placeholder
+                protocol_mapping[
+                    protocol_mapping["processedsample_placeholder"] == ps_placeholder
                 ]["raw_data_identifier"]
                 .unique()
                 .tolist()
@@ -241,8 +282,8 @@ class MaterialProcessingMetadataGenerator(NMDCMetadataGenerator):
             ]
 
         # Raw ids that did not map to a placeholder in final processed samples
-        unmatched_samples_df = sample_mapping[
-            sample_mapping["raw_data_identifier"].isin(unmatched_samples)
+        unmatched_samples_df = protocol_mapping[
+            protocol_mapping["raw_data_identifier"].isin(unmatched_samples)
         ]
 
         return unmatched_samples_df, output_changesheet, output_workflowsheet

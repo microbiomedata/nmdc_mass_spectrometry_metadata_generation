@@ -1,0 +1,264 @@
+NOM:
+# Water extraction and SPE
+  steps:
+  - Step 1_NOM:
+      SubSamplingProcess:
+        id: # nmdc:subspr-{shoulder}-{blade}
+        type: nmdc:SubSamplingProcess
+        name: Subsample_soil
+        description: A portion of soil being taken from <Biosample> soil sample for extraction
+        has_input:
+        - Biosample
+        has_output:
+        - ProcessedSample1_NOM
+        processing_institution: EMSL
+        mass:
+          type: nmdc:QuantityValue
+          has_raw_value: 1 g
+          has_unit: g
+          has_numeric_value: 1
+
+  - Step 2_NOM:
+      Extraction:
+        id: # nmdc:extrp-{shoulder}-{blade}
+        type: nmdc:Extraction
+        name: Cold_water_extraction_NOM
+        description: Cold water extraction of <ProcessedSample1_NOM>
+        has_input:
+        - ProcessedSample1_NOM
+        has_output:
+        - ProcessedSample2_NOM # goes to Step 4 SPE
+        - ProcessedSample3_NOM # soil for next extraction
+        processing_institution: EMSL
+        extraction_targets:
+        - natural organic matter
+        input_mass:
+          type: nmdc:QuantityValue
+          has_raw_value: 1 g # from subsampling process
+          has_unit: g
+          has_numeric_value: 1 # from subsampling process
+        substances_used:
+        - type: nmdc:PortionOfSubstance
+          known_as: water
+          substance_role: solvent
+          volume:
+            type: nmdc:QuantityValue
+            has_raw_value: 30 mL
+            has_unit: mL
+            has_numeric_value: 30
+        temperature:
+          type: nmdc:QuantityValue
+          has_raw_value: 20 Cel
+          has_numeric_value: 20
+          has_unit: Cel
+
+  - Step 3_NOM:
+      Extraction:
+        id: # nmdc:extrp-{shoulder}-{blade}
+        type: nmdc:Extraction
+        name: Hot_water_extraction_NOM
+        description: Hot water extraction of <ProcessedSample3_NOM>
+        has_input:
+        - ProcessedSample3_NOM # from first extraction step
+        has_output:
+        - ProcessedSample4_NOM # goes to Step 5 SPE
+        processing_institution: EMSL
+        extraction_targets:
+        - natural organic matter
+        substances_used:
+        - type: nmdc:PortionOfSubstance
+          known_as: water
+          substance_role: solvent
+          volume:
+            type: nmdc:QuantityValue
+            has_raw_value: 30 mL
+            has_unit: mL
+            has_numeric_value: 30
+        temperature:
+          type: nmdc:QuantityValue
+          has_raw_value: 80 Cel
+          has_numeric_value: 80
+          has_unit: Cel
+
+  - Step 4_NOM:
+      ChromatographicSeparationProcess:
+        id: # nmdc:cspro-{shoulder}-{blade}
+        type: nmdc:ChromatographicSeparationProcess
+        name: Water extract SPE
+        description: Solid phase extraction of dissolved organic matter from <ProcessedSample2_NOM>
+        has_input:
+        - ProcessedSample2_NOM # cold water extracts
+        has_output:
+        - ProcessedSample5_NOM # input to cold water DataGeneration records
+        processing_institution: EMSL
+        protocol_link:
+          url: https://doi.org/10.4319/lom.2008.6.230
+          name: Dittmar et al 2008. A simple and efficient method for the solid-phase extraction of dissolved organic matter (SPE-DOM) from seawater
+          type: nmdc:Protocol
+        chromatographic_category: solid_phase_extraction
+        ordered_mobile_phases:
+        - type: nmdc:MobilePhaseSegment   # "Load the acidified sample onto the cartridge"
+          substances_used:
+          - type: nmdc:PortionOfSubstance
+            known_as: hydrochloric_acid
+            substance_role: acid
+            source_concentration:
+              type: nmdc:QuantityValue
+              has_raw_value: 37 %
+              has_unit: "%"
+              has_numeric_value: 37
+            volume:
+              type: nmdc:QuantityValue
+              has_raw_value: 2 uL
+              has_unit: uL
+              has_numeric_value: 2
+          - type: nmdc:PortionOfSubstance
+            known_as: water     # containing sample
+            substance_role: solvent
+            volume:
+              type: nmdc:QuantityValue
+              has_raw_value: 5 mL
+              has_unit: mL
+              has_numeric_value: 5
+        - type: nmdc:MobilePhaseSegment   # Wash the cartridge 17+x with HCl"
+          substances_used:
+          - type: nmdc:PortionOfSubstance
+            known_as: hydrochloric_acid
+            substance_role: acid
+            source_concentration:
+              type: nmdc:QuantityValue
+              has_raw_value: 10 mmol/L
+              has_unit: mmol/L
+              has_numeric_value: 10
+            volume:
+              type: nmdc:QuantityValue
+              has_raw_value: 3 mL
+              has_unit: mL
+              has_numeric_value: 3
+        - type: nmdc:MobilePhaseSegment   # "Elute with 1.5 mL methanol"
+          substances_used:
+          - type: nmdc:PortionOfSubstance
+            known_as: methanol
+            substance_role: solvent
+            volume:
+              type: nmdc:QuantityValue
+              has_raw_value: 1.5 mL
+              has_unit: mL
+              has_numeric_value: 1.5
+        stationary_phase: PS-DVB
+
+  - Step 5_NOM:
+      ChromatographicSeparationProcess:
+        id: # nmdc:cspro-{shoulder}-{blade}
+        type: nmdc:ChromatographicSeparationProcess
+        name: Water extract SPE
+        description: Solid phase extraction of dissolved organic matter from <ProcessedSample4_NOM>
+        has_input:
+        - ProcessedSample4_NOM # hot water extracts from earlier
+        has_output:
+        - ProcessedSample6_NOM # input to hot water DataGeneration records
+        processing_institution: EMSL
+        protocol_link:
+          url: https://doi.org/10.4319/lom.2008.6.230
+          name: Dittmar et al 2008. A simple and efficient method for the solid-phase extraction of dissolved organic matter (SPE-DOM) from seawater
+          type: nmdc:Protocol
+        chromatographic_category: solid_phase_extraction
+        ordered_mobile_phases:
+        - type: nmdc:MobilePhaseSegment   # "Load the acidified sample onto the cartridge"
+          substances_used:
+          - type: nmdc:PortionOfSubstance
+            known_as: hydrochloric_acid
+            substance_role: acid
+            source_concentration:
+              type: nmdc:QuantityValue
+              has_raw_value: 37 %
+              has_unit: "%"
+              has_numeric_value: 37
+            volume:
+              type: nmdc:QuantityValue
+              has_raw_value: 2 uL
+              has_unit: uL
+              has_numeric_value: 2
+          - type: nmdc:PortionOfSubstance
+            known_as: water     # containing sample
+            substance_role: solvent
+            volume:
+              type: nmdc:QuantityValue
+              has_raw_value: 5 mL
+              has_unit: mL
+              has_numeric_value: 5
+        - type: nmdc:MobilePhaseSegment   # Wash the cartridge 17+x with HCl"
+          substances_used:
+          - type: nmdc:PortionOfSubstance
+            known_as: hydrochloric_acid
+            substance_role: acid
+            source_concentration:
+              type: nmdc:QuantityValue
+              has_raw_value: 10 mmol/L
+              has_unit: mmol/L
+              has_numeric_value: 10
+            volume:
+              type: nmdc:QuantityValue
+              has_raw_value: 3 mL
+              has_unit: mL
+              has_numeric_value: 3
+        - type: nmdc:MobilePhaseSegment   # "Elute with 1.5 mL methanol"
+          substances_used:
+          - type: nmdc:PortionOfSubstance
+            known_as: methanol
+            substance_role: solvent
+            volume:
+              type: nmdc:QuantityValue
+              has_raw_value: 1.5 mL
+              has_unit: mL
+              has_numeric_value: 1.5
+        stationary_phase: PS-DVB
+
+  processedsamples:
+
+  - ProcessedSample1_NOM:
+      ProcessedSample:
+        id: #nmdc:
+        type: nmdc:ProcessedSample
+        name: <Biosample>_subsample
+        description: The output from subsampling <Biosample> for extraction
+
+  - ProcessedSample2_NOM:
+      ProcessedSample:
+        id: #nmdc:
+        type: nmdc:ProcessedSample
+        name: <Biosample>_cold_water
+        description: Cold water extract of <Biosample>
+        sampled_portion: aqueous_layer
+
+  - ProcessedSample3_NOM:
+      ProcessedSample:
+        id: #nmdc:
+        type: nmdc:ProcessedSample
+        name: <Biosample>_cold_water_extracted_soil
+        description: Water-extracted soil for hot water extraction of <Biosample>
+        sampled_portion: pellet
+
+  - ProcessedSample4_NOM:
+      ProcessedSample:
+        id: #nmdc:
+        type: nmdc:ProcessedSample
+        name: <Biosample>_hot_water
+        description: Hot water extract of <Biosample>
+        sampled_portion: aqueous_layer
+
+  - ProcessedSample5_NOM:
+      ProcessedSample:
+        id: #nmdc:
+        type: nmdc:ProcessedSample
+        name: <Biosample>_NOM_cold_water_SPE
+        description: NOM from cold water and solid phase extraction of <Biosample>
+        sampled_portion: aqueous_layer
+
+  - ProcessedSample6_NOM:
+      ProcessedSample:
+        id: #nmdc:
+        type: nmdc:ProcessedSample
+        name: <Biosample>_NOM_hot_water_SPE
+        description: NOM from hot water and solid phase extraction of <Biosample>
+        sampled_portion: aqueous_layer

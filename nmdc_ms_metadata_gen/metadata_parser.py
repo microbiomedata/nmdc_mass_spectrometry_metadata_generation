@@ -8,7 +8,6 @@ import numpy as np
 # Third-Party Libraries
 import pandas as pd
 import typing_inspect
-import yaml
 from nmdc_schema.nmdc import (
     Biosample,
     ControlledIdentifiedTermValue,
@@ -17,6 +16,7 @@ from nmdc_schema.nmdc import (
     TextValue,
     TimestampValue,
 )
+from ruamel.yaml import YAML
 
 # Local Modules
 from nmdc_ms_metadata_gen.bio_ontology_api import BioOntologyInfoRetriever
@@ -465,21 +465,31 @@ class YamlSpecifier:
     def __init__(self, yaml_outline_path: str):
         self.yaml_outline_path = yaml_outline_path
 
-    def load_yaml(self) -> dict:
+    def load_yaml(self, protocol_id) -> dict:
         """
         Loads the yaml_outline_path that outlines the material processing steps and processed samples.
+
+        Parameters:
+        -----------
+        protocol_id: str
+            Protocol id referencing the specific yaml outline for this biosample
 
         Returns
         -------
         dict
-            Yaml outline as a dictionary
+            relevant yaml outline for this biosample as a dictionary
         """
 
         with open(self.yaml_outline_path) as f:
-            return yaml.safe_load(f)
+            yaml = YAML()
+            outline = yaml.load(f)
+        if protocol_id not in outline:
+            raise KeyError(f"Protocol id {protocol_id} not found in yaml outline.")
+        else:
+            return outline[protocol_id]
 
     def update_value(
-        self, data: dict, sample_specific_info_subset: pd.DataFrame
+        self, data: dict, sample_specific_info_protocol_subset: pd.DataFrame
     ) -> dict:
         """
         Updates any slot with a quantity or string value based on step number and name.
@@ -488,8 +498,8 @@ class YamlSpecifier:
         -----------
         data : dict
             The nested dictionary containing the workflow steps (yaml outline)
-        sample_specific_info_subset : pd.DataFrame
-            Rows of pandas dataframe relevant to biosample with info to update a QuantityValue or string: biosample_id, stepname, slotname, value
+        sample_specific_info_protocol_subset : pd.DataFrame
+            Rows of pandas dataframe, relevant to biosample and protocol, with info to update a QuantityValue or string: biosample_id, stepname, slotname, value, material_processing_protocol_id
 
         Returns:
         --------
@@ -497,7 +507,7 @@ class YamlSpecifier:
             Updated dictionary with new values
         """
 
-        for index, row in sample_specific_info_subset.iterrows():
+        for index, row in sample_specific_info_protocol_subset.iterrows():
             stepname = row["stepname"]
             slotname = row["slotname"]
             value = row["value"]
@@ -597,9 +607,9 @@ class YamlSpecifier:
             step_info = list(step[step_key].values())[0]
             step_info["has_output"] = list(step_output_cache.get(step_key, []))
 
-        data["steps"] = sorted(
-            required_steps, key=lambda x: int(list(x.keys())[0].split()[1])
-        )
+        # Keep original order by filtering steps list to only include required steps
+        required_steps_set = {id(step) for step in required_steps}
+        data["steps"] = [step for step in steps if id(step) in required_steps_set]
 
         # Update list of processedsamples to required processedsamples
         required_outputs_set = set(
@@ -613,16 +623,23 @@ class YamlSpecifier:
 
         return data
 
-    def yaml_generation(self, sample_specific_info_subset=None, target_outputs=list):
+    def yaml_generation(
+        self,
+        protocol_id,
+        sample_specific_info_protocol_subset=None,
+        target_outputs=list,
+    ):
         """
         Generates yaml outline with biosample specific values (placeholders and quantities)
 
         Parameters
         ----------
-        sample_specific_info_subset : pd.DataFrame
-            Rows of pandas dataframe relevant to biosample with info to update a QuantityValue: biosample_id, step_number, slot_name, value
-        target_map: pd.DataFrame
-            Pandas dataframe of the slot distinguishing each analyte and the regex to match to each existing output
+        protocol_id : str
+            Protocol id referencing the specific yaml outline to be used for this biosample
+        sample_specific_info_protocol_subset : None
+            Rows of pandas dataframe relevant to biosample with info to update a QuantityValue: biosample_id, step_number, slot_name, value, material_processing_protocol_id
+        target_outputs: list
+            List of target processed sample placeholders to keep in the yaml outline
 
         Returns
         -------
@@ -630,13 +647,14 @@ class YamlSpecifier:
             Updated yaml outline with sample specific adjustments
         """
 
-        # yaml outline (no sample specific information)
-        outline = self.load_yaml()
+        # yaml outline for sample protocol
+        outline = self.load_yaml(protocol_id)
 
         # add sample specific values from dictionary to outline
-        if sample_specific_info_subset is not None:
+        if sample_specific_info_protocol_subset is not None:
             outline = self.update_value(
-                data=outline, sample_specific_info_subset=sample_specific_info_subset
+                data=outline,
+                sample_specific_info_protocol_subset=sample_specific_info_protocol_subset,
             )
 
         # remove placeholders that don't have a raw file
