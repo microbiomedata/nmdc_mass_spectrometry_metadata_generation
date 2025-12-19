@@ -22,8 +22,7 @@ def validate_yaml_outline(yaml_outline_path: str, protocol_id_list: str, use_api
     Examples
     --------
     Command line example
-    From the nmdc_mass_spectrometry_metadata_generation directory run:
-    `python -m nmdc_ms_metadata_gen.validate_yaml_outline --yaml_outline_path 'path_to_yaml/example.yaml' --protocol_id_list 'example_protocol1,example_protocol2' --use_api False`
+    `python -m nmdc_mass_spectrometry_metadata_generation.nmdc_ms_metadata_gen.validate_yaml_outline --yaml_outline_path 'path_to_yaml/example.yaml' --protocol_id_list 'example_protocol1,example_protocol2' --use_api False`
     """
 
     protocol_id_list = [p.strip() for p in protocol_id_list.split(",")]
@@ -34,7 +33,7 @@ def validate_yaml_outline(yaml_outline_path: str, protocol_id_list: str, use_api
         database_dump_json_path="Validated_Outline_Output",
         sample_to_dg_mapping_path="jdksldjfs",  # doesn't matter, won't be called on
         test=True,
-        minting_config_creds="config.toml",
+        minting_config_creds="nmdc_mass_spectrometry_metadata_generation/config.toml",
     )
     client_id, client_secret = generator.load_credentials(
         config_file=generator.minting_config_creds
