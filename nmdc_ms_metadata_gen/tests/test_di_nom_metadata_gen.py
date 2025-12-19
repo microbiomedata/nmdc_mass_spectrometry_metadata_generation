@@ -32,6 +32,7 @@ def test_di_nom_metadata_gen():
         database_dump_json_path=output_file,
         raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_raw_nom/",
         process_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_nom/",
+        test=True,
     )
 
     # Run the metadata generation process
@@ -79,6 +80,7 @@ def test_di_nom_metadata_gen_rerun():
         database_dump_json_path=output_file,
         raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/blanchard/raw/",
         process_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_nom/",
+        test=True,
     )
 
     metadata = generator.rerun()
@@ -121,6 +123,7 @@ def test_di_nom_config_file():
         raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_raw_nom/",
         process_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_nom/",
         minting_config_creds="/Users/hess887/Projects/NMDC/nmdc_mass_spectrometry_metadata_generation/src/config.toml",
+        test=True,
     )
 
     # Run the metadata generation process
@@ -164,6 +167,7 @@ def test_di_nom_metadata_gen_processed_sample():
         database_dump_json_path=output_file,
         raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_raw_nom/",
         process_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_nom/",
+        test=True,
     )
 
     # Run the metadata generation process

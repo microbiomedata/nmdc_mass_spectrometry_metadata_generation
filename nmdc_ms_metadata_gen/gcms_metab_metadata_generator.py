@@ -42,6 +42,8 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         Calibration standard used for the data. Default is "fames".
     configuration_file_name : str
         Name of the configuration file.
+    test : bool, optional
+        Flag indicating whether to run in test mode. If True, will skip biosample ID checks in the database, data object URL check, and will use local IDs (skip API minting). Default is False.
 
     Attributes
     ----------
@@ -117,6 +119,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         minting_config_creds: str = None,
         workflow_version: str = None,
         calibration_standard: str = "fames",
+        test: bool = False,
     ):
         super().__init__(
             metadata_file=metadata_file,
@@ -135,6 +138,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
         # Workflow Configuration attributes
         self.configuration_file_name = configuration_file_name
+        self.test = test
 
     def rerun(self) -> nmdc.Database:
         """
@@ -322,7 +326,8 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             "raw_data_url" if "raw_data_url" in metadata_df.columns else "raw_data_file"
         )
         urls_columns = self.unique_columns + [raw_col]
-        self.check_doj_urls(metadata_df=metadata_df, url_columns=urls_columns)
+        if not self.test:
+            self.check_doj_urls(metadata_df=metadata_df, url_columns=urls_columns)
 
         # Get the configuration file data object id and add it to the metadata_df
         do_client = DataObjectSearch(env=ENV)

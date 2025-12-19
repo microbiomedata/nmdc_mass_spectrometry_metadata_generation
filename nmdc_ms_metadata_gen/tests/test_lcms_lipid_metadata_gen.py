@@ -37,6 +37,7 @@ def test_lcms_lipid_metadata_gen():
         existing_data_objects=[
             "nmdc:dobj-11-00095294"
         ],  # random, existing data object for testing
+        test=True,
     )
     # Run the metadata generation process
     metadata = generator.run()
@@ -73,6 +74,7 @@ def test_lcms_lipid_metadata_gen():
         existing_data_objects=[
             "nmdc:dobj-11-00095294"
         ],  # random, existing data object for testing
+        test=True,
     )
     # Run the metadata generation process
     metadata = generator.run()
@@ -104,6 +106,7 @@ def test_lcms_lipid_metadata_gen_rerun():
         database_dump_json_path=output_file,
         raw_data_url="https://nmdcdemo.emsl.pnnl.gov/lipidomics/blanchard_11_8ws97026/",
         process_data_url="https://nmdcdemo.emsl.pnnl.gov/lipidomics/test_data/test_processed_lcms_lipid/",
+        test=True,
     )
     # Run the metadata generation process
     metadata = generator.rerun()

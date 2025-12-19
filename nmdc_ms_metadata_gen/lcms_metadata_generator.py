@@ -25,7 +25,20 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
     This class processes input metadata files, generates various NMDC objects, and produces
     a database dump in JSON format.
-
+    Parameters
+    ----------
+    metadata_file : str
+        Path to the input CSV metadata file.
+    database_dump_json_path : str
+        Path where the output database dump JSON file will be saved.
+    raw_data_url : str
+        Base URL for the raw data files.
+    process_data_url : str
+        Base URL for the processed data files.
+    minting_config_creds : str, optional
+        Path to the configuration file containing the client ID and client secret for minting NMDC IDs.
+    test : bool, optional
+        Flag indicating whether to run in test mode. If True, will skip biosample ID checks in the database, data object URL check, and will use local IDs (skip API minting). Default is False.
     """
 
     def __init__(
@@ -34,6 +47,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
         database_dump_json_path: str,
         raw_data_url: str,
         process_data_url: str,
+        test: bool = False,
     ):
         super().__init__(
             metadata_file=metadata_file,
@@ -41,6 +55,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             raw_data_url=raw_data_url,
             process_data_url=process_data_url,
         )
+        self.test = test
 
     def run(self) -> nmdc.Database:
         """
@@ -96,7 +111,9 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             "raw_data_url" if "raw_data_url" in metadata_df.columns else "raw_data_file"
         )
         urls_columns = self.unique_columns + [raw_col]
-        self.check_doj_urls(metadata_df=metadata_df, url_columns=urls_columns)
+
+        if not self.test:
+            self.check_doj_urls(metadata_df=metadata_df, url_columns=urls_columns)
 
         # Generate mass spec fields
         self.generate_mass_spec_fields(
@@ -346,10 +363,11 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
         except FileNotFoundError:
             raise FileNotFoundError(f"Metadata file not found: {self.metadata_file}")
         metadata_df = df.apply(lambda x: x.reset_index(drop=True))
-        # check for duplicate doj urls in the database
-        self.check_doj_urls(
-            metadata_df=metadata_df, url_columns=["processed_data_directory"]
-        )
+        if not self.test:
+            # check for duplicate doj urls in the database
+            self.check_doj_urls(
+                metadata_df=metadata_df, url_columns=["processed_data_directory"]
+            )
 
         for _, data in tqdm(
             metadata_df.iterrows(),

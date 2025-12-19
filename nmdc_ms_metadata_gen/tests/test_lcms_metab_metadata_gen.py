@@ -34,6 +34,7 @@ def test_lcms_metab_metadata_gen():
         database_dump_json_path=output_file,
         raw_data_url="https://nmdcdemo.emsl.pnnl.gov/lipidomics/test_data/test_raw_lcms_lipid/",
         process_data_url="https://nmdcdemo.emsl.pnnl.gov/lipidomics/test_data/test_processed_lcms_lipid/",
+        test=True,
     )
     # Run the metadata generation process
     metadata = generator.run()
@@ -69,6 +70,7 @@ def test_lcms_metab_metadata_gen_processed_sample():
         database_dump_json_path=output_file,
         raw_data_url="https://nmdcdemo.emsl.pnnl.gov/lipidomics/test_data/test_raw_lcms_lipid/",
         process_data_url="https://nmdcdemo.emsl.pnnl.gov/lipidomics/test_data/test_processed_lcms_lipid/",
+        test=True,
     )
     # Run the metadata generation process
     metadata = generator.run()
@@ -102,6 +104,7 @@ def test_lcms_metab_metadata_gen_rerun():
         database_dump_json_path=output_file,
         raw_data_url="https://nmdcdemo.emsl.pnnl.gov/lipidomics/blanchard_11_8ws97026/",
         process_data_url="https://nmdcdemo.emsl.pnnl.gov/lipidomics/test_data/test_processed_lcms_lipid/",
+        test=True,
     )
     # Run the metadata generation process
     metadata = generator.rerun()

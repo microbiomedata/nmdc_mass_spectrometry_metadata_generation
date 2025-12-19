@@ -69,10 +69,12 @@ class NMDCMetadataGenerator:
         An instance of the ProvenanceMetadata associated with this metadata generation process.
     """
 
-    def __init__(self, id_pool_size: int = 100, id_refill_threshold: int = 10):
+    def __init__(
+        self, id_pool_size: int = 100, id_refill_threshold: int = 10, test: bool = False
+    ):
         # Initialize ID pool
         self.id_pool = IDPool(
-            pool_size=id_pool_size, refill_threshold=id_refill_threshold
+            pool_size=id_pool_size, refill_threshold=id_refill_threshold, test=test
         )
         # Add provenance metadata
         self.provenance_metadata = self._generate_provenance_metadata()
@@ -1510,8 +1512,9 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         database_dump_json_path: str,
         raw_data_url: str,
         process_data_url: str,
+        test: bool = False,
     ):
-        super().__init__()
+        super().__init__(test=test)
         self.metadata_file = metadata_file
         self.database_dump_json_path = database_dump_json_path
         self.raw_data_url = raw_data_url
@@ -1554,35 +1557,39 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             if not metadata_df[column].is_unique:
                 raise ValueError(f"Duplicate values found in column '{column}'.")
 
-        # Check that all samples exist
-        sample_ids = metadata_df["sample_id"].unique()
-        # determine sample type
-        if pd.isna(sample_ids)[0] == np.False_:
-            sample_type = "biosample" if "bsm" in sample_ids[0] else "processed"
+        # if the run is not a test, check that samples exist and find associated studies
+        if self.test == False:
+            # Check that all samples exist in the db
+            sample_ids = metadata_df["sample_id"].unique()
+            # determine sample type
+            if pd.isna(sample_ids)[0] == np.False_:
+                sample_type = "biosample" if "bsm" in sample_ids[0] else "processed"
+            else:
+                sample_type = ""
+
+            if sample_type == "biosample":
+                sample_client = BiosampleSearch(env=ENV)
+            else:
+                sample_client = ProcessedSampleSearch(env=ENV)
+
+            if pd.isna(sample_ids)[0] == np.False_:
+                if not sample_client.check_ids_exist(list(sample_ids)):
+                    raise ValueError("IDs do not exist in the collection.")
+
+            # make a call to find_associated_ids to get the associated studies
+            # build the ID list from the input samples
+            sample_ids = metadata_df["sample_id"].unique().tolist()
+            associations = self.find_associated_ids(ids=sample_ids)
+            # map the ids back to the df before returning. associations will be a list of dictionaries with study ids
+            for sample_id, studies in associations.items():
+                study_str = str(studies)
+                metadata_df.loc[
+                    metadata_df["sample_id"] == sample_id,
+                    "associated_studies",
+                ] = study_str
+        # if it is a test, plug in associated studies with a placeholder
         else:
-            sample_type = ""
-
-        if sample_type == "biosample":
-            sample_client = BiosampleSearch(env=ENV)
-        else:
-            sample_client = ProcessedSampleSearch(env=ENV)
-
-        if pd.isna(sample_ids)[0] == np.False_:
-            if not sample_client.check_ids_exist(list(sample_ids)):
-                raise ValueError("IDs do not exist in the collection.")
-
-        # make a call to find_associated_ids to get the associated studies
-        # build the ID list from the input samples
-        sample_ids = metadata_df["sample_id"].unique().tolist()
-        associations = self.find_associated_ids(ids=sample_ids)
-        # map the ids back to the df before returning. associations will be a list of dictionaries with study ids
-        for sample_id, studies in associations.items():
-            study_str = str(studies)
-            metadata_df.loc[
-                metadata_df["sample_id"] == sample_id,
-                "associated_studies",
-            ] = study_str
-
+            metadata_df["associated_studies"] = "['nmdc:sty-00-000001']"
         return metadata_df
 
     def generate_mass_spectrometry(

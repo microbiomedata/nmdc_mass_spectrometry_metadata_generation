@@ -33,6 +33,7 @@ def test_lcms_nom_metadata_gen_processed_sample():
         database_dump_json_path=output_file,
         raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_raw_lcms_nom/",
         process_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_lcms_nom/",
+        test=True,
     )
 
     # Run the metadata generation process
@@ -77,6 +78,7 @@ def test_lcms_nom_metadata_gen():
         database_dump_json_path=output_file,
         raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_raw_lcms_nom/",
         process_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_lcms_nom/",
+        test=True,
     )
 
     # Run the metadata generation process
@@ -122,6 +124,7 @@ def test_lcms_nom_metadata_gen_rerun():
         database_dump_json_path=output_file,
         raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/blanchard/raw/",
         process_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_lcms_nom/",
+        test=True,
     )
 
     # Run the metadata generation process

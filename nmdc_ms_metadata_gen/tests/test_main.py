@@ -39,6 +39,7 @@ def test_cli_lcms_lipid():
             "https://nmdcdemo.emsl.pnnl.gov/lipidomics/test_data/test_raw_lcms_lipid/",
             "--process-data-url",
             "https://nmdcdemo.emsl.pnnl.gov/lipidomics/test_data/test_processed_lcms_lipid/",
+            "--test",
         ],
         standalone_mode=False,
     )
@@ -75,6 +76,7 @@ def test_cli_lcms_lipid_rerun():
             "--process-data-url",
             "https://nmdcdemo.emsl.pnnl.gov/lipidomics/test_data/test_processed_lcms_lipid/",
             "--rerun",  # Click boolean flags don't need a value
+            "--test",
         ],
         standalone_mode=False,
     )
@@ -112,6 +114,7 @@ def test_cli_gcms_with_url_column():
             "https://nmdcdemo.emsl.pnnl.gov/metabolomics/test_data/test_processed_gcms_metab/",
             "--configuration-file",
             "emsl_gcms_corems_params.toml",
+            "--test",
         ],
         standalone_mode=False,
     )

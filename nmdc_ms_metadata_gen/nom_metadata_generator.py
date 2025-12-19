@@ -32,6 +32,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         database_dump_json_path: str,
         raw_data_url: str,
         process_data_url: str,
+        minting_config_creds: str = None,
+        test: bool = False,
     ):
         super().__init__(
             metadata_file=metadata_file,
@@ -39,6 +41,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             raw_data_url=raw_data_url,
             process_data_url=process_data_url,
         )
+        self.minting_config_creds = minting_config_creds
+        self.test = test
 
     def rerun(self) -> nmdc.Database:
         """
@@ -67,9 +71,11 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         metadata_df = df.apply(lambda x: x.reset_index(drop=True))
         tqdm.write("\033[92mStarting metadata processing...\033[0m")
 
-        self.check_doj_urls(
-            metadata_df=metadata_df, url_columns=["processed_data_directory"]
-        )
+        if not self.test:
+            self.check_doj_urls(
+                metadata_df=metadata_df, url_columns=["processed_data_directory"]
+            )
+
         # Iterate through each row in df to generate metadata
         for _, row in tqdm(
             metadata_df.iterrows(),
@@ -191,9 +197,11 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             CLIENT_ID=client_id,
             CLIENT_SECRET=client_secret,
         )
-
-        # check for duplicate doj urls in the database
-        self.check_doj_urls(metadata_df=metadata_df, url_columns=self.unique_columns)
+        if not self.test:
+            # check for duplicate doj urls in the database
+            self.check_doj_urls(
+                metadata_df=metadata_df, url_columns=self.unique_columns
+            )
 
         self.generate_mass_spec_fields(
             metadata_df=metadata_df,
