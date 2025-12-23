@@ -13,10 +13,13 @@ class IDPool:
     Manages a pool of pre-generated NMDC IDs for efficient ID allocation.
     """
 
-    def __init__(self, pool_size: int = 100, refill_threshold: int = 10):
+    def __init__(
+        self, pool_size: int = 100, refill_threshold: int = 10, test: bool = False
+    ):
         self.pool_size = pool_size
         self.refill_threshold = refill_threshold
         self.pools = defaultdict(list)
+        self.test = test
 
     def get_id(self, nmdc_type: str, client_id: str, client_secret: str) -> str:
         """

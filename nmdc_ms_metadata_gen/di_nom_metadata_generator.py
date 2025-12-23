@@ -20,6 +20,8 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
     minting_config_creds : str, optional
         Path to the configuration file containing the client ID and client secret for minting NMDC IDs. It can also include the bio ontology API key if generating biosample ids is needed.
         If not provided, the CLIENT_ID, CLIENT_SECRET, and BIO_API_KEY environment variables will be used.
+    test : bool, optional
+        Flag indicating whether to run in test mode. If True, will skip biosample ID checks in the database, data object URL check, and will use local IDs (skip API minting). Default is False.
 
     Attributes
     ----------
@@ -84,12 +86,14 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
         process_data_url: str,
         minting_config_creds: str = None,
         workflow_version: str = None,
+        test: bool = False,
     ):
         super().__init__(
             metadata_file=metadata_file,
             database_dump_json_path=database_dump_json_path,
             raw_data_url=raw_data_url,
             process_data_url=process_data_url,
+            test=test,
         )
         # Set the workflow version, prioritizing user input, then fetching from the Git URL.
         self.workflow_version = workflow_version or self.get_workflow_version(

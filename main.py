@@ -60,6 +60,12 @@ def global_options(f):
         required=True,
         help="URL base for the processed data files.",
     )
+    @click.option(
+        "--test",
+        is_flag=True,
+        default=False,
+        help="Deliminates the run as a test to skip extra mongo db checks.",
+    )
     @wraps(f)
     def wrapper(*args, **kwargs):
         return f(*args, **kwargs)
@@ -201,6 +207,7 @@ def di_nom(
     metadata_file: str,
     database_dump_path: str,
     process_data_url: str,
+    test: bool,
 ):
     """Generate Direct Infusion NOM metadata"""
     generator = DINOMMetaDataGenerator(
@@ -210,6 +217,7 @@ def di_nom(
         process_data_url=process_data_url,
         minting_config_creds=minting_config_creds,
         workflow_version=workflow_version,
+        test=test,
     )
     if rerun:
         metadata = generator.rerun()
@@ -228,6 +236,7 @@ def lcms_nom(
     metadata_file: str,
     database_dump_path: str,
     process_data_url: str,
+    test: bool,
 ):
     """Generate LCMS NOM metadata"""
     generator = LCMSNOMMetadataGenerator(
@@ -237,6 +246,7 @@ def lcms_nom(
         process_data_url=process_data_url,
         minting_config_creds=minting_config_creds,
         workflow_version=workflow_version,
+        test=test,
     )
     if rerun:
         metadata = generator.rerun()
@@ -257,6 +267,7 @@ def lcms_lipid(
     database_dump_path: str,
     process_data_url: str,
     existing_data_objects: list,
+    test: bool,
 ):
     """Generate LCMS Lipid metadata"""
     generator = LCMSLipidomicsMetadataGenerator(
@@ -267,6 +278,7 @@ def lcms_lipid(
         minting_config_creds=minting_config_creds,
         workflow_version=workflow_version,
         existing_data_objects=ast.literal_eval(existing_data_objects),
+        test=test,
     )
     if rerun:
         metadata = generator.rerun()
@@ -287,6 +299,7 @@ def lcms_metab(
     database_dump_path: str,
     process_data_url: str,
     existing_data_objects: list,
+    test: bool,
 ):
     """Generate LCMS Metabolomics metadata"""
     generator = LCMSMetabolomicsMetadataGenerator(
@@ -297,6 +310,7 @@ def lcms_metab(
         minting_config_creds=minting_config_creds,
         workflow_version=workflow_version,
         existing_data_objects=ast.literal_eval(existing_data_objects),
+        test=test,
     )
     if rerun:
         metadata = generator.rerun()
@@ -318,6 +332,7 @@ def gcms_metab(
     process_data_url: str,
     calibration_standard: str,
     configuration_file: str,
+    test: bool,
 ):
     """Generate GCMS Metabolomics metadata"""
     generator = GCMSMetabolomicsMetadataGenerator(
@@ -329,6 +344,7 @@ def gcms_metab(
         workflow_version=workflow_version,
         calibration_standard=calibration_standard,
         configuration_file_name=configuration_file,
+        test=test,
     )
     if rerun:
         metadata = generator.rerun()
