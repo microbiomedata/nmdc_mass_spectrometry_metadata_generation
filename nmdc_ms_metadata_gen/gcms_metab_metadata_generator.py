@@ -633,7 +633,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             instrument_id=row["instrument_id"],
             instrument_analysis_start_date=row.get("instrument_analysis_start_date"),
             instrument_analysis_end_date=row.get("instrument_analysis_end_date"),
-            execution_resource=row["execution_resource"],
+            execution_resource=row.get("execution_resource"),
             calibration_id=row["calibration_id"],
             raw_data_url=row.get("raw_data_url"),
             manifest_id=row.get("manifest_id"),
