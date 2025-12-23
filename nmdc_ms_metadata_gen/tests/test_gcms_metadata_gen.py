@@ -158,10 +158,9 @@ def test_gcms_metadata_gen_no_execution_resource():
     assert os.path.exists(output_file)
 
     # Verify that the generated metadata doesn't contain execution_resource or that it's None/omitted
-    file = open(output_file)
-    working_data = json.load(file)
-    for workflow_execution in working_data["workflow_execution_set"]:
-        # execution_resource should either not be present or be None (which wouldn't be in the JSON due to clean_dict)
-        assert "execution_resource" not in workflow_execution or workflow_execution.get("execution_resource") is None
-    file.close()
+    with open(output_file) as file:
+        working_data = json.load(file)
+        for workflow_execution in working_data["workflow_execution_set"]:
+            # execution_resource should not be present (removed by clean_dict when None)
+            assert workflow_execution.get("execution_resource") is None
 
