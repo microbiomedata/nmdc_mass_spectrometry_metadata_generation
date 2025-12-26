@@ -30,6 +30,7 @@ def test_di_nom_biosample_gen_more_fields():
     generator = BiosampleGenerator(
         metadata_file="tests/test_data/test_metadata_file_biosample_generation_weird_data.csv",
         database_dump_json_path=output_file,
+        test=True,
     )
 
     # Run the metadata generation process
@@ -64,6 +65,7 @@ def test_biosample_gen():
     generator = BiosampleGenerator(
         metadata_file="tests/test_data/test_metadata_file_biosample_generation.csv",
         database_dump_json_path=output_file,
+        test=True,
     )
 
     # Run the metadata generation process

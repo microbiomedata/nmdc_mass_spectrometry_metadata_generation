@@ -26,7 +26,7 @@ def test_mass_spec_configuration_generation():
         + datetime.now().strftime("%Y%m%d%H%M%S")
         + ".json"
     )
-    generator = NMDCMetadataGenerator()
+    generator = NMDCMetadataGenerator(test=True)
 
     # Load credentials from the config file
     client_id, client_secret = generator.load_credentials()
@@ -71,7 +71,7 @@ def test_chromatography_configuration_generation():
         + datetime.now().strftime("%Y%m%d%H%M%S")
         + ".json"
     )
-    generator = NMDCMetadataGenerator()
+    generator = NMDCMetadataGenerator(test=True)
 
     # Load credentials from the config file
     client_id, client_secret = generator.load_credentials()
@@ -150,7 +150,7 @@ def test_instrument_generation():
         + datetime.now().strftime("%Y%m%d%H%M%S")
         + ".json"
     )
-    generator = NMDCMetadataGenerator()
+    generator = NMDCMetadataGenerator(test=True)
 
     # Load credentials from the config file
     client_id, client_secret = generator.load_credentials()
