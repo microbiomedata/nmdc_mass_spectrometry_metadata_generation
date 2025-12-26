@@ -40,6 +40,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             database_dump_json_path=database_dump_json_path,
             raw_data_url=raw_data_url,
             process_data_url=process_data_url,
+            test=test,
         )
         self.minting_config_creds = minting_config_creds
         self.test = test

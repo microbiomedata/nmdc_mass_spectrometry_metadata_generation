@@ -189,6 +189,7 @@ def test_cli_biosample_gen():
             str(csv_file_path),
             "--database-dump-path",
             str(output_file),
+            "--test",
         ],
         standalone_mode=False,
     )

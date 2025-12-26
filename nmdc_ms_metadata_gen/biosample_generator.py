@@ -28,6 +28,8 @@ class BiosampleGenerator(NMDCMetadataGenerator):
         The size of the ID pool to maintain for minting biosample IDs. Default is 50.
     id_refill_threshold : int, optional
         The threshold at which to refill the ID pool. Default is 10.
+    test : bool, optional
+        Flag indicating whether to run in test mode. If True, will use local IDs (skip API minting). Default is False.
     """
 
     def __init__(
@@ -37,10 +39,13 @@ class BiosampleGenerator(NMDCMetadataGenerator):
         minting_config_creds: str = None,
         id_pool_size: int = 50,
         id_refill_threshold: int = 10,
+        test: bool = False,
     ):
         # Initialize superclass with ID pool parameters
         super().__init__(
-            id_pool_size=id_pool_size, id_refill_threshold=id_refill_threshold
+            id_pool_size=id_pool_size,
+            id_refill_threshold=id_refill_threshold,
+            test=test,
         )
 
         # Add class-specific attributes

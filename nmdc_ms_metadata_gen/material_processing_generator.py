@@ -50,7 +50,7 @@ class MaterialProcessingMetadataGenerator(NMDCMetadataGenerator):
         sample_specific_info_path: str = None,
         minting_config_creds: str = None,
     ):
-        super().__init__()
+        super().__init__(test=test)
         self.database_dump_json_path = database_dump_json_path
         self.study_id = study_id
         self.yaml_outline_path = yaml_outline_path
