@@ -64,7 +64,7 @@ def global_options(f):
         "--test",
         is_flag=True,
         default=False,
-        help="Deliminates the run as a test to skip extra mongo db checks.",
+        help="Flags the run as a test to skip extra mongo db checks.",
     )
     @wraps(f)
     def wrapper(*args, **kwargs):
@@ -111,7 +111,7 @@ def material_processing_options(f):
         "--test",
         is_flag=True,
         default=False,
-        help="Deliminates the run as a test to skip extra mongo db checks.",
+        help="Flags the run as a test to skip extra mongo db checks.",
     )
     @wraps(f)
     def wrapper(*args, **kwargs):
@@ -180,6 +180,12 @@ def biosample_generation_options(f):
         "--id-refill-threshold",
         default=10,
         help="The threshold at which to refill the ID pool. Default is 10.",
+    )
+    @click.option(
+        "--test",
+        is_flag=True,
+        default=False,
+        help="Flags the run as a test to skip extra mongo db id generation.",
     )
     @wraps(f)
     def wrapper(*args, **kwargs):
@@ -386,6 +392,7 @@ def biosample_generation(
     database_dump_path: str,
     id_pool_size: int,
     id_refill_threshold: int,
+    test: bool,
 ):
     generator = BiosampleGenerator(
         metadata_file=metadata_file,
@@ -393,6 +400,7 @@ def biosample_generation(
         minting_config_creds=minting_config_creds,
         id_pool_size=id_pool_size,
         id_refill_threshold=id_refill_threshold,
+        test=test,
     )
 
     metadata = generator.run()

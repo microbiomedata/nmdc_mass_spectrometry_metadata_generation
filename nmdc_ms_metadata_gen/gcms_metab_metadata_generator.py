@@ -126,6 +126,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             database_dump_json_path=database_dump_json_path,
             raw_data_url=raw_data_url,
             process_data_url=process_data_url,
+            test=test,
         )
         # Set the workflow version, prioritizing user input, then fetching from the Git URL, and finally using a default.
         self.workflow_version = workflow_version or self.get_workflow_version(

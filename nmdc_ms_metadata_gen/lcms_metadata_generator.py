@@ -54,6 +54,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             database_dump_json_path=database_dump_json_path,
             raw_data_url=raw_data_url,
             process_data_url=process_data_url,
+            test=test,
         )
         self.test = test
 

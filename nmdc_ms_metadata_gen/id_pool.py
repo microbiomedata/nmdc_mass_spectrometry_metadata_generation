@@ -1,11 +1,36 @@
 import os
+import random
+import string
 from collections import defaultdict
 
 from dotenv import load_dotenv
 from nmdc_api_utilities.minter import Minter
 
+from nmdc_ms_metadata_gen.data_classes import NmdcTypes
+
 load_dotenv()
 ENV = os.getenv("NMDC_ENV", "prod")
+
+id_prefixes = {
+    NmdcTypes.Biosample: "bsm",
+    NmdcTypes.MassSpectrometry: "dgms",
+    NmdcTypes.MetabolomicsAnalysis: "wfmb",
+    NmdcTypes.DataObject: "dobj",
+    NmdcTypes.CalibrationInformation: "calib",
+    NmdcTypes.NomAnalysis: "wfnom",
+    NmdcTypes.MassSpectrometryConfiguration: "mscon",
+    NmdcTypes.Instrument: "inst",
+    NmdcTypes.Manifest: "manif",
+    NmdcTypes.ChemicalConversionProcess: "chcpr",
+    NmdcTypes.ChromatographyConfiguration: "chrcon",
+    NmdcTypes.Pooling: "poolp",
+    NmdcTypes.SubSamplingProcess: "subspr",
+    NmdcTypes.Extraction: "extrp",
+    NmdcTypes.ProcessedSample: "procsm",
+    NmdcTypes.DissolvingProcess: "diss",
+    NmdcTypes.FiltrationProcess: "filt",
+    NmdcTypes.ChromatographicSeparationProcess: "cspro",
+}
 
 
 class IDPool:
@@ -73,21 +98,35 @@ class IDPool:
         -------
         None
         """
-        attempt = 0
-        while attempt < retries:
+        if self.test:
+            # In test mode, generate dummy IDs
             try:
-                minter = Minter(env=ENV)
-                new_ids = minter.mint(
-                    nmdc_type=nmdc_type,
-                    count=self.pool_size,
-                    client_id=client_id,
-                    client_secret=client_secret,
+                dummy_ids = [
+                    f"nmdc:{id_prefixes[nmdc_type]}-13-{''.join(random.choices(string.ascii_lowercase + string.digits, k=random.randint(8, 8)))}"
+                    for _ in range(self.pool_size - len(self.pools[nmdc_type]))
+                ]
+            except KeyError:
+                raise ValueError(
+                    f"NMDC type {nmdc_type} not found in id_prefixes mapping."
                 )
-                self.pools[nmdc_type].extend(new_ids)
-                return
-            except Exception as e:
-                attempt += 1
-                if attempt >= retries:
-                    raise RuntimeError(
-                        f"Failed to refill ID pool for type '{nmdc_type}' after {retries} attempts: {e}"
+            print(f"Generated dummy IDs for type '{nmdc_type}': {dummy_ids}")
+            self.pools[nmdc_type].extend(dummy_ids)
+        else:
+            attempt = 0
+            while attempt < retries:
+                try:
+                    minter = Minter(env=ENV)
+                    new_ids = minter.mint(
+                        nmdc_type=nmdc_type,
+                        count=self.pool_size,
+                        client_id=client_id,
+                        client_secret=client_secret,
                     )
+                    self.pools[nmdc_type].extend(new_ids)
+                    return
+                except Exception as e:
+                    attempt += 1
+                    if attempt >= retries:
+                        raise RuntimeError(
+                            f"Failed to refill ID pool for type '{nmdc_type}' after {retries} attempts: {e}"
+                        )
