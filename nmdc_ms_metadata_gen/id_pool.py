@@ -65,16 +65,8 @@ class IDPool:
             A single NMDC ID.
         """
         # Check if we need to refill the pool
-        if len(self.pools[nmdc_type]) <= self.refill_threshold and not self.test:
+        if len(self.pools[nmdc_type]) <= self.refill_threshold:
             self._refill_pool(nmdc_type, client_id, client_secret)
-        elif len(self.pools[nmdc_type]) <= self.refill_threshold and self.test:
-            # In test mode, generate dummy IDs
-            dummy_ids = [
-                f"nmdc:{id_prefixes[nmdc_type]}-{''.join(random.choices(string.digits,k=2))}-{''.join(random.choices(string.ascii_lowercase + string.digits, k=random.randint(8, 8)))}"
-                for _ in range(self.pool_size - len(self.pools[nmdc_type]))
-            ]
-            print(f"Generated dummy IDs for type '{nmdc_type}': {dummy_ids}")
-            self.pools[nmdc_type].extend(dummy_ids)
 
         # Ensure the pool is not empty before popping
         if not self.pools[nmdc_type]:
@@ -106,21 +98,35 @@ class IDPool:
         -------
         None
         """
-        attempt = 0
-        while attempt < retries:
+        if self.test:
+            # In test mode, generate dummy IDs
             try:
-                minter = Minter(env=ENV)
-                new_ids = minter.mint(
-                    nmdc_type=nmdc_type,
-                    count=self.pool_size,
-                    client_id=client_id,
-                    client_secret=client_secret,
+                dummy_ids = [
+                    f"nmdc:{id_prefixes[nmdc_type]}-13-{''.join(random.choices(string.ascii_lowercase + string.digits, k=random.randint(8, 8)))}"
+                    for _ in range(self.pool_size - len(self.pools[nmdc_type]))
+                ]
+            except KeyError:
+                raise ValueError(
+                    f"NMDC type {nmdc_type} not found in id_prefixes mapping."
                 )
-                self.pools[nmdc_type].extend(new_ids)
-                return
-            except Exception as e:
-                attempt += 1
-                if attempt >= retries:
-                    raise RuntimeError(
-                        f"Failed to refill ID pool for type '{nmdc_type}' after {retries} attempts: {e}"
+            print(f"Generated dummy IDs for type '{nmdc_type}': {dummy_ids}")
+            self.pools[nmdc_type].extend(dummy_ids)
+        else:
+            attempt = 0
+            while attempt < retries:
+                try:
+                    minter = Minter(env=ENV)
+                    new_ids = minter.mint(
+                        nmdc_type=nmdc_type,
+                        count=self.pool_size,
+                        client_id=client_id,
+                        client_secret=client_secret,
                     )
+                    self.pools[nmdc_type].extend(new_ids)
+                    return
+                except Exception as e:
+                    attempt += 1
+                    if attempt >= retries:
+                        raise RuntimeError(
+                            f"Failed to refill ID pool for type '{nmdc_type}' after {retries} attempts: {e}"
+                        )

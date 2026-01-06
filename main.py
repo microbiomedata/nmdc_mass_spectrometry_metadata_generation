@@ -64,7 +64,7 @@ def global_options(f):
         "--test",
         is_flag=True,
         default=False,
-        help="Deliminates the run as a test to skip extra mongo db checks.",
+        help="Flags the run as a test to skip extra mongo db checks.",
     )
     @wraps(f)
     def wrapper(*args, **kwargs):
@@ -111,7 +111,7 @@ def material_processing_options(f):
         "--test",
         is_flag=True,
         default=False,
-        help="Deliminates the run as a test to skip extra mongo db checks.",
+        help="Flags the run as a test to skip extra mongo db checks.",
     )
     @wraps(f)
     def wrapper(*args, **kwargs):
@@ -185,7 +185,7 @@ def biosample_generation_options(f):
         "--test",
         is_flag=True,
         default=False,
-        help="Deliminates the run as a test to skip extra mongo db id generation.",
+        help="Flags the run as a test to skip extra mongo db id generation.",
     )
     @wraps(f)
     def wrapper(*args, **kwargs):
