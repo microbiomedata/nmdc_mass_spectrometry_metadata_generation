@@ -210,6 +210,7 @@ def test_cli_validate_yaml():
         "test_material_processing",
         "test_yaml_for_output_adjust_test.yaml",
     )
+
     protocol_id_list = ["NOM"]
     result = runner.invoke(
         cli,
@@ -224,7 +225,7 @@ def test_cli_validate_yaml():
         standalone_mode=False,
     )
     assert result.exit_code == 0
-    assert "All okay" in result.output
+    assert "All okay" in result.return_value[0]
 
 
 def test_info_command_invalid():

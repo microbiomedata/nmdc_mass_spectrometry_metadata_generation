@@ -66,9 +66,13 @@ def validate_yaml_outline(
             generator.dump_nmdc_database(
                 nmdc_database=nmdc_database, json_path=generator.database_dump_json_path
             )
-        validate = generator.validate_nmdc_database(
-            generator.database_dump_json_path, use_api=test
-        )
+            validate = generator.validate_nmdc_database(
+                generator.database_dump_json_path, use_api=test
+            )
+        else:
+            validate = generator.validate_nmdc_database(
+                json=generator.nmdc_db_to_dict(nmdc_database), use_api=test
+            )
 
         results.append(validate["result"])
     return results
