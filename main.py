@@ -408,7 +408,7 @@ def biosample_generation(
     return metadata
 
 
-@click.command()
+@cli.command()
 @click.option(
     "--yaml-outline-path",
     required=True,
@@ -416,8 +416,9 @@ def biosample_generation(
 )
 @click.option(
     "--protocol-id-list",
-    required=True,
-    help="Comma separated list of protocol ids to validate",
+    required=False,
+    default=None,
+    help="Comma separated list of protocol ids to validate. If not provided, all protocols in the outline will be validated.",
 )
 @click.option(
     "--test",
@@ -425,9 +426,15 @@ def biosample_generation(
     default=False,
     help="Whether to run in test mode. Will not use the NMDC API for validation if so.",
 )
-def validate_yaml_outline(
-    yaml_outline_path: str, protocol_id_list: str, test: bool
-) -> dict:
+@click.option(
+    "--dump-database",
+    is_flag=True,
+    default=False,
+    help="Whether to dump the NMDC database to a JSON file during validation.",
+)
+def validate_yaml(
+    yaml_outline_path: str, protocol_id_list: list, test: bool, dump_database: bool
+):
     """
     Test to make sure yaml will generate valid json if given a random biosample (no adjustments for dg/filename)
 
@@ -445,6 +452,7 @@ def validate_yaml_outline(
         yaml_outline_path=yaml_outline_path,
         protocol_id_list=protocol_id_list,
         test=test,
+        dump_database=dump_database,
     )
 
 

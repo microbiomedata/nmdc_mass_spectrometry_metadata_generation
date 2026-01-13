@@ -488,6 +488,20 @@ class YamlSpecifier:
         else:
             return outline[protocol_id]
 
+    def get_outline_protocol_ids(self) -> list:
+        """
+        Gets a list of protocol ids in the yaml outline.
+
+        Returns
+        -------
+        list
+            List of protocol ids in the yaml outline
+        """
+        with open(self.yaml_outline_path) as f:
+            yaml = YAML()
+            outline = yaml.load(f)
+        return list(outline.keys())
+
     def update_value(
         self, data: dict, sample_specific_info_protocol_subset: pd.DataFrame
     ) -> dict:

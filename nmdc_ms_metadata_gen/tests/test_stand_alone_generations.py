@@ -295,8 +295,6 @@ def test_json_validate_no_api_fail():
     gen = NMDCMetadataGenerator()
     results = gen.validate_nmdc_database(json=in_docs, use_api=False)
     assert results["result"] == "errors"
-
-    print(results)
     assert "'id' is a required property" in results["detail"]["data_object_set"][0]
 
 
@@ -355,3 +353,26 @@ def test_get_associated_ids():
 
     for id in id_list:
         assert id in resp.keys()
+
+
+def test_validate_yaml_outline():
+    """
+    Test validating a yaml outline.
+    """
+    from nmdc_ms_metadata_gen.validate_yaml_outline import validate_yaml_outline
+
+    yaml_outline_path = (
+        "tests/test_data/test_material_processing/test_yaml_for_output_adjust_test.yaml"
+    )
+    protocol_id_list = ["NOM"]
+
+    results = validate_yaml_outline(
+        yaml_outline_path=yaml_outline_path,
+        test=True,
+    )
+
+    for result in results:
+        assert result == "All okay!"
+
+
+test_validate_yaml_outline()
