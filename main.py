@@ -19,6 +19,7 @@ from nmdc_ms_metadata_gen.lcms_nom_metadata_generator import LCMSNOMMetadataGene
 from nmdc_ms_metadata_gen.material_processing_generator import (
     MaterialProcessingMetadataGenerator,
 )
+from nmdc_ms_metadata_gen.validate_yaml_outline import validate_yaml_outline
 
 
 @click.group()
@@ -405,6 +406,46 @@ def biosample_generation(
 
     metadata = generator.run()
     return metadata
+
+
+@click.command()
+@click.option(
+    "--yaml-outline-path",
+    required=True,
+    help="Path to YAML file that contains the sample processing steps.",
+)
+@click.option(
+    "--protocol-id-list",
+    required=True,
+    help="Comma separated list of protocol ids to validate",
+)
+@click.option(
+    "--test",
+    is_flag=True,
+    default=False,
+    help="Whether to run in test mode. Will not use the NMDC API for validation if so.",
+)
+def validate_yaml_outline(
+    yaml_outline_path: str, protocol_id_list: str, test: bool
+) -> dict:
+    """
+    Test to make sure yaml will generate valid json if given a random biosample (no adjustments for dg/filename)
+
+    Parameters
+    ----------
+    yaml_outline_path: str
+        Path to yaml outline to validate
+
+    Examples
+    --------
+    Command line example
+    `python -m nmdc_mass_spectrometry_metadata_generation.nmdc_ms_metadata_gen.validate_yaml_outline --yaml-outline-path 'path_to_yaml/example.yaml' --protocol-id-list 'example_protocol1,example_protocol2' --use-api False`
+    """
+    return validate_yaml_outline(
+        yaml_outline_path=yaml_outline_path,
+        protocol_id_list=protocol_id_list,
+        test=test,
+    )
 
 
 if __name__ == "__main__":

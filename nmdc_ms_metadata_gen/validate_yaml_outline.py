@@ -1,16 +1,12 @@
-import click
-
 from nmdc_ms_metadata_gen.material_processing_generator import (
     MaterialProcessingMetadataGenerator,
 )
 from nmdc_ms_metadata_gen.metadata_parser import YamlSpecifier
 
 
-@click.command()
-@click.option("--yaml_outline_path", required=True)
-@click.option("--protocol_id_list", required=True)
-@click.option("--use_api", type=bool, default=False)
-def validate_yaml_outline(yaml_outline_path: str, protocol_id_list: str, use_api=False):
+def validate_yaml_outline(
+    yaml_outline_path: str, protocol_id_list: str, test: bool = False
+) -> dict:
     """
     Test to make sure yaml will generate valid json if given a random biosample (no adjustments for dg/filename)
 
@@ -18,11 +14,15 @@ def validate_yaml_outline(yaml_outline_path: str, protocol_id_list: str, use_api
     ----------
     yaml_outline_path: str
         Path to yaml outline to validate
+    protocol_id_list: str
+        Comma separated list of protocol ids to validate
+    test: bool
+        Whether to run in test mode.
 
-    Examples
-    --------
-    Command line example
-    `python -m nmdc_mass_spectrometry_metadata_generation.nmdc_ms_metadata_gen.validate_yaml_outline --yaml_outline_path 'path_to_yaml/example.yaml' --protocol_id_list 'example_protocol1,example_protocol2' --use_api False`
+    Returns
+    -------
+    dict
+        Validation result
     """
 
     protocol_id_list = [p.strip() for p in protocol_id_list.split(",")]
@@ -32,7 +32,7 @@ def validate_yaml_outline(yaml_outline_path: str, protocol_id_list: str, use_api
         study_id="sdjklfdjsf",  # doesn't matter, wont be called on
         database_dump_json_path="Validated_Outline_Output",
         sample_to_dg_mapping_path="jdksldjfs",  # doesn't matter, won't be called on
-        test=True,
+        test=test,
         minting_config_creds="nmdc_mass_spectrometry_metadata_generation/config.toml",
     )
     client_id, client_secret = generator.load_credentials(
@@ -58,11 +58,7 @@ def validate_yaml_outline(yaml_outline_path: str, protocol_id_list: str, use_api
             nmdc_database=nmdc_database, json_path=generator.database_dump_json_path
         )
         validate = generator.validate_nmdc_database(
-            generator.database_dump_json_path, use_api=use_api
+            generator.database_dump_json_path, use_api=test
         )
 
-        print(validate["result"])
-
-
-if __name__ == "__main__":
-    validate_yaml_outline()
+        return validate["result"]
