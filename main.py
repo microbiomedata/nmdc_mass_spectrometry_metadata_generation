@@ -442,11 +442,21 @@ def validate_yaml(
     ----------
     yaml_outline_path: str
         Path to yaml outline to validate
+    protocol_id_list: list, optional
+        List of protocol ids (or names) to validate
+    test: bool
+        Whether to run in test mode.
+    dump_database: bool
+        Whether to dump the NMDC database to a JSON file during validation.
+    Returns
+    -------
+    list[dict]
+        List of validation results
 
     Examples
     --------
     Command line example
-    `python -m nmdc_mass_spectrometry_metadata_generation.nmdc_ms_metadata_gen.validate_yaml_outline --yaml-outline-path 'path_to_yaml/example.yaml' --protocol-id-list 'example_protocol1,example_protocol2' --use-api False`
+    `python main.py validate-yaml --yaml-outline-path 'path_to_yaml/example.yaml' --protocol-id-list 'example_protocol1,example_protocol2' --test`
     """
     return validate_yaml_outline(
         yaml_outline_path=yaml_outline_path,

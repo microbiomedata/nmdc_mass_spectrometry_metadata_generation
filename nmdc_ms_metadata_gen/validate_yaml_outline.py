@@ -19,18 +19,18 @@ def validate_yaml_outline(
     ----------
     yaml_outline_path: str
         Path to yaml outline to validate
-    protocol_id_list: str, optional
+    protocol_id_list: list, optional
         Comma separated list of protocol ids (or names) to validate
     test: bool
         Whether to run in test mode.
 
     Returns
     -------
-    dict
+    list[dict]
         List of validation results
     """
 
-    if type(protocol_id_list) is str:
+    if isinstance(protocol_id_list, str):
         protocol_id_list = literal_eval(protocol_id_list)
 
     generator = MaterialProcessingMetadataGenerator(
