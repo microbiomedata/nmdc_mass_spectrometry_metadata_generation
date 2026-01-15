@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nmdc_mass_spectrometry_metadata_generation"
-version = "2.2.0"
+version = "2.3.0"
 description = "A Python library for metdata generation for mass spectrometry data as it relates to the NMDC Schema."
 authors = [
     { name = "Olivia Hess", email = "olivia.hess@pnnl.gov" }, { name= "Katherine Heal", email = "katherine.heal@pnnl.gov"}
