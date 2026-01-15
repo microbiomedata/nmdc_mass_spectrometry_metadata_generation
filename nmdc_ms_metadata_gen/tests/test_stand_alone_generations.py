@@ -369,7 +369,6 @@ def test_validate_yaml_outline():
     results = validate_yaml_outline(
         yaml_outline_path=yaml_outline_path,
         test=True,
-        use_api=False,
     )
 
     for result in results:
