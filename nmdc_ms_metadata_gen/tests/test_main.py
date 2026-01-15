@@ -225,7 +225,7 @@ def test_cli_validate_yaml():
         standalone_mode=False,
     )
     assert result.exit_code == 0
-    assert "All okay" in result.return_value[0]
+    assert "all okay" in result.return_value[0]["result"].lower()
 
 
 def test_info_command_invalid():
