@@ -200,9 +200,40 @@ def test_cli_biosample_gen():
     assert result["result"] == "All Okay!"
 
 
+def test_cli_validate_yaml():
+    """Test the biosample generation command."""
+    runner = CliRunner()
+    current_directory = os.path.dirname(__file__)
+    yaml_file_path = os.path.join(
+        current_directory,
+        "test_data",
+        "test_material_processing",
+        "test_yaml_for_output_adjust_test.yaml",
+    )
+
+    protocol_id_list = ["NOM"]
+    result = runner.invoke(
+        cli,
+        [
+            "validate-yaml",
+            "--yaml-outline-path",
+            str(yaml_file_path),
+            "--protocol-id-list",
+            protocol_id_list,
+            "--test",
+        ],
+        standalone_mode=False,
+    )
+    assert result.exit_code == 0
+    assert "all okay" in result.return_value[0]["result"].lower()
+
+
 def test_info_command_invalid():
     """Test the info command with invalid input."""
     runner = CliRunner()
     result = runner.invoke(cli, ["info", "invalid-command"])
 
     assert result.exit_code != 0  # Should fail for invalid command
+
+
+test_cli_validate_yaml()

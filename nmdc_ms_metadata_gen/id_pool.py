@@ -27,9 +27,10 @@ id_prefixes = {
     NmdcTypes.SubSamplingProcess: "subspr",
     NmdcTypes.Extraction: "extrp",
     NmdcTypes.ProcessedSample: "procsm",
-    NmdcTypes.DissolvingProcess: "diss",
-    NmdcTypes.FiltrationProcess: "filt",
+    NmdcTypes.DissolvingProcess: "dispro",
+    NmdcTypes.FiltrationProcess: "filtpr",
     NmdcTypes.ChromatographicSeparationProcess: "cspro",
+    NmdcTypes.MixingProcess: "mixpro",
 }
 
 
@@ -109,7 +110,6 @@ class IDPool:
                 raise ValueError(
                     f"NMDC type {nmdc_type} not found in id_prefixes mapping."
                 )
-            print(f"Generated dummy IDs for type '{nmdc_type}': {dummy_ids}")
             self.pools[nmdc_type].extend(dummy_ids)
         else:
             attempt = 0

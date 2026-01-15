@@ -19,6 +19,7 @@ from nmdc_ms_metadata_gen.lcms_nom_metadata_generator import LCMSNOMMetadataGene
 from nmdc_ms_metadata_gen.material_processing_generator import (
     MaterialProcessingMetadataGenerator,
 )
+from nmdc_ms_metadata_gen.validate_yaml_outline import validate_yaml_outline
 
 
 @click.group()
@@ -405,6 +406,64 @@ def biosample_generation(
 
     metadata = generator.run()
     return metadata
+
+
+@cli.command()
+@click.option(
+    "--yaml-outline-path",
+    required=True,
+    help="Path to YAML file that contains the sample processing steps.",
+)
+@click.option(
+    "--protocol-id-list",
+    required=False,
+    default=None,
+    help="Comma separated list of protocol ids to validate. If not provided, all protocols in the outline will be validated.",
+)
+@click.option(
+    "--test",
+    is_flag=True,
+    default=False,
+    help="Whether to run in test mode. Will not use the NMDC API for validation if so.",
+)
+@click.option(
+    "--dump-database",
+    is_flag=True,
+    default=False,
+    help="Whether to dump the NMDC database to a JSON file during validation.",
+)
+def validate_yaml(
+    yaml_outline_path: str, protocol_id_list: list, test: bool, dump_database: bool
+):
+    """
+    Test to make sure yaml will generate valid json if given a random biosample (no adjustments for dg/filename)
+
+    Parameters
+    ----------
+    yaml_outline_path: str
+        Path to yaml outline to validate
+    protocol_id_list: list, optional
+        List of protocol ids (or names) to validate
+    test: bool
+        Whether to run in test mode.
+    dump_database: bool
+        Whether to dump the NMDC database to a JSON file during validation.
+    Returns
+    -------
+    list[dict]
+        List of validation results
+
+    Examples
+    --------
+    Command line example
+    `python main.py validate-yaml --yaml-outline-path 'path_to_yaml/example.yaml' --protocol-id-list 'example_protocol1,example_protocol2' --test`
+    """
+    return validate_yaml_outline(
+        yaml_outline_path=yaml_outline_path,
+        protocol_id_list=protocol_id_list,
+        test=test,
+        dump_database=dump_database,
+    )
 
 
 if __name__ == "__main__":
