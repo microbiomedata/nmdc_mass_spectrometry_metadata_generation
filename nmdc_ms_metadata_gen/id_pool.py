@@ -27,9 +27,10 @@ id_prefixes = {
     NmdcTypes.SubSamplingProcess: "subspr",
     NmdcTypes.Extraction: "extrp",
     NmdcTypes.ProcessedSample: "procsm",
-    NmdcTypes.DissolvingProcess: "diss",
-    NmdcTypes.FiltrationProcess: "filt",
+    NmdcTypes.DissolvingProcess: "dispro",
+    NmdcTypes.FiltrationProcess: "filtpr",
     NmdcTypes.ChromatographicSeparationProcess: "cspro",
+    NmdcTypes.MixingProcess: "mixpro",
 }
 
 

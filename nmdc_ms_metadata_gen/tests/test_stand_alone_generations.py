@@ -364,15 +364,13 @@ def test_validate_yaml_outline():
     yaml_outline_path = (
         "tests/test_data/test_material_processing/test_yaml_for_output_adjust_test.yaml"
     )
-    protocol_id_list = ["NOM"]
+    # protocol_id_list = ["NOM"]
 
     results = validate_yaml_outline(
         yaml_outline_path=yaml_outline_path,
         test=True,
+        use_api=False,
     )
 
     for result in results:
-        assert result == "All okay!"
-
-
-test_validate_yaml_outline()
+        assert result["result"].lower() == "all okay!"

@@ -9,6 +9,7 @@ This module defines data classes for NMDC (National Microbiome Data Collaborativ
 class NmdcTypes:
     """
     Data class holding NMDC type constants.
+    Link to documentation https://microbiomedata.github.io/nmdc-schema/typecode-to-class-map/
 
     Attributes
     ----------
@@ -94,6 +95,7 @@ class NmdcTypes:
     Manifest: str = "nmdc:Manifest"
     ChemicalConversionProcess: str = "nmdc:ChemicalConversionProcess"
     ChromatographicSeparationProcess: str = "nmdc:ChromatographicSeparationProcess"
+    MixingProcess: str = "nmdc:MixingProcess"
     Pooling: str = "nmdc:Pooling"
     SubSamplingProcess: str = "nmdc:SubSamplingProcess"
     Extraction: str = "nmdc:Extraction"

@@ -29,7 +29,7 @@ def validate_yaml_outline(
     list[dict]
         List of validation results
     """
-
+    use_api = not test
     if isinstance(protocol_id_list, str):
         protocol_id_list = literal_eval(protocol_id_list)
 
@@ -67,12 +67,12 @@ def validate_yaml_outline(
                 nmdc_database=nmdc_database, json_path=generator.database_dump_json_path
             )
             validate = generator.validate_nmdc_database(
-                generator.database_dump_json_path, use_api=test
+                generator.database_dump_json_path, use_api=use_api
             )
         else:
             validate = generator.validate_nmdc_database(
-                json=generator.nmdc_db_to_dict(nmdc_database), use_api=test
+                json=generator.nmdc_db_to_dict(nmdc_database), use_api=use_api
             )
 
-        results.append(validate["result"])
+        results.append(validate)
     return results
