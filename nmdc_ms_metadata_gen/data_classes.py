@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+import nmdc_schema.nmdc as nmdc
+
 """
 This module defines data classes for NMDC (National Microbiome Data Collaborative) type constants.
 """
@@ -103,6 +105,9 @@ class NmdcTypes:
     DissolvingProcess: str = "nmdc:DissolvingProcess"
     FiltrationProcess: str = "nmdc:FiltrationProcess"
     ProvenanceMetadata: str = "nmdc:ProvenanceMetadata"
+    Pooling: str = "nmdc:Pooling"
+    LibraryPreparation: str = "nmdc:LibraryPreparation"
+    MixingProcess: str = "nmdc:MixingProcess"
 
 
 @dataclass
@@ -282,9 +287,12 @@ class ProcessGeneratorMap:
     based on the process type found in the YAML file.
     """
 
-    SubSamplingProcess: str = "generate_subsampling_process"
-    Extraction: str = "generate_extraction"
-    ChemicalConversionProcess: str = "generate_chemical_conversion"
-    ChromatographicSeparationProcess: str = "generate_chromatographic_separation"
-    DissolvingProcess: str = "generate_dissolving_process"
-    FiltrationProcess: str = "generate_filtration_process"
+    SubSamplingProcess = nmdc.SubSamplingProcess
+    Extraction = nmdc.Extraction
+    ChemicalConversionProcess = nmdc.ChemicalConversionProcess
+    ChromatographicSeparationProcess = nmdc.ChromatographicSeparationProcess
+    DissolvingProcess = nmdc.DissolvingProcess
+    FiltrationProcess = nmdc.FiltrationProcess
+    Pooling = nmdc.Pooling
+    LibraryPreparation = nmdc.LibraryPreparation
+    MixingProcess = nmdc.MixingProcess

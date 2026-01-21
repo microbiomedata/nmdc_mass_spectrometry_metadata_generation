@@ -409,16 +409,13 @@ class MaterialProcessingMetadataGenerator(NMDCMetadataGenerator):
                             f"<{reference}>", nmdc_id
                         )
 
-            # `generator_method` corresponding to a function that generates an NMDC id for this type of material processing (i.e. chemical conversion)
-            generator_method = getattr(
-                self, getattr(ProcessGeneratorMap(), process_type)
-            )
-
             # Replace has_input and has_output with the lists of actual NMDC ids, also remove id and type which will instead be added in the generator method
             for key in ["has_input", "has_output", "id", "type"]:
                 process_data.pop(key, None)
-            material_processing_metadata = generator_method(
-                **process_data,
+
+            material_processing_metadata = self.generate_material_processing(
+                data=process_data,
+                type=process_type,
                 has_input=step_input,
                 has_output=step_output,
                 CLIENT_ID=CLIENT_ID,

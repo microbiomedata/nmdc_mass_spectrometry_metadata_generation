@@ -38,7 +38,7 @@ from nmdc_schema.nmdc import Database as NMDCDatabase
 from tqdm import tqdm
 
 import nmdc_ms_metadata_gen
-from nmdc_ms_metadata_gen.data_classes import NmdcTypes
+from nmdc_ms_metadata_gen.data_classes import NmdcTypes, ProcessGeneratorMap
 from nmdc_ms_metadata_gen.id_pool import IDPool
 
 ENV = os.getenv("NMDC_ENV", "prod")
@@ -628,433 +628,58 @@ class NMDCMetadataGenerator:
 
         return nmdc.ProcessedSample(**data_dict)
 
-    def generate_subsampling_process(
+    def generate_material_processing(
         self,
-        name: str,
-        description: str,
+        data: dict,
+        type: str,
         has_input: list,
         has_output: list,
         CLIENT_ID: str,
         CLIENT_SECRET: str,
-        processing_institution: str = None,
-        mass: dict = None,
-        protocol_link: nmdc.Protocol | None = None,
-    ) -> nmdc.SubSamplingProcess:
+    ):
         """
-        Generate a subsampling process object from the provided data.
+        Generate a MaterialProcessing object from the provided data.
 
         Parameters
         ----------
-        name : str
-            The name of the subsampling process.
-        description : str
-            A description of the subsampling process.
-        processing_institution : str, optional
-            The institution responsible for processing.
-        mass : dict, optional
-            A dictionary containing mass information for the subsampling process.
+        data : dict
+            A dictionary containing the metadata for the material processing.
+        type : str
+            The type of material processing (e.g., 'PoolingProcess').
         has_input : list
-            A list of input sample IDs for the subsampling process.
-        has_output : list
-            A list of output sample IDs for the subsampling process.
-        CLIENT_ID : str
-            The client ID for the NMDC API.
-        CLIENT_SECRET : str
-            The client secret for the NMDC API.
-        protocol_link : nmdc.Protocol, optional
-            A link to the protocol referencing the subsampling process.
-        """
-        nmdc_id = self.id_pool.get_id(
-            nmdc_type=NmdcTypes.SubSamplingProcess,
-            client_id=CLIENT_ID,
-            client_secret=CLIENT_SECRET,
-        )
-
-        data_dict = {
-            "id": nmdc_id,
-            "has_input": has_input,
-            "has_output": has_output,
-            "type": NmdcTypes.SubSamplingProcess,
-            "name": name,
-            "description": description,
-            "processing_institution": processing_institution,
-            "mass": mass,
-            "protocol_link": protocol_link,
-        }
-
-        return nmdc.SubSamplingProcess(**data_dict)
-
-    def generate_filtration_process(
-        self,
-        name: str,
-        description: str,
-        has_input: list,
-        has_output: list,
-        CLIENT_ID: str,
-        CLIENT_SECRET: str,
-        filter_material: str = None,
-        filter_pore_size: dict = None,
-        start_date: str = None,
-        end_date: str = None,
-        container_size: dict = None,
-        filtration_category: str = None,
-        is_pressurized: bool = None,
-        separation_method: str = None,
-        volume: dict = None,
-        processing_institution: str = None,
-        protocol_link: nmdc.Protocol | None = None,
-    ) -> nmdc.FiltrationProcess:
-        """
-        Generate a filtration process object from the provided data.
-
-        Parameters
-        ----------
-        name : str
-            The name of the filtration process.
-        description : str
-            A description of the filtration process.
-        processing_institution : str, optional
-            The institution responsible for processing.
-        has_input : list
-            A list of input sample IDs for the filtration process.
-        has_output : list
-            A list of output sample IDs for the filtration process.
-        CLIENT_ID : str
-            The client ID for the NMDC API.
-        CLIENT_SECRET : str
-            The client secret for the NMDC API.
-        protocol_link : nmdc.Protocol, optional
-            A link to the protocol referencing the filtration process.
-        filter_material: str
-            A porous material on which solid particles present in air or other fluid which flows through it are largely caught and retained.
-        filter_pore_size: dict
-            A quantitative or qualitative measurement of the physical dimensions of the pores in a material.
-        start_date: str
-            The date on which any process or activity was started
-        end_date: str
-            The date on which any process or activity was ended
-        container_size: dict
-            The volume of the container an analyte is stored in or an activity takes place in
-        filtration_category: str
-            The type of conditioning applied to a filter, device, etc.
-        is_pressurized: bool
-            Whether or not pressure was applied to a thing or process.
-        separation_method: str
-            The method that was used to separate a substance from a solution or mixture.
-        volume: dict
-            The volume of a substance.
-        """
-        nmdc_id = self.id_pool.get_id(
-            nmdc_type=NmdcTypes.FiltrationProcess,
-            client_id=CLIENT_ID,
-            client_secret=CLIENT_SECRET,
-        )
-
-        data_dict = {
-            "id": nmdc_id,
-            "has_input": has_input,
-            "has_output": has_output,
-            "type": NmdcTypes.FiltrationProcess,
-            "name": name,
-            "description": description,
-            "processing_institution": processing_institution,
-            "protocol_link": protocol_link,
-            "filter_material": filter_material,
-            "filter_pore_size": filter_pore_size,
-            "start_date": start_date,
-            "end_date": end_date,
-            "container_size": container_size,
-            "filtration_category": filtration_category,
-            "is_pressurized": is_pressurized,
-            "separation_method": separation_method,
-            "volume": volume,
-        }
-
-        return nmdc.FiltrationProcess(**data_dict)
-
-    def generate_chemical_conversion(
-        self,
-        name: str,
-        description: str,
-        has_input: list,
-        has_output: list,
-        CLIENT_ID: str,
-        CLIENT_SECRET: str,
-        start_date: str = None,
-        end_date: str = None,
-        processing_institution: str = None,
-        chemical_conversion_category: str = None,
-        substances_used: dict = None,
-        protocol_link: dict = None,
-        temperature: dict = None,
-    ) -> nmdc.ChemicalConversionProcess:
-        """
-        Generate a chemical conversion process object from the provided data.
-
-        Parameters
-        ----------
-        name : str
-            The name of the chemical conversion process.
-        description : str
-            A description of the chemical conversion process.
-        processing_institution : str, optional
-            The institution responsible for processing.
-        chemical_conversion_category : str, optional
-            The type of chemical conversion process.
-        protocol_link :dict, optional
-            Link to the protocol.
-        temperature : dict, optional
-            The value of a temperature measurement or temperature used in a process
-        start_date: str
-            The date on which any process or activity was started
-        end_date: str
-            The date on which any process or activity was ended
-        has_input : list
-            A list of input sample IDs for the chemical conversion process.
-        has_output : list
-            A list of output sample IDs for the chemical conversion process.
-        CLIENT_ID : str
-            The client ID for the NMDC API.
-        CLIENT_SECRET : str
-            The client secret for the NMDC API.
-        substances_used : dict, optional
-
-        Returns
-        -------
-        nmdc.ChemicalConversionProcess
-            An NMDC ChemicalConversionProcess object with the provided metadata.
-        """
-        nmdc_id = self.id_pool.get_id(
-            nmdc_type=NmdcTypes.ChemicalConversionProcess,
-            client_id=CLIENT_ID,
-            client_secret=CLIENT_SECRET,
-        )
-
-        # Required fields
-        data_dict = {
-            "id": nmdc_id,
-            "has_input": has_input,
-            "has_output": has_output,
-            "name": name,
-            "description": description,
-            "processing_institution": processing_institution,
-            "chemical_conversion_category": chemical_conversion_category,
-            "protocol_link": protocol_link,
-            "temperature": temperature,
-            "type": NmdcTypes.ChemicalConversionProcess,
-            "start_date": start_date,
-            "end_date": end_date,
-            "substances_used": substances_used,
-        }
-
-        return nmdc.ChemicalConversionProcess(**data_dict)
-
-    def generate_extraction(
-        self,
-        name: str,
-        description: str,
-        has_input: list,
-        has_output: list,
-        CLIENT_ID: str,
-        CLIENT_SECRET: str,
-        processing_institution: str = None,
-        substances_used: dict = None,
-        extraction_targets: list = None,
-        input_mass: dict = None,
-        temperature: dict = None,
-        protocol_link: dict = None,
-        volume: dict = None,
-    ) -> nmdc.Extraction:
-        """
-        Generate an extraction object from the provided data.
-
-        Parameters
-        ----------
-        name : str
-            The name of the subsampling process.
-        description : str
-            A description of the subsampling process.
-        processing_institution : str, optional
-            The institution responsible for processing.
-        substances_used : dict, optional
-        extraction_targets:list, optional
-        input_mass : dict, optional
-        temperature:dict, optional
-        has_input : list
-            A list of input sample IDs for the extraction process.
-        has_output : list
-            A list of output sample IDs for the extraction process.
-        CLIENT_ID : str
-            The client ID for the NMDC API.
-        CLIENT_SECRET : str
-            The client secret for the NMDC API.
-        protocol_link :dict, optional
-            Link to the protocol.
-        volume :dict, optional
-            Volume of extraction
-
-        Returns
-        -------
-        nmdc.Extraction
-            An NMDC Extraction object with the provided metadata.
-        """
-        nmdc_id = self.id_pool.get_id(
-            nmdc_type=NmdcTypes.Extraction,
-            client_id=CLIENT_ID,
-            client_secret=CLIENT_SECRET,
-        )
-
-        data_dict = {
-            "id": nmdc_id,
-            "name": name,
-            "processing_institution": processing_institution,
-            "description": description,
-            "substances_used": substances_used,
-            "extraction_targets": extraction_targets,
-            "input_mass": input_mass,
-            "temperature": temperature,
-            "has_input": has_input,
-            "has_output": has_output,
-            "type": NmdcTypes.Extraction,
-            "protocol_link": protocol_link,
-            "volume": volume,
-        }
-
-        return nmdc.Extraction(**data_dict)
-
-    def generate_chromatographic_separation(
-        self,
-        name: str,
-        description: str,
-        has_input: list,
-        has_output: list,
-        CLIENT_ID: str,
-        CLIENT_SECRET: str,
-        processing_institution: str = None,
-        protocol_link: dict = None,
-        chromatographic_category: str = None,
-        ordered_mobile_phases: list[dict] = None,
-        stationary_phase: str = None,
-    ) -> nmdc.ChromatographicSeparationProcess:
-        """
-        Generate a chromatographic separation process object from the provided data.
-
-        Parameters
-        ----------
-        name : str
-            The name of the chromatographic separation process.
-        description : str
-            A description of the chromatographic separation process.
-        processing_institution : str, optional
-            The institution responsible for processing.
-        protocol_link:dict,optional
-            A link to the protocol used.
-        chromatographic_category:str,optional
-            The type of chromatography used in a process.
-        ordered_mobile_phases:list[dict],optional
-            The solution(s) that moves through a chromatography column.
-        stationary_phase:str,optional
-            The material the stationary phase is comprised of used in chromatography.
-        protocol_link:dict,optional
-            A link to the protocol used.
-        has_input : list
-            A list of input sample IDs for the chromatographic separation process.
-        has_output : list
-            A list of output sample IDs for the chromatographic separation process.
-        CLIENT_ID : str
-            The client ID for the NMDC API.
-        CLIENT_SECRET : str
-            The client secret for the NMDC API.
-
-        Returns
-        -------
-        nmdc.ChromatographicSeparationProcess
-            An NMDC ChromatographicSeparationProcess object with the provided metadata.
-
-        """
-        nmdc_id = self.id_pool.get_id(
-            nmdc_type=NmdcTypes.ChromatographicSeparationProcess,
-            client_id=CLIENT_ID,
-            client_secret=CLIENT_SECRET,
-        )
-
-        data_dict = {
-            "id": nmdc_id,
-            "name": name,
-            "description": description,
-            "processing_institution": processing_institution,
-            "protocol_link": protocol_link,
-            "chromatographic_category": chromatographic_category,
-            "ordered_mobile_phases": ordered_mobile_phases,
-            "stationary_phase": stationary_phase,
-            "has_input": has_input,
-            "has_output": has_output,
-            "type": NmdcTypes.ChromatographicSeparationProcess,
-        }
-
-        return nmdc.ChromatographicSeparationProcess(**data_dict)
-
-    def generate_dissolving_process(
-        self,
-        name: str,
-        description: str,
-        has_input: list,
-        has_output: list,
-        CLIENT_ID: str,
-        CLIENT_SECRET: str,
-        processing_institution: str = None,
-        protocol_link: dict = None,
-        substances_used: List[nmdc.PortionOfSubstance] | None = None,
-    ) -> nmdc.DissolvingProcess:
-        """
-        Generate a dissolving process object from the provided data.
-
-        Parameters
-        ----------
-        name : str
-            The name of the dissolving process.
-        description : str
-            A description of the dissolving process.
-        processing_institution : str, optional
-            The institution responsible for processing.
-        protocol_link:dict,optional
-            A link to the protocol used.
-        has_input : list
-            A list of input sample IDs for the dissolving process.
+            A list of input sample IDs for the process.
         has_outputs : list
-            A list of output sample IDs for the dissolving process.
+            A list of output sample IDs for the process.
         CLIENT_ID : str
             The client ID for the NMDC API.
         CLIENT_SECRET : str
             The client secret for the NMDC API.
-        substances_used : List[nmdc.PortionOfSubstance], optional
-            A list of PortionOfSubstance objects used in the dissolving process.
 
         Returns
         -------
-        nmdc.DissolvingProcess
-            An NMDC DissolvingProcess object with the provided metadata.
+        nmdc MaterialProcessing object
+            An NMDC MaterialProcessing object with the provided metadata.
         """
 
         nmdc_id = self.id_pool.get_id(
-            nmdc_type=NmdcTypes.DissolvingProcess,
+            nmdc_type=getattr(NmdcTypes, type),
             client_id=CLIENT_ID,
             client_secret=CLIENT_SECRET,
         )
 
-        data_dict = {
-            "id": nmdc_id,
-            "has_input": has_input,
-            "has_output": has_output,
-            "type": NmdcTypes.DissolvingProcess,
-            "name": name,
-            "description": description,
-            "processing_institution": processing_institution,
-            "protocol_link": protocol_link,
-            "substances_used": substances_used,
-        }
+        for key, value in data.items():
+            if value is None:
+                data.pop(key)
+        data.update(
+            {
+                "id": nmdc_id,
+                "has_input": has_input,
+                "has_output": has_output,
+                "type": getattr(NmdcTypes, type),
+            }
+        )
 
-        return nmdc.DissolvingProcess(**data_dict)
+        return getattr(ProcessGeneratorMap, type)(**data)
 
     def generate_metabolomics_analysis(
         self,
