@@ -40,6 +40,7 @@ from tqdm import tqdm
 import nmdc_ms_metadata_gen
 from nmdc_ms_metadata_gen.data_classes import NmdcTypes, ProcessGeneratorMap
 from nmdc_ms_metadata_gen.id_pool import IDPool
+from nmdc_ms_metadata_gen.schema_bridge import get_curie_for_class
 
 ENV = os.getenv("NMDC_ENV", "prod")
 
@@ -92,7 +93,7 @@ class NMDCMetadataGenerator:
         nmdc.ProvenanceMetadata
             The generated ProvenanceMetadata instance.
         """
-        type_str = NmdcTypes.ProvenanceMetadata
+        type_str = NmdcTypes.get("ProvenanceMetadata")
         git_url = "https://github.com/microbiomedata/nmdc_mass_spectrometry_metadata_generation"
         version = nmdc_ms_metadata_gen.__version__
 
@@ -266,7 +267,7 @@ class NMDCMetadataGenerator:
         """
 
         nmdc_id = self.id_pool.get_id(
-            nmdc_type=NmdcTypes.DataObject,
+            nmdc_type=NmdcTypes.get("DataObject"),
             client_id=CLIENT_ID,
             client_secret=CLIENT_SECRET,
         )
@@ -280,7 +281,7 @@ class NMDCMetadataGenerator:
             "file_size_bytes": file_path.stat().st_size,
             "md5_checksum": hashlib.md5(file_path.open("rb").read()).hexdigest(),
             "url": url if url is not None else base_url + str(file_path.name),
-            "type": NmdcTypes.DataObject,
+            "type": NmdcTypes.get("DataObject"),
             "was_generated_by": was_generated_by,
             "alternative_identifiers": alternative_id,
             "in_manifest": in_manifest,
@@ -343,7 +344,7 @@ class NMDCMetadataGenerator:
             An NMDC MassSpectrometryConfiguration object with the specified metadata.
         """
         nmdc_id = self.id_pool.get_id(
-            nmdc_type=NmdcTypes.MassSpectrometryConfiguration,
+            nmdc_type=NmdcTypes.get("MassSpectrometryConfiguration"),
             client_id=CLIENT_ID,
             client_secret=CLIENT_SECRET,
         )
@@ -357,7 +358,7 @@ class NMDCMetadataGenerator:
             "ionization_source": ionization_source,
             "mass_spectrum_collection_modes": mass_spectrum_collection_modes,
             "polarity_mode": polarity_mode,
-            "type": NmdcTypes.MassSpectrometryConfiguration,
+            "type": NmdcTypes.get("MassSpectrometryConfiguration"),
             "protocol_link": protocol_link,
         }
 
@@ -405,33 +406,33 @@ class NMDCMetadataGenerator:
         """
         data_dict = {
             "known_as": substance_name,
-            "type": NmdcTypes.PortionOfSubstance,
+            "type": NmdcTypes.get("PortionOfSubstance"),
         }
 
         if volume_value and volume_unit:
             data_dict["volume"] = nmdc.QuantityValue(
-                type=NmdcTypes.QuantityValue,
+                type=NmdcTypes.get("QuantityValue"),
                 has_numeric_value=volume_value,
                 has_unit=volume_unit,
             )
 
         if final_concentration_value and concentration_unit:
             data_dict["final_concentration"] = nmdc.QuantityValue(
-                type=NmdcTypes.QuantityValue,
+                type=NmdcTypes.get("QuantityValue"),
                 has_numeric_value=final_concentration_value,
                 has_unit=concentration_unit,
             )
 
         if source_concentration_value and concentration_unit:
             data_dict["source_concentration"] = nmdc.QuantityValue(
-                type=NmdcTypes.QuantityValue,
+                type=NmdcTypes.get("QuantityValue"),
                 has_numeric_value=source_concentration_value,
                 has_unit=concentration_unit,
             )
 
         if mass_value and mass_unit:
             data_dict["mass"] = nmdc.QuantityValue(
-                type=NmdcTypes.QuantityValue,
+                type=NmdcTypes.get("QuantityValue"),
                 has_numeric_value=mass_value,
                 has_unit=mass_unit,
             )
@@ -469,11 +470,11 @@ class NMDCMetadataGenerator:
             The generated NMDC MobilePhaseSegment object.
         """
         mobile_phase_segment = nmdc.MobilePhaseSegment(
-            type=NmdcTypes.MobilePhaseSegment
+            type=NmdcTypes.get("MobilePhaseSegment")
         )
         if duration_value and duration_unit:
             mobile_phase_segment.duration = nmdc.QuantityValue(
-                type=NmdcTypes.QuantityValue,
+                type=NmdcTypes.get("QuantityValue"),
                 has_numeric_value=duration_value,
                 has_unit=duration_unit,
             )
@@ -501,7 +502,7 @@ class NMDCMetadataGenerator:
         """
 
         data_dict = {
-            "type": NmdcTypes.Protocol,
+            "type": NmdcTypes.get("Protocol"),
             "name": name,
             "url": url,
         }
@@ -557,7 +558,7 @@ class NMDCMetadataGenerator:
         """
 
         nmdc_id = self.id_pool.get_id(
-            nmdc_type=NmdcTypes.ChromatographyConfiguration,
+            nmdc_type=NmdcTypes.get("ChromatographyConfiguration"),
             client_id=CLIENT_ID,
             client_secret=CLIENT_SECRET,
         )
@@ -568,13 +569,13 @@ class NMDCMetadataGenerator:
             "chromatographic_category": chromatographic_category,
             "ordered_mobile_phases": ordered_mobile_phases,
             "stationary_phase": stationary_phase,
-            "type": NmdcTypes.ChromatographyConfiguration,
+            "type": NmdcTypes.get("ChromatographyConfiguration"),
             "protocol_link": protocol_link,
         }
 
         if temperature_value and temperature_unit:
             data_dict["temperature"] = nmdc.QuantityValue(
-                type=NmdcTypes.QuantityValue,
+                type=NmdcTypes.get("QuantityValue"),
                 has_numeric_value=temperature_value,
                 has_unit=temperature_unit,
             )
@@ -613,14 +614,14 @@ class NMDCMetadataGenerator:
         """
 
         nmdc_id = self.id_pool.get_id(
-            nmdc_type=NmdcTypes.ProcessedSample,
+            nmdc_type=NmdcTypes.get("ProcessedSample"),
             client_id=CLIENT_ID,
             client_secret=CLIENT_SECRET,
         )
 
         data_dict = {
             "id": nmdc_id,
-            "type": NmdcTypes.ProcessedSample,
+            "type": NmdcTypes.get("ProcessedSample"),
             "name": name,
             "description": description,
             "sampled_portion": sampled_portion,
@@ -661,8 +662,10 @@ class NMDCMetadataGenerator:
             An NMDC MaterialProcessing object with the provided metadata.
         """
 
+        type_curie = get_curie_for_class(type)
+
         nmdc_id = self.id_pool.get_id(
-            nmdc_type=getattr(NmdcTypes, type),
+            nmdc_type=type_curie,
             client_id=CLIENT_ID,
             client_secret=CLIENT_SECRET,
         )
@@ -675,11 +678,11 @@ class NMDCMetadataGenerator:
                 "id": nmdc_id,
                 "has_input": has_input,
                 "has_output": has_output,
-                "type": getattr(NmdcTypes, type),
+                "type": type_curie,
             }
         )
 
-        return getattr(ProcessGeneratorMap, type)(**data)
+        return ProcessGeneratorMap.get(type)(**data)
 
     def generate_metabolomics_analysis(
         self,
@@ -695,7 +698,7 @@ class NMDCMetadataGenerator:
         calibration_id: str = None,
         incremeneted_id: str = None,
         metabolite_identifications: List[nmdc.MetaboliteIdentification] = None,
-        type: str = NmdcTypes.MetabolomicsAnalysis,
+        type: str = NmdcTypes.get("MetabolomicsAnalysis"),
     ) -> nmdc.MetabolomicsAnalysis:
         """
         Create an NMDC MetabolomicsAnalysis object with metadata for a workflow analysis.
@@ -733,7 +736,7 @@ class NMDCMetadataGenerator:
             List of MetaboliteIdentification objects associated with the analysis.
             Default is None, which indicates no metabolite identifications.
         type : str, optional
-            The type of the analysis. Default is NmdcTypes.MetabolomicsAnalysis.
+            The type of the analysis. Default resolves to the schema type for MetabolomicsAnalysis.
 
         Returns
         -------
@@ -752,7 +755,7 @@ class NMDCMetadataGenerator:
 
             nmdc_id = (
                 self.id_pool.get_id(
-                    nmdc_type=NmdcTypes.MetabolomicsAnalysis,
+                    nmdc_type=NmdcTypes.get("MetabolomicsAnalysis"),
                     client_id=CLIENT_ID,
                     client_secret=CLIENT_SECRET,
                 )
@@ -823,7 +826,7 @@ class NMDCMetadataGenerator:
         """
 
         nmdc_id = self.id_pool.get_id(
-            nmdc_type=NmdcTypes.Instrument,
+            nmdc_type=NmdcTypes.get("Instrument"),
             client_id=CLIENT_ID,
             client_secret=CLIENT_SECRET,
         )
@@ -831,7 +834,7 @@ class NMDCMetadataGenerator:
             "id": nmdc_id,
             "name": name,
             "description": description,
-            "type": NmdcTypes.Instrument,
+            "type": NmdcTypes.get("Instrument"),
         }
 
         if vendor:
@@ -1281,7 +1284,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
 
         """
         nmdc_id = self.id_pool.get_id(
-            nmdc_type=NmdcTypes.MassSpectrometry,
+            nmdc_type=NmdcTypes.get("MassSpectrometry"),
             client_id=CLIENT_ID,
             client_secret=CLIENT_SECRET,
         )
@@ -1303,7 +1306,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             "start_date": start_date,
             "end_date": end_date,
             "instrument_instance_specifier": instrument_instance_specifier,
-            "type": NmdcTypes.MassSpectrometry,
+            "type": NmdcTypes.get("MassSpectrometry"),
         }
 
         if calibration_id is not None:
@@ -1628,7 +1631,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
                 continue
             # mint id
             manifest_id = self.id_pool.get_id(
-                nmdc_type=NmdcTypes.Manifest,
+                nmdc_type=NmdcTypes.get("Manifest"),
                 client_id=CLIENT_ID,
                 client_secret=CLIENT_SECRET,
             )
@@ -1636,7 +1639,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             data_dict = {
                 "id": manifest_id,
                 "name": manifest_name,
-                "type": NmdcTypes.Manifest,
+                "type": NmdcTypes.get("Manifest"),
                 "manifest_category": "instrument_run",
             }
 

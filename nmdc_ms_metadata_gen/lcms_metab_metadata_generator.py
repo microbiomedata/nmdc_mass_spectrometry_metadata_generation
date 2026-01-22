@@ -197,7 +197,7 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
             data_dict = {
                 "metabolite_identified": chebi_id,
                 "alternative_identifiers": alt_ids,
-                "type": NmdcTypes.MetaboliteIdentification,
+                "type": NmdcTypes.get("MetaboliteIdentification"),
                 "highest_similarity_score": best_hit["Entropy Similarity"],
             }
 

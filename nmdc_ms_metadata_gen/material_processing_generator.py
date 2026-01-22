@@ -5,10 +5,10 @@ import nmdc_schema.nmdc as nmdc
 import pandas as pd
 from tqdm import tqdm
 
-from nmdc_ms_metadata_gen.data_classes import ProcessGeneratorMap
 from nmdc_ms_metadata_gen.metadata_generator import NMDCMetadataGenerator
 from nmdc_ms_metadata_gen.metadata_input_check import MetadataSurveyor
 from nmdc_ms_metadata_gen.metadata_parser import YamlSpecifier
+from nmdc_ms_metadata_gen.schema_bridge import list_material_processing_types
 from nmdc_ms_metadata_gen.sheet_generator import (
     ChangeSheetGenerator,
     WorkflowSheetGenerator,
@@ -412,7 +412,11 @@ class MaterialProcessingMetadataGenerator(NMDCMetadataGenerator):
             # Replace has_input and has_output with the lists of actual NMDC ids, also remove id and type which will instead be added in the generator method
             for key in ["has_input", "has_output", "id", "type"]:
                 process_data.pop(key, None)
-
+            # check that the type is of material processing
+            if process_type not in list_material_processing_types():
+                raise ValueError(
+                    f"Material processing type '{process_type}' is not recognized in the NMDC schema"
+                )
             material_processing_metadata = self.generate_material_processing(
                 data=process_data,
                 type=process_type,

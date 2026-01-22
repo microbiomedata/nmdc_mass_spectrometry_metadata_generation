@@ -384,7 +384,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             )[0]["id"]
             # find the MetabolomicsAnalysis object - this is the old one
             prev_metab_analysis = wf_client.get_record_by_filter(
-                filter=f'{{"has_input":"{raw_data_object_id}","type":"{NmdcTypes.MetabolomicsAnalysis}"}}',
+                filter=f'{{"has_input":"{raw_data_object_id}","type":"{NmdcTypes.get("MetabolomicsAnalysis")}"}}',
                 fields="id,uses_calibration,execution_resource,processing_institution,was_informed_by",
                 all_pages=True,
             )

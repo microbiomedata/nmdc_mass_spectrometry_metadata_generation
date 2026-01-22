@@ -210,7 +210,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             )[0]["id"]
             # find the MetabolomicsAnalysis object - this is the old one
             prev_metab_analysis = wf_client.get_record_by_filter(
-                filter=f'{{"has_input":"{raw_data_object_id}","type":"{NmdcTypes.MetabolomicsAnalysis}"}}',
+                filter=f'{{"has_input":"{raw_data_object_id}","type":"{NmdcTypes.get("MetabolomicsAnalysis")}"}}',
                 fields="id,uses_calibration,execution_resource,processing_institution,was_informed_by",
                 all_pages=True,
             )
@@ -578,13 +578,13 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         """
         if fames and not internal:
             nmdc_id = self.id_pool.get_id(
-                nmdc_type=NmdcTypes.CalibrationInformation,
+                nmdc_type=NmdcTypes.get("CalibrationInformation"),
                 client_id=CLIENT_ID,
                 client_secret=CLIENT_SECRET,
             )
             data_dict = {
                 "id": nmdc_id,
-                "type": NmdcTypes.CalibrationInformation,
+                "type": NmdcTypes.get("CalibrationInformation"),
                 "name": f"GC/MS FAMES calibration ({calibration_object.name})",
                 "description": f"Full scan GC/MS FAMES calibration run ({calibration_object.name}).",
                 "internal_calibration": False,
@@ -698,7 +698,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             data_dict = {
                 "metabolite_identified": chebi_id,
                 "alternative_identifiers": alt_ids,
-                "type": NmdcTypes.MetaboliteIdentification,
+                "type": NmdcTypes.get("MetaboliteIdentification"),
                 "highest_similarity_score": best_hit["Similarity Score"],
             }
 

@@ -11,28 +11,6 @@ from nmdc_ms_metadata_gen.data_classes import NmdcTypes
 load_dotenv()
 ENV = os.getenv("NMDC_ENV", "prod")
 
-id_prefixes = {
-    NmdcTypes.Biosample: "bsm",
-    NmdcTypes.MassSpectrometry: "dgms",
-    NmdcTypes.MetabolomicsAnalysis: "wfmb",
-    NmdcTypes.DataObject: "dobj",
-    NmdcTypes.CalibrationInformation: "calib",
-    NmdcTypes.NomAnalysis: "wfnom",
-    NmdcTypes.MassSpectrometryConfiguration: "mscon",
-    NmdcTypes.Instrument: "inst",
-    NmdcTypes.Manifest: "manif",
-    NmdcTypes.ChemicalConversionProcess: "chcpr",
-    NmdcTypes.ChromatographyConfiguration: "chrcon",
-    NmdcTypes.Pooling: "poolp",
-    NmdcTypes.SubSamplingProcess: "subspr",
-    NmdcTypes.Extraction: "extrp",
-    NmdcTypes.ProcessedSample: "procsm",
-    NmdcTypes.DissolvingProcess: "dispro",
-    NmdcTypes.FiltrationProcess: "filtpr",
-    NmdcTypes.ChromatographicSeparationProcess: "cspro",
-    NmdcTypes.MixingProcess: "mixpro",
-}
-
 
 class IDPool:
     """
@@ -101,15 +79,12 @@ class IDPool:
         """
         if self.test:
             # In test mode, generate dummy IDs
-            try:
-                dummy_ids = [
-                    f"nmdc:{id_prefixes[nmdc_type]}-13-{''.join(random.choices(string.ascii_lowercase + string.digits, k=random.randint(8, 8)))}"
-                    for _ in range(self.pool_size - len(self.pools[nmdc_type]))
-                ]
-            except KeyError:
-                raise ValueError(
-                    f"NMDC type {nmdc_type} not found in id_prefixes mapping."
-                )
+            typecode = NmdcTypes.typecode(nmdc_type)
+            dummy_ids = [
+                f"nmdc:{typecode}-13-"
+                f"{''.join(random.choices(string.ascii_lowercase + string.digits, k=8))}"
+                for _ in range(self.pool_size - len(self.pools[nmdc_type]))
+            ]
             self.pools[nmdc_type].extend(dummy_ids)
         else:
             attempt = 0

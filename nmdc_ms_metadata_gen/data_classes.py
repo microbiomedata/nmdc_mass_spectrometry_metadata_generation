@@ -1,113 +1,14 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
+from typing import ClassVar, Dict
 
-import nmdc_schema.nmdc as nmdc
-
-"""
-This module defines data classes for NMDC (National Microbiome Data Collaborative) type constants.
-"""
-
-
-@dataclass
-class NmdcTypes:
-    """
-    Data class holding NMDC type constants.
-    Link to documentation https://microbiomedata.github.io/nmdc-schema/typecode-to-class-map/
-
-    Attributes
-    ----------
-    Biosample : str
-        NMDC type for sample.
-    MassSpectrometry : str
-        NMDC type for Mass Spectrometry.
-    MetabolomicsAnalysis : str
-        NMDC type for Metabolomics Analysis.
-    DataObject : str
-        NMDC type for Data Object.
-    CalibrationInformation : str
-        NMDC type for Calibration Information.
-    MetaboliteIdentification : str
-        NMDC type for Metabolite Identification.
-    NomAnalysis : str
-        NMDC type for NOM Analysis.
-    OntologyClass : str
-        NMDC type for Ontology Class.
-    ControlledIdentifiedTermValue : str
-        NMDC type for Controlled Identified Term Value.
-    TextValue : str
-        NMDC type for Text Value.
-    GeolocationValue : str
-        NMDC type for Geolocation Value.
-    TimeStampValue : str
-        NMDC type for Timestamp Value.
-    QuantityValue : str
-        NMDC type for Quantity Value.
-    MassSpectrometryConfiguration : str
-        NMDC type for Mass Spectrometry Configuration.
-    PortionOfSubstance : str
-        NMDC type for Portion of Substance.
-    MobilePhaseSegment : str
-        NMDC type for Mobile Phase Segment.
-    ChromatographyConfiguration : str
-        NMDC type for Chromatography Configuration.
-    Instrument : str
-        NMDC type for Instrument.
-    Manifest : str
-        NMDC type for Manifest.
-    Protocol : str
-        NMDC type for Protocol.
-    ChemicalConversionProcess : str
-        NMDC type for Chemical Conversion Process.
-    ChromatographicSeparationProcess : str
-        NMDC type for Chromatographic Separation Process.
-    Pooling : str
-        NMDC type for Pooling.
-    SubSamplingProcess : str
-        NMDC type for Sub Sampling Process.
-    Extraction : str
-        NMDC type for Extraction.
-    ProcessedSample : str
-        NMDC type for Processed Sample.
-    DissolvingProcess : str
-        NMDC type for Dissolving Process.
-    FiltrationProcess : str
-        NMDC type for Filtration Process.
-    ProvenanceMetadata : str
-        NMDC type for Provenance Metadata.
-    """
-
-    Biosample: str = "nmdc:Biosample"
-    MassSpectrometry: str = "nmdc:MassSpectrometry"
-    MetabolomicsAnalysis: str = "nmdc:MetabolomicsAnalysis"
-    DataObject: str = "nmdc:DataObject"
-    CalibrationInformation: str = "nmdc:CalibrationInformation"
-    MetaboliteIdentification: str = "nmdc:MetaboliteIdentification"
-    NomAnalysis: str = "nmdc:NomAnalysis"
-    OntologyClass: str = "nmdc:OntologyClass"
-    ControlledIdentifiedTermValue: str = "nmdc:ControlledIdentifiedTermValue"
-    TextValue: str = "nmdc:TextValue"
-    GeolocationValue: str = "nmdc:GeolocationValue"
-    TimeStampValue: str = "nmdc:TimestampValue"
-    QuantityValue: str = "nmdc:QuantityValue"
-    MassSpectrometryConfiguration: str = "nmdc:MassSpectrometryConfiguration"
-    PortionOfSubstance: str = "nmdc:PortionOfSubstance"
-    MobilePhaseSegment: str = "nmdc:MobilePhaseSegment"
-    ChromatographyConfiguration: str = "nmdc:ChromatographyConfiguration"
-    Instrument: str = "nmdc:Instrument"
-    Protocol: str = "nmdc:Protocol"
-    Manifest: str = "nmdc:Manifest"
-    ChemicalConversionProcess: str = "nmdc:ChemicalConversionProcess"
-    ChromatographicSeparationProcess: str = "nmdc:ChromatographicSeparationProcess"
-    MixingProcess: str = "nmdc:MixingProcess"
-    Pooling: str = "nmdc:Pooling"
-    SubSamplingProcess: str = "nmdc:SubSamplingProcess"
-    Extraction: str = "nmdc:Extraction"
-    ProcessedSample: str = "nmdc:ProcessedSample"
-    DissolvingProcess: str = "nmdc:DissolvingProcess"
-    FiltrationProcess: str = "nmdc:FiltrationProcess"
-    ProvenanceMetadata: str = "nmdc:ProvenanceMetadata"
-    Pooling: str = "nmdc:Pooling"
-    LibraryPreparation: str = "nmdc:LibraryPreparation"
-    MixingProcess: str = "nmdc:MixingProcess"
+from nmdc_ms_metadata_gen.schema_bridge import (
+    get_curie_for_class,
+    get_material_processing_class,
+    get_typecode_for_curie,
+    list_material_processing_types,
+)
 
 
 @dataclass
@@ -278,21 +179,50 @@ class NOMMetadata:
     instrument_instance_specifier: str = None
 
 
-@dataclass
 class ProcessGeneratorMap:
-    """
-    Maps process names from YAML file to their corresponding generator methods.
+    """Thin shim around dynamic MaterialProcessing class lookups."""
 
-    This mapping is used to dynamically call the appropriate generator method
-    based on the process type found in the YAML file.
-    """
+    @staticmethod
+    def get(process_type: str):
+        """Return the runtime NMDC class for the given material processing name."""
 
-    SubSamplingProcess = nmdc.SubSamplingProcess
-    Extraction = nmdc.Extraction
-    ChemicalConversionProcess = nmdc.ChemicalConversionProcess
-    ChromatographicSeparationProcess = nmdc.ChromatographicSeparationProcess
-    DissolvingProcess = nmdc.DissolvingProcess
-    FiltrationProcess = nmdc.FiltrationProcess
-    Pooling = nmdc.Pooling
-    LibraryPreparation = nmdc.LibraryPreparation
-    MixingProcess = nmdc.MixingProcess
+        return get_material_processing_class(process_type)
+
+    @staticmethod
+    def available_types():
+        """Return all material processing class names known to the schema."""
+
+        return list_material_processing_types()
+
+
+class NmdcTypes:
+    """Resolve CURIEs and ID typecodes on demand."""
+
+    _curie_cache: ClassVar[dict[str, str]] = {}
+    _typecode_cache: ClassVar[dict[str, str]] = {}
+    _ALIASES: ClassVar[dict[str, str]] = {"TimeStampValue": "TimestampValue"}
+
+    @classmethod
+    def get(cls, identifier: str) -> str:
+        if identifier not in cls._curie_cache:
+            cls._curie_cache[identifier] = cls._resolve_curie(identifier)
+        return cls._curie_cache[identifier]
+
+    @classmethod
+    def typecode(cls, identifier: str) -> str:
+        if identifier not in cls._typecode_cache:
+            curie = identifier if ":" in identifier else cls.get(identifier)
+            typecode = get_typecode_for_curie(curie)
+            if not typecode:
+                raise KeyError(
+                    f"NMDC class '{identifier}' does not define an ID typecode"
+                )
+            cls._typecode_cache[identifier] = typecode
+        return cls._typecode_cache[identifier].preferred_typecode
+
+    @classmethod
+    def _resolve_curie(cls, identifier: str) -> str:
+        if ":" in identifier:
+            return identifier
+        canonical = cls._ALIASES.get(identifier, identifier)
+        return get_curie_for_class(canonical)
