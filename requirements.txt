@@ -1,4 +1,4 @@
-pandas==2.3.3
+pandas<3.0
 nmdc-schema>=11.14.0
 tqdm~=4.66.5
 python-dotenv==1.0.1
