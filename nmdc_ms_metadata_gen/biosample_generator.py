@@ -191,7 +191,7 @@ class BiosampleGenerator(NMDCMetadataGenerator):
         # If no biosample id in spreadsheet, mint biosample ids
         if biosamp_metadata["id"] is None:
             biosamp_metadata["id"] = self.id_pool.get_id(
-                nmdc_type=NmdcTypes.Biosample,
+                nmdc_type=NmdcTypes.get("Biosample"),
                 client_id=CLIENT_ID,
                 client_secret=CLIENT_SECRET,
             )

@@ -373,3 +373,17 @@ def test_validate_yaml_outline():
 
     for result in results:
         assert result["result"].lower() == "all okay!"
+
+
+def test_nmdc_types_static():
+    """
+    Test that NmdcTypes cannot be instantiated.
+    """
+    from nmdc_ms_metadata_gen.data_classes import NmdcTypes
+
+    try:
+        nmdc_types_instance = NmdcTypes()
+    except NotImplementedError as e:
+        assert str(e) == "NmdcTypes is a static class and cannot be instantiated."
+    else:
+        assert False, "NmdcTypes instantiation did not raise NotImplementedError"

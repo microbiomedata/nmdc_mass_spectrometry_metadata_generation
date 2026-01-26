@@ -98,7 +98,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             try:
                 # find the NomAnalysis object - this is the old one
                 prev_nom_analysis = wf_client.get_record_by_filter(
-                    filter=f'{{"has_input":"{raw_data_object_id}","type":"{NmdcTypes.NomAnalysis}"}}',
+                    filter=f'{{"has_input":"{raw_data_object_id}","type":"{NmdcTypes.get("NomAnalysis")}"}}',
                     fields="id,uses_calibration,execution_resource,processing_institution,was_informed_by",
                     all_pages=True,
                 )
@@ -395,7 +395,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         """
         if incremented_id is None:
             nmdc_id = self.id_pool.get_id(
-                nmdc_type=NmdcTypes.NomAnalysis,
+                nmdc_type=NmdcTypes.get("NomAnalysis"),
                 client_id=CLIENT_ID,
                 client_secret=CLIENT_SECRET,
             )
@@ -415,7 +415,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             "has_output": [processed_data_id],
             "started_at_time": "placeholder",
             "ended_at_time": "placeholder",
-            "type": NmdcTypes.NomAnalysis,
+            "type": NmdcTypes.get("NomAnalysis"),
         }
         self.clean_dict(data_dict)
         nomAnalysis = nmdc.NomAnalysis(**data_dict)

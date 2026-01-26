@@ -266,7 +266,7 @@ class BiosampleMetadataParser:
         """
         nmdc_timestamp_value = {
             "has_raw_value": raw_value,
-            "type": NmdcTypes.TimeStampValue,
+            "type": NmdcTypes.get("TimeStampValue"),
         }
 
         return nmdc_timestamp_value
@@ -301,7 +301,7 @@ class BiosampleMetadataParser:
 
         if value_dict:
             value_dict = {k: v for k, v in value_dict.items() if v is not None}
-        value_dict["type"] = NmdcTypes.QuantityValue
+        value_dict["type"] = NmdcTypes.get("QuantityValue")
         return value_dict
 
     def create_geo_loc_value(self, raw_value: str) -> dict:
@@ -324,7 +324,7 @@ class BiosampleMetadataParser:
             "has_raw_value": raw_value,
             "latitude": lat_value,
             "longitude": long_value,
-            "type": NmdcTypes.GeolocationValue,
+            "type": NmdcTypes.get("GeolocationValue"),
         }
 
         return nmdc_geo_loc_value
@@ -347,7 +347,10 @@ class BiosampleMetadataParser:
 
         """
 
-        nmdc_text_value = {"has_raw_value": row_value, "type": NmdcTypes.TextValue}
+        nmdc_text_value = {
+            "has_raw_value": row_value,
+            "type": NmdcTypes.get("TextValue"),
+        }
 
         return nmdc_text_value
 
@@ -376,9 +379,9 @@ class BiosampleMetadataParser:
             "term": {
                 "id": row_value,
                 "name": slot_enum_dict.get(row_value),
-                "type": NmdcTypes.OntologyClass,
+                "type": NmdcTypes.get("OntologyClass"),
             },
-            "type": NmdcTypes.ControlledIdentifiedTermValue,
+            "type": NmdcTypes.get("ControlledIdentifiedTermValue"),
         }
 
         return nmdc_controlled_term_slot
