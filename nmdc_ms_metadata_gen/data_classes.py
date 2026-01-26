@@ -198,6 +198,11 @@ class ProcessGeneratorMap:
 class NmdcTypes:
     """Resolve CURIEs and ID typecodes on demand."""
 
+    def __init__(self):
+        raise NotImplementedError(
+            "NmdcTypes is a static class and cannot be instantiated."
+        )
+
     _curie_cache: ClassVar[dict[str, str]] = {}
     _typecode_cache: ClassVar[dict[str, str]] = {}
     _ALIASES: ClassVar[dict[str, str]] = {"TimeStampValue": "TimestampValue"}
