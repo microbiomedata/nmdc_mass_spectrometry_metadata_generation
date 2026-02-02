@@ -169,6 +169,9 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             else:
                 metabolite_identifications = None
 
+            # Get qc fields, converting NaN to None
+            qc_status, qc_comment = self._get_qc_fields(data)
+
             metab_analysis = self.generate_metabolomics_analysis(
                 cluster_name=workflow_metadata.execution_resource,
                 raw_data_name=Path(workflow_metadata.raw_data_file).name,
@@ -184,6 +187,8 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
                 metabolite_identifications=metabolite_identifications,
+                qc_status=qc_status,
+                qc_comment=qc_comment,
             )
 
             # list all paths in the processed data directory
@@ -397,6 +402,10 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 lambda x: str(int(x.group(1)) + 1),
                 prev_metab_analysis["id"],
             )
+
+            # Get qc fields, converting NaN to None
+            qc_status, qc_comment = self._get_qc_fields(data)
+
             metab_analysis = self.generate_metabolomics_analysis(
                 cluster_name=prev_metab_analysis["execution_resource"],
                 raw_data_name=Path(data["raw_data_file"]).name,
@@ -408,6 +417,8 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
                 incremeneted_id=metab_analysis_id,
+                qc_status=qc_status,
+                qc_comment=qc_comment,
             )
 
             # list all paths in the processed data directory

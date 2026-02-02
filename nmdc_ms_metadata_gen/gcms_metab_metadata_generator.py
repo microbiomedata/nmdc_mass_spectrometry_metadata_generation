@@ -241,6 +241,9 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 processed_data_file=Path(data["processed_data_file"])
             )
 
+            # Get qc fields, converting NaN to None
+            qc_status, qc_comment = self._get_qc_fields(data)
+
             # need to generate a new metabolomics analysis object with the newly incremented id
             metab_analysis = self.generate_metabolomics_analysis(
                 cluster_name=prev_metab_analysis["execution_resource"],
@@ -255,6 +258,8 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_SECRET=client_secret,
                 calibration_id=prev_metab_analysis["uses_calibration"],
                 metabolite_identifications=metabolite_identifications,
+                qc_status=qc_status,
+                qc_comment=qc_comment,
             )
 
             # Update MetabolomicsAnalysis times based on processed data file
@@ -411,6 +416,9 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 processed_data_file=workflow_metadata_obj.processed_data_file
             )
 
+            # Get qc fields, converting NaN to None
+            qc_status, qc_comment = self._get_qc_fields(data)
+
             # Generate metabolomics analysis object with metabolite identifications
             metab_analysis = self.generate_metabolomics_analysis(
                 cluster_name=workflow_metadata_obj.execution_resource,
@@ -428,6 +436,8 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_SECRET=client_secret,
                 calibration_id=workflow_metadata_obj.calibration_id,
                 metabolite_identifications=metabolite_identifications,
+                qc_status=qc_status,
+                qc_comment=qc_comment,
             )
 
             # Generate processed data object

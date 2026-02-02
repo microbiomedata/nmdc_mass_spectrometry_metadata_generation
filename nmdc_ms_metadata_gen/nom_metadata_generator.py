@@ -126,6 +126,9 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             )
 
             # grab the calibration_id from the previous metabolomics analysis
+            # Get qc fields, converting NaN to None
+            qc_status, qc_comment = self._get_qc_fields(row)
+
             # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
             nom_analysis = self.generate_nom_analysis(
                 file_path=Path(row["raw_data_file"]),
@@ -142,6 +145,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 execution_resource=workflow_metadata_obj.execution_resource,
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
+                qc_status=qc_status,
+                qc_comment=qc_comment,
             )
             (
                 processed_ids,
@@ -258,6 +263,9 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             calibration_id = self.get_calibration_id(
                 calibration_path=Path(row["ref_calibration_path"])
             )
+            # Get qc fields, converting NaN to None
+            qc_status, qc_comment = self._get_qc_fields(row)
+
             nom_analysis = self.generate_nom_analysis(
                 file_path=Path(workflow_metadata_obj.raw_data_file),
                 calibration_id=calibration_id,
@@ -272,6 +280,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 execution_resource=workflow_metadata_obj.execution_resource,
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
+                qc_status=qc_status,
+                qc_comment=qc_comment,
             )
             (
                 processed_data_id_list,
@@ -361,6 +371,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         execution_resource: str = None,
         calibration_id: str = None,
         incremented_id: str = None,
+        qc_status: str = None,
+        qc_comment: str = None,
     ) -> nmdc.NomAnalysis:
         """
         Generate a metabolomics analysis object from the provided file information.
@@ -387,6 +399,10 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             The ID of the calibration object used in the analysis. If None, no calibration is used.
         incremented_id : str, optional
             The incremented ID for the metabolomics analysis. If None, a new ID will be minted.
+        qc_status : str, optional
+            The quality control status for the analysis.
+        qc_comment : str, optional
+            The quality control comment for the analysis.
 
         Returns
         -------
@@ -416,6 +432,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             "started_at_time": "placeholder",
             "ended_at_time": "placeholder",
             "type": NmdcTypes.get("NomAnalysis"),
+            "qc_status": qc_status,
+            "qc_comment": qc_comment,
         }
         self.clean_dict(data_dict)
         nomAnalysis = nmdc.NomAnalysis(**data_dict)

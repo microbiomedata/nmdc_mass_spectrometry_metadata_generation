@@ -195,3 +195,90 @@ def test_di_nom_metadata_gen_processed_sample():
         "specifier"
         in working_data["data_generation_set"][0]["instrument_instance_specifier"]
     )
+
+
+def test_di_nom_metadata_gen_with_qc_fields():
+    """
+    Test the DI NOM metadata generation script with qc_status and qc_comment fields.
+    """
+    # Set up output file with datetime stamp
+    output_file = (
+        "tests/test_data/test_database_nom_qc_"
+        + datetime.now().strftime("%Y%m%d%H%M%S")
+        + ".json"
+    )
+
+    # Start the metadata generation setup
+    generator = DINOMMetaDataGenerator(
+        metadata_file="tests/test_data/test_metadata_file_nom_qc.csv",
+        database_dump_json_path=output_file,
+        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_raw_nom/",
+        process_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_nom/",
+        test=True,
+    )
+
+    # Run the metadata generation process
+    metadata = generator.run()
+    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
+    assert validate["result"] == "All Okay!"
+    assert os.path.exists(output_file)
+
+    file = open(output_file)
+    working_data = json.load(file)
+    file.close()
+
+    # Check that workflow_execution_set has qc_status and qc_comment where provided
+    workflow_executions = working_data["workflow_execution_set"]
+
+    # Find the workflow execution with qc_status = "pass" and qc_comment
+    pass_wf = [wf for wf in workflow_executions if wf.get("qc_status") == "pass"]
+    assert len(pass_wf) >= 1
+    # Check first one has the expected comment
+    assert pass_wf[0].get("qc_comment") == "Sample passed all quality control checks"
+
+    # Find the workflow execution with qc_status = "fail"
+    fail_wf = [wf for wf in workflow_executions if wf.get("qc_status") == "fail"]
+    assert len(fail_wf) >= 2
+    # Check that both fail status workflows have expected comments
+    fail_comments = [wf.get("qc_comment") for wf in fail_wf]
+    assert "Low signal intensity detected" in fail_comments
+    assert "Contamination suspected in blank" in fail_comments
+
+
+def test_di_nom_metadata_gen_rerun_with_qc_fields():
+    """
+    Test the DI NOM metadata generation rerun with qc_status and qc_comment fields.
+    """
+    # Set up output file with datetime stamp
+    output_file = (
+        "tests/test_data/test_database_nom_rerun_qc_"
+        + datetime.now().strftime("%Y%m%d%H%M%S")
+        + ".json"
+    )
+
+    # Start the metadata generation setup
+    generator = DINOMMetaDataGenerator(
+        metadata_file="tests/test_data/test_metadata_file_nom_rerun_qc.csv",
+        database_dump_json_path=output_file,
+        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/blanchard/raw/",
+        process_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_nom/",
+        test=True,
+    )
+
+    metadata = generator.rerun()
+    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
+    assert validate["result"] == "All Okay!"
+    assert os.path.exists(output_file)
+
+    file = open(output_file)
+    working_data = json.load(file)
+    file.close()
+
+    # Check that workflow_execution_set has qc_status and qc_comment
+    workflow_executions = working_data["workflow_execution_set"]
+    assert len(workflow_executions) >= 1
+
+    # Check the rerun workflow has qc fields
+    wf = workflow_executions[0]
+    assert wf.get("qc_status") == "pass"
+    assert wf.get("qc_comment") == "Reprocessed data meets quality standards"
