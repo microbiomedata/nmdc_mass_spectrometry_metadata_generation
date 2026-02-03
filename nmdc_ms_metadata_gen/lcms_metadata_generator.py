@@ -164,8 +164,8 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             # Get qc fields, converting NaN to None
             qc_status, qc_comment = self._get_qc_fields(data)
 
-            # Generate metabolite identifications only if qc_status is not fail
-            if self.add_metabolite_ids and qc_status != "fail":
+            # Always generate metabolite_identifications (even for failed QC)
+            if self.add_metabolite_ids:
                 metabolite_identifications = self.generate_metab_identifications(
                     processed_data_dir=workflow_metadata.processed_data_dir
                 )
@@ -212,6 +212,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
             processed_data = []
 
+            # Always create all processed data objects
             for file in processed_data_paths:
                 file_type = file.suffixes
                 if file_type:
@@ -231,9 +232,6 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                             CLIENT_SECRET=client_secret,
                             was_generated_by=metab_analysis.id,
                         )
-                        nmdc_database_inst.data_object_set.append(
-                            processed_data_object_config
-                        )
                         parameter_data_id = processed_data_object_config.id
 
                     elif file_type == "csv":
@@ -249,9 +247,6 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                             CLIENT_ID=client_id,
                             CLIENT_SECRET=client_secret,
                             was_generated_by=metab_analysis.id,
-                        )
-                        nmdc_database_inst.data_object_set.append(
-                            processed_data_object_annot
                         )
                         processed_data.append(processed_data_object_annot.id)
 
@@ -269,7 +264,6 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                             CLIENT_SECRET=client_secret,
                             was_generated_by=metab_analysis.id,
                         )
-                        nmdc_database_inst.data_object_set.append(processed_data_object)
                         processed_data.append(processed_data_object.id)
 
                         # Update MetabolomicsAnalysis times based on HDF5 file
@@ -302,6 +296,17 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 processed_data_id_list=processed_data,
                 rerun=False,
             )
+
+            # If QC status is "fail", remove has_output and has_metabolite_identifications, and don't add processed data objects
+            if qc_status == "fail":
+                metab_analysis.has_output = None
+                if hasattr(metab_analysis, "has_metabolite_identifications"):
+                    metab_analysis.has_metabolite_identifications = None
+            else:
+                # Only add processed data objects if QC passed
+                nmdc_database_inst.data_object_set.append(processed_data_object_config)
+                nmdc_database_inst.data_object_set.append(processed_data_object_annot)
+                nmdc_database_inst.data_object_set.append(processed_data_object)
 
             nmdc_database_inst.data_generation_set.append(mass_spec)
             nmdc_database_inst.data_object_set.append(raw_data_object)
@@ -406,13 +411,10 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             # Get qc fields, converting NaN to None
             qc_status, qc_comment = self._get_qc_fields(data)
 
-            # Generate metabolite identifications only if qc_status is not fail
-            if qc_status != "fail":
-                metabolite_identifications = self.generate_metab_identifications(
-                    processed_data_file=data["processed_data_directory"]
-                )
-            else:
-                metabolite_identifications = []
+            # Always generate metabolite identifications (even for failed QC)
+            metabolite_identifications = self.generate_metab_identifications(
+                processed_data_dir=data["processed_data_directory"]
+            )
 
             metab_analysis = self.generate_metabolomics_analysis(
                 cluster_name=prev_metab_analysis["execution_resource"],
@@ -451,6 +453,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
             processed_data = []
 
+            # Always create all processed data objects
             for file in processed_data_paths:
                 file_type = file.suffixes
                 if file_type:
@@ -470,9 +473,6 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                             CLIENT_SECRET=client_secret,
                             was_generated_by=metab_analysis.id,
                         )
-                        nmdc_database_inst.data_object_set.append(
-                            processed_data_object_config
-                        )
                         parameter_data_id = processed_data_object_config.id
 
                     elif file_type == "csv":
@@ -488,9 +488,6 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                             CLIENT_ID=client_id,
                             CLIENT_SECRET=client_secret,
                             was_generated_by=metab_analysis.id,
-                        )
-                        nmdc_database_inst.data_object_set.append(
-                            processed_data_object_annot
                         )
                         processed_data.append(processed_data_object_annot.id)
 
@@ -508,7 +505,6 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                             CLIENT_SECRET=client_secret,
                             was_generated_by=metab_analysis.id,
                         )
-                        nmdc_database_inst.data_object_set.append(processed_data_object)
                         processed_data.append(processed_data_object.id)
 
                         # Update MetabolomicsAnalysis times based on HDF5 file
@@ -539,6 +535,17 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 processed_data_id_list=processed_data,
                 rerun=True,
             )
+
+            # If QC status is "fail", remove has_output and has_metabolite_identifications, and don't add processed data objects
+            if qc_status == "fail":
+                metab_analysis.has_output = None
+                if hasattr(metab_analysis, "has_metabolite_identifications"):
+                    metab_analysis.has_metabolite_identifications = None
+            else:
+                # Only add processed data objects if QC passed
+                nmdc_database_inst.data_object_set.append(processed_data_object_config)
+                nmdc_database_inst.data_object_set.append(processed_data_object_annot)
+                nmdc_database_inst.data_object_set.append(processed_data_object)
 
             nmdc_database_inst.workflow_execution_set.append(metab_analysis)
 

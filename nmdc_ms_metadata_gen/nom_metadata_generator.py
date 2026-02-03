@@ -275,9 +275,13 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 in_manifest=workflow_metadata_obj.manifest_id,
             )
             # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
-            calibration_id = self.get_calibration_id(
-                calibration_path=Path(row["ref_calibration_path"])
-            )
+            # Use calibration_id from CSV if provided, otherwise look it up by MD5
+            if "calibration_id" in row and row.get("calibration_id"):
+                calibration_id = row["calibration_id"]
+            else:
+                calibration_id = self.get_calibration_id(
+                    calibration_path=Path(row["ref_calibration_path"])
+                )
             # Get qc fields, converting NaN to None
             qc_status, qc_comment = self._get_qc_fields(row)
 
@@ -380,13 +384,17 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 exact_match=True,
             )[0]["id"]
         except ValueError as e:
-            print(f"Calibration object does not exist: {e}")
-            calibration_id = None
+            raise ValueError(
+                f"Calibration object does not exist for file {calibration_path}: {e}"
+            )
         except IndexError as e:
-            print(f"Calibration object not found: {e}")
-            calibration_id = None
+            raise ValueError(
+                f"Calibration object not found for file {calibration_path} with MD5 {calib_md5}: {e}"
+            )
         except Exception as e:
-            print(f"An error occurred: {e}")
+            raise RuntimeError(
+                f"An error occurred while looking up calibration for file {calibration_path}: {e}"
+            )
         return calibration_id
 
     def generate_nom_analysis(
