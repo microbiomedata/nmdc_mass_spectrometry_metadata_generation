@@ -411,10 +411,13 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             # Get qc fields, converting NaN to None
             qc_status, qc_comment = self._get_qc_fields(data)
 
-            # Always generate metabolite identifications (even for failed QC)
-            metabolite_identifications = self.generate_metab_identifications(
-                processed_data_dir=data["processed_data_directory"]
-            )
+            # Always generate metabolite identifications (even for failed QC) if the method exists
+            if hasattr(self, "generate_metab_identifications"):
+                metabolite_identifications = self.generate_metab_identifications(
+                    processed_data_dir=data["processed_data_directory"]
+                )
+            else:
+                metabolite_identifications = None
 
             metab_analysis = self.generate_metabolomics_analysis(
                 cluster_name=prev_metab_analysis["execution_resource"],
