@@ -161,16 +161,16 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 in_manifest=workflow_metadata.manifest_id,
             )
 
-            if self.add_metabolite_ids:
-                # Generate metabolite identifications
+            # Get qc fields, converting NaN to None
+            qc_status, qc_comment = self._get_qc_fields(data)
+
+            # Generate metabolite identifications only if qc_status is not fail
+            if self.add_metabolite_ids and qc_status != "fail":
                 metabolite_identifications = self.generate_metab_identifications(
                     processed_data_dir=workflow_metadata.processed_data_dir
                 )
             else:
                 metabolite_identifications = None
-
-            # Get qc fields, converting NaN to None
-            qc_status, qc_comment = self._get_qc_fields(data)
 
             metab_analysis = self.generate_metabolomics_analysis(
                 cluster_name=workflow_metadata.execution_resource,
@@ -406,6 +406,14 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             # Get qc fields, converting NaN to None
             qc_status, qc_comment = self._get_qc_fields(data)
 
+            # Generate metabolite identifications only if qc_status is not fail
+            if qc_status != "fail":
+                metabolite_identifications = self.generate_metab_identifications(
+                    processed_data_file=data["processed_data_directory"]
+                )
+            else:
+                metabolite_identifications = []
+
             metab_analysis = self.generate_metabolomics_analysis(
                 cluster_name=prev_metab_analysis["execution_resource"],
                 raw_data_name=Path(data["raw_data_file"]).name,
@@ -417,6 +425,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
                 incremeneted_id=metab_analysis_id,
+                metabolite_identifications=metabolite_identifications,
                 qc_status=qc_status,
                 qc_comment=qc_comment,
             )

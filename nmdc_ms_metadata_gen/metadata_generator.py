@@ -778,7 +778,6 @@ class NMDCMetadataGenerator:
             "version": self.workflow_version,
             "was_informed_by": data_gen_id_list,
             "has_input": [raw_data_id, parameter_data_id],
-            "has_output": [processed_data_id],
             "started_at_time": "placeholder",
             "ended_at_time": "placeholder",
             "type": type,
@@ -1531,7 +1530,10 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             # if it is not a rerun, set the mass spec object, otherwise there will not be a mass spec object
             mass_spec_obj.has_output = [raw_data_obj_id]
         analysis_obj.has_input = parameter_data_id
-        analysis_obj.has_output = processed_data_id_list
+        # Only set has_output if there are processed data objects (QC passed)
+        # For failed QC, don't set has_output at all
+        if processed_data_id_list:
+            analysis_obj.has_output = processed_data_id_list
 
     def generate_mass_spec_fields(
         self,

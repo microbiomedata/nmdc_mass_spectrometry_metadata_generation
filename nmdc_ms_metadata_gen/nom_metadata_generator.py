@@ -148,6 +148,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 qc_status=qc_status,
                 qc_comment=qc_comment,
             )
+
+            # Always generate processed data objects (even for failed QC)
             (
                 processed_ids,
                 workflow_data_object,
@@ -158,8 +160,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 nom_analysis=nom_analysis,
                 nmdc_database_inst=nmdc_database_inst,
             )
-
             has_input = [workflow_data_object.id, raw_data_object_id]
+
             # Update the outputs for mass_spectrometry and nom_analysis
             self.update_outputs(
                 analysis_obj=nom_analysis,
@@ -168,6 +170,19 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 processed_data_id_list=processed_ids,
                 rerun=True,
             )
+
+            # If QC failed, remove processed data objects and has_output
+            if qc_status == "fail":
+                # Remove has_output from workflow
+                if hasattr(nom_analysis, "has_output"):
+                    delattr(nom_analysis, "has_output")
+                # Remove processed data objects (csv, png) from database, keep parameter file (json)
+                nmdc_database_inst.data_object_set = [
+                    obj
+                    for obj in nmdc_database_inst.data_object_set
+                    if obj.id not in processed_ids
+                ]
+
             nmdc_database_inst.data_object_set.append(workflow_data_object)
             nmdc_database_inst.workflow_execution_set.append(nom_analysis)
 
@@ -283,6 +298,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 qc_status=qc_status,
                 qc_comment=qc_comment,
             )
+
+            # Always generate processed data objects (even for failed QC)
             (
                 processed_data_id_list,
                 workflow_data_object,
@@ -293,8 +310,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 nom_analysis=nom_analysis,
                 nmdc_database_inst=nmdc_database_inst,
             )
-
             has_input = [workflow_data_object.id, raw_data_object.id]
+
             # Update the outputs for mass_spectrometry and nom_analysis
             self.update_outputs(
                 mass_spec_obj=mass_spec,
@@ -304,6 +321,19 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 processed_data_id_list=processed_data_id_list,
                 rerun=False,
             )
+
+            # If QC failed, remove processed data objects and has_output
+            if qc_status == "fail":
+                # Remove has_output from workflow
+                if hasattr(nom_analysis, "has_output"):
+                    delattr(nom_analysis, "has_output")
+                # Remove processed data objects (csv, png) from database, keep parameter file (json)
+                nmdc_database_inst.data_object_set = [
+                    obj
+                    for obj in nmdc_database_inst.data_object_set
+                    if obj.id not in processed_data_id_list
+                ]
+
             nmdc_database_inst.data_generation_set.append(mass_spec)
             nmdc_database_inst.data_object_set.append(raw_data_object)
             nmdc_database_inst.data_object_set.append(workflow_data_object)
@@ -428,7 +458,6 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             "version": self.workflow_version,
             "was_informed_by": data_gen_id,
             "has_input": [raw_data_id],
-            "has_output": [processed_data_id],
             "started_at_time": "placeholder",
             "ended_at_time": "placeholder",
             "type": NmdcTypes.get("NomAnalysis"),

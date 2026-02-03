@@ -230,19 +230,76 @@ def test_di_nom_metadata_gen_with_qc_fields():
     # Check that workflow_execution_set has qc_status and qc_comment where provided
     workflow_executions = working_data["workflow_execution_set"]
 
-    # Find the workflow execution with qc_status = "pass" and qc_comment
+    # We have 5 samples: 2 explicit pass, 2 fail, 1 no qc_status
+    # Verify total count
+    assert len(workflow_executions) == 5
+
+    # Verify all workflows have uses_calibration populated
+    for wf in workflow_executions:
+        assert (
+            "uses_calibration" in wf
+        ), f"Workflow {wf['id']} should have uses_calibration"
+        assert (
+            wf["uses_calibration"] is not None
+        ), f"Workflow {wf['id']} uses_calibration should not be None"
+        assert wf["uses_calibration"].startswith(
+            "nmdc:calib-"
+        ), f"Workflow {wf['id']} uses_calibration should be a valid NMDC calibration ID"
+
+    # Find the workflow execution with qc_status = "pass" explicitly set
     pass_wf = [wf for wf in workflow_executions if wf.get("qc_status") == "pass"]
-    assert len(pass_wf) >= 1
+    assert len(pass_wf) == 2
     # Check first one has the expected comment
     assert pass_wf[0].get("qc_comment") == "Sample passed all quality control checks"
+    # Verify pass workflows have has_output
+    for wf in pass_wf:
+        assert "has_output" in wf, f"Pass QC workflow {wf['id']} should have has_output"
+        assert (
+            len(wf["has_output"]) > 0
+        ), f"Pass QC workflow {wf['id']} should have non-empty has_output"
 
     # Find the workflow execution with qc_status = "fail"
     fail_wf = [wf for wf in workflow_executions if wf.get("qc_status") == "fail"]
-    assert len(fail_wf) >= 2
+    assert len(fail_wf) == 2
     # Check that both fail status workflows have expected comments
     fail_comments = [wf.get("qc_comment") for wf in fail_wf]
     assert "Low signal intensity detected" in fail_comments
     assert "Contamination suspected in blank" in fail_comments
+    # Verify fail workflows do NOT have has_output
+    for wf in fail_wf:
+        assert "has_output" not in wf or not wf.get(
+            "has_output"
+        ), f"Failed QC workflow {wf['id']} should not have has_output"
+
+    # Count data objects: we should have:
+    # - 5 raw data objects (one per sample)
+    # - 5 workflow parameter objects (one per sample - always created)
+    # - 6 processed data objects (only for pass/no-qc samples: 3 samples × 2 files each = 6)
+    data_objects = working_data["data_object_set"]
+    raw_data_objects = [
+        do
+        for do in data_objects
+        if do.get("data_object_type") == "Direct Infusion FT ICR-MS Raw Data"
+    ]
+    workflow_param_objects = [
+        do
+        for do in data_objects
+        if do.get("data_object_type") == "Analysis Tool Parameter File"
+    ]
+    processed_data_objects = [
+        do for do in data_objects if do.get("data_category") == "processed_data"
+    ]
+
+    assert (
+        len(raw_data_objects) == 5
+    ), f"Expected 5 raw data objects, got {len(raw_data_objects)}"
+    assert (
+        len(workflow_param_objects) == 5
+    ), f"Expected 5 workflow parameter objects (all samples), got {len(workflow_param_objects)}"
+    # 3 samples without fail status × 2 processed files each (csv + png) = 6 processed data objects
+    assert (
+        len(processed_data_objects) == 6
+    ), f"Expected 6 processed data objects (3 pass/no-qc samples × 2 files), got {len(processed_data_objects)}"
 
 
 def test_di_nom_metadata_gen_rerun_with_qc_fields():
