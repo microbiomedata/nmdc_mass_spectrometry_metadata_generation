@@ -44,6 +44,9 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         Name of the configuration file.
     test : bool, optional
         Flag indicating whether to run in test mode. If True, will skip biosample ID checks in the database, data object URL check, and will use local IDs (skip API minting). Default is False.
+    skip_sample_id_check : bool, optional
+        Flag to skip sample ID checking in MongoDB. If True, will skip biosample and
+        processed sample ID checks even in production mode. Default is False.
 
     Attributes
     ----------
@@ -120,6 +123,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         workflow_version: str = None,
         calibration_standard: str = "fames",
         test: bool = False,
+        skip_sample_id_check: bool = False,
     ):
         super().__init__(
             metadata_file=metadata_file,
@@ -127,6 +131,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             raw_data_url=raw_data_url,
             process_data_url=process_data_url,
             test=test,
+            skip_sample_id_check=skip_sample_id_check,
         )
         # Set the workflow version, prioritizing user input, then fetching from the Git URL, and finally using a default.
         self.workflow_version = workflow_version or self.get_workflow_version(

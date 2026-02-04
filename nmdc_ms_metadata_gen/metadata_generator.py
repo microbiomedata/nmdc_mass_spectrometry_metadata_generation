@@ -1132,6 +1132,9 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         Base URL for the raw data files.
     process_data_url : str
         Base URL for the processed data files.
+    skip_sample_id_check : bool, optional
+        Flag to skip sample ID checking in MongoDB. If True, will skip biosample and
+        processed sample ID checks even in production mode. Default is False.
     """
 
     def __init__(
@@ -1141,6 +1144,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         raw_data_url: str,
         process_data_url: str,
         test: bool = False,
+        skip_sample_id_check: bool = False,
     ):
         super().__init__(test=test)
         self.metadata_file = metadata_file
@@ -1148,6 +1152,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         self.raw_data_url = raw_data_url
         self.process_data_url = process_data_url
         self.raw_data_category = "instrument_data"
+        self.skip_sample_id_check = skip_sample_id_check
 
     def load_metadata(self) -> pd.core.frame.DataFrame:
         """
@@ -1185,9 +1190,25 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             if not metadata_df[column].is_unique:
                 raise ValueError(f"Duplicate values found in column '{column}'.")
 
+        # Check if associated_studies is already in the input CSV and validate format
+        if (
+            "associated_studies" in metadata_df.columns
+            and not metadata_df["associated_studies"].isna().all()
+        ):
+            # Use the associated_studies from the CSV if provided
+            # Validate that each non-null value is properly formatted as a list string
+            for idx, row in metadata_df.iterrows():
+                if pd.notna(row.get("associated_studies")):
+                    # Ensure the value is in proper format (string representation of a list)
+                    study_val = row["associated_studies"]
+                    if not (isinstance(study_val, str) and study_val.startswith("[")):
+                        raise ValueError(
+                            f"associated_studies at row {idx} must be a string representation of a list, "
+                            f"e.g., \"['nmdc:sty-11-abc123']\". Got: {study_val}"
+                        )
         # if the run is not a test, check that samples exist and find associated studies
-        if self.test == False:
-            # Check that all samples exist in the db
+        elif not self.test:
+            # Check that all samples exist in the db (unless skip_sample_id_check is True)
             sample_ids = metadata_df["sample_id"].unique()
             # determine sample type
             if pd.isna(sample_ids)[0] == np.False_:
@@ -1200,9 +1221,11 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             else:
                 sample_client = ProcessedSampleSearch(env=ENV)
 
-            if pd.isna(sample_ids)[0] == np.False_:
-                if not sample_client.check_ids_exist(list(sample_ids)):
-                    raise ValueError("IDs do not exist in the collection.")
+            # Only check if IDs exist if skip_sample_id_check is False
+            if not self.skip_sample_id_check:
+                if pd.isna(sample_ids)[0] == np.False_:
+                    if not sample_client.check_ids_exist(list(sample_ids)):
+                        raise ValueError("IDs do not exist in the collection.")
 
             # make a call to find_associated_ids to get the associated studies
             # build the ID list from the input samples
@@ -1215,7 +1238,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
                     metadata_df["sample_id"] == sample_id,
                     "associated_studies",
                 ] = study_str
-        # if it is a test, plug in associated studies with a placeholder
+        # if it is a test and no associated_studies provided, plug in a placeholder
         else:
             metadata_df["associated_studies"] = "['nmdc:sty-00-000001']"
         return metadata_df
