@@ -124,6 +124,7 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
         workflow_version: str = None,
         existing_data_objects: list[str] = [],
         test: bool = False,
+        skip_sample_id_check: bool = False,
     ):
         super().__init__(
             metadata_file=metadata_file,
@@ -131,6 +132,7 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
             raw_data_url=raw_data_url,
             process_data_url=process_data_url,
             test=test,
+            skip_sample_id_check=skip_sample_id_check,
         )
         # Set the workflow version, prioritizing user input, then fetching from the Git URL, and finally using a default.
         self.workflow_version = workflow_version or self.get_workflow_version(

@@ -87,6 +87,7 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
         minting_config_creds: str = None,
         workflow_version: str = None,
         test: bool = False,
+        skip_sample_id_check: bool = False,
     ):
         super().__init__(
             metadata_file=metadata_file,
@@ -94,6 +95,7 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
             raw_data_url=raw_data_url,
             process_data_url=process_data_url,
             test=test,
+            skip_sample_id_check=skip_sample_id_check,
         )
         # Set the workflow version, prioritizing user input, then fetching from the Git URL.
         self.workflow_version = workflow_version or self.get_workflow_version(

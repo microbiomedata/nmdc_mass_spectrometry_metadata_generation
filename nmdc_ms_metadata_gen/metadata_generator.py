@@ -1132,6 +1132,9 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         Base URL for the raw data files.
     process_data_url : str
         Base URL for the processed data files.
+    skip_sample_id_check : bool, optional
+        Flag to skip sample ID checking in MongoDB. If True, will skip biosample and 
+        processed sample ID checks even in production mode. Default is False.
     """
 
     def __init__(
@@ -1141,6 +1144,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         raw_data_url: str,
         process_data_url: str,
         test: bool = False,
+        skip_sample_id_check: bool = False,
     ):
         super().__init__(test=test)
         self.metadata_file = metadata_file
@@ -1148,6 +1152,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         self.raw_data_url = raw_data_url
         self.process_data_url = process_data_url
         self.raw_data_category = "instrument_data"
+        self.skip_sample_id_check = skip_sample_id_check
 
     def load_metadata(self) -> pd.core.frame.DataFrame:
         """
@@ -1187,7 +1192,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
 
         # if the run is not a test, check that samples exist and find associated studies
         if self.test == False:
-            # Check that all samples exist in the db
+            # Check that all samples exist in the db (unless skip_sample_id_check is True)
             sample_ids = metadata_df["sample_id"].unique()
             # determine sample type
             if pd.isna(sample_ids)[0] == np.False_:
@@ -1200,9 +1205,11 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             else:
                 sample_client = ProcessedSampleSearch(env=ENV)
 
-            if pd.isna(sample_ids)[0] == np.False_:
-                if not sample_client.check_ids_exist(list(sample_ids)):
-                    raise ValueError("IDs do not exist in the collection.")
+            # Only check if IDs exist if skip_sample_id_check is False
+            if not self.skip_sample_id_check:
+                if pd.isna(sample_ids)[0] == np.False_:
+                    if not sample_client.check_ids_exist(list(sample_ids)):
+                        raise ValueError("IDs do not exist in the collection.")
 
             # make a call to find_associated_ids to get the associated studies
             # build the ID list from the input samples

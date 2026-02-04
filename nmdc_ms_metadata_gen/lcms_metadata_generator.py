@@ -39,6 +39,9 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
         Path to the configuration file containing the client ID and client secret for minting NMDC IDs.
     test : bool, optional
         Flag indicating whether to run in test mode. If True, will skip biosample ID checks in the database, data object URL check, and will use local IDs (skip API minting). Default is False.
+    skip_sample_id_check : bool, optional
+        Flag to skip sample ID checking in MongoDB. If True, will skip biosample and 
+        processed sample ID checks even in production mode. Default is False.
     """
 
     def __init__(
@@ -48,6 +51,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
         raw_data_url: str,
         process_data_url: str,
         test: bool = False,
+        skip_sample_id_check: bool = False,
     ):
         super().__init__(
             metadata_file=metadata_file,
@@ -55,6 +59,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             raw_data_url=raw_data_url,
             process_data_url=process_data_url,
             test=test,
+            skip_sample_id_check=skip_sample_id_check,
         )
         self.test = test
 
