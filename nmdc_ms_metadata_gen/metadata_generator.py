@@ -1133,7 +1133,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
     process_data_url : str
         Base URL for the processed data files.
     skip_sample_id_check : bool, optional
-        Flag to skip sample ID checking in MongoDB. If True, will skip biosample and 
+        Flag to skip sample ID checking in MongoDB. If True, will skip biosample and
         processed sample ID checks even in production mode. Default is False.
     """
 

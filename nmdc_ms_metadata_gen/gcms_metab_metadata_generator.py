@@ -45,7 +45,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
     test : bool, optional
         Flag indicating whether to run in test mode. If True, will skip biosample ID checks in the database, data object URL check, and will use local IDs (skip API minting). Default is False.
     skip_sample_id_check : bool, optional
-        Flag to skip sample ID checking in MongoDB. If True, will skip biosample and 
+        Flag to skip sample ID checking in MongoDB. If True, will skip biosample and
         processed sample ID checks even in production mode. Default is False.
 
     Attributes
