@@ -3,19 +3,20 @@ Test the skip_sample_id_check parameter across all NMDCWorkflowMetadataGenerator
 """
 
 import pytest
+
+from nmdc_ms_metadata_gen.di_nom_metadata_generator import DINOMMetaDataGenerator
 from nmdc_ms_metadata_gen.gcms_metab_metadata_generator import (
     GCMSMetabolomicsMetadataGenerator,
-)
-from nmdc_ms_metadata_gen.lcms_metadata_generator import LCMSMetadataGenerator
-from nmdc_ms_metadata_gen.nom_metadata_generator import NOMMetadataGenerator
-from nmdc_ms_metadata_gen.lcms_metab_metadata_generator import (
-    LCMSMetabolomicsMetadataGenerator,
 )
 from nmdc_ms_metadata_gen.lcms_lipid_metadata_generator import (
     LCMSLipidomicsMetadataGenerator,
 )
-from nmdc_ms_metadata_gen.di_nom_metadata_generator import DINOMMetaDataGenerator
+from nmdc_ms_metadata_gen.lcms_metab_metadata_generator import (
+    LCMSMetabolomicsMetadataGenerator,
+)
+from nmdc_ms_metadata_gen.lcms_metadata_generator import LCMSMetadataGenerator
 from nmdc_ms_metadata_gen.lcms_nom_metadata_generator import LCMSNOMMetadataGenerator
+from nmdc_ms_metadata_gen.nom_metadata_generator import NOMMetadataGenerator
 
 
 def test_gcms_skip_sample_id_check_parameter():
