@@ -1190,8 +1190,24 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             if not metadata_df[column].is_unique:
                 raise ValueError(f"Duplicate values found in column '{column}'.")
 
+        # Check if associated_studies is already in the input CSV and validate format
+        if (
+            "associated_studies" in metadata_df.columns
+            and not metadata_df["associated_studies"].isna().all()
+        ):
+            # Use the associated_studies from the CSV if provided
+            # Validate that each non-null value is properly formatted as a list string
+            for idx, row in metadata_df.iterrows():
+                if pd.notna(row.get("associated_studies")):
+                    # Ensure the value is in proper format (string representation of a list)
+                    study_val = row["associated_studies"]
+                    if not (isinstance(study_val, str) and study_val.startswith("[")):
+                        raise ValueError(
+                            f"associated_studies at row {idx} must be a string representation of a list, "
+                            f"e.g., \"['nmdc:sty-11-abc123']\". Got: {study_val}"
+                        )
         # if the run is not a test, check that samples exist and find associated studies
-        if self.test == False:
+        elif not self.test:
             # Check that all samples exist in the db (unless skip_sample_id_check is True)
             sample_ids = metadata_df["sample_id"].unique()
             # determine sample type
@@ -1222,7 +1238,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
                     metadata_df["sample_id"] == sample_id,
                     "associated_studies",
                 ] = study_str
-        # if it is a test, plug in associated studies with a placeholder
+        # if it is a test and no associated_studies provided, plug in a placeholder
         else:
             metadata_df["associated_studies"] = "['nmdc:sty-00-000001']"
         return metadata_df
