@@ -1,0 +1,2 @@
+raw_data_file,processed_data_directory,qc_status,qc_comment
+tests/test_data/test_raw_nom/Blanchard_MeOHExt_H-17-AB-M_20Feb18_000001.zip,tests/test_data/test_processed_nom/nom_sample_1,pass,Reprocessed data meets quality standards

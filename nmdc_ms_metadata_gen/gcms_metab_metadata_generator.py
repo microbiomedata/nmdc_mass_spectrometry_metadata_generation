@@ -229,7 +229,33 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 prev_metab_analysis["id"],
             )
 
-            # Generate processed data object
+            # Get qc fields, converting NaN to None
+            qc_status, qc_comment = self._get_qc_fields(data)
+
+            # Always generate metabolite_identifications (even for failed QC)
+            metabolite_identifications = self.generate_metab_identifications(
+                processed_data_file=Path(data["processed_data_file"])
+            )
+
+            # need to generate a new metabolomics analysis object with the newly incremented id
+            metab_analysis = self.generate_metabolomics_analysis(
+                cluster_name=prev_metab_analysis["execution_resource"],
+                raw_data_name=Path(data["raw_data_file"]).name,
+                raw_data_id=raw_data_object_id,
+                data_gen_id_list=prev_metab_analysis["was_informed_by"],
+                processed_data_id="nmdc:placeholder",
+                parameter_data_id=config_do_id,
+                processing_institution=prev_metab_analysis["processing_institution"],
+                incremeneted_id=metab_analysis_id,
+                CLIENT_ID=client_id,
+                CLIENT_SECRET=client_secret,
+                calibration_id=prev_metab_analysis["uses_calibration"],
+                metabolite_identifications=metabolite_identifications,
+                qc_status=qc_status,
+                qc_comment=qc_comment,
+            )
+
+            # Always generate processed data object (even for failed QC)
             processed_data_object = self.generate_data_object(
                 file_path=Path(data["processed_data_file"]),
                 data_category=self.processed_data_category,
@@ -241,42 +267,36 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 was_generated_by=metab_analysis_id,
             )
 
-            # Generate metabolite identifications
-            metabolite_identifications = self.generate_metab_identifications(
-                processed_data_file=Path(data["processed_data_file"])
-            )
-
-            # need to generate a new metabolomics analysis object with the newly incremented id
-            metab_analysis = self.generate_metabolomics_analysis(
-                cluster_name=prev_metab_analysis["execution_resource"],
-                raw_data_name=Path(data["raw_data_file"]).name,
-                raw_data_id=raw_data_object_id,
-                data_gen_id_list=prev_metab_analysis["was_informed_by"],
-                processed_data_id=processed_data_object.id,
-                parameter_data_id=config_do_id,
-                processing_institution=prev_metab_analysis["processing_institution"],
-                incremeneted_id=metab_analysis_id,
-                CLIENT_ID=client_id,
-                CLIENT_SECRET=client_secret,
-                calibration_id=prev_metab_analysis["uses_calibration"],
-                metabolite_identifications=metabolite_identifications,
-            )
-
             # Update MetabolomicsAnalysis times based on processed data file
             processed_file = Path(data["processed_data_file"])
             start_time, end_time = self.get_start_end_times(processed_file)
             metab_analysis.started_at_time = start_time
             metab_analysis.ended_at_time = end_time
 
+            processed_data_id_list = [processed_data_object.id]
+
             has_inputs = [config_do_id, raw_data_object_id]
             self.update_outputs(
                 analysis_obj=metab_analysis,
                 raw_data_obj_id=raw_data_object_id,
                 parameter_data_id=has_inputs,
-                processed_data_id_list=[processed_data_object.id],
+                processed_data_id_list=processed_data_id_list,
                 rerun=True,
             )
-            nmdc_database_inst.data_object_set.append(processed_data_object)
+
+            # If QC failed, remove processed data and has_output, and clear metabolite_identifications
+            if qc_status == "fail":
+                # Remove has_output from workflow
+                if hasattr(metab_analysis, "has_output"):
+                    delattr(metab_analysis, "has_output")
+                # Clear metabolite_identifications
+                if hasattr(metab_analysis, "has_metabolite_identifications"):
+                    delattr(metab_analysis, "has_metabolite_identifications")
+                # Don't add processed data object to database
+                processed_data_object = None
+
+            if processed_data_object:
+                nmdc_database_inst.data_object_set.append(processed_data_object)
             nmdc_database_inst.workflow_execution_set.append(metab_analysis)
 
         self.dump_nmdc_database(
@@ -411,7 +431,10 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             )
             raw_data_object_id = raw_data_object.id
 
-            # Generate metabolite identifications
+            # Get qc fields, converting NaN to None
+            qc_status, qc_comment = self._get_qc_fields(data)
+
+            # Always generate metabolite_identifications (even for failed QC)
             metabolite_identifications = self.generate_metab_identifications(
                 processed_data_file=workflow_metadata_obj.processed_data_file
             )
@@ -433,9 +456,11 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_SECRET=client_secret,
                 calibration_id=workflow_metadata_obj.calibration_id,
                 metabolite_identifications=metabolite_identifications,
+                qc_status=qc_status,
+                qc_comment=qc_comment,
             )
 
-            # Generate processed data object
+            # Always generate processed data object (even for failed QC)
             processed_data_object = self.generate_data_object(
                 file_path=Path(workflow_metadata_obj.processed_data_file),
                 data_category=self.processed_data_category,
@@ -454,17 +479,31 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             metab_analysis.ended_at_time = end_time
 
             has_inputs = [config_do_id, raw_data_object_id]
+            processed_data_id_list = [processed_data_object.id]
+
             self.update_outputs(
                 mass_spec_obj=mass_spec,
                 analysis_obj=metab_analysis,
                 raw_data_obj_id=raw_data_object_id,
                 parameter_data_id=has_inputs,
-                processed_data_id_list=[processed_data_object.id],
+                processed_data_id_list=processed_data_id_list,
             )
+
+            # If QC failed, remove processed data and has_output, and clear metabolite_identifications
+            if qc_status == "fail":
+                # Remove has_output from workflow
+                if hasattr(metab_analysis, "has_output"):
+                    delattr(metab_analysis, "has_output")
+                # Clear metabolite_identifications
+                if hasattr(metab_analysis, "has_metabolite_identifications"):
+                    delattr(metab_analysis, "has_metabolite_identifications")
+                # Don't add processed data object to database
+                processed_data_object = None
 
             nmdc_database_inst.data_generation_set.append(mass_spec)
             nmdc_database_inst.data_object_set.append(raw_data_object)
-            nmdc_database_inst.data_object_set.append(processed_data_object)
+            if processed_data_object:
+                nmdc_database_inst.data_object_set.append(processed_data_object)
             nmdc_database_inst.workflow_execution_set.append(metab_analysis)
 
         self.dump_nmdc_database(

@@ -4,4 +4,3 @@ sphinx_rtd_theme
 pytest
 pytest-console-scripts
 pydoclint
-ruamel.yaml

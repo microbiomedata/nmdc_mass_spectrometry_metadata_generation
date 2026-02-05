@@ -128,6 +128,9 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             )
 
             # grab the calibration_id from the previous metabolomics analysis
+            # Get qc fields, converting NaN to None
+            qc_status, qc_comment = self._get_qc_fields(row)
+
             # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
             nom_analysis = self.generate_nom_analysis(
                 file_path=Path(row["raw_data_file"]),
@@ -144,7 +147,11 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 execution_resource=workflow_metadata_obj.execution_resource,
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
+                qc_status=qc_status,
+                qc_comment=qc_comment,
             )
+
+            # Always generate processed data objects (even for failed QC)
             (
                 processed_ids,
                 workflow_data_object,
@@ -155,8 +162,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 nom_analysis=nom_analysis,
                 nmdc_database_inst=nmdc_database_inst,
             )
-
             has_input = [workflow_data_object.id, raw_data_object_id]
+
             # Update the outputs for mass_spectrometry and nom_analysis
             self.update_outputs(
                 analysis_obj=nom_analysis,
@@ -165,6 +172,19 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 processed_data_id_list=processed_ids,
                 rerun=True,
             )
+
+            # If QC failed, remove processed data objects and has_output
+            if qc_status == "fail":
+                # Remove has_output from workflow
+                if hasattr(nom_analysis, "has_output"):
+                    delattr(nom_analysis, "has_output")
+                # Remove processed data objects (csv, png) from database, keep parameter file (json)
+                nmdc_database_inst.data_object_set = [
+                    obj
+                    for obj in nmdc_database_inst.data_object_set
+                    if obj.id not in processed_ids
+                ]
+
             nmdc_database_inst.data_object_set.append(workflow_data_object)
             nmdc_database_inst.workflow_execution_set.append(nom_analysis)
 
@@ -257,9 +277,16 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 in_manifest=workflow_metadata_obj.manifest_id,
             )
             # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
-            calibration_id = self.get_calibration_id(
-                calibration_path=Path(row["ref_calibration_path"])
-            )
+            # Use calibration_id from CSV if provided, otherwise look it up by MD5
+            if "calibration_id" in row and row.get("calibration_id"):
+                calibration_id = row["calibration_id"]
+            else:
+                calibration_id = self.get_calibration_id(
+                    calibration_path=Path(row["ref_calibration_path"])
+                )
+            # Get qc fields, converting NaN to None
+            qc_status, qc_comment = self._get_qc_fields(row)
+
             nom_analysis = self.generate_nom_analysis(
                 file_path=Path(workflow_metadata_obj.raw_data_file),
                 calibration_id=calibration_id,
@@ -274,7 +301,11 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 execution_resource=workflow_metadata_obj.execution_resource,
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
+                qc_status=qc_status,
+                qc_comment=qc_comment,
             )
+
+            # Always generate processed data objects (even for failed QC)
             (
                 processed_data_id_list,
                 workflow_data_object,
@@ -285,8 +316,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 nom_analysis=nom_analysis,
                 nmdc_database_inst=nmdc_database_inst,
             )
-
             has_input = [workflow_data_object.id, raw_data_object.id]
+
             # Update the outputs for mass_spectrometry and nom_analysis
             self.update_outputs(
                 mass_spec_obj=mass_spec,
@@ -296,6 +327,19 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 processed_data_id_list=processed_data_id_list,
                 rerun=False,
             )
+
+            # If QC failed, remove processed data objects and has_output
+            if qc_status == "fail":
+                # Remove has_output from workflow
+                if hasattr(nom_analysis, "has_output"):
+                    delattr(nom_analysis, "has_output")
+                # Remove processed data objects (csv, png) from database, keep parameter file (json)
+                nmdc_database_inst.data_object_set = [
+                    obj
+                    for obj in nmdc_database_inst.data_object_set
+                    if obj.id not in processed_data_id_list
+                ]
+
             nmdc_database_inst.data_generation_set.append(mass_spec)
             nmdc_database_inst.data_object_set.append(raw_data_object)
             nmdc_database_inst.data_object_set.append(workflow_data_object)
@@ -342,13 +386,17 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 exact_match=True,
             )[0]["id"]
         except ValueError as e:
-            print(f"Calibration object does not exist: {e}")
-            calibration_id = None
+            raise ValueError(
+                f"Calibration object does not exist for file {calibration_path}: {e}"
+            )
         except IndexError as e:
-            print(f"Calibration object not found: {e}")
-            calibration_id = None
+            raise ValueError(
+                f"Calibration object not found for file {calibration_path} with MD5 {calib_md5}: {e}"
+            )
         except Exception as e:
-            print(f"An error occurred: {e}")
+            raise RuntimeError(
+                f"An error occurred while looking up calibration for file {calibration_path}: {e}"
+            )
         return calibration_id
 
     def generate_nom_analysis(
@@ -363,6 +411,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         execution_resource: str = None,
         calibration_id: str = None,
         incremented_id: str = None,
+        qc_status: str = None,
+        qc_comment: str = None,
     ) -> nmdc.NomAnalysis:
         """
         Generate a metabolomics analysis object from the provided file information.
@@ -389,6 +439,10 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             The ID of the calibration object used in the analysis. If None, no calibration is used.
         incremented_id : str, optional
             The incremented ID for the metabolomics analysis. If None, a new ID will be minted.
+        qc_status : str, optional
+            The quality control status for the analysis.
+        qc_comment : str, optional
+            The quality control comment for the analysis.
 
         Returns
         -------
@@ -418,6 +472,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             "started_at_time": "placeholder",
             "ended_at_time": "placeholder",
             "type": NmdcTypes.get("NomAnalysis"),
+            "qc_status": qc_status,
+            "qc_comment": qc_comment,
         }
         self.clean_dict(data_dict)
         nomAnalysis = nmdc.NomAnalysis(**data_dict)

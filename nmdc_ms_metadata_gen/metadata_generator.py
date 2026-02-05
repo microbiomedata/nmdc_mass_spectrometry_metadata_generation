@@ -50,7 +50,6 @@ logging.basicConfig(
 )
 
 
-# TODO: Update script to for Sample Processing - has_input for MassSpectrometry will have to be changed to be a processed sample id - not biosample id
 class NMDCMetadataGenerator:
     """
     Generic base class for generating and validating NMDC metadata
@@ -699,6 +698,8 @@ class NMDCMetadataGenerator:
         incremeneted_id: str = None,
         metabolite_identifications: List[nmdc.MetaboliteIdentification] = None,
         type: str = NmdcTypes.get("MetabolomicsAnalysis"),
+        qc_status: str = None,
+        qc_comment: str = None,
     ) -> nmdc.MetabolomicsAnalysis:
         """
         Create an NMDC MetabolomicsAnalysis object with metadata for a workflow analysis.
@@ -737,6 +738,10 @@ class NMDCMetadataGenerator:
             Default is None, which indicates no metabolite identifications.
         type : str, optional
             The type of the analysis. Default resolves to the schema type for MetabolomicsAnalysis.
+        qc_status : str, optional
+            The quality control status for the analysis.
+        qc_comment : str, optional
+            The quality control comment for the analysis.
 
         Returns
         -------
@@ -777,6 +782,8 @@ class NMDCMetadataGenerator:
             "ended_at_time": "placeholder",
             "type": type,
             "metabolomics_analysis_category": self.workflow_category,
+            "qc_status": qc_status,
+            "qc_comment": qc_comment,
         }
 
         if calibration_id is not None:
@@ -1154,6 +1161,26 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         self.raw_data_category = "instrument_data"
         self.skip_sample_id_check = skip_sample_id_check
 
+    def _get_qc_fields(self, row: pd.Series) -> tuple:
+        """
+        Extract qc_status and qc_comment from a row, converting NaN to None.
+
+        Parameters
+        ----------
+        row : pd.Series
+            A row from the metadata DataFrame.
+
+        Returns
+        -------
+        tuple
+            A tuple of (qc_status, qc_comment) with NaN values converted to None.
+        """
+        qc_status = row.get("qc_status")
+        qc_status = None if pd.isna(qc_status) else qc_status
+        qc_comment = row.get("qc_comment")
+        qc_comment = None if pd.isna(qc_comment) else qc_comment
+        return qc_status, qc_comment
+
     def load_metadata(self) -> pd.core.frame.DataFrame:
         """
         Load and group workflow metadata from a CSV file.
@@ -1526,7 +1553,11 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             # if it is not a rerun, set the mass spec object, otherwise there will not be a mass spec object
             mass_spec_obj.has_output = [raw_data_obj_id]
         analysis_obj.has_input = parameter_data_id
-        analysis_obj.has_output = processed_data_id_list
+        # Update has_output with the actual processed data IDs
+        # Note: has_output is initially set with placeholder in generate functions
+        # For failed QC, has_output will be removed in the calling code
+        if processed_data_id_list:
+            analysis_obj.has_output = processed_data_id_list
 
     def generate_mass_spec_fields(
         self,
