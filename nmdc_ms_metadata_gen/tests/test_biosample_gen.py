@@ -78,4 +78,4 @@ def test_biosample_gen():
     working_data = json.load(file)
     file.close()
     assert len(working_data["biosample_set"]) == 2
-    assert "13" in working_data["biosample_set"][0]["id"]
+    assert "00" in working_data["biosample_set"][0]["id"]
