@@ -81,7 +81,7 @@ class IDPool:
             # In test mode, generate dummy IDs
             typecode = NmdcTypes.typecode(nmdc_type)
             dummy_ids = [
-                f"nmdc:{typecode}-13-"
+                f"nmdc:{typecode}-00-"
                 f"{''.join(random.choices(string.ascii_lowercase + string.digits, k=8))}"
                 for _ in range(self.pool_size - len(self.pools[nmdc_type]))
             ]
