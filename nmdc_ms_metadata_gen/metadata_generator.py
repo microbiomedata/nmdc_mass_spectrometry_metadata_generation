@@ -50,7 +50,6 @@ logging.basicConfig(
 )
 
 
-# TODO: Update script to for Sample Processing - has_input for MassSpectrometry will have to be changed to be a processed sample id - not biosample id
 class NMDCMetadataGenerator:
     """
     Generic base class for generating and validating NMDC metadata
@@ -778,6 +777,7 @@ class NMDCMetadataGenerator:
             "version": self.workflow_version,
             "was_informed_by": data_gen_id_list,
             "has_input": [raw_data_id, parameter_data_id],
+            "has_output": [processed_data_id],
             "started_at_time": "placeholder",
             "ended_at_time": "placeholder",
             "type": type,
@@ -1530,8 +1530,9 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             # if it is not a rerun, set the mass spec object, otherwise there will not be a mass spec object
             mass_spec_obj.has_output = [raw_data_obj_id]
         analysis_obj.has_input = parameter_data_id
-        # Only set has_output if there are processed data objects (QC passed)
-        # For failed QC, don't set has_output at all
+        # Update has_output with the actual processed data IDs
+        # Note: has_output is initially set with placeholder in generate functions
+        # For failed QC, has_output will be removed in the calling code
         if processed_data_id_list:
             analysis_obj.has_output = processed_data_id_list
 

@@ -466,6 +466,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             "version": self.workflow_version,
             "was_informed_by": data_gen_id,
             "has_input": [raw_data_id],
+            "has_output": [processed_data_id],
             "started_at_time": "placeholder",
             "ended_at_time": "placeholder",
             "type": NmdcTypes.get("NomAnalysis"),
