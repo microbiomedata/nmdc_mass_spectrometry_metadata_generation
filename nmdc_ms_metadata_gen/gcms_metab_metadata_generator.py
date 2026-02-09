@@ -364,10 +364,10 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             exact_match=True,
         )[0]["id"]
 
-        # check if there is an existing calibration_ids in the metadata. If not, we need to generate them
+        # check if there is an existing calibration_id in the metadata. If not, we need to generate them
         if (
-            "calibration_ids" not in metadata_df.columns
-            or metadata_df["calibration_ids"].isnull().all()
+            "calibration_id" not in metadata_df.columns
+            or metadata_df["calibration_id"].isnull().all()
         ):
             self.generate_calibration_ids(
                 metadata_df=metadata_df,
@@ -577,7 +577,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
             # Add calibration information id to metadata_df
             metadata_df.loc[
-                metadata_df["calibration_file"] == calibration_file, "calibration_ids"
+                metadata_df["calibration_file"] == calibration_file, "calibration_id"
             ] = calibration.id
 
     def generate_calibration(
@@ -679,7 +679,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             instrument_analysis_start_date=row.get("instrument_analysis_start_date"),
             instrument_analysis_end_date=row.get("instrument_analysis_end_date"),
             execution_resource=row.get("execution_resource"),
-            calibration_ids=row["calibration_ids"],
+            calibration_ids=row["calibration_id"],
             raw_data_url=row.get("raw_data_url"),
             manifest_id=row.get("manifest_id"),
             instrument_instance_specifier=row.get("instrument_instance_specifier"),

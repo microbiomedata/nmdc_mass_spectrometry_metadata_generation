@@ -278,8 +278,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             )
             # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
             # Use calibration_ids from CSV if provided, otherwise look it up by MD5
-            if "calibration_ids" in row and row.get("calibration_ids"):
-                calibration_ids = row["calibration_ids"]
+            if "calibration_id" in row and row.get("calibration_id"):
+                calibration_ids = row["calibration_id"]
             else:
                 calibration_ids = self.get_calibration_ids(
                     calibration_path=Path(row["ref_calibration_path"])
