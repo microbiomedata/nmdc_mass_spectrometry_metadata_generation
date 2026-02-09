@@ -240,7 +240,7 @@ def test_json_validate_no_api_pass():
                 "ended_at_time": "2025-08-05 12:14:07",
                 "execution_resource": "EMSL-RZR",
                 "version": "5.0.0",
-                "uses_calibration": "nmdc:calib-14-hhn3qb47",
+                "uses_calibration": ["nmdc:calib-14-hhn3qb47"],
             }
         ],
         "@type": "Database",
