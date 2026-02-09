@@ -249,7 +249,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 incremeneted_id=metab_analysis_id,
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
-                calibration_id=prev_metab_analysis["uses_calibration"],
+                calibration_ids=prev_metab_analysis["uses_calibration"],
                 metabolite_identifications=metabolite_identifications,
                 qc_status=qc_status,
                 qc_comment=qc_comment,
@@ -364,12 +364,12 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             exact_match=True,
         )[0]["id"]
 
-        # check if there is an existing calibration_id in the metadata. If not, we need to generate them
+        # check if there is an existing calibration_ids in the metadata. If not, we need to generate them
         if (
-            "calibration_id" not in metadata_df.columns
-            or metadata_df["calibration_id"].isnull().all()
+            "calibration_ids" not in metadata_df.columns
+            or metadata_df["calibration_ids"].isnull().all()
         ):
-            self.generate_calibration_id(
+            self.generate_calibration_ids(
                 metadata_df=metadata_df,
                 nmdc_database_inst=nmdc_database_inst,
                 CLIENT_ID=client_id,
@@ -413,7 +413,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 end_date=workflow_metadata_obj.instrument_analysis_end_date,
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
-                calibration_id=workflow_metadata_obj.calibration_id,
+                calibration_ids=workflow_metadata_obj.calibration_ids,
                 instrument_instance_specifier=workflow_metadata_obj.instrument_instance_specifier,
             )
             # Generate raw data object
@@ -454,7 +454,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 ),
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
-                calibration_id=workflow_metadata_obj.calibration_id,
+                calibration_ids=workflow_metadata_obj.calibration_ids,
                 metabolite_identifications=metabolite_identifications,
                 qc_status=qc_status,
                 qc_comment=qc_comment,
@@ -513,7 +513,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         # change db object to dict
         return self.nmdc_db_to_dict(nmdc_database_inst)
 
-    def generate_calibration_id(
+    def generate_calibration_ids(
         self,
         metadata_df: pd.DataFrame,
         nmdc_database_inst: nmdc.Database,
@@ -577,7 +577,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
             # Add calibration information id to metadata_df
             metadata_df.loc[
-                metadata_df["calibration_file"] == calibration_file, "calibration_id"
+                metadata_df["calibration_file"] == calibration_file, "calibration_ids"
             ] = calibration.id
 
     def generate_calibration(
@@ -679,7 +679,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             instrument_analysis_start_date=row.get("instrument_analysis_start_date"),
             instrument_analysis_end_date=row.get("instrument_analysis_end_date"),
             execution_resource=row.get("execution_resource"),
-            calibration_id=row["calibration_id"],
+            calibration_ids=row["calibration_ids"],
             raw_data_url=row.get("raw_data_url"),
             manifest_id=row.get("manifest_id"),
             instrument_instance_specifier=row.get("instrument_instance_specifier"),

@@ -32,7 +32,7 @@ class GCMSMetabWorkflowMetadata:
         Identifier for the liquid chromatography configuration used.
     instrument_id: str
         Identifier for the instrument used for analysis.
-    calibration_id : str
+    calibration_ids: list[str]
         Identifier for the calibration information used.
     instrument_analysis_start_date: str, optional
         Start date of the instrument analysis.
@@ -62,7 +62,7 @@ class GCMSMetabWorkflowMetadata:
     mass_spec_configuration_id: str
     lc_config_id: str
     instrument_id: str
-    calibration_id: str
+    calibration_ids: list[str]
     instrument_analysis_start_date: str = None
     instrument_analysis_end_date: str = None
     processing_institution: str = None

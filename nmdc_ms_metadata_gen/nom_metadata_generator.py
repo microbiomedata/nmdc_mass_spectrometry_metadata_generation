@@ -127,7 +127,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 else None
             )
 
-            # grab the calibration_id from the previous metabolomics analysis
+            # grab the calibration_ids from the previous metabolomics analysis
             # Get qc fields, converting NaN to None
             qc_status, qc_comment = self._get_qc_fields(row)
 
@@ -137,7 +137,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 raw_data_id=raw_data_object_id,
                 data_gen_id=prev_nom_analysis["was_informed_by"],
                 processed_data_id="nmdc:placeholder",
-                calibration_id=prev_nom_analysis["uses_calibration"],
+                calibration_ids=prev_nom_analysis["uses_calibration"],
                 incremented_id=metab_analysis_id,
                 processing_institution=(
                     workflow_metadata_obj.processing_institution_generation
@@ -277,11 +277,11 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 in_manifest=workflow_metadata_obj.manifest_id,
             )
             # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
-            # Use calibration_id from CSV if provided, otherwise look it up by MD5
-            if "calibration_id" in row and row.get("calibration_id"):
-                calibration_id = row["calibration_id"]
+            # Use calibration_ids from CSV if provided, otherwise look it up by MD5
+            if "calibration_ids" in row and row.get("calibration_ids"):
+                calibration_ids = row["calibration_ids"]
             else:
-                calibration_id = self.get_calibration_id(
+                calibration_ids = self.get_calibration_ids(
                     calibration_path=Path(row["ref_calibration_path"])
                 )
             # Get qc fields, converting NaN to None
@@ -289,7 +289,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
             nom_analysis = self.generate_nom_analysis(
                 file_path=Path(workflow_metadata_obj.raw_data_file),
-                calibration_id=calibration_id,
+                calibration_ids=calibration_ids,
                 raw_data_id=raw_data_object.id,
                 data_gen_id=mass_spec.id,
                 processed_data_id="nmdc:placeholder",
@@ -351,7 +351,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         # change db object to dict
         return self.nmdc_db_to_dict(nmdc_database_inst)
 
-    def get_calibration_id(
+    def get_calibration_ids(
         self,
         calibration_path: str,
     ) -> str:
@@ -379,7 +379,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 fields="id",
                 exact_match=True,
             )[0]["id"]
-            calibration_id = cs_client.get_record_by_attribute(
+            calibration_ids = cs_client.get_record_by_attribute(
                 attribute_name="calibration_object",
                 attribute_value=calib_do_id,
                 fields="id",
@@ -397,7 +397,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             raise RuntimeError(
                 f"An error occurred while looking up calibration for file {calibration_path}: {e}"
             )
-        return calibration_id
+        return calibration_ids
 
     def generate_nom_analysis(
         self,
@@ -409,7 +409,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         CLIENT_ID: str,
         CLIENT_SECRET: str,
         execution_resource: str = None,
-        calibration_id: str = None,
+        calibration_ids: list[str] = None,
         incremented_id: str = None,
         qc_status: str = None,
         qc_comment: str = None,
@@ -435,8 +435,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             The client secret for the NMDC API.
         execution_resource: str, optional
             The name of the execution resource. Must be a value from ExecutionResourceEnum.
-        calibration_id : str, optional
-            The ID of the calibration object used in the analysis. If None, no calibration is used.
+        calibration_ids : list[str], optional
+            The IDs of the calibration objects used in the analysis. If None, no calibration is used.
         incremented_id : str, optional
             The incremented ID for the metabolomics analysis. If None, a new ID will be minted.
         qc_status : str, optional
@@ -461,7 +461,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             "id": incremented_id,
             "name": f"{self.workflow_analysis_name} for {file_path.name}",
             "description": self.workflow_description,
-            "uses_calibration": calibration_id,
+            "uses_calibration": calibration_ids,
             "processing_institution": processing_institution,
             "execution_resource": execution_resource,
             "git_url": self.workflow_git_url,
