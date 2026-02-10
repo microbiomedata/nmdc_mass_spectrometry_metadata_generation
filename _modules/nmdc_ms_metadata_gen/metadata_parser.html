@@ -1,0 +1,831 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>nmdc_ms_metadata_gen.metadata_parser &mdash; nmdc_mass_spectrometry_metadata_generation 3/1/2025 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=1e0eaa87"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            nmdc_mass_spectrometry_metadata_generation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html">Bio Ontology API Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#biosample-metadata-parser-base-class">Biosample Metadata Parser Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#biosample-generator-class">Biosample Generator Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#metadata-generator-base-class">Metadata Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#metadata-workflow-generator-base-class">Metadata Workflow Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#material-processing-metadata-generator-base-class">Material Processing Metadata Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#lc-ms-metadata-generator-base-class">LC/MS Metadata Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#data-class">Data Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#lc-ms-lipidomics-metadata-generator-subclass">LC/MS Lipidomics Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#lc-ms-metabolomics-metadata-generator-subclass">LC/MS Metabolomics Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#gc-ms-metabolomics-metadata-generator-subclass">GC/MS Metabolomics Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#direct-infusion-nom-metadata-generator-subclass">Direct Infusion NOM Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#lc-nom-metadata-generator-subclass">LC NOM Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#validate-yaml-outline-function">Validate YAML Outline Function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#change-sheet-generator">Change Sheet Generator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#workflow-sheet-generator">Workflow Sheet Generator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#id-pool">ID Pool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#main-cli-class">Main CLI Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">nmdc_mass_spectrometry_metadata_generation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">nmdc_ms_metadata_gen.metadata_parser</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for nmdc_ms_metadata_gen.metadata_parser</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Standard Library</span>
+<span class="kn">import</span> <span class="nn">ast</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">is_dataclass</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">get_args</span><span class="p">,</span> <span class="n">get_origin</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># Third-Party Libraries</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">typing_inspect</span>
+<span class="kn">from</span> <span class="nn">nmdc_schema.nmdc</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Biosample</span><span class="p">,</span>
+    <span class="n">ControlledIdentifiedTermValue</span><span class="p">,</span>
+    <span class="n">GeolocationValue</span><span class="p">,</span>
+    <span class="n">QuantityValue</span><span class="p">,</span>
+    <span class="n">TextValue</span><span class="p">,</span>
+    <span class="n">TimestampValue</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">ruamel.yaml</span> <span class="kn">import</span> <span class="n">YAML</span>
+
+<span class="c1"># Local Modules</span>
+<span class="kn">from</span> <span class="nn">nmdc_ms_metadata_gen.bio_ontology_api</span> <span class="kn">import</span> <span class="n">BioOntologyInfoRetriever</span>
+<span class="kn">from</span> <span class="nn">nmdc_ms_metadata_gen.data_classes</span> <span class="kn">import</span> <span class="n">NmdcTypes</span>
+
+
+<div class="viewcode-block" id="BiosampleMetadataParser">
+<a class="viewcode-back" href="../../functions.html#nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser">[docs]</a>
+<span class="k">class</span> <span class="nc">BiosampleMetadataParser</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parses biosample metadata from input metadata spreadsheet.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="c1"># Helper function to handle missing or NaN values</span>
+<div class="viewcode-block" id="BiosampleMetadataParser.get_value">
+<a class="viewcode-back" href="../../functions.html#nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser.get_value">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve a value from a row, handling missing or NaN values.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        row : pd.Series</span>
+<span class="sd">            A row from the DataFrame.</span>
+<span class="sd">        key : str</span>
+<span class="sd">            The key to retrieve the value for.</span>
+<span class="sd">        default : str, optional</span>
+<span class="sd">            Default value to return if the key does not exist or is NaN.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The value associated with the key, or default if not found.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">type</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># if the value passed in is a Biosample field, we need to add the biosample prefix</span>
+        <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">Biosample</span><span class="o">.</span><span class="n">__dataclass_fields__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">field</span> <span class="o">==</span> <span class="n">key</span><span class="p">:</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;biosample.&quot;</span> <span class="o">+</span> <span class="n">key</span>
+                <span class="nb">type</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">type</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_type</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">QuantityValue</span><span class="p">):</span>
+            <span class="c1"># if the value is a quantity value, we need to extract all columns that could be associated with it</span>
+            <span class="c1"># and create a dict with the values</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;has_numeric_value&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span> <span class="o">+</span> <span class="s2">&quot;.has_numeric_value&quot;</span><span class="p">,</span> <span class="n">default</span><span class="p">),</span>
+                <span class="s2">&quot;has_minimum_numeric_value&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="n">key</span> <span class="o">+</span> <span class="s2">&quot;.has_minimum_numeric_value&quot;</span><span class="p">,</span> <span class="n">default</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;has_maximum_numeric_value&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="n">key</span> <span class="o">+</span> <span class="s2">&quot;.has_maximum_numeric_value&quot;</span><span class="p">,</span> <span class="n">default</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;has_unit&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span> <span class="o">+</span> <span class="s2">&quot;.has_unit&quot;</span><span class="p">,</span> <span class="n">default</span><span class="p">),</span>
+                <span class="s2">&quot;has_raw_value&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span> <span class="o">+</span> <span class="s2">&quot;.has_raw_value&quot;</span><span class="p">,</span> <span class="n">default</span><span class="p">),</span>
+            <span class="p">}</span>
+            <span class="c1"># remove any keys with None values</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">k</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int_</span><span class="p">)</span> <span class="k">else</span> <span class="n">v</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="p">}</span>
+            <span class="c1"># if the value is empty, return the default value</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">default</span>
+            <span class="k">if</span> <span class="s2">&quot;has_unit&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">value</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;has_unit&quot;</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Missing unit for </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">. `has_unit` is required for QuantityValue types for schema version 11.9.1 and up.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="n">value</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">default</span>
+        <span class="k">return</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="BiosampleMetadataParser.is_type">
+<a class="viewcode-back" href="../../functions.html#nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser.is_type">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_hint</span><span class="p">,</span> <span class="n">type_to_search_for</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Recursively check if a type hint is or contains input type.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">type_to_search_for</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># Check if the type_to_search_for is a dataclass and compare directly</span>
+        <span class="k">if</span> <span class="n">is_dataclass</span><span class="p">(</span><span class="n">type_to_search_for</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">is_dataclass</span><span class="p">(</span><span class="n">type_hint</span><span class="p">)</span> <span class="ow">and</span> <span class="n">type_hint</span> <span class="o">==</span> <span class="n">type_to_search_for</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="c1"># Check if the origin of the type hint is the type_to_search_for</span>
+        <span class="k">if</span> <span class="n">get_origin</span><span class="p">(</span><span class="n">type_hint</span><span class="p">)</span> <span class="o">==</span> <span class="n">type_to_search_for</span> <span class="ow">or</span> <span class="p">(</span>
+            <span class="n">typing_inspect</span><span class="o">.</span><span class="n">is_union_type</span><span class="p">(</span><span class="n">type_hint</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">get_origin</span><span class="p">(</span><span class="n">tp</span><span class="p">)</span> <span class="o">==</span> <span class="n">type_to_search_for</span> <span class="k">for</span> <span class="n">tp</span> <span class="ow">in</span> <span class="n">get_args</span><span class="p">(</span><span class="n">type_hint</span><span class="p">))</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="c1"># If the type is a Union, check the arguments recursively</span>
+        <span class="k">if</span> <span class="n">typing_inspect</span><span class="o">.</span><span class="n">is_union_type</span><span class="p">(</span><span class="n">type_hint</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">any</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">is_type</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">type_to_search_for</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">get_args</span><span class="p">(</span><span class="n">type_hint</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">arg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="BiosampleMetadataParser.dynam_parse_biosample_metadata">
+<a class="viewcode-back" href="../../functions.html#nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser.dynam_parse_biosample_metadata">[docs]</a>
+    <span class="k">def</span> <span class="nf">dynam_parse_biosample_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">bio_api_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function to parse the metadata row if it includes biosample information.</span>
+<span class="sd">        This pulls the most recent version of the ontology terms from the API and compares them to the values in the given row.</span>
+<span class="sd">        Different parsing is done on different types of fields, such as lists, controlled identified terms, and text values to ensure the correct format is used.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            row: pd.Series</span>
+<span class="sd">                A row from the DataFrame containing metadata.</span>
+<span class="sd">            bio_api_key: str</span>
+<span class="sd">                The API key to access the Bio Ontology API</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        metadata: dict</span>
+<span class="sd">            The metadata dictionary.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">envo_retriever</span> <span class="o">=</span> <span class="n">BioOntologyInfoRetriever</span><span class="p">(</span><span class="n">bio_api_key</span><span class="p">)</span>
+
+        <span class="n">metadata</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">field_data</span> <span class="ow">in</span> <span class="n">Biosample</span><span class="o">.</span><span class="n">__dataclass_fields__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># check if the field is a list of dataclasses</span>
+            <span class="k">if</span> <span class="n">field_name</span> <span class="o">==</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;nmdc:Biosample&quot;</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_type</span><span class="p">(</span><span class="n">field_data</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">dataclass</span><span class="p">]]):</span>
+                <span class="c1"># check if a value exists before we begin complex parsing, saves time douing this at the begining</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">field_name</span><span class="p">):</span>
+                    <span class="c1"># we need to make a dict for each item in the list</span>
+                    <span class="n">metadata</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="c1"># get the list of dicts from the csv row</span>
+                    <span class="n">list_of_dicts</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">field_name</span><span class="p">))</span>
+                    <span class="c1"># iterate through the list of dicts and format them</span>
+                    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">list_of_dicts</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_type</span><span class="p">(</span><span class="n">field_data</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">TextValue</span><span class="p">):</span>
+                            <span class="n">metadata</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">create_text_value</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">field_name</span><span class="p">)</span>
+                            <span class="p">)</span>
+                        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_type</span><span class="p">(</span>
+                            <span class="n">field_data</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">ControlledIdentifiedTermValue</span>
+                        <span class="p">):</span>
+                            <span class="n">metadata</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">create_controlled_identified_term_value</span><span class="p">(</span>
+                                    <span class="n">item</span><span class="p">,</span>
+                                    <span class="p">{</span><span class="n">item</span><span class="p">:</span> <span class="n">item</span><span class="p">},</span>
+                                <span class="p">)</span>
+                            <span class="p">)</span>
+                        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_type</span><span class="p">(</span><span class="n">field_data</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">QuantityValue</span><span class="p">):</span>
+                            <span class="n">metadata</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">create_quantity_value</span><span class="p">(</span><span class="n">value_dict</span><span class="o">=</span><span class="n">item</span><span class="p">)</span>
+                            <span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">metadata</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+            <span class="c1">#  check if the field is a list type, we will need to convert the csv row to a list instead of treating it as a string</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_type</span><span class="p">(</span><span class="n">field_data</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">field_name</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">field_name</span><span class="p">)</span>
+                    <span class="k">else</span> <span class="kc">None</span>
+                <span class="p">)</span>
+            <span class="c1"># format GeolocationValue dict</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_type</span><span class="p">(</span><span class="n">field_data</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">GeolocationValue</span><span class="p">):</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">create_geo_loc_value</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">field_name</span><span class="p">),</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">field_name</span><span class="p">)</span>
+                    <span class="k">else</span> <span class="kc">None</span>
+                <span class="p">)</span>
+            <span class="c1"># format QuantityValue dict</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_type</span><span class="p">(</span><span class="n">field_data</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">QuantityValue</span><span class="p">):</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">create_quantity_value</span><span class="p">(</span>
+                        <span class="n">value_dict</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">field_name</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">field_name</span><span class="p">)</span>
+                    <span class="k">else</span> <span class="kc">None</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_type</span><span class="p">(</span><span class="n">field_data</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">TimestampValue</span><span class="p">):</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">create_timestamp_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">field_name</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">field_name</span><span class="p">)</span>
+                    <span class="k">else</span> <span class="kc">None</span>
+                <span class="p">)</span>
+            <span class="c1"># format ControlledIdentifiedTermValue dict</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_type</span><span class="p">(</span>
+                <span class="n">field_data</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">ControlledIdentifiedTermValue</span>
+            <span class="p">)</span> <span class="ow">and</span> <span class="n">field_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="s2">&quot;env_broad_scale&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;env_local_scale&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;env_medium&quot;</span><span class="p">,</span>
+            <span class="p">]:</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">create_controlled_identified_term_value</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">field_name</span><span class="p">),</span>
+                        <span class="p">{</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">field_name</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span>
+                                <span class="n">row</span><span class="p">,</span> <span class="n">field_name</span>
+                            <span class="p">)</span>
+                        <span class="p">},</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">field_name</span><span class="p">)</span>
+                    <span class="k">else</span> <span class="kc">None</span>
+                <span class="p">)</span>
+            <span class="c1"># format TextValue dict</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_type</span><span class="p">(</span><span class="n">field_data</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">TextValue</span><span class="p">):</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">create_text_value</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">field_name</span><span class="p">),</span> <span class="n">field_name</span> <span class="o">==</span> <span class="s2">&quot;env_package&quot;</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">field_name</span><span class="p">)</span>
+                    <span class="k">else</span> <span class="kc">None</span>
+                <span class="p">)</span>
+            <span class="c1"># format and create envo term for env_broad_scale, env_local_scale, env_medium</span>
+            <span class="k">elif</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;env_broad_scale&quot;</span><span class="p">,</span> <span class="s2">&quot;env_local_scale&quot;</span><span class="p">,</span> <span class="s2">&quot;env_medium&quot;</span><span class="p">]:</span>
+                <span class="c1"># create envo term for env_broad_scale, env_local_scale, env_medium</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">create_controlled_identified_term_value</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">field_name</span><span class="p">),</span>
+                        <span class="n">envo_retriever</span><span class="o">.</span><span class="n">get_envo_terms</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">field_name</span><span class="p">)),</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">field_name</span><span class="p">)</span>
+                    <span class="k">else</span> <span class="kc">None</span>
+                <span class="p">)</span>
+            <span class="c1"># catch all for normal case - strings, ints, etc</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">field_name</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">field_name</span><span class="p">)</span>
+                    <span class="k">else</span> <span class="kc">None</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="n">metadata</span></div>
+
+
+<div class="viewcode-block" id="BiosampleMetadataParser.create_timestamp_value">
+<a class="viewcode-back" href="../../functions.html#nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser.create_timestamp_value">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_timestamp_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a timestamp value representation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        raw_value : str</span>
+<span class="sd">            The raw value to convert to a timestamp.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            A dictionary representing the timestamp value.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nmdc_timestamp_value</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;has_raw_value&quot;</span><span class="p">:</span> <span class="n">raw_value</span><span class="p">,</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">NmdcTypes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TimeStampValue&quot;</span><span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">nmdc_timestamp_value</span></div>
+
+
+<div class="viewcode-block" id="BiosampleMetadataParser.create_quantity_value">
+<a class="viewcode-back" href="../../functions.html#nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser.create_quantity_value">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_quantity_value</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">value_dict</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a quantity value representation. Since a dictionary is passed in, we need to check if any of the values are None and remove them if so. Also adds the Quantity value type.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value_dict : dict</span>
+<span class="sd">            A dictionary containing the raw value and other attributes gathered from the metadata. This is a dict of the form:</span>
+<span class="sd">            {</span>
+<span class="sd">                &quot;has_numeric_value&quot;: float,</span>
+<span class="sd">                &quot;has_minimum_numeric_value&quot;: float,</span>
+<span class="sd">                &quot;has_maximum_numeric_value&quot;: float,</span>
+<span class="sd">                &quot;has_unit&quot;: str,</span>
+<span class="sd">                &quot;has_raw_value&quot;: str</span>
+<span class="sd">            }</span>
+<span class="sd">            The keys in the dictionary are the attributes of the QuantityValue class.</span>
+<span class="sd">            They may be passed in as None if they are not present in the metadata.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            A dictionary representing the quantity value.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">value_dict</span><span class="p">:</span>
+            <span class="n">value_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">}</span>
+        <span class="n">value_dict</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">NmdcTypes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;QuantityValue&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value_dict</span></div>
+
+
+<div class="viewcode-block" id="BiosampleMetadataParser.create_geo_loc_value">
+<a class="viewcode-back" href="../../functions.html#nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser.create_geo_loc_value">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_geo_loc_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a geolocation value representation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        raw_value : str</span>
+<span class="sd">            The raw value associated with geolocation.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            A dictionary representing the geolocation value.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lat_value</span><span class="p">,</span> <span class="n">long_value</span> <span class="o">=</span> <span class="n">raw_value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">nmdc_geo_loc_value</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;has_raw_value&quot;</span><span class="p">:</span> <span class="n">raw_value</span><span class="p">,</span>
+            <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">lat_value</span><span class="p">,</span>
+            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">long_value</span><span class="p">,</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">NmdcTypes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GeolocationValue&quot;</span><span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">nmdc_geo_loc_value</span></div>
+
+
+<div class="viewcode-block" id="BiosampleMetadataParser.create_text_value">
+<a class="viewcode-back" href="../../functions.html#nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser.create_text_value">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_text_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row_value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">is_list</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a text value representation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        row_value : str</span>
+<span class="sd">            The raw value to convert.</span>
+<span class="sd">        is_list : bool</span>
+<span class="sd">            Whether to treat the value as a list.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            A dictionary representing the text value.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">nmdc_text_value</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;has_raw_value&quot;</span><span class="p">:</span> <span class="n">row_value</span><span class="p">,</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">NmdcTypes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TextValue&quot;</span><span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">nmdc_text_value</span></div>
+
+
+<div class="viewcode-block" id="BiosampleMetadataParser.create_controlled_identified_term_value">
+<a class="viewcode-back" href="../../functions.html#nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser.create_controlled_identified_term_value">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_controlled_identified_term_value</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">row_value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">slot_enum_dict</span><span class="p">:</span> <span class="nb">dict</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a controlled identified term value.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        row_value : str</span>
+<span class="sd">            The raw value to be converted.</span>
+<span class="sd">        slot_enum_dict : dict</span>
+<span class="sd">            A dictionary mapping the raw value to its corresponding term.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            A dictionary representing the controlled identified term.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">nmdc_controlled_term_slot</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;has_raw_value&quot;</span><span class="p">:</span> <span class="n">row_value</span><span class="p">,</span>
+            <span class="s2">&quot;term&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">row_value</span><span class="p">,</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">slot_enum_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">row_value</span><span class="p">),</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">NmdcTypes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;OntologyClass&quot;</span><span class="p">),</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">NmdcTypes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ControlledIdentifiedTermValue&quot;</span><span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">nmdc_controlled_term_slot</span></div>
+
+
+<div class="viewcode-block" id="BiosampleMetadataParser.generate_example_biosample_csv">
+<a class="viewcode-back" href="../../functions.html#nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser.generate_example_biosample_csv">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_example_biosample_csv</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;example_biosample_metadata.csv&quot;</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function to generate an example csv file from available NMDCSchema Biosample fields. Saves the file to the given path.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path : str</span>
+<span class="sd">            The path to save the example CSV file. Default is &quot;example_biosample_metadata.csv&quot;.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get all fields from the Biosample dataclass</span>
+        <span class="n">biosample_fields</span> <span class="o">=</span> <span class="n">Biosample</span><span class="o">.</span><span class="n">__dataclass_fields__</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="n">biosample_fields</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;biosample.&quot;</span> <span class="o">+</span> <span class="n">field</span>
+            <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">biosample_fields</span>
+            <span class="k">if</span> <span class="n">field</span> <span class="o">!=</span> <span class="s2">&quot;_inherited_slots&quot;</span>
+        <span class="p">]</span>
+        <span class="c1"># Create a DataFrame with the fields as columns and an empty row</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">biosample_fields</span><span class="p">)</span>
+        <span class="c1">#  Add data based on the type of column</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">biosample_fields</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_type</span><span class="p">(</span>
+                <span class="n">Biosample</span><span class="o">.</span><span class="n">__dataclass_fields__</span><span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
+                <span class="n">ControlledIdentifiedTermValue</span><span class="p">,</span>
+            <span class="p">):</span>
+                <span class="n">df</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ENVO:00000000&quot;</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_type</span><span class="p">(</span>
+                <span class="n">Biosample</span><span class="o">.</span><span class="n">__dataclass_fields__</span><span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">TextValue</span>
+            <span class="p">):</span>
+                <span class="n">df</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;textValue&quot;</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_type</span><span class="p">(</span>
+                <span class="n">Biosample</span><span class="o">.</span><span class="n">__dataclass_fields__</span><span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">QuantityValue</span>
+            <span class="p">):</span>
+                <span class="c1"># create new columns for each of the needed fields</span>
+                <span class="n">quantity_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="n">field</span> <span class="o">+</span> <span class="s2">&quot;.has_maximum_numeric_value&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;85&quot;</span><span class="p">],</span>
+                        <span class="n">field</span> <span class="o">+</span> <span class="s2">&quot;.has_minimum_numeric_value&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;85&quot;</span><span class="p">],</span>
+                        <span class="n">field</span> <span class="o">+</span> <span class="s2">&quot;.has_numeric_value&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;85&quot;</span><span class="p">],</span>
+                        <span class="n">field</span> <span class="o">+</span> <span class="s2">&quot;.has_unit&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;celcius&quot;</span><span class="p">],</span>
+                        <span class="n">field</span> <span class="o">+</span> <span class="s2">&quot;.has_raw_value&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;85&quot;</span><span class="p">],</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">,</span> <span class="n">quantity_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_type</span><span class="p">(</span>
+                <span class="n">Biosample</span><span class="o">.</span><span class="n">__dataclass_fields__</span><span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
+                <span class="n">GeolocationValue</span><span class="p">,</span>
+            <span class="p">):</span>
+                <span class="n">df</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;46.37228379 -119.2717467&quot;</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_type</span><span class="p">(</span>
+                <span class="n">Biosample</span><span class="o">.</span><span class="n">__dataclass_fields__</span><span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
+                <span class="n">TimestampValue</span><span class="p">,</span>
+            <span class="p">):</span>
+                <span class="n">df</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;2014-11-25&quot;</span><span class="p">]</span>
+            <span class="c1"># Otherwise, set it to blank</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">df</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="c1"># Save the DataFrame to a CSV file</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">class</span> <span class="nc">YamlSpecifier</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class provides functionality to adjust generic yaml outlines with sample specific information</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        yaml_outline_path : str</span>
+<span class="sd">            path to yaml outline</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">yaml_outline_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yaml_outline_path</span> <span class="o">=</span> <span class="n">yaml_outline_path</span>
+
+    <span class="k">def</span> <span class="nf">load_yaml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">protocol_id</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Loads the yaml_outline_path that outlines the material processing steps and processed samples.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        -----------</span>
+<span class="sd">        protocol_id: str</span>
+<span class="sd">            Protocol id referencing the specific yaml outline for this biosample</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            relevant yaml outline for this biosample as a dictionary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yaml_outline_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">yaml</span> <span class="o">=</span> <span class="n">YAML</span><span class="p">()</span>
+            <span class="n">outline</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">protocol_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">outline</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Protocol id </span><span class="si">{</span><span class="n">protocol_id</span><span class="si">}</span><span class="s2"> not found in yaml outline.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">outline</span><span class="p">[</span><span class="n">protocol_id</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">get_outline_protocol_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets a list of protocol ids in the yaml outline.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of protocol ids in the yaml outline</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yaml_outline_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">yaml</span> <span class="o">=</span> <span class="n">YAML</span><span class="p">()</span>
+            <span class="n">outline</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">outline</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">update_value</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">sample_specific_info_protocol_subset</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates any slot with a quantity or string value based on step number and name.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        -----------</span>
+<span class="sd">        data : dict</span>
+<span class="sd">            The nested dictionary containing the workflow steps (yaml outline)</span>
+<span class="sd">        sample_specific_info_protocol_subset : pd.DataFrame</span>
+<span class="sd">            Rows of pandas dataframe, relevant to biosample and protocol, with info to update a QuantityValue or string: biosample_id, stepname, slotname, value, material_processing_protocol_id</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        --------</span>
+<span class="sd">        data</span>
+<span class="sd">            Updated dictionary with new values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">sample_specific_info_protocol_subset</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="n">stepname</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;stepname&quot;</span><span class="p">]</span>
+            <span class="n">slotname</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;slotname&quot;</span><span class="p">]</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;steps&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">content</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">stepname</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
+                        <span class="n">process</span> <span class="o">=</span> <span class="n">content</span><span class="p">[</span><span class="n">stepname</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">slotname</span> <span class="ow">in</span> <span class="n">process</span><span class="p">:</span>
+                            <span class="n">entity_to_update</span> <span class="o">=</span> <span class="n">process</span><span class="p">[</span><span class="n">slotname</span><span class="p">]</span>
+                            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span>
+                                <span class="n">entity_to_update</span><span class="p">,</span> <span class="nb">dict</span>
+                            <span class="p">):</span>  <span class="c1"># update quantity value</span>
+                                <span class="k">if</span> <span class="p">(</span>
+                                    <span class="s2">&quot;type&quot;</span> <span class="ow">in</span> <span class="n">entity_to_update</span>
+                                    <span class="ow">and</span> <span class="n">entity_to_update</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;nmdc:QuantityValue&quot;</span>
+                                <span class="p">):</span>
+                                    <span class="n">entity_to_update</span><span class="p">[</span><span class="s2">&quot;has_numeric_value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+                                    <span class="n">entity_to_update</span><span class="p">[</span><span class="s2">&quot;has_raw_value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">entity_to_update</span><span class="p">[</span><span class="s1">&#39;has_unit&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                                    <span class="p">)</span>
+                            <span class="k">elif</span> <span class="ow">not</span> <span class="n">entity_to_update</span><span class="p">:</span>  <span class="c1"># update empty string</span>
+                                <span class="n">process</span><span class="p">[</span><span class="n">slotname</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="k">return</span> <span class="n">data</span>
+
+    <span class="k">def</span> <span class="nf">update_sample_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">target_outputs</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates yaml outline to only keep the listed processed sample placeholders, removing intermediate steps and processed samples</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        -----------</span>
+<span class="sd">        data : dict</span>
+<span class="sd">            Nested dictionary containing the workflow steps (yaml outline)</span>
+<span class="sd">        target_outputs: list</span>
+<span class="sd">            List of placeholders to keep</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        --------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Updated yaml dictionary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Get sections of yaml that will be updated</span>
+        <span class="n">processed_samples</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;processedsamples&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;steps&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
+        <span class="c1">## Filter to any steps that lead to the target_outputs</span>
+        <span class="n">required_steps</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">required_outputs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">outputs_to_trace</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">target_outputs</span><span class="p">)</span>
+
+        <span class="c1"># For each output we&#39;re tracing, find and save the step that outputs it and add the step&#39;s input to the list of samples to trace</span>
+        <span class="c1"># Continue until all outputs to trace have been dealt with (if a step is already saved (while tracing a different output) then add current trace to list of outputs)</span>
+
+        <span class="n">step_map</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">step_key</span><span class="p">:</span> <span class="n">step</span> <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span> <span class="k">for</span> <span class="n">step_key</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="p">}</span>  <span class="c1"># Step mapping (as a dictionary vs list) and output caching for fast lookup</span>
+        <span class="n">step_output_cache</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">while</span> <span class="n">outputs_to_trace</span><span class="p">:</span>
+            <span class="n">current_iteration_traces</span> <span class="o">=</span> <span class="n">outputs_to_trace</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">outputs_to_trace</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">step_key</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">step_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">step_info</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">step</span><span class="p">[</span><span class="n">step_key</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">step_outputs</span> <span class="o">=</span> <span class="n">step_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;has_output&quot;</span><span class="p">,</span> <span class="p">[])</span>
+                <span class="n">step_inputs</span> <span class="o">=</span> <span class="n">step_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;has_input&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
+                <span class="n">step_outputs_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
+                    <span class="n">step_outputs</span>
+                <span class="p">)</span>  <span class="c1"># OPTIMIZATION Convert to sets once per loop iteration, not per intersection</span>
+                <span class="n">step_inputs_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">step_inputs</span><span class="p">)</span>
+
+                <span class="c1"># Check for outputs that we are tracing</span>
+                <span class="n">matching_outputs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">step_outputs_set</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span>
+                    <span class="n">current_iteration_traces</span>
+                <span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">matching_outputs</span><span class="p">:</span>
+                    <span class="n">step_output_cache</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">step_key</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                        <span class="n">matching_outputs</span>
+                    <span class="p">)</span>  <span class="c1"># Cache outputs for the step to avoid redundant computations</span>
+
+                    <span class="k">if</span> <span class="n">step</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">required_steps</span><span class="p">:</span>
+                        <span class="n">required_steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+
+                    <span class="n">required_outputs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">matching_outputs</span><span class="p">)</span>
+                    <span class="n">outputs_to_trace</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">step_inputs_set</span><span class="p">)</span> <span class="o">-</span> <span class="n">required_outputs</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">outputs_to_trace</span><span class="p">:</span>
+                <span class="k">break</span>
+
+        <span class="c1"># Update required step outputs with required processed samples</span>
+        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">required_steps</span><span class="p">:</span>
+            <span class="n">step_key</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">step_info</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">step</span><span class="p">[</span><span class="n">step_key</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">step_info</span><span class="p">[</span><span class="s2">&quot;has_output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">step_output_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">step_key</span><span class="p">,</span> <span class="p">[]))</span>
+
+        <span class="c1"># Keep original order by filtering steps list to only include required steps</span>
+        <span class="n">required_steps_set</span> <span class="o">=</span> <span class="p">{</span><span class="nb">id</span><span class="p">(</span><span class="n">step</span><span class="p">)</span> <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">required_steps</span><span class="p">}</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;steps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">step</span> <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span> <span class="k">if</span> <span class="nb">id</span><span class="p">(</span><span class="n">step</span><span class="p">)</span> <span class="ow">in</span> <span class="n">required_steps_set</span><span class="p">]</span>
+
+        <span class="c1"># Update list of processedsamples to required processedsamples</span>
+        <span class="n">required_outputs_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">required_outputs</span><span class="p">)</span>
+        <span class="p">)</span>  <span class="c1"># OPTIMIZATION Use dictionary comprehension and avoid repeated key extraction</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;processedsamples&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">sample</span>
+            <span class="k">for</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">processed_samples</span>
+            <span class="k">if</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">sample</span><span class="p">))</span> <span class="ow">in</span> <span class="n">required_outputs_set</span>
+        <span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">data</span>
+
+    <span class="k">def</span> <span class="nf">yaml_generation</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">protocol_id</span><span class="p">,</span>
+        <span class="n">sample_specific_info_protocol_subset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">target_outputs</span><span class="o">=</span><span class="nb">list</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates yaml outline with biosample specific values (placeholders and quantities)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        protocol_id : str</span>
+<span class="sd">            Protocol id referencing the specific yaml outline to be used for this biosample</span>
+<span class="sd">        sample_specific_info_protocol_subset : None</span>
+<span class="sd">            Rows of pandas dataframe relevant to biosample with info to update a QuantityValue: biosample_id, step_number, slot_name, value, material_processing_protocol_id</span>
+<span class="sd">        target_outputs: list</span>
+<span class="sd">            List of target processed sample placeholders to keep in the yaml outline</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        outline:dict</span>
+<span class="sd">            Updated yaml outline with sample specific adjustments</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># yaml outline for sample protocol</span>
+        <span class="n">outline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_yaml</span><span class="p">(</span><span class="n">protocol_id</span><span class="p">)</span>
+
+        <span class="c1"># add sample specific values from dictionary to outline</span>
+        <span class="k">if</span> <span class="n">sample_specific_info_protocol_subset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">outline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_value</span><span class="p">(</span>
+                <span class="n">data</span><span class="o">=</span><span class="n">outline</span><span class="p">,</span>
+                <span class="n">sample_specific_info_protocol_subset</span><span class="o">=</span><span class="n">sample_specific_info_protocol_subset</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># remove placeholders that don&#39;t have a raw file</span>
+        <span class="n">outline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_sample_outputs</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">outline</span><span class="p">,</span> <span class="n">target_outputs</span><span class="o">=</span><span class="n">target_outputs</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">outline</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Olivia Hess.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
