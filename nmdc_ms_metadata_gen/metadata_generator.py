@@ -694,7 +694,7 @@ class NMDCMetadataGenerator:
         processing_institution: str,
         CLIENT_ID: str,
         CLIENT_SECRET: str,
-        calibration_id: str = None,
+        calibration_ids: list[str] = None,
         incremeneted_id: str = None,
         metabolite_identifications: List[nmdc.MetaboliteIdentification] = None,
         type: str = NmdcTypes.get("MetabolomicsAnalysis"),
@@ -727,7 +727,7 @@ class NMDCMetadataGenerator:
             The client ID for the NMDC API.
         CLIENT_SECRET : str
             The client secret for the NMDC API.
-        calibration_id : str, optional
+        calibration_ids : list[str], optional
             ID of the calibration information used for the analysis.
             Default is None, indicating no calibration information.
         incremeneted_id : str, optional
@@ -786,8 +786,8 @@ class NMDCMetadataGenerator:
             "qc_comment": qc_comment,
         }
 
-        if calibration_id is not None:
-            data_dict["uses_calibration"] = calibration_id
+        if calibration_ids is not None:
+            data_dict["uses_calibration"] = calibration_ids
 
         if metabolite_identifications is not None:
             data_dict["has_metabolite_identifications"] = metabolite_identifications
@@ -1285,7 +1285,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         CLIENT_SECRET: str,
         instrument_instance_specifier: str = None,
         lc_config_id: str = None,
-        calibration_id: str = None,
+        calibration_ids: str = None,
     ) -> nmdc.DataGeneration:
         """
         Create an NMDC DataGeneration object for mass spectrometry and mint an NMDC ID.
@@ -1318,7 +1318,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             Specifier for the instrument instance used in the data generation.
         lc_config_name : str, optional
             Name of the liquid chromatography configuration.
-        calibration_id : str, optional
+        calibration_ids : str, optional
             ID of the calibration information generated with the data.
             Default is None, indicating no calibration information.
 
@@ -1359,8 +1359,8 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             "type": NmdcTypes.get("MassSpectrometry"),
         }
 
-        if calibration_id is not None:
-            data_dict["generates_calibration"] = calibration_id
+        if calibration_ids is not None:
+            data_dict["generates_calibration"] = calibration_ids
         data_dict = self.clean_dict(data_dict)
         mass_spectrometry = nmdc.DataGeneration(**data_dict)
 

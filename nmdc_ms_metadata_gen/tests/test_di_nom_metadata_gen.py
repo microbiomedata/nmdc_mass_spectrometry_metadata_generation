@@ -242,7 +242,7 @@ def test_di_nom_metadata_gen_with_qc_fields():
         assert (
             wf["uses_calibration"] is not None
         ), f"Workflow {wf['id']} uses_calibration should not be None"
-        assert wf["uses_calibration"].startswith(
+        assert wf["uses_calibration"][0].startswith(
             "nmdc:calib-"
         ), f"Workflow {wf['id']} uses_calibration should be a valid NMDC calibration ID"
 
