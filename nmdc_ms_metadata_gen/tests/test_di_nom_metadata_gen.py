@@ -14,6 +14,8 @@ python_path = os.getenv("PYTHONPATH")
 if python_path:
     os.environ["PYTHONPATH"] = python_path
 
+ENV = os.getenv("NMDC_ENV", "prod")
+
 
 def test_di_nom_metadata_gen():
     """
@@ -245,6 +247,8 @@ def test_di_nom_metadata_gen_with_qc_fields():
         assert wf["uses_calibration"][0].startswith(
             "nmdc:calib-"
         ), f"Workflow {wf['id']} uses_calibration should be a valid NMDC calibration ID"
+        assert (length(wf["uses_calibration"]) > 1
+        ), f"Workflow {wf['id']} uses_calibration should have two values"
 
     # Find the workflow execution with qc_status = "pass" explicitly set
     pass_wf = [wf for wf in workflow_executions if wf.get("qc_status") == "pass"]

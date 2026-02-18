@@ -276,7 +276,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 url=row.get("raw_data_url"),
                 in_manifest=workflow_metadata_obj.manifest_id,
             )
-            # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
+            # Generate nom analysis instance, workflow_execution_set uses the raw data zip file
             # Use calibration_ids from CSV if provided, otherwise look it up by MD5
             if "calibration_id" in row and row.get("calibration_id"):
                 calibration_ids = row["calibration_id"]
@@ -284,6 +284,17 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 calibration_ids = self.get_calibration_ids(
                     calibration_path=Path(row["ref_calibration_path"])
                 )
+
+            print(calibration_ids)
+
+            # If SRFA calibration ID is included, add it, otherwise look it up by name
+            if "srfa_calib_id" in row and row.get("srfa_calib_id"):
+                calibration_ids = calibration_ids.append(row["srfa_calib_id"])
+            elif "srfa_calib_name" in row and row.get("srfa_calib_name"):
+                calibration_ids = calibration_ids.append(self.get_srfa_ids(row["srfa_calib_name"]))
+
+            print(calibration_ids)
+
             # Get qc fields, converting NaN to None
             qc_status, qc_comment = self._get_qc_fields(row)
 
@@ -399,6 +410,51 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             )
         return calibration_ids
 
+    def get_srfa_ids(
+        self,
+        srfa_calib_name: str,
+    ) -> str:
+        """
+        Get the calibration ID from the NMDC API using the name of the SRFA file.
+
+        Parameters
+        ----------
+        srfa_calib_name : str
+            The name of the SRFA dataset used for calibration.
+
+        Returns
+        -------
+        str
+            The calibration ID if found, otherwise None.
+        """
+        try:
+            calib_do_id = do_client.get_record_by_attribute(
+                attribute_name="name",
+                attribute_value=srfa_calib_name,
+                fields="id",
+                exact_match=False,
+            )[0]["id"]
+            calibration_ids = cs_client.get_record_by_attribute(
+                attribute_name="calibration_object",
+                attribute_value=calib_do_id,
+                fields="id",
+                exact_match=True,
+            )[0]["id"]
+        except ValueError as e:
+            raise ValueError(
+                f"Calibration object does not exist for file {calibration_path}: {e}"
+            )
+        except IndexError as e:
+            raise ValueError(
+                f"Calibration object not found for file {calibration_path} with MD5 {calib_md5}: {e}"
+            )
+        except Exception as e:
+            raise RuntimeError(
+                f"An error occurred while looking up calibration for file {calibration_path}: {e}"
+            )
+        return calibration_ids
+
+
     def generate_nom_analysis(
         self,
         file_path: Path,
@@ -461,7 +517,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             "id": incremented_id,
             "name": f"{self.workflow_analysis_name} for {file_path.name}",
             "description": self.workflow_description,
-            "uses_calibration": calibration_ids,
+            "uses_calibration": [calibration_ids],
             "processing_institution": processing_institution,
             "execution_resource": execution_resource,
             "git_url": self.workflow_git_url,
