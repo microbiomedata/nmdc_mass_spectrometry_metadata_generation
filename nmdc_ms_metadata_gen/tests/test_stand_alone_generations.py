@@ -387,3 +387,29 @@ def test_nmdc_types_static():
         assert str(e) == "NmdcTypes is a static class and cannot be instantiated."
     else:
         assert False, "NmdcTypes instantiation did not raise NotImplementedError"
+
+
+def test_clean_dict_removes_nan():
+    """
+    Test that clean_dict removes keys with NaN values (e.g. from empty CSV cells).
+    This prevents 'instrument_instance_specifier': 'nan' appearing in generated JSON.
+    """
+    import numpy as np
+
+    gen = NMDCMetadataGenerator()
+
+    input_dict = {
+        "valid_key": "valid_value",
+        "nan_key": float("nan"),
+        "np_nan_key": np.nan,
+        "none_key": None,
+        "empty_key": "",
+    }
+    result = gen.clean_dict(input_dict)
+
+    assert "valid_key" in result
+    assert result["valid_key"] == "valid_value"
+    assert "nan_key" not in result
+    assert "np_nan_key" not in result
+    assert "none_key" not in result
+    assert "empty_key" not in result
