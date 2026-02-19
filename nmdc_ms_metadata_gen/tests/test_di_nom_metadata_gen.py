@@ -63,6 +63,10 @@ def test_di_nom_metadata_gen():
         in working_data["data_generation_set"][0]["instrument_instance_specifier"]
     )
 
+    assert (
+        len(working_data["workflow_execution_set"][0]["uses_calibration"]) == 2
+        ), f"Workflow {wf['id']} uses_calibration should have two values"
+
 
 def test_di_nom_metadata_gen_rerun():
     """
@@ -247,8 +251,6 @@ def test_di_nom_metadata_gen_with_qc_fields():
         assert wf["uses_calibration"][0].startswith(
             "nmdc:calib-"
         ), f"Workflow {wf['id']} uses_calibration should be a valid NMDC calibration ID"
-        assert (length(wf["uses_calibration"]) > 1
-        ), f"Workflow {wf['id']} uses_calibration should have two values"
 
     # Find the workflow execution with qc_status = "pass" explicitly set
     pass_wf = [wf for wf in workflow_executions if wf.get("qc_status") == "pass"]

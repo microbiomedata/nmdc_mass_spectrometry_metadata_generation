@@ -285,15 +285,14 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                     calibration_path=Path(row["ref_calibration_path"])
                 )
 
-            print(calibration_ids)
-
             # If SRFA calibration ID is included, add it, otherwise look it up by name
             if "srfa_calib_id" in row and row.get("srfa_calib_id"):
-                calibration_ids = calibration_ids.append(row["srfa_calib_id"])
+                calibration_ids = [calibration_ids, row["srfa_calib_id"]]
             elif "srfa_calib_name" in row and row.get("srfa_calib_name"):
-                calibration_ids = calibration_ids.append(self.get_srfa_ids(row["srfa_calib_name"]))
+                calibration_ids = [calibration_ids, self.get_srfa_ids(row["srfa_calib_name"])]
+            elif "srfa_calib_id" not in row and "srfa_calib_name" not in row:
+                calibration_ids = [calibration_ids]
 
-            print(calibration_ids)
 
             # Get qc fields, converting NaN to None
             qc_status, qc_comment = self._get_qc_fields(row)
@@ -427,6 +426,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         str
             The calibration ID if found, otherwise None.
         """
+        do_client = DataObjectSearch(env=ENV)
+        cs_client = CalibrationSearch(env=ENV)
         try:
             calib_do_id = do_client.get_record_by_attribute(
                 attribute_name="name",
@@ -517,7 +518,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             "id": incremented_id,
             "name": f"{self.workflow_analysis_name} for {file_path.name}",
             "description": self.workflow_description,
-            "uses_calibration": [calibration_ids],
+            "uses_calibration": calibration_ids,
             "processing_institution": processing_institution,
             "execution_resource": execution_resource,
             "git_url": self.workflow_git_url,
