@@ -1,0 +1,346 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>nmdc_ms_metadata_gen.lcms_metab_metadata_generator &mdash; nmdc_mass_spectrometry_metadata_generation 3/1/2025 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=1e0eaa87"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            nmdc_mass_spectrometry_metadata_generation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html">Bio Ontology API Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#biosample-metadata-parser-base-class">Biosample Metadata Parser Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#biosample-generator-class">Biosample Generator Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#metadata-generator-base-class">Metadata Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#metadata-workflow-generator-base-class">Metadata Workflow Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#material-processing-metadata-generator-base-class">Material Processing Metadata Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#lc-ms-metadata-generator-base-class">LC/MS Metadata Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#data-class">Data Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#lc-ms-lipidomics-metadata-generator-subclass">LC/MS Lipidomics Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#lc-ms-metabolomics-metadata-generator-subclass">LC/MS Metabolomics Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#gc-ms-metabolomics-metadata-generator-subclass">GC/MS Metabolomics Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#direct-infusion-nom-metadata-generator-subclass">Direct Infusion NOM Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#lc-nom-metadata-generator-subclass">LC NOM Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#validate-yaml-outline-function">Validate YAML Outline Function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#change-sheet-generator">Change Sheet Generator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#workflow-sheet-generator">Workflow Sheet Generator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#id-pool">ID Pool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#main-cli-class">Main CLI Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">nmdc_mass_spectrometry_metadata_generation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">nmdc_ms_metadata_gen.lcms_metab_metadata_generator</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for nmdc_ms_metadata_gen.lcms_metab_metadata_generator</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+
+<span class="kn">import</span> <span class="nn">nmdc_schema.nmdc</span> <span class="k">as</span> <span class="nn">nmdc</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">nmdc_ms_metadata_gen.data_classes</span> <span class="kn">import</span> <span class="n">NmdcTypes</span>
+<span class="kn">from</span> <span class="nn">nmdc_ms_metadata_gen.lcms_metadata_generator</span> <span class="kn">import</span> <span class="n">LCMSMetadataGenerator</span>
+
+
+<div class="viewcode-block" id="LCMSMetabolomicsMetadataGenerator">
+<a class="viewcode-back" href="../../functions.html#nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator">[docs]</a>
+<span class="k">class</span> <span class="nc">LCMSMetabolomicsMetadataGenerator</span><span class="p">(</span><span class="n">LCMSMetadataGenerator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class for generating NMDC metadata objects using provided metadata files and configuration</span>
+<span class="sd">    for LC-MS metabolomics data.</span>
+
+<span class="sd">    This class processes input metadata files, generates various NMDC objects, and produces</span>
+<span class="sd">    a database dump in JSON format.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    metadata_file : str</span>
+<span class="sd">        Path to the input CSV metadata file.</span>
+<span class="sd">    database_dump_json_path : str</span>
+<span class="sd">        Path where the output database dump JSON file will be saved.</span>
+<span class="sd">    process_data_url : str</span>
+<span class="sd">        Base URL for the processed data files.</span>
+<span class="sd">    raw_data_url : str, optional</span>
+<span class="sd">        Base URL for the raw data files. If the raw data url is not directly passed in, it will use the raw data urls from the metadata file.</span>
+<span class="sd">    minting_config_creds : str, optional</span>
+<span class="sd">        Path to the configuration file containing the client ID and client secret for minting NMDC IDs. It can also include the bio ontology API key if generating biosample ids is needed.</span>
+<span class="sd">        If not provided, the CLIENT_ID, CLIENT_SECRET, and BIO_API_KEY environment variables will be used.</span>
+<span class="sd">    test : bool, optional</span>
+<span class="sd">        Flag indicating whether to run in test mode. If True, will skip biosample ID checks in the database, data object URL check, and will use local IDs (skip API minting). Default is False.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    unique_columns : list[str]</span>
+<span class="sd">        List of unique columns in the metadata file.</span>
+<span class="sd">    mass_spec_desc : str</span>
+<span class="sd">        Description of the mass spectrometry analysis.</span>
+<span class="sd">    mass_spec_eluent_intro : str</span>
+<span class="sd">        Eluent introduction category for mass spectrometry.</span>
+<span class="sd">    analyte_category : str</span>
+<span class="sd">        Category of the analyte.</span>
+<span class="sd">    raw_data_obj_type : str</span>
+<span class="sd">        Type of the raw data object.</span>
+<span class="sd">    raw_data_obj_desc : str</span>
+<span class="sd">        Description of the raw data object.</span>
+<span class="sd">    workflow_analysis_name : str</span>
+<span class="sd">        Name of the workflow analysis.</span>
+<span class="sd">    workflow_description : str</span>
+<span class="sd">        Description of the workflow.</span>
+<span class="sd">    workflow_git_url : str</span>
+<span class="sd">        URL of the workflow&#39;s Git repository.</span>
+<span class="sd">    workflow_version : str</span>
+<span class="sd">        Version of the workflow.</span>
+<span class="sd">    workflow_category : str</span>
+<span class="sd">        Category of the workflow.</span>
+<span class="sd">    wf_config_process_data_category : str</span>
+<span class="sd">        Category of the workflow configuration process data.</span>
+<span class="sd">    wf_config_process_data_obj_type : str</span>
+<span class="sd">        Type of the workflow configuration process data object.</span>
+<span class="sd">    wf_config_process_data_description : str</span>
+<span class="sd">        Description of the workflow configuration process data.</span>
+<span class="sd">    no_config_process_data_category : str</span>
+<span class="sd">        Category for processed data without configuration.</span>
+<span class="sd">    no_config_process_data_obj_type : str</span>
+<span class="sd">        Type of processed data object without configuration.</span>
+<span class="sd">    csv_process_data_description : str</span>
+<span class="sd">        Description of CSV processed data.</span>
+<span class="sd">    hdf5_process_data_obj_type : str</span>
+<span class="sd">        Type of HDF5 processed data object.</span>
+<span class="sd">    hdf5_process_data_description : str</span>
+<span class="sd">        Description of HDF5 processed data.</span>
+<span class="sd">    add_metabolite_ids : bool</span>
+<span class="sd">        Whether to add metabolite IDs to the metadata.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">unique_columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;processed_data_directory&quot;</span><span class="p">]</span>
+    <span class="c1"># Data Generation attributes</span>
+    <span class="n">mass_spec_desc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Generation of mass spectrometry data for the analysis of metabolomics using liquid chromatography.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">mass_spec_eluent_intro</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;liquid_chromatography&quot;</span>
+    <span class="n">analyte_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;metabolome&quot;</span>
+    <span class="n">raw_data_obj_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;LC-DDA-MS/MS Raw Data&quot;</span>
+    <span class="n">raw_data_obj_desc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;LC-DDA-MS/MS raw data for metabolomics data acquisition.&quot;</span>
+
+    <span class="c1"># Workflow attributes</span>
+    <span class="n">workflow_analysis_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Metabolomics analysis&quot;</span>
+    <span class="n">workflow_description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Analysis of raw mass spectrometry data for the annotation of metabolites.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">workflow_git_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;https://github.com/microbiomedata/metaMS/blob/master/wdl/metaMS_lcms_metabolomics.wdl&quot;</span>
+    <span class="p">)</span>
+    <span class="n">workflow_version</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">workflow_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;lc_ms_metabolomics&quot;</span>
+    <span class="n">add_metabolite_ids</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="c1"># Processed data attributes</span>
+    <span class="n">wf_config_process_data_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;workflow_parameter_data&quot;</span>
+    <span class="n">wf_config_process_data_obj_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Configuration toml&quot;</span>
+    <span class="n">wf_config_process_data_description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;CoreMS parameters used for metabolomics workflow.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">no_config_process_data_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;processed_data&quot;</span>
+    <span class="n">no_config_process_data_obj_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;LC-MS Metabolomics Results&quot;</span>
+    <span class="n">csv_process_data_description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Metabolite annotations as a result of a metabolomics workflow activity.&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">hdf5_process_data_obj_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;LC-MS Metabolomics Processed Data&quot;</span>
+    <span class="n">hdf5_process_data_description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;CoreMS hdf5 file representing a metabolomics data file including annotations.&quot;</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">metadata_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">database_dump_json_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">process_data_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">raw_data_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">minting_config_creds</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">workflow_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">existing_data_objects</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[],</span>
+        <span class="n">test</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">skip_sample_id_check</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">metadata_file</span><span class="o">=</span><span class="n">metadata_file</span><span class="p">,</span>
+            <span class="n">database_dump_json_path</span><span class="o">=</span><span class="n">database_dump_json_path</span><span class="p">,</span>
+            <span class="n">raw_data_url</span><span class="o">=</span><span class="n">raw_data_url</span><span class="p">,</span>
+            <span class="n">process_data_url</span><span class="o">=</span><span class="n">process_data_url</span><span class="p">,</span>
+            <span class="n">test</span><span class="o">=</span><span class="n">test</span><span class="p">,</span>
+            <span class="n">skip_sample_id_check</span><span class="o">=</span><span class="n">skip_sample_id_check</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># Set the workflow version, prioritizing user input, then fetching from the Git URL, and finally using a default.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">workflow_version</span> <span class="o">=</span> <span class="n">workflow_version</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_workflow_version</span><span class="p">(</span>
+            <span class="n">workflow_version_git_url</span><span class="o">=</span><span class="s2">&quot;https://github.com/microbiomedata/metaMS/blob/master/.bumpversion_lcmsmetab.cfg&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minting_config_creds</span> <span class="o">=</span> <span class="n">minting_config_creds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">existing_data_objects</span> <span class="o">=</span> <span class="n">existing_data_objects</span>
+
+<div class="viewcode-block" id="LCMSMetabolomicsMetadataGenerator.generate_metab_identifications">
+<a class="viewcode-back" href="../../functions.html#nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator.generate_metab_identifications">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_metab_identifications</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">processed_data_dir</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">nmdc</span><span class="o">.</span><span class="n">MetaboliteIdentification</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate MetaboliteIdentification objects from processed data directory.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        workflow_metadata : str</span>
+<span class="sd">            Path to the processed data directory.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        List[nmdc.MetaboliteIdentification]</span>
+<span class="sd">            List of MetaboliteIdentification objects generated from the processed data directory.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This method reads in the processed data file and generates MetaboliteIdentification objects,</span>
+<span class="sd">        pulling out the best hit for each peak based on the highest &quot;Similarity Score&quot;.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Find the .csv file within the processed data directory</span>
+        <span class="n">processed_data_file</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">processed_data_dir</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;**/*.csv&quot;</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="c1"># Open the file and read in the data as a pandas dataframe</span>
+        <span class="n">processed_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">processed_data_file</span><span class="p">)</span>
+
+        <span class="c1"># Drop any rows with missing entropy similarity scores</span>
+        <span class="n">processed_data</span> <span class="o">=</span> <span class="n">processed_data</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Entropy Similarity&quot;</span><span class="p">])</span>
+
+        <span class="c1"># Group by &quot;Mass Feature ID&quot; and find the best hit for each peak based on the highest &quot;Entropy Similarity&quot;</span>
+        <span class="n">best_hits</span> <span class="o">=</span> <span class="n">processed_data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;Mass Feature ID&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;Entropy Similarity&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">idxmax</span><span class="p">()],</span> <span class="n">include_groups</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+
+        <span class="n">metabolite_identifications</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">best_hit</span> <span class="ow">in</span> <span class="n">best_hits</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="c1"># Check if the best hit has a Chebi ID, if not, do not create a MetaboliteIdentification object</span>
+            <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">best_hit</span><span class="p">[</span><span class="s2">&quot;chebi&quot;</span><span class="p">]):</span>
+                <span class="k">continue</span>
+            <span class="n">chebi_id</span> <span class="o">=</span> <span class="s2">&quot;chebi:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">best_hit</span><span class="p">[</span><span class="s2">&quot;chebi&quot;</span><span class="p">]))</span>
+
+            <span class="c1"># Prepare KEGG Compound ID as an alternative identifier</span>
+            <span class="n">alt_ids</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">best_hit</span><span class="p">[</span><span class="s2">&quot;kegg&quot;</span><span class="p">]):</span>
+                <span class="c1"># Check for | in Kegg Compound ID and split if necessary</span>
+                <span class="k">if</span> <span class="s2">&quot;|&quot;</span> <span class="ow">in</span> <span class="n">best_hit</span><span class="p">[</span><span class="s2">&quot;kegg&quot;</span><span class="p">]:</span>
+                    <span class="n">alt_ids</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                        <span class="p">[</span><span class="s2">&quot;kegg:&quot;</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">best_hit</span><span class="p">[</span><span class="s2">&quot;kegg&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">)]</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">alt_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;kegg:&quot;</span> <span class="o">+</span> <span class="n">best_hit</span><span class="p">[</span><span class="s2">&quot;kegg&quot;</span><span class="p">])</span>
+            <span class="n">alt_ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">alt_ids</span><span class="p">))</span>
+
+            <span class="n">data_dict</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;metabolite_identified&quot;</span><span class="p">:</span> <span class="n">chebi_id</span><span class="p">,</span>
+                <span class="s2">&quot;alternative_identifiers&quot;</span><span class="p">:</span> <span class="n">alt_ids</span><span class="p">,</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">NmdcTypes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;MetaboliteIdentification&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;highest_similarity_score&quot;</span><span class="p">:</span> <span class="n">best_hit</span><span class="p">[</span><span class="s2">&quot;Entropy Similarity&quot;</span><span class="p">],</span>
+            <span class="p">}</span>
+
+            <span class="n">metabolite_identification</span> <span class="o">=</span> <span class="n">nmdc</span><span class="o">.</span><span class="n">MetaboliteIdentification</span><span class="p">(</span><span class="o">**</span><span class="n">data_dict</span><span class="p">)</span>
+            <span class="n">metabolite_identifications</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">metabolite_identification</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">metabolite_identifications</span></div>
+
+
+<div class="viewcode-block" id="LCMSMetabolomicsMetadataGenerator.rerun">
+<a class="viewcode-back" href="../../functions.html#nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator.rerun">[docs]</a>
+    <span class="k">def</span> <span class="nf">rerun</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">rerun</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="LCMSMetabolomicsMetadataGenerator.run">
+<a class="viewcode-back" href="../../functions.html#nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator.run">[docs]</a>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Olivia Hess.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
