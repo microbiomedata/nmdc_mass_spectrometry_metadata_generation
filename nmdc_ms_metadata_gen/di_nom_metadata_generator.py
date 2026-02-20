@@ -20,6 +20,8 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
     minting_config_creds : str, optional
         Path to the configuration file containing the client ID and client secret for minting NMDC IDs. It can also include the bio ontology API key if generating biosample ids is needed.
         If not provided, the CLIENT_ID, CLIENT_SECRET, and BIO_API_KEY environment variables will be used.
+    calibration_standard : str, optional
+        Calibration standard used for the data. Default is "srfa".
     test : bool, optional
         Flag indicating whether to run in test mode. If True, will skip biosample ID checks in the database, data object URL check, and will use local IDs (skip API minting). Default is False.
 
@@ -27,6 +29,8 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
     ----------
     raw_data_object_type : str
         The type of the raw data object.
+    raw_data_object_desc: str
+        Description for the raw data object.
     processed_data_object_type : str
         The type of the processed data object.
     processed_data_category : str
@@ -57,6 +61,7 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
     )
 
     raw_data_object_type: str = "Direct Infusion FT ICR-MS Raw Data"
+    raw_data_object_desc: str = "Direct infusion high resolution MS spectrum"
     processed_data_object_type: str = "Direct Infusion FT-ICR MS Analysis Results"
     processed_data_object_desc = "EnviroMS natural organic matter workflow molecular formula assignment output details"
     processed_data_category: str = "processed_data"
@@ -86,6 +91,7 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
         process_data_url: str,
         minting_config_creds: str = None,
         workflow_version: str = None,
+        calibration_standard: str = None,
         test: bool = False,
         skip_sample_id_check: bool = False,
     ):
@@ -102,6 +108,7 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
             workflow_version_git_url="https://github.com/microbiomedata/enviroMS/blob/master/.bumpversion.cfg"
         )
         self.minting_config_creds = minting_config_creds
+        self.calibration_standard = "srfa"
 
     def rerun(self):
         return super().rerun()

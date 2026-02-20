@@ -65,7 +65,7 @@ def test_di_nom_metadata_gen():
 
     assert (
         len(working_data["workflow_execution_set"][0]["uses_calibration"]) == 2
-        ), f"Workflow {wf['id']} uses_calibration should have two values"
+        ), f"Workflow {working_data['workflow_execution_set'][0]['id']} uses_calibration should have two values"
 
 
 def test_di_nom_metadata_gen_rerun():
