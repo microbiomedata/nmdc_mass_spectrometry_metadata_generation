@@ -1212,7 +1212,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         the expected input file format.
         """
         try:
-            metadata_df = pd.read_csv(self.metadata_file)
+            metadata_df = pd.read_csv(self.metadata_file).replace(np.nan, None)
         except FileNotFoundError:
             raise FileNotFoundError(f"Metadata file not found: {self.metadata_file}")
 
