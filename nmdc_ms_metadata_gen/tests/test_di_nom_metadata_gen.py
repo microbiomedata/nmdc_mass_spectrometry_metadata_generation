@@ -14,7 +14,6 @@ python_path = os.getenv("PYTHONPATH")
 if python_path:
     os.environ["PYTHONPATH"] = python_path
 
-ENV = os.getenv("NMDC_ENV", "prod")
 
 
 def test_di_nom_metadata_gen():
