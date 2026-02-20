@@ -278,7 +278,7 @@ def test_di_nom_metadata_gen_with_qc_fields():
         ), f"Failed QC workflow {wf['id']} should not have has_output"
 
     # Count data objects: we should have:
-    # - 5 raw data objects (one per sample)
+    # - 5 raw data objects (one per sample) + 1 new calibration dobj = 6
     # - 5 workflow parameter objects (one per sample - always created)
     # - 6 processed data objects (only for pass/no-qc samples: 3 samples × 2 files each = 6)
     data_objects = working_data["data_object_set"]
@@ -297,8 +297,8 @@ def test_di_nom_metadata_gen_with_qc_fields():
     ]
 
     assert (
-        len(raw_data_objects) == 5
-    ), f"Expected 5 raw data objects, got {len(raw_data_objects)}"
+        len(raw_data_objects) == 6
+    ), f"Expected 6 raw data objects, got {len(raw_data_objects)}"
     assert (
         len(workflow_param_objects) == 5
     ), f"Expected 5 workflow parameter objects (all samples), got {len(workflow_param_objects)}"
