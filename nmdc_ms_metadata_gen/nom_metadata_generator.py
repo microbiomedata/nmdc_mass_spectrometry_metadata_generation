@@ -7,7 +7,6 @@ from pathlib import Path
 
 import nmdc_schema.nmdc as nmdc
 import pandas as pd
-import numpy as np
 from dotenv import load_dotenv
 from nmdc_api_utilities.calibration_search import CalibrationSearch
 from nmdc_api_utilities.data_object_search import DataObjectSearch
@@ -31,8 +30,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         self,
         metadata_file: str,
         database_dump_json_path: str,
+        raw_data_url: str,
         process_data_url: str,
-        raw_data_url: str = None,
         minting_config_creds: str = None,
         test: bool = False,
         skip_sample_id_check: bool = False,
@@ -40,10 +39,10 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         super().__init__(
             metadata_file=metadata_file,
             database_dump_json_path=database_dump_json_path,
-            process_data_url=process_data_url,
             raw_data_url=raw_data_url,
+            process_data_url=process_data_url,
             test=test,
-            skip_sample_id_check = skip_sample_id_check
+            skip_sample_id_check=skip_sample_id_check,
         )
         self.minting_config_creds = minting_config_creds
         self.test = test
@@ -69,7 +68,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         )
         nmdc_database_inst = self.start_nmdc_database()
         try:
-            df = pd.read_csv(self.metadata_file).replace(np.nan, None)
+            df = pd.read_csv(self.metadata_file)
         except FileNotFoundError:
             raise FileNotFoundError(f"Metadata file not found: {self.metadata_file}")
         metadata_df = df.apply(lambda x: x.reset_index(drop=True))
@@ -86,25 +85,17 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             total=metadata_df.shape[0],
             desc="Processing NOM rows",
         ):
-            print(row)
             workflow_metadata_obj = self.create_nom_metatdata(row=row)
-            print(workflow_metadata_obj)
-
-            if "raw_data_url" in row and row.get("raw_data_url"):
-                workflow_metadata_obj.raw_data_url = row["raw_data_url"]
-            else:
-                workflow_metadata_obj.raw_data_url = self.raw_data_url + Path(row["raw_data_file"]).name
-            print(workflow_metadata_obj.raw_data_url)
             try:
                 raw_data_object_id = do_client.get_record_by_attribute(
                     attribute_name="url",
-                    attribute_value=workflow_metadata_obj.raw_data_url,
+                    attribute_value=self.raw_data_url + Path(row["raw_data_file"]).name,
                     fields="id",
                     exact_match=True,
                 )[0]["id"]
             except Exception as e:
                 raise ValueError(
-                    f"Raw data object not found for URL: {workflow_metadata_obj.raw_data_url}"
+                    f"Raw data object not found for URL: {self.raw_data_url + Path(row['raw_data_file']).name}"
                 ) from e
             try:
                 # find the NomAnalysis object - this is the old one
@@ -136,14 +127,17 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 else None
             )
 
-            # grab the calibration_id from the previous metabolomics analysis
+            # grab the calibration_ids from the previous metabolomics analysis
+            # Get qc fields, converting NaN to None
+            qc_status, qc_comment = self._get_qc_fields(row)
+
             # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
             nom_analysis = self.generate_nom_analysis(
-                file_path=workflow_metadata_obj.raw_data_url,
+                file_path=Path(row["raw_data_file"]),
                 raw_data_id=raw_data_object_id,
                 data_gen_id=prev_nom_analysis["was_informed_by"],
                 processed_data_id="nmdc:placeholder",
-                calibration_id=prev_nom_analysis["uses_calibration"],
+                calibration_ids=prev_nom_analysis["uses_calibration"],
                 incremented_id=metab_analysis_id,
                 processing_institution=(
                     workflow_metadata_obj.processing_institution_generation
@@ -153,7 +147,11 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 execution_resource=workflow_metadata_obj.execution_resource,
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
+                qc_status=qc_status,
+                qc_comment=qc_comment,
             )
+
+            # Always generate processed data objects (even for failed QC)
             (
                 processed_ids,
                 workflow_data_object,
@@ -164,8 +162,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 nom_analysis=nom_analysis,
                 nmdc_database_inst=nmdc_database_inst,
             )
-
             has_input = [workflow_data_object.id, raw_data_object_id]
+
             # Update the outputs for mass_spectrometry and nom_analysis
             self.update_outputs(
                 analysis_obj=nom_analysis,
@@ -174,6 +172,19 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 processed_data_id_list=processed_ids,
                 rerun=True,
             )
+
+            # If QC failed, remove processed data objects and has_output
+            if qc_status == "fail":
+                # Remove has_output from workflow
+                if hasattr(nom_analysis, "has_output"):
+                    delattr(nom_analysis, "has_output")
+                # Remove processed data objects (csv, png) from database, keep parameter file (json)
+                nmdc_database_inst.data_object_set = [
+                    obj
+                    for obj in nmdc_database_inst.data_object_set
+                    if obj.id not in processed_ids
+                ]
+
             nmdc_database_inst.data_object_set.append(workflow_data_object)
             nmdc_database_inst.workflow_execution_set.append(nom_analysis)
 
@@ -209,15 +220,11 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             CLIENT_ID=client_id,
             CLIENT_SECRET=client_secret,
         )
-
-        # check if the raw data url is directly passed in or needs to be built with raw data file
-        raw_col = (
-            "raw_data_url" if "raw_data_url" in metadata_df.columns else "raw_data_file"
-        )
-        urls_columns = self.unique_columns + [raw_col]
-
         if not self.test:
-            self.check_doj_urls(metadata_df=metadata_df, url_columns=urls_columns)
+            # check for duplicate doj urls in the database
+            self.check_doj_urls(
+                metadata_df=metadata_df, url_columns=self.unique_columns
+            )
 
         self.generate_mass_spec_fields(
             metadata_df=metadata_df,
@@ -270,16 +277,19 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 in_manifest=workflow_metadata_obj.manifest_id,
             )
             # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
-            if "calibration_id" not in row:
-                calibration_id = self.get_calibration_id(
+            # Use calibration_ids from CSV if provided, otherwise look it up by MD5
+            if "calibration_id" in row and row.get("calibration_id"):
+                calibration_ids = row["calibration_id"]
+            else:
+                calibration_ids = self.get_calibration_ids(
                     calibration_path=Path(row["ref_calibration_path"])
                 )
-            else: 
-                calibration_id = row["calibration_id"]
-                
+            # Get qc fields, converting NaN to None
+            qc_status, qc_comment = self._get_qc_fields(row)
+
             nom_analysis = self.generate_nom_analysis(
                 file_path=Path(workflow_metadata_obj.raw_data_file),
-                calibration_id=calibration_id,
+                calibration_ids=calibration_ids,
                 raw_data_id=raw_data_object.id,
                 data_gen_id=mass_spec.id,
                 processed_data_id="nmdc:placeholder",
@@ -291,7 +301,11 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 execution_resource=workflow_metadata_obj.execution_resource,
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
+                qc_status=qc_status,
+                qc_comment=qc_comment,
             )
+
+            # Always generate processed data objects (even for failed QC)
             (
                 processed_data_id_list,
                 workflow_data_object,
@@ -302,8 +316,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 nom_analysis=nom_analysis,
                 nmdc_database_inst=nmdc_database_inst,
             )
-
             has_input = [workflow_data_object.id, raw_data_object.id]
+
             # Update the outputs for mass_spectrometry and nom_analysis
             self.update_outputs(
                 mass_spec_obj=mass_spec,
@@ -313,6 +327,19 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 processed_data_id_list=processed_data_id_list,
                 rerun=False,
             )
+
+            # If QC failed, remove processed data objects and has_output
+            if qc_status == "fail":
+                # Remove has_output from workflow
+                if hasattr(nom_analysis, "has_output"):
+                    delattr(nom_analysis, "has_output")
+                # Remove processed data objects (csv, png) from database, keep parameter file (json)
+                nmdc_database_inst.data_object_set = [
+                    obj
+                    for obj in nmdc_database_inst.data_object_set
+                    if obj.id not in processed_data_id_list
+                ]
+
             nmdc_database_inst.data_generation_set.append(mass_spec)
             nmdc_database_inst.data_object_set.append(raw_data_object)
             nmdc_database_inst.data_object_set.append(workflow_data_object)
@@ -324,7 +351,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         # change db object to dict
         return self.nmdc_db_to_dict(nmdc_database_inst)
 
-    def get_calibration_id(
+    def get_calibration_ids(
         self,
         calibration_path: str,
     ) -> str:
@@ -352,21 +379,25 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 fields="id",
                 exact_match=True,
             )[0]["id"]
-            calibration_id = cs_client.get_record_by_attribute(
+            calibration_ids = cs_client.get_record_by_attribute(
                 attribute_name="calibration_object",
                 attribute_value=calib_do_id,
                 fields="id",
                 exact_match=True,
             )[0]["id"]
         except ValueError as e:
-            print(f"Calibration object does not exist: {e}")
-            calibration_id = None
+            raise ValueError(
+                f"Calibration object does not exist for file {calibration_path}: {e}"
+            )
         except IndexError as e:
-            print(f"Calibration object not found: {e}")
-            calibration_id = None
+            raise ValueError(
+                f"Calibration object not found for file {calibration_path} with MD5 {calib_md5}: {e}"
+            )
         except Exception as e:
-            print(f"An error occurred: {e}")
-        return calibration_id
+            raise RuntimeError(
+                f"An error occurred while looking up calibration for file {calibration_path}: {e}"
+            )
+        return calibration_ids
 
     def generate_nom_analysis(
         self,
@@ -378,8 +409,10 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         CLIENT_ID: str,
         CLIENT_SECRET: str,
         execution_resource: str = None,
-        calibration_id: str = None,
+        calibration_ids: list[str] = None,
         incremented_id: str = None,
+        qc_status: str = None,
+        qc_comment: str = None,
     ) -> nmdc.NomAnalysis:
         """
         Generate a metabolomics analysis object from the provided file information.
@@ -402,10 +435,14 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             The client secret for the NMDC API.
         execution_resource: str, optional
             The name of the execution resource. Must be a value from ExecutionResourceEnum.
-        calibration_id : str, optional
-            The ID of the calibration object used in the analysis. If None, no calibration is used.
+        calibration_ids : list[str], optional
+            The IDs of the calibration objects used in the analysis. If None, no calibration is used.
         incremented_id : str, optional
             The incremented ID for the metabolomics analysis. If None, a new ID will be minted.
+        qc_status : str, optional
+            The quality control status for the analysis.
+        qc_comment : str, optional
+            The quality control comment for the analysis.
 
         Returns
         -------
@@ -422,9 +459,9 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
         data_dict = {
             "id": incremented_id,
-            "name": f"{self.workflow_analysis_name} for {Path(file_path).name}",
+            "name": f"{self.workflow_analysis_name} for {file_path.name}",
             "description": self.workflow_description,
-            "uses_calibration": calibration_id,
+            "uses_calibration": calibration_ids,
             "processing_institution": processing_institution,
             "execution_resource": execution_resource,
             "git_url": self.workflow_git_url,
@@ -435,6 +472,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             "started_at_time": "placeholder",
             "ended_at_time": "placeholder",
             "type": NmdcTypes.get("NomAnalysis"),
+            "qc_status": qc_status,
+            "qc_comment": qc_comment,
         }
         self.clean_dict(data_dict)
         nomAnalysis = nmdc.NomAnalysis(**data_dict)
@@ -475,7 +514,6 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             processing_institution_workflow=row.get("processing_institution_workflow"),
             processing_institution=row.get("processing_institution"),
             instrument_instance_specifier=row.get("instrument_instance_specifier"),
-            raw_data_url=row.get("raw_data_url"),
         )
         return data
 
