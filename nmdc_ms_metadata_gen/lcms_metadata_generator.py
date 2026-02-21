@@ -390,10 +390,14 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             total=metadata_df.shape[0],
             desc="Processing LCMS samples",
         ):
+            raw_data_url = (
+                row["raw_data_url"] if "raw_data_url" in row else self.raw_data_url + Path(row["raw_data_file"]).name
+            )
+            print(raw_data_url)
             # workflow_metadata = self.create_workflow_metadata(data)
             raw_data_object_id = do_client.get_record_by_attribute(
                 attribute_name="url",
-                attribute_value=self.raw_data_url + Path(data["raw_data_file"]).name,
+                attribute_value=raw_data_url,
                 fields="id",
                 exact_match=True,
             )[0]["id"]

@@ -15,8 +15,8 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
         Path to the input CSV metadata file.
     database_dump_json_path : str
         Path where the output database dump JSON file will be saved.
-    raw_data_url : str
-        Base URL for the raw data files.
+    raw_data_url : str, optional
+        Base URL for the raw data files. If the raw data url is not directly passed in, it will use the raw data urls from the metadata file.
     process_data_url : str
         Base URL for the processed data files.
     minting_config_creds : str, optional
@@ -82,8 +82,8 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
         self,
         metadata_file: str,
         database_dump_json_path: str,
-        raw_data_url: str,
         process_data_url: str,
+        raw_data_url: str = None,
         minting_config_creds: str = None,
         workflow_version: str = None,
         test: bool = False,

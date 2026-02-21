@@ -7,6 +7,7 @@ from pathlib import Path
 
 import nmdc_schema.nmdc as nmdc
 import pandas as pd
+import numpy as np
 from dotenv import load_dotenv
 from nmdc_api_utilities.calibration_search import CalibrationSearch
 from nmdc_api_utilities.data_object_search import DataObjectSearch
@@ -30,17 +31,19 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         self,
         metadata_file: str,
         database_dump_json_path: str,
-        raw_data_url: str,
         process_data_url: str,
+        raw_data_url: str = None,
         minting_config_creds: str = None,
         test: bool = False,
+        skip_sample_id_check: bool = False,
     ):
         super().__init__(
             metadata_file=metadata_file,
             database_dump_json_path=database_dump_json_path,
-            raw_data_url=raw_data_url,
             process_data_url=process_data_url,
+            raw_data_url=raw_data_url,
             test=test,
+            skip_sample_id_check = skip_sample_id_check
         )
         self.minting_config_creds = minting_config_creds
         self.test = test
@@ -66,17 +69,12 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         )
         nmdc_database_inst = self.start_nmdc_database()
         try:
-            df = pd.read_csv(self.metadata_file)
+            df = pd.read_csv(self.metadata_file).replace(np.nan, None)
         except FileNotFoundError:
             raise FileNotFoundError(f"Metadata file not found: {self.metadata_file}")
         metadata_df = df.apply(lambda x: x.reset_index(drop=True))
         tqdm.write("\033[92mStarting metadata processing...\033[0m")
 
-        # check if the raw data url is directly passed in or needs to be built with raw data file
-        raw_col = (
-            "raw_data_url" if "raw_data_url" in metadata_df.columns else "raw_data_file"
-        )
-        
         if not self.test:
             self.check_doj_urls(
                 metadata_df=metadata_df, url_columns=["processed_data_directory"]
@@ -88,12 +86,19 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             total=metadata_df.shape[0],
             desc="Processing NOM rows",
         ):
+            print(row)
             workflow_metadata_obj = self.create_nom_metatdata(row=row)
+            print(workflow_metadata_obj)
+
+            if "raw_data_url" in row and row.get("raw_data_url"):
+                workflow_metadata_obj.raw_data_url = row["raw_data_url"]
+            else:
+                workflow_metadata_obj.raw_data_url = self.raw_data_url + Path(row["raw_data_file"]).name
             print(workflow_metadata_obj.raw_data_url)
             try:
                 raw_data_object_id = do_client.get_record_by_attribute(
                     attribute_name="url",
-                    attribute_value=workflow_metadata_obj.raw_data_url, #self.raw_data_url + Path(row["raw_data_file"]).name,
+                    attribute_value=workflow_metadata_obj.raw_data_url,
                     fields="id",
                     exact_match=True,
                 )[0]["id"]
@@ -134,7 +139,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             # grab the calibration_id from the previous metabolomics analysis
             # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
             nom_analysis = self.generate_nom_analysis(
-                file_path=workflow_metadata_obj.raw_data_url,#Path(row["raw_data_file"]),
+                file_path=workflow_metadata_obj.raw_data_url,
                 raw_data_id=raw_data_object_id,
                 data_gen_id=prev_nom_analysis["was_informed_by"],
                 processed_data_id="nmdc:placeholder",
@@ -265,9 +270,13 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 in_manifest=workflow_metadata_obj.manifest_id,
             )
             # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
-            calibration_id = self.get_calibration_id(
-                calibration_path=Path(row["ref_calibration_path"])
-            )
+            if "calibration_id" not in row:
+                calibration_id = self.get_calibration_id(
+                    calibration_path=Path(row["ref_calibration_path"])
+                )
+            else: 
+                calibration_id = row["calibration_id"]
+                
             nom_analysis = self.generate_nom_analysis(
                 file_path=Path(workflow_metadata_obj.raw_data_file),
                 calibration_id=calibration_id,

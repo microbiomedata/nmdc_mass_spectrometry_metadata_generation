@@ -152,6 +152,8 @@ class NOMMetadata:
         Identifier for the liquid chromatography configuration used.
     manifest_id : str
         Identifier for the manifest associated with this workflow metadata.
+    raw_data_url : str
+        URL of the raw data file, for reruns. OPTIONAL IF raw_data_file IS PROVIDED
     processing_institution : str
         Name of the processing institution. Must be a value from ProcessingInstitutionEnum. OPTIONAL IF processing_institution_generation AND processing_institution_workflow ARE PROVIDED
     processing_institution_generation : str
@@ -172,6 +174,7 @@ class NOMMetadata:
     mass_spec_configuration_id: str
     lc_config_id: str
     manifest_id: str
+    raw_data_url: str = None
     processing_institution: str = None
     processing_institution_generation: str = None
     processing_institution_workflow: str = None
