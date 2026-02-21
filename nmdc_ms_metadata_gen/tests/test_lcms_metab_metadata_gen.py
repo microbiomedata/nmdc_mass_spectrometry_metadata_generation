@@ -50,6 +50,10 @@ def test_lcms_metab_metadata_gen():
     for record in working_data["workflow_execution_set"]:
         assert "has_metabolite_identifications" in record
 
+    # ensure empty instrument_instance_specifier does not appear as "nan"
+    for record in working_data["data_generation_set"]:
+        assert record.get("instrument_instance_specifier") != "nan"
+
 
 def test_lcms_metab_metadata_gen_processed_sample():
     current_directory = os.path.dirname(__file__)

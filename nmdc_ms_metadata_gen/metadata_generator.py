@@ -203,7 +203,12 @@ class NMDCMetadataGenerator:
             A new dictionary with keys removed where the values are None, an empty string, or a string with only whitespace.
 
         """
-        return {k: v for k, v in dict.items() if v not in [None, "", ""]}
+        return {
+            k: v
+            for k, v in dict.items()
+            if v not in [None, "", ""]
+            and not (isinstance(v, float) and np.isnan(v))
+        }
 
     def generate_data_object(
         self,
