@@ -52,7 +52,7 @@ def test_lcms_lipid_metadata_gen():
         assert "nmdc:dobj-11-00095294" in record["has_input"]
 
 
-def test_lcms_lipid_metadata_gen():
+def test_lcms_lipid__processed_sample_metadata_gen():
     current_directory = os.path.dirname(__file__)
     csv_file_path = os.path.join(
         current_directory,

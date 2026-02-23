@@ -7,6 +7,7 @@ from pathlib import Path
 
 import nmdc_schema.nmdc as nmdc
 import pandas as pd
+import numpy as np
 from dotenv import load_dotenv
 from nmdc_api_utilities.calibration_search import CalibrationSearch
 from nmdc_api_utilities.data_object_search import DataObjectSearch
@@ -30,8 +31,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         self,
         metadata_file: str,
         database_dump_json_path: str,
-        raw_data_url: str,
         process_data_url: str,
+        raw_data_url: str = None,
         minting_config_creds: str = None,
         test: bool = False,
         skip_sample_id_check: bool = False,
@@ -39,8 +40,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         super().__init__(
             metadata_file=metadata_file,
             database_dump_json_path=database_dump_json_path,
-            raw_data_url=raw_data_url,
             process_data_url=process_data_url,
+            raw_data_url=raw_data_url,
             test=test,
             skip_sample_id_check=skip_sample_id_check,
         )
@@ -68,7 +69,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         )
         nmdc_database_inst = self.start_nmdc_database()
         try:
-            df = pd.read_csv(self.metadata_file)
+            df = pd.read_csv(self.metadata_file).replace(np.nan, None)
         except FileNotFoundError:
             raise FileNotFoundError(f"Metadata file not found: {self.metadata_file}")
         metadata_df = df.apply(lambda x: x.reset_index(drop=True))
@@ -86,16 +87,21 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             desc="Processing NOM rows",
         ):
             workflow_metadata_obj = self.create_nom_metatdata(row=row)
+
+            if "raw_data_url" in row and row.get("raw_data_url"):
+                workflow_metadata_obj.raw_data_url = row["raw_data_url"]
+            else:
+                workflow_metadata_obj.raw_data_url = self.raw_data_url + Path(row["raw_data_file"]).name
             try:
                 raw_data_object_id = do_client.get_record_by_attribute(
                     attribute_name="url",
-                    attribute_value=self.raw_data_url + Path(row["raw_data_file"]).name,
+                    attribute_value=workflow_metadata_obj.raw_data_url,
                     fields="id",
                     exact_match=True,
                 )[0]["id"]
             except Exception as e:
                 raise ValueError(
-                    f"Raw data object not found for URL: {self.raw_data_url + Path(row['raw_data_file']).name}"
+                    f"Raw data object not found for URL: {workflow_metadata_obj.raw_data_url}"
                 ) from e
             try:
                 # find the NomAnalysis object - this is the old one
@@ -133,7 +139,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
             # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
             nom_analysis = self.generate_nom_analysis(
-                file_path=Path(row["raw_data_file"]),
+                file_path=Path(workflow_metadata_obj.raw_data_url),
                 raw_data_id=raw_data_object_id,
                 data_gen_id=prev_nom_analysis["was_informed_by"],
                 processed_data_id="nmdc:placeholder",
@@ -514,6 +520,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             processing_institution_workflow=row.get("processing_institution_workflow"),
             processing_institution=row.get("processing_institution"),
             instrument_instance_specifier=row.get("instrument_instance_specifier"),
+            raw_data_url=row.get("raw_data_url"),
         )
         return data
 
