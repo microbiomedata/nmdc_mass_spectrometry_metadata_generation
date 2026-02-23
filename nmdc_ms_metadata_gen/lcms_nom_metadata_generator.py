@@ -70,7 +70,7 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
         "Generation of mass spectrometry data for the analysis of NOM when acquired using liquid chromatography."
     )
     workflow_git_url: str = (
-        "https://github.com/microbiomedata/enviroMS/blob/master/wdl/lc_ftirc_ms.wdl"
+        "https://github.com/microbiomedata/enviroMS/blob/master/wdl/lc_fticr_ms.wdl"
     )
     workflow_version: str
     workflow_description: str = (
