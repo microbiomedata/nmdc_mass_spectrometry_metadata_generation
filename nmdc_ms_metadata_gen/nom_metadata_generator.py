@@ -85,7 +85,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             total=metadata_df.shape[0],
             desc="Processing NOM rows",
         ):
-            workflow_metadata_obj = self.create_nom_metatdata(row=row)
+            workflow_metadata_obj = self.create_nom_metadata(row=row)
             try:
                 raw_data_object_id = do_client.get_record_by_attribute(
                     attribute_name="url",
@@ -243,7 +243,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             total=metadata_df.shape[0],
             desc="Processing NOM rows",
         ):
-            workflow_metadata_obj = self.create_nom_metatdata(row=row)
+            workflow_metadata_obj = self.create_nom_metadata(row=row)
             # Generate MassSpectrometry record
 
             mass_spec = self.generate_mass_spectrometry(
@@ -283,18 +283,19 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 url=row.get("raw_data_url"),
                 in_manifest=workflow_metadata_obj.manifest_id,
             )
+
             # Generate nom analysis instance, workflow_execution_set uses the raw data zip file
             # Use calibration_ids from CSV if provided, otherwise look it up by MD5
             if "calibration_id" in row and row.get("calibration_id"):
-                calibration_ids = row["calibration_id"]
-            else:
-                calibration_ids = self.get_calibration_ids(
+                workflow_metadata_obj.reference_calibration_id = row["calibration_id"]
+            elif "ref_calibration_path" in row and row.get("ref_calibration_path"):
+                workflow_metadata_obj.reference_calibration_id = self.get_calibration_ids(
                     calibration_path=Path(row["ref_calibration_path"])
                 )
 
             # If SRFA calibration ID is included, add it, otherwise look it up by name
             if "srfa_calib_id" in row and row.get("srfa_calib_id"):
-                calibration_ids = [calibration_ids, row["srfa_calib_id"]]
+                workflow_metadata_obj.srfa_calibration_id = row["srfa_calib_id"]
             
             # If you cannot look it up by name (ie it doesn't exist) then we have to create a data object and a calibration record
             elif "srfa_calib_path" in row and row.get("srfa_calib_path"):
@@ -304,22 +305,24 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 srfa_mongo_id = self.get_srfa_ids(srfa_name_trim)
 
                 # If yes, look up and use that calib id
-                if (srfa_mongo_id is not None):
-                    calibration_ids = [calibration_ids, srfa_mongo_id]
+                if srfa_mongo_id is not None:
+                    workflow_metadata_obj.srfa_calibration_id = srfa_mongo_id
 
                 # If no, create objects
                 else:
-                    s = self.generate_calibration_ids(
+                    workflow_metadata_obj.srfa_calibration_id = self.generate_calibration_ids(
                         metadata_row = row,
                         nmdc_database_inst=nmdc_database_inst,
                         CLIENT_ID=client_id,
                         CLIENT_SECRET=client_secret
                     )
-                    calibration_ids = [calibration_ids, s]
 
-            # If no SRFA calibration, just make the .ref file into a list
-            elif "srfa_calib_id" not in row and "srfa_calib_path" not in row:
-                calibration_ids = [calibration_ids]
+            # List calibration IDs for generate_nom_analysis and remove blanks
+            calibration_ids = list[
+                workflow_metadata_obj.reference_calibration_id,
+                workflow_metadata_obj.srfa_calibration_id
+            ]
+            calibration_ids = [c for c in calibration_ids if c is not None]
 
             # Get qc fields, converting NaN to None
             qc_status, qc_comment = self._get_qc_fields(row)
@@ -619,12 +622,12 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         qc_comment: str = None,
     ) -> nmdc.NomAnalysis:
         """
-        Generate a metabolomics analysis object from the provided file information.
+        Generate a NOM analysis object from the provided file information.
 
         Parameters
         ----------
         file_path : Path
-            The file path of the metabolomics analysis data file.
+            The file path of the NOM analysis data file.
         raw_data_id : str
             The ID of the raw data associated with the analysis.
         data_gen_id : str
@@ -642,7 +645,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         calibration_ids : list[str], optional
             The IDs of the calibration objects used in the analysis. If None, no calibration is used.
         incremented_id : str, optional
-            The incremented ID for the metabolomics analysis. If None, a new ID will be minted.
+            The incremented ID for the NOM analysis. If None, a new ID will be minted.
         qc_status : str, optional
             The quality control status for the analysis.
         qc_comment : str, optional
@@ -651,7 +654,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         Returns
         -------
         nmdc.NomAnalysis
-            The generated metabolomics analysis object.
+            The generated NOM analysis object.
         """
         if incremented_id is None:
             nmdc_id = self.id_pool.get_id(
@@ -684,7 +687,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
         return nomAnalysis
 
-    def create_nom_metatdata(self, row: pd.Series) -> NOMMetadata:
+    def create_nom_metadata(self, row: pd.Series) -> NOMMetadata:
         """
         Parse the metadata row to get non-biosample class information.
 

@@ -162,6 +162,10 @@ class NOMMetadata:
         Name of the execution resource. Must be a value from ExecutionResourceEnum.
     instrument_instance_specifier : str, optional
         Specifier for the instrument instance used in the analysis.
+    reference_calibration_id : str
+        Identifier for the reference mass list used for calibration.
+    srfa_calibration_id : str
+        Identifier for the SRFA standard raw data used for recalibration. Only used if the workflow was run with batch recalibration.
     """
 
     raw_data_file: str
@@ -177,6 +181,8 @@ class NOMMetadata:
     processing_institution_workflow: str = None
     execution_resource: str = None
     instrument_instance_specifier: str = None
+    reference_calibration_id: str = None
+    srfa_calibration_id: str = None
 
 
 class ProcessGeneratorMap:
