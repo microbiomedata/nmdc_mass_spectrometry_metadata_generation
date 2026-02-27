@@ -85,7 +85,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             total=metadata_df.shape[0],
             desc="Processing NOM rows",
         ):
-            workflow_metadata_obj = self.create_nom_metatdata(row=row)
+            workflow_metadata_obj = self.create_nom_metadata(row=row)
             try:
                 raw_data_object_id = do_client.get_record_by_attribute(
                     attribute_name="url",
@@ -226,6 +226,13 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 metadata_df=metadata_df, url_columns=self.unique_columns
             )
 
+        # Check if batch calibration is being used
+        if "srfa_calib_id" not in metadata_df.columns and "srfa_calib_path" not in metadata_df.columns:
+            print(
+                "Generating metadata without SRFA batch calibration records. "
+                "Include srfa_calib_id or srfa_calib_path columns in the metadata input CSV if you ran the enviroMS workflow with batch calibration."
+            )
+
         self.generate_mass_spec_fields(
             metadata_df=metadata_df,
         )
@@ -236,7 +243,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             total=metadata_df.shape[0],
             desc="Processing NOM rows",
         ):
-            workflow_metadata_obj = self.create_nom_metatdata(row=row)
+            workflow_metadata_obj = self.create_nom_metadata(row=row)
             # Generate MassSpectrometry record
 
             mass_spec = self.generate_mass_spectrometry(
@@ -276,14 +283,47 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 url=row.get("raw_data_url"),
                 in_manifest=workflow_metadata_obj.manifest_id,
             )
-            # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
+
+            # Generate nom analysis instance, workflow_execution_set uses the raw data zip file
             # Use calibration_ids from CSV if provided, otherwise look it up by MD5
             if "calibration_id" in row and row.get("calibration_id"):
-                calibration_ids = row["calibration_id"]
-            else:
-                calibration_ids = self.get_calibration_ids(
+                workflow_metadata_obj.reference_calibration_id = row["calibration_id"]
+            elif "ref_calibration_path" in row and row.get("ref_calibration_path"):
+                workflow_metadata_obj.reference_calibration_id = self.get_calibration_ids(
                     calibration_path=Path(row["ref_calibration_path"])
                 )
+
+            # If SRFA calibration ID is included, add it, otherwise look it up by name
+            if "srfa_calib_id" in row and row.get("srfa_calib_id"):
+                workflow_metadata_obj.srfa_calibration_id = row["srfa_calib_id"]
+            
+            # If you cannot look it up by name (ie it doesn't exist) then we have to create a data object and a calibration record
+            elif "srfa_calib_path" in row and row.get("srfa_calib_path"):
+
+                # Trim to base name. Does it exist?
+                srfa_name_trim = Path(row.get("srfa_calib_path")).stem
+                srfa_mongo_id = self.get_srfa_ids(srfa_name_trim)
+
+                # If yes, look up and use that calib id
+                if srfa_mongo_id is not None:
+                    workflow_metadata_obj.srfa_calibration_id = srfa_mongo_id
+
+                # If no, create objects
+                else:
+                    workflow_metadata_obj.srfa_calibration_id = self.generate_calibration_ids(
+                        metadata_row = row,
+                        nmdc_database_inst=nmdc_database_inst,
+                        CLIENT_ID=client_id,
+                        CLIENT_SECRET=client_secret
+                    )
+
+            # List calibration IDs for generate_nom_analysis and remove blanks
+            calibration_ids = [
+                workflow_metadata_obj.reference_calibration_id,
+                workflow_metadata_obj.srfa_calibration_id
+            ]
+            calibration_ids = [cid for cid in calibration_ids if cid is not None]
+
             # Get qc fields, converting NaN to None
             qc_status, qc_comment = self._get_qc_fields(row)
 
@@ -399,6 +439,173 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             )
         return calibration_ids
 
+    def get_srfa_ids(
+        self,
+        srfa_calib_name: str,
+    ) -> str:
+        """
+        Get the calibration ID from the NMDC API using the name of the SRFA file.
+        If there is no existing SRFA calibration record with this name,
+        don't error out, but return None.
+
+        Parameters
+        ----------
+        srfa_calib_name : str
+            The name of the SRFA dataset used for calibration.
+
+        Returns
+        -------
+        str
+            The calibration ID if found, otherwise None.
+        """
+        do_client = DataObjectSearch(env=ENV)
+        cs_client = CalibrationSearch(env=ENV)
+        try:
+            calib_do_id = do_client.get_record_by_attribute(
+                attribute_name="name",
+                attribute_value=srfa_calib_name,
+                fields="id",
+                exact_match=False,
+            )[0]["id"]
+            calibration_ids = cs_client.get_record_by_attribute(
+                attribute_name="calibration_object",
+                attribute_value=calib_do_id,
+                fields="id",
+                exact_match=True,
+            )[0]["id"]
+        except ValueError as e:
+            calibration_ids = None
+        except IndexError as e:
+            calibration_ids = None
+        except Exception as e:
+            raise RuntimeError(
+                f"An error occurred while looking up calibration for file {srfa_calib_name}: {e}"
+            )
+        return calibration_ids
+
+
+    def generate_calibration_ids(
+        self,
+        metadata_row: pd.Series,
+        nmdc_database_inst: nmdc.Database,
+        CLIENT_ID: str,
+        CLIENT_SECRET: str,
+    ) -> str:
+        """
+        Generate calibration information and data objects for each calibration file.
+
+        Parameters
+        ----------
+        metadata_row : pd.Series
+            One row from the metadata input CSV.
+        nmdc_database_inst : nmdc.Database
+            The NMDC Database instance.
+        CLIENT_ID : str
+            The client ID for the NMDC API.
+        CLIENT_SECRET : str
+            The client secret for the NMDC API.
+
+        Returns
+        -------
+        ID of the calibration object
+        """
+        # Check if the df has calibration_file_url, if not, set url to None to use the raw_data_url
+        if "calibration_file_url" in metadata_row:
+            url = metadata_row["calibration_file"]
+        else:
+            url = None
+
+        # Create data object and Calibration information for each and attach associated ids to metadata_df
+        calibration_data_object = self.generate_data_object(
+            file_path=Path(metadata_row["srfa_calib_path"]),
+            data_category=self.raw_data_category,
+            data_object_type=self.raw_data_object_type,
+            description=self.raw_data_object_desc,
+            base_url=self.raw_data_url,
+            CLIENT_ID=CLIENT_ID,
+            CLIENT_SECRET=CLIENT_SECRET,
+            url=url,
+        )
+        nmdc_database_inst.data_object_set.append(calibration_data_object)
+
+        calibration = self.generate_calibration(
+            calibration_object=calibration_data_object,
+            CLIENT_ID=CLIENT_ID,
+            CLIENT_SECRET=CLIENT_SECRET,
+            srfa=(self.calibration_standard=="srfa"),
+            internal=False,
+        )
+        nmdc_database_inst.calibration_set.append(calibration)
+
+        return(calibration["id"])
+
+
+    def generate_calibration(
+        self,
+        calibration_object: dict,
+        CLIENT_ID: str,
+        CLIENT_SECRET: str,
+        srfa: bool = True,
+        internal: bool = False,
+    ) -> nmdc.CalibrationInformation:
+        """
+        Generate a CalibrationInformation object for the NMDC Database.
+
+        Parameters
+        ----------
+        calibration_object : dict
+            The calibration data object.
+        CLIENT_ID : str
+            The client ID for the NMDC API.
+        CLIENT_SECRET : str
+            The client secret for the NMDC API.
+        SRFA : bool, optional
+            Whether the calibration is for SRFA. Default is True.
+        internal : bool, optional
+            Whether the calibration is internal. Default is False.
+
+        Returns
+        -------
+        nmdc.CalibrationInformation
+            A CalibrationInformation object for the NMDC Database.
+
+        Notes
+        -----
+        This method generates a CalibrationInformation object based on the calibration data object
+        and the calibration type.
+
+        Raises
+        ------
+        ValueError
+            If the calibration type is not supported.
+
+        """
+        if srfa and not internal:
+            nmdc_id = self.id_pool.get_id(
+                nmdc_type=NmdcTypes.get("CalibrationInformation"),
+                client_id=CLIENT_ID,
+                client_secret=CLIENT_SECRET,
+            )
+            data_dict = {
+                "id": nmdc_id,
+                "type": NmdcTypes.get("CalibrationInformation"),
+                "name": f"SRFA calibration ({calibration_object.name})",
+                "description": f"FT-ICR SRFA calibration run ({calibration_object.name}).",
+                "internal_calibration": False,
+                "calibration_target": "mass_charge_ratio",
+                "calibration_standard": "srfa",
+                "calibration_object": calibration_object.id,
+            }
+
+            calibration_information = nmdc.CalibrationInformation(**data_dict)
+
+            return calibration_information
+        else:
+            raise ValueError(
+                "Calibration type not implemented, only external SRFA calibration is currently supported."
+            )
+
+
     def generate_nom_analysis(
         self,
         file_path: Path,
@@ -415,12 +622,12 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         qc_comment: str = None,
     ) -> nmdc.NomAnalysis:
         """
-        Generate a metabolomics analysis object from the provided file information.
+        Generate a NOM analysis object from the provided file information.
 
         Parameters
         ----------
         file_path : Path
-            The file path of the metabolomics analysis data file.
+            The file path of the NOM analysis data file.
         raw_data_id : str
             The ID of the raw data associated with the analysis.
         data_gen_id : str
@@ -438,7 +645,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         calibration_ids : list[str], optional
             The IDs of the calibration objects used in the analysis. If None, no calibration is used.
         incremented_id : str, optional
-            The incremented ID for the metabolomics analysis. If None, a new ID will be minted.
+            The incremented ID for the NOM analysis. If None, a new ID will be minted.
         qc_status : str, optional
             The quality control status for the analysis.
         qc_comment : str, optional
@@ -447,7 +654,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         Returns
         -------
         nmdc.NomAnalysis
-            The generated metabolomics analysis object.
+            The generated NOM analysis object.
         """
         if incremented_id is None:
             nmdc_id = self.id_pool.get_id(
@@ -480,7 +687,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
         return nomAnalysis
 
-    def create_nom_metatdata(self, row: pd.Series) -> NOMMetadata:
+    def create_nom_metadata(self, row: pd.Series) -> NOMMetadata:
         """
         Parse the metadata row to get non-biosample class information.
 
