@@ -318,11 +318,11 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                     )
 
             # List calibration IDs for generate_nom_analysis and remove blanks
-            calibration_ids = list[
+            calibration_ids = [
                 workflow_metadata_obj.reference_calibration_id,
                 workflow_metadata_obj.srfa_calibration_id
             ]
-            calibration_ids = [c for c in calibration_ids if c is not None]
+            calibration_ids = [cid for cid in calibration_ids if cid is not None]
 
             # Get qc fields, converting NaN to None
             qc_status, qc_comment = self._get_qc_fields(row)
