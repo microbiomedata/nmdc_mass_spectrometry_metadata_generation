@@ -1,0 +1,822 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Index &mdash; nmdc_mass_spectrometry_metadata_generation 3/1/2025 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=1e0eaa87"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="#" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            nmdc_mass_spectrometry_metadata_generation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="functions.html">Bio Ontology API Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#biosample-metadata-parser-base-class">Biosample Metadata Parser Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#biosample-generator-class">Biosample Generator Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#metadata-generator-base-class">Metadata Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#metadata-workflow-generator-base-class">Metadata Workflow Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#material-processing-metadata-generator-base-class">Material Processing Metadata Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#lc-ms-metadata-generator-base-class">LC/MS Metadata Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#data-class">Data Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#lc-ms-lipidomics-metadata-generator-subclass">LC/MS Lipidomics Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#lc-ms-metabolomics-metadata-generator-subclass">LC/MS Metabolomics Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#gc-ms-metabolomics-metadata-generator-subclass">GC/MS Metabolomics Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#direct-infusion-nom-metadata-generator-subclass">Direct Infusion NOM Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#lc-nom-metadata-generator-subclass">LC NOM Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#validate-yaml-outline-function">Validate YAML Outline Function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#change-sheet-generator">Change Sheet Generator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#workflow-sheet-generator">Workflow Sheet Generator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#id-pool">ID Pool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#main-cli-class">Main CLI Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">nmdc_mass_spectrometry_metadata_generation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Index</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+
+<h1 id="index">Index</h1>
+
+<div class="genindex-jumpbox">
+ <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#J"><strong>J</strong></a>
+ | <a href="#L"><strong>L</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#Q"><strong>Q</strong></a>
+ | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#U"><strong>U</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ | <a href="#W"><strong>W</strong></a>
+ 
+</div>
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#id30">add_metabolite_ids (nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator.add_metabolite_ids">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id50">(nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator.add_metabolite_ids">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.sheet_generator.ChangeSheetGenerator.add_row">add_row() (nmdc_ms_metadata_gen.sheet_generator.ChangeSheetGenerator static method)</a>
+
+      <ul>
+        <li><a href="functions.html#nmdc_ms_metadata_gen.sheet_generator.WorkflowSheetGenerator.add_row">(nmdc_ms_metadata_gen.sheet_generator.WorkflowSheetGenerator static method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#id84">analyte_category (nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator.analyte_category">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id70">(nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator.analyte_category">[1]</a>
+</li>
+        <li><a href="functions.html#id31">(nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator.analyte_category">[1]</a>
+</li>
+        <li><a href="functions.html#id51">(nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator.analyte_category">[1]</a>
+</li>
+        <li><a href="functions.html#id97">(nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator.analyte_category">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.bio_ontology_api.BioOntologyInfoRetriever">BioOntologyInfoRetriever (class in nmdc_ms_metadata_gen.bio_ontology_api)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.biosample_generator.BiosampleGenerator">BiosampleGenerator (class in nmdc_ms_metadata_gen.biosample_generator)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser">BiosampleMetadataParser (class in nmdc_ms_metadata_gen.metadata_parser)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#id0">calibration_ids (nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata.calibration_ids">[1]</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.sheet_generator.ChangeSheetGenerator">ChangeSheetGenerator (class in nmdc_ms_metadata_gen.sheet_generator)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.biosample_generator.BiosampleGenerator.check_biosample_rows">check_biosample_rows() (nmdc_ms_metadata_gen.biosample_generator.BiosampleGenerator method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCWorkflowMetadataGenerator.check_doj_urls">check_doj_urls() (nmdc_ms_metadata_gen.metadata_generator.NMDCWorkflowMetadataGenerator method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCWorkflowMetadataGenerator.check_manifest">check_manifest() (nmdc_ms_metadata_gen.metadata_generator.NMDCWorkflowMetadataGenerator method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator.clean_dict">clean_dict() (nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser.create_controlled_identified_term_value">create_controlled_identified_term_value() (nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser.create_geo_loc_value">create_geo_loc_value() (nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser.create_quantity_value">create_quantity_value() (nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser.create_text_value">create_text_value() (nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser.create_timestamp_value">create_timestamp_value() (nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator.create_workflow_metadata">create_workflow_metadata() (nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator method)</a>
+
+      <ul>
+        <li><a href="functions.html#nmdc_ms_metadata_gen.lcms_metadata_generator.LCMSMetadataGenerator.create_workflow_metadata">(nmdc_ms_metadata_gen.lcms_metadata_generator.LCMSMetadataGenerator method)</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#id32">csv_process_data_description (nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator.csv_process_data_description">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id52">(nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator.csv_process_data_description">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator">DINOMMetaDataGenerator (class in nmdc_ms_metadata_gen.di_nom_metadata_generator)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator.dump_nmdc_database">dump_nmdc_database() (nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser.dynam_parse_biosample_metadata">dynam_parse_biosample_metadata() (nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#id1">execution_resource (nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata.execution_resource">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id17">(nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata.execution_resource">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator.find_associated_ids">find_associated_ids() (nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator">GCMSMetabolomicsMetadataGenerator (class in nmdc_ms_metadata_gen.gcms_metab_metadata_generator)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata">GCMSMetabWorkflowMetadata (class in nmdc_ms_metadata_gen.data_classes)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.biosample_generator.BiosampleGenerator.generate_biosample">generate_biosample() (nmdc_ms_metadata_gen.biosample_generator.BiosampleGenerator method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator.generate_calibration">generate_calibration() (nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator.generate_calibration_ids">generate_calibration_ids() (nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator.generate_chromatography_configuration">generate_chromatography_configuration() (nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator.generate_data_object">generate_data_object() (nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser.generate_example_biosample_csv">generate_example_biosample_csv() (nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator.generate_instrument">generate_instrument() (nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCWorkflowMetadataGenerator.generate_manifest">generate_manifest() (nmdc_ms_metadata_gen.metadata_generator.NMDCWorkflowMetadataGenerator method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCWorkflowMetadataGenerator.generate_mass_spec_fields">generate_mass_spec_fields() (nmdc_ms_metadata_gen.metadata_generator.NMDCWorkflowMetadataGenerator method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCWorkflowMetadataGenerator.generate_mass_spectrometry">generate_mass_spectrometry() (nmdc_ms_metadata_gen.metadata_generator.NMDCWorkflowMetadataGenerator method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator.generate_mass_spectrometry_configuration">generate_mass_spectrometry_configuration() (nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator.generate_material_processing">generate_material_processing() (nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator.generate_metab_identifications">generate_metab_identifications() (nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator method)</a>
+
+      <ul>
+        <li><a href="functions.html#nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator.generate_metab_identifications">(nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator method)</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator.generate_metabolomics_analysis">generate_metabolomics_analysis() (nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator.generate_mobile_phase_segment">generate_mobile_phase_segment() (nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator.generate_portion_of_substance">generate_portion_of_substance() (nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator.generate_processed_sample">generate_processed_sample() (nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator.generate_protocol">generate_protocol() (nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.data_classes.NmdcTypes.get">get() (nmdc_ms_metadata_gen.data_classes.NmdcTypes class method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.bio_ontology_api.BioOntologyInfoRetriever.get_envo_terms">get_envo_terms() (nmdc_ms_metadata_gen.bio_ontology_api.BioOntologyInfoRetriever method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.id_pool.IDPool.get_id">get_id() (nmdc_ms_metadata_gen.id_pool.IDPool method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator.get_start_end_times">get_start_end_times() (nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator static method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser.get_value">get_value() (nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCWorkflowMetadataGenerator.get_workflow_version">get_workflow_version() (nmdc_ms_metadata_gen.metadata_generator.NMDCWorkflowMetadataGenerator method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#id33">hdf5_process_data_description (nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator.hdf5_process_data_description">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id53">(nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator.hdf5_process_data_description">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#id34">hdf5_process_data_obj_type (nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator.hdf5_process_data_obj_type">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id54">(nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator.hdf5_process_data_obj_type">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator.id_pool">id_pool (nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator attribute)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.id_pool.IDPool">IDPool (class in nmdc_ms_metadata_gen.id_pool)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.sheet_generator.ChangeSheetGenerator.initialize_empty_df">initialize_empty_df() (nmdc_ms_metadata_gen.sheet_generator.ChangeSheetGenerator static method)</a>
+
+      <ul>
+        <li><a href="functions.html#nmdc_ms_metadata_gen.sheet_generator.WorkflowSheetGenerator.initialize_empty_df">(nmdc_ms_metadata_gen.sheet_generator.WorkflowSheetGenerator static method)</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#id2">instrument_analysis_end_date (nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata.instrument_analysis_end_date">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id18">(nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata.instrument_analysis_end_date">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#id3">instrument_analysis_start_date (nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata.instrument_analysis_start_date">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id19">(nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata.instrument_analysis_start_date">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#id4">instrument_id (nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata.instrument_id">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id20">(nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata.instrument_id">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#id5">instrument_instance_specifier (nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata.instrument_instance_specifier">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id21">(nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata.instrument_instance_specifier">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser.is_type">is_type() (nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="J">J</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.material_processing_generator.MaterialProcessingMetadataGenerator.json_generation">json_generation() (nmdc_ms_metadata_gen.material_processing_generator.MaterialProcessingMetadataGenerator method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator.json_submit">json_submit() (nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#id6">lc_config_id (nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata.lc_config_id">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id22">(nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata.lc_config_id">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator">LCMSLipidomicsMetadataGenerator (class in nmdc_ms_metadata_gen.lcms_lipid_metadata_generator)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata">LCMSLipidWorkflowMetadata (class in nmdc_ms_metadata_gen.data_classes)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator">LCMSMetabolomicsMetadataGenerator (class in nmdc_ms_metadata_gen.lcms_metab_metadata_generator)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.lcms_metadata_generator.LCMSMetadataGenerator">LCMSMetadataGenerator (class in nmdc_ms_metadata_gen.lcms_metadata_generator)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator">LCMSNOMMetadataGenerator (class in nmdc_ms_metadata_gen.lcms_nom_metadata_generator)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.biosample_generator.BiosampleGenerator.load_bio_credentials">load_bio_credentials() (nmdc_ms_metadata_gen.biosample_generator.BiosampleGenerator method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator.load_credentials">load_credentials() (nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCWorkflowMetadataGenerator.load_metadata">load_metadata() (nmdc_ms_metadata_gen.metadata_generator.NMDCWorkflowMetadataGenerator method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#id7">manifest_id (nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata.manifest_id">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id23">(nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata.manifest_id">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.material_processing_generator.MaterialProcessingMetadataGenerator.map_final_samples">map_final_samples() (nmdc_ms_metadata_gen.material_processing_generator.MaterialProcessingMetadataGenerator method)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata.mass_spec_config_id">mass_spec_config_id (nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata attribute)</a>
+</li>
+      <li><a href="functions.html#id8">mass_spec_configuration_id (nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata.mass_spec_configuration_id">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata.mass_spec_configuration_id">(nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator.mass_spec_desc">mass_spec_desc (nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator attribute)</a>
+
+      <ul>
+        <li><a href="functions.html#id71">(nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator.mass_spec_desc">[1]</a>
+</li>
+        <li><a href="functions.html#id35">(nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator.mass_spec_desc">[1]</a>
+</li>
+        <li><a href="functions.html#id55">(nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator.mass_spec_desc">[1]</a>
+</li>
+        <li><a href="functions.html#id98">(nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator.mass_spec_desc">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#id85">mass_spec_eluent_intro (nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator.mass_spec_eluent_intro">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id72">(nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator.mass_spec_eluent_intro">[1]</a>
+</li>
+        <li><a href="functions.html#id36">(nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator.mass_spec_eluent_intro">[1]</a>
+</li>
+        <li><a href="functions.html#id56">(nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator.mass_spec_eluent_intro">[1]</a>
+</li>
+        <li><a href="functions.html#id99">(nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator.mass_spec_eluent_intro">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.material_processing_generator.MaterialProcessingMetadataGenerator">MaterialProcessingMetadataGenerator (class in nmdc_ms_metadata_gen.material_processing_generator)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator.nmdc_db_to_dict">nmdc_db_to_dict() (nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator method)</a>
+</li>
+      <li><a href="functions.html#id9">nmdc_study (nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata.nmdc_study">[1]</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator">NMDCMetadataGenerator (class in nmdc_ms_metadata_gen.metadata_generator)</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.data_classes.NmdcTypes">NmdcTypes (class in nmdc_ms_metadata_gen.data_classes)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCWorkflowMetadataGenerator">NMDCWorkflowMetadataGenerator (class in nmdc_ms_metadata_gen.metadata_generator)</a>
+</li>
+      <li><a href="functions.html#id37">no_config_process_data_category (nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator.no_config_process_data_category">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id57">(nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator.no_config_process_data_category">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#id38">no_config_process_data_obj_type (nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator.no_config_process_data_obj_type">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id58">(nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator.no_config_process_data_obj_type">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#id86">processed_data_category (nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator.processed_data_category">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id73">(nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator.processed_data_category">[1]</a>
+</li>
+        <li><a href="functions.html#id100">(nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator.processed_data_category">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#id24">processed_data_dir (nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata.processed_data_dir">[1]</a>
+</li>
+      <li><a href="functions.html#id10">processed_data_file (nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata.processed_data_file">[1]</a>
+</li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator.processed_data_object_desc">processed_data_object_desc (nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator attribute)</a>
+
+      <ul>
+        <li><a href="functions.html#id101">(nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator.processed_data_object_desc">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#id74">processed_data_object_description (nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator.processed_data_object_description">[1]</a>
+</li>
+      <li><a href="functions.html#id87">processed_data_object_type (nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator.processed_data_object_type">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id75">(nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator.processed_data_object_type">[1]</a>
+</li>
+        <li><a href="functions.html#id102">(nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator.processed_data_object_type">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#id11">processing_institution (nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata.processing_institution">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id25">(nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata.processing_institution">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#id12">processing_institution_generation (nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata.processing_institution_generation">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id26">(nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata.processing_institution_generation">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#id13">processing_institution_workflow (nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata.processing_institution_workflow">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id27">(nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata.processing_institution_workflow">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator.provenance_metadata">provenance_metadata (nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Q">Q</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator.qc_process_data_description">qc_process_data_description (nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator attribute)</a>
+
+      <ul>
+        <li><a href="functions.html#id103">(nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator.qc_process_data_description">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator.qc_process_data_obj_type">qc_process_data_obj_type (nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator attribute)</a>
+
+      <ul>
+        <li><a href="functions.html#id104">(nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator.qc_process_data_obj_type">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#id14">raw_data_file (nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata.raw_data_file">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id28">(nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata.raw_data_file">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#id76">raw_data_obj_desc (nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator.raw_data_obj_desc">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id39">(nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator.raw_data_obj_desc">[1]</a>
+</li>
+        <li><a href="functions.html#id59">(nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator.raw_data_obj_desc">[1]</a>
+</li>
+        <li><a href="functions.html#id105">(nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator.raw_data_obj_desc">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#id77">raw_data_obj_type (nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator.raw_data_obj_type">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id40">(nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator.raw_data_obj_type">[1]</a>
+</li>
+        <li><a href="functions.html#id60">(nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator.raw_data_obj_type">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#id88">raw_data_object_desc (nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator.raw_data_object_desc">[1]</a>
+</li>
+      <li><a href="functions.html#id89">raw_data_object_type (nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator.raw_data_object_type">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id106">(nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator.raw_data_object_type">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#id15">raw_data_url (nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata.raw_data_url">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id29">(nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata.raw_data_url">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator.rerun">rerun() (nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator method)</a>
+
+      <ul>
+        <li><a href="functions.html#nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator.rerun">(nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator method)</a>
+</li>
+        <li><a href="functions.html#nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator.rerun">(nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator method)</a>
+</li>
+        <li><a href="functions.html#nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator.rerun">(nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator method)</a>
+</li>
+        <li><a href="functions.html#nmdc_ms_metadata_gen.lcms_metadata_generator.LCMSMetadataGenerator.rerun">(nmdc_ms_metadata_gen.lcms_metadata_generator.LCMSMetadataGenerator method)</a>
+</li>
+        <li><a href="functions.html#nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator.rerun">(nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator method)</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.biosample_generator.BiosampleGenerator.run">run() (nmdc_ms_metadata_gen.biosample_generator.BiosampleGenerator method)</a>
+
+      <ul>
+        <li><a href="functions.html#nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator.run">(nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator method)</a>
+</li>
+        <li><a href="functions.html#nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator.run">(nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator method)</a>
+</li>
+        <li><a href="functions.html#nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator.run">(nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator method)</a>
+</li>
+        <li><a href="functions.html#nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator.run">(nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator method)</a>
+</li>
+        <li><a href="functions.html#nmdc_ms_metadata_gen.lcms_metadata_generator.LCMSMetadataGenerator.run">(nmdc_ms_metadata_gen.lcms_metadata_generator.LCMSMetadataGenerator method)</a>
+</li>
+        <li><a href="functions.html#nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator.run">(nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator method)</a>
+</li>
+        <li><a href="functions.html#nmdc_ms_metadata_gen.material_processing_generator.MaterialProcessingMetadataGenerator.run">(nmdc_ms_metadata_gen.material_processing_generator.MaterialProcessingMetadataGenerator method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#id16">sample_id (nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata.sample_id">[1]</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator.start_nmdc_database">start_nmdc_database() (nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.data_classes.NmdcTypes.typecode">typecode() (nmdc_ms_metadata_gen.data_classes.NmdcTypes class method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#id90">unique_columns (nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator.unique_columns">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id78">(nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator.unique_columns">[1]</a>
+</li>
+        <li><a href="functions.html#id41">(nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator.unique_columns">[1]</a>
+</li>
+        <li><a href="functions.html#id61">(nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator.unique_columns">[1]</a>
+</li>
+        <li><a href="functions.html#id107">(nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator.unique_columns">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCWorkflowMetadataGenerator.update_outputs">update_outputs() (nmdc_ms_metadata_gen.metadata_generator.NMDCWorkflowMetadataGenerator method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator.validate_nmdc_database">validate_nmdc_database() (nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#id42">wf_config_process_data_category (nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator.wf_config_process_data_category">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id62">(nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator.wf_config_process_data_category">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#id43">wf_config_process_data_description (nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator.wf_config_process_data_description">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id63">(nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator.wf_config_process_data_description">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#id44">wf_config_process_data_obj_type (nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator.wf_config_process_data_obj_type">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id64">(nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator.wf_config_process_data_obj_type">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#id91">workflow_analysis_name (nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator.workflow_analysis_name">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id79">(nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator.workflow_analysis_name">[1]</a>
+</li>
+        <li><a href="functions.html#id45">(nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator.workflow_analysis_name">[1]</a>
+</li>
+        <li><a href="functions.html#id65">(nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator.workflow_analysis_name">[1]</a>
+</li>
+        <li><a href="functions.html#id108">(nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator.workflow_analysis_name">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#id80">workflow_category (nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator.workflow_category">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id46">(nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator.workflow_category">[1]</a>
+</li>
+        <li><a href="functions.html#id66">(nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator.workflow_category">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#id92">workflow_description (nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator.workflow_description">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id81">(nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator.workflow_description">[1]</a>
+</li>
+        <li><a href="functions.html#id47">(nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator.workflow_description">[1]</a>
+</li>
+        <li><a href="functions.html#id67">(nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator.workflow_description">[1]</a>
+</li>
+        <li><a href="functions.html#id109">(nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator.workflow_description">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="functions.html#id93">workflow_git_url (nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator.workflow_git_url">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id82">(nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator.workflow_git_url">[1]</a>
+</li>
+        <li><a href="functions.html#id48">(nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator.workflow_git_url">[1]</a>
+</li>
+        <li><a href="functions.html#id68">(nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator.workflow_git_url">[1]</a>
+</li>
+        <li><a href="functions.html#id110">(nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator.workflow_git_url">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#id94">workflow_param_data_category (nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator.workflow_param_data_category">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id111">(nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator.workflow_param_data_category">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator.workflow_param_data_object_desc">workflow_param_data_object_desc (nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator attribute)</a>
+
+      <ul>
+        <li><a href="functions.html#id112">(nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator.workflow_param_data_object_desc">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#id95">workflow_param_data_object_type (nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator.workflow_param_data_object_type">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id113">(nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator.workflow_param_data_object_type">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#id96">workflow_version (nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator.workflow_version">[1]</a>
+
+      <ul>
+        <li><a href="functions.html#id83">(nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator.workflow_version">[1]</a>
+</li>
+        <li><a href="functions.html#id49">(nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator.workflow_version">[1]</a>
+</li>
+        <li><a href="functions.html#id69">(nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator.workflow_version">[1]</a>
+</li>
+        <li><a href="functions.html#id114">(nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator attribute)</a>, <a href="functions.html#nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator.workflow_version">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="functions.html#nmdc_ms_metadata_gen.sheet_generator.WorkflowSheetGenerator">WorkflowSheetGenerator (class in nmdc_ms_metadata_gen.sheet_generator)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Olivia Hess.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

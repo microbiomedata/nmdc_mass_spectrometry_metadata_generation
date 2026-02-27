@@ -1,0 +1,238 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>nmdc_ms_metadata_gen.lcms_nom_metadata_generator &mdash; nmdc_mass_spectrometry_metadata_generation 3/1/2025 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=1e0eaa87"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            nmdc_mass_spectrometry_metadata_generation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html">Bio Ontology API Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#biosample-metadata-parser-base-class">Biosample Metadata Parser Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#biosample-generator-class">Biosample Generator Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#metadata-generator-base-class">Metadata Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#metadata-workflow-generator-base-class">Metadata Workflow Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#material-processing-metadata-generator-base-class">Material Processing Metadata Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#lc-ms-metadata-generator-base-class">LC/MS Metadata Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#data-class">Data Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#lc-ms-lipidomics-metadata-generator-subclass">LC/MS Lipidomics Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#lc-ms-metabolomics-metadata-generator-subclass">LC/MS Metabolomics Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#gc-ms-metabolomics-metadata-generator-subclass">GC/MS Metabolomics Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#direct-infusion-nom-metadata-generator-subclass">Direct Infusion NOM Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#lc-nom-metadata-generator-subclass">LC NOM Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#validate-yaml-outline-function">Validate YAML Outline Function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#change-sheet-generator">Change Sheet Generator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#workflow-sheet-generator">Workflow Sheet Generator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#id-pool">ID Pool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#main-cli-class">Main CLI Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">nmdc_mass_spectrometry_metadata_generation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">nmdc_ms_metadata_gen.lcms_nom_metadata_generator</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for nmdc_ms_metadata_gen.lcms_nom_metadata_generator</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">nmdc_ms_metadata_gen.nom_metadata_generator</span> <span class="kn">import</span> <span class="n">NOMMetadataGenerator</span>
+
+
+<div class="viewcode-block" id="LCMSNOMMetadataGenerator">
+<a class="viewcode-back" href="../../functions.html#nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator">[docs]</a>
+<span class="k">class</span> <span class="nc">LCMSNOMMetadataGenerator</span><span class="p">(</span><span class="n">NOMMetadataGenerator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class for generating NMDC metadata objects using provided metadata files and configuration</span>
+<span class="sd">    for LC FT-ICR MS NOM data.</span>
+
+<span class="sd">    This class processes input metadata files, generates various NMDC objects, and produces</span>
+<span class="sd">    a database dump in JSON format.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    metadata_file : str</span>
+<span class="sd">        Path to the input CSV metadata file.</span>
+<span class="sd">    database_dump_json_path : str</span>
+<span class="sd">        Path where the output database dump JSON file will be saved.</span>
+<span class="sd">    raw_data_url : str</span>
+<span class="sd">        Base URL for the raw data files.</span>
+<span class="sd">    process_data_url : str</span>
+<span class="sd">        Base URL for the processed data files.</span>
+<span class="sd">    minting_config_creds : str, optional</span>
+<span class="sd">        Path to the configuration file containing the client ID and client secret for minting NMDC IDs. It can also include the bio ontology API key if generating biosample ids is needed.</span>
+<span class="sd">        If not provided, the CLIENT_ID, CLIENT_SECRET, and BIO_API_KEY environment variables will be used.</span>
+<span class="sd">    test : bool, optional</span>
+<span class="sd">        Flag indicating whether to run in test mode. If True, will skip biosample ID checks in the database, data object URL check, and will use local IDs (skip API minting). Default is False.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    processed_data_object_desc : str</span>
+<span class="sd">    qc_process_data_obj_type : str</span>
+<span class="sd">    qc_process_data_description : str</span>
+<span class="sd">    raw_data_object_type : str</span>
+<span class="sd">    raw_data_obj_desc : str</span>
+<span class="sd">    processed_data_object_type : str</span>
+<span class="sd">    processed_data_category: str</span>
+<span class="sd">    analyte_category: str</span>
+<span class="sd">    workflow_analysis_name: str</span>
+<span class="sd">    workflow_param_data_object_desc: str</span>
+<span class="sd">    workflow_param_data_category: str</span>
+<span class="sd">    workflow_param_data_object_type: str</span>
+<span class="sd">    unique_columns: list[str]</span>
+<span class="sd">    mass_spec_eluent_intro: str</span>
+<span class="sd">    mass_spec_desc: str</span>
+<span class="sd">    workflow_git_url: str</span>
+<span class="sd">    workflow_version: str</span>
+<span class="sd">    workflow_description: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">processed_data_object_desc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;NOM annotations as a result of a NOM workflow activity.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">qc_process_data_obj_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;LC FT-ICR MS QC Plots&quot;</span>
+    <span class="n">qc_process_data_description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;EnviroMS QC plots representing a NOM analysis.&quot;</span>
+
+    <span class="n">raw_data_object_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;LC FT-ICR MS Raw Data&quot;</span>
+    <span class="n">raw_data_obj_desc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;LC FT-ICR MS Raw Data raw data for NOM data acquisition.&quot;</span>
+    <span class="n">processed_data_object_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;LC FT-ICR MS Analysis Results&quot;</span>
+    <span class="n">processed_data_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;processed_data&quot;</span>
+    <span class="n">analyte_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nom&quot;</span>
+    <span class="n">workflow_analysis_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;LC FT-ICR MS NOM Analysis&quot;</span>
+    <span class="n">workflow_param_data_object_desc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;EnviroMS processing parameters for natural organic matter analysis when acquired using liquid chromatography.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">workflow_param_data_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;workflow_parameter_data&quot;</span>
+    <span class="n">workflow_param_data_object_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Analysis Tool Parameter File&quot;</span>
+    <span class="n">unique_columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;processed_data_directory&quot;</span><span class="p">]</span>
+    <span class="n">mass_spec_eluent_intro</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;liquid_chromatography&quot;</span>
+    <span class="n">mass_spec_desc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Generation of mass spectrometry data for the analysis of NOM when acquired using liquid chromatography.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">workflow_git_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;https://github.com/microbiomedata/enviroMS/blob/master/wdl/lc_ftirc_ms.wdl&quot;</span>
+    <span class="p">)</span>
+    <span class="n">workflow_version</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">workflow_description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Processing of raw liquid chromatography FT-ICR MS data for natural organic matter identification.&quot;</span>
+    <span class="p">)</span>
+    <span class="c1"># on the mass spec records, you will need to add has_chromatograohy_configuration - created in parent metadata gen class</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">metadata_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">database_dump_json_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">raw_data_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">process_data_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">minting_config_creds</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">workflow_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">test</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">skip_sample_id_check</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">metadata_file</span><span class="o">=</span><span class="n">metadata_file</span><span class="p">,</span>
+            <span class="n">database_dump_json_path</span><span class="o">=</span><span class="n">database_dump_json_path</span><span class="p">,</span>
+            <span class="n">raw_data_url</span><span class="o">=</span><span class="n">raw_data_url</span><span class="p">,</span>
+            <span class="n">process_data_url</span><span class="o">=</span><span class="n">process_data_url</span><span class="p">,</span>
+            <span class="n">test</span><span class="o">=</span><span class="n">test</span><span class="p">,</span>
+            <span class="n">skip_sample_id_check</span><span class="o">=</span><span class="n">skip_sample_id_check</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># Set the workflow version, prioritizing user input, then fetching from the Git URL.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">workflow_version</span> <span class="o">=</span> <span class="n">workflow_version</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_workflow_version</span><span class="p">(</span>
+            <span class="n">workflow_version_git_url</span><span class="o">=</span><span class="s2">&quot;https://github.com/microbiomedata/enviroMS/blob/master/.bumpversion.cfg&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minting_config_creds</span> <span class="o">=</span> <span class="n">minting_config_creds</span>
+
+<div class="viewcode-block" id="LCMSNOMMetadataGenerator.rerun">
+<a class="viewcode-back" href="../../functions.html#nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator.rerun">[docs]</a>
+    <span class="k">def</span> <span class="nf">rerun</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">rerun</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="LCMSNOMMetadataGenerator.run">
+<a class="viewcode-back" href="../../functions.html#nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator.run">[docs]</a>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Olivia Hess.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,892 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>nmdc_ms_metadata_gen.gcms_metab_metadata_generator &mdash; nmdc_mass_spectrometry_metadata_generation 3/1/2025 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=1e0eaa87"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            nmdc_mass_spectrometry_metadata_generation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html">Bio Ontology API Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#biosample-metadata-parser-base-class">Biosample Metadata Parser Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#biosample-generator-class">Biosample Generator Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#metadata-generator-base-class">Metadata Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#metadata-workflow-generator-base-class">Metadata Workflow Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#material-processing-metadata-generator-base-class">Material Processing Metadata Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#lc-ms-metadata-generator-base-class">LC/MS Metadata Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#data-class">Data Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#lc-ms-lipidomics-metadata-generator-subclass">LC/MS Lipidomics Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#lc-ms-metabolomics-metadata-generator-subclass">LC/MS Metabolomics Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#gc-ms-metabolomics-metadata-generator-subclass">GC/MS Metabolomics Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#direct-infusion-nom-metadata-generator-subclass">Direct Infusion NOM Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#lc-nom-metadata-generator-subclass">LC NOM Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#validate-yaml-outline-function">Validate YAML Outline Function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#change-sheet-generator">Change Sheet Generator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#workflow-sheet-generator">Workflow Sheet Generator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#id-pool">ID Pool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#main-cli-class">Main CLI Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">nmdc_mass_spectrometry_metadata_generation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">nmdc_ms_metadata_gen.gcms_metab_metadata_generator</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for nmdc_ms_metadata_gen.gcms_metab_metadata_generator</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">ast</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+
+<span class="kn">import</span> <span class="nn">nmdc_schema.nmdc</span> <span class="k">as</span> <span class="nn">nmdc</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">dotenv</span> <span class="kn">import</span> <span class="n">load_dotenv</span>
+<span class="kn">from</span> <span class="nn">nmdc_api_utilities.data_object_search</span> <span class="kn">import</span> <span class="n">DataObjectSearch</span>
+<span class="kn">from</span> <span class="nn">nmdc_api_utilities.workflow_execution_search</span> <span class="kn">import</span> <span class="n">WorkflowExecutionSearch</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="kn">from</span> <span class="nn">nmdc_ms_metadata_gen.data_classes</span> <span class="kn">import</span> <span class="n">GCMSMetabWorkflowMetadata</span><span class="p">,</span> <span class="n">NmdcTypes</span>
+<span class="kn">from</span> <span class="nn">nmdc_ms_metadata_gen.metadata_generator</span> <span class="kn">import</span> <span class="n">NMDCWorkflowMetadataGenerator</span>
+
+<span class="n">load_dotenv</span><span class="p">()</span>
+<span class="n">ENV</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;NMDC_ENV&quot;</span><span class="p">,</span> <span class="s2">&quot;prod&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="GCMSMetabolomicsMetadataGenerator">
+<a class="viewcode-back" href="../../functions.html#nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator">[docs]</a>
+<span class="k">class</span> <span class="nc">GCMSMetabolomicsMetadataGenerator</span><span class="p">(</span><span class="n">NMDCWorkflowMetadataGenerator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class for generating NMDC metadata objects related to GC/MS metabolomics data.</span>
+
+<span class="sd">    This class processes input metadata files, generates various NMDC objects, and produces</span>
+<span class="sd">    a database dump in JSON format.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    metadata_file : str</span>
+<span class="sd">        Path to the metadata CSV file.</span>
+<span class="sd">    database_dump_json_path : str</span>
+<span class="sd">        Path to the output JSON file for the NMDC database dump.</span>
+<span class="sd">    raw_data_url : str, optional</span>
+<span class="sd">        Base URL for the raw data files. If the raw data url is not directly passed in, it will use the raw data urls from the metadata file.</span>
+<span class="sd">    process_data_url : str</span>
+<span class="sd">        Base URL for the processed data files.</span>
+<span class="sd">    minting_config_creds : str</span>
+<span class="sd">        Path to the minting configuration credentials file.</span>
+<span class="sd">    calibration_standard : str, optional</span>
+<span class="sd">        Calibration standard used for the data. Default is &quot;fames&quot;.</span>
+<span class="sd">    configuration_file_name : str</span>
+<span class="sd">        Name of the configuration file.</span>
+<span class="sd">    test : bool, optional</span>
+<span class="sd">        Flag indicating whether to run in test mode. If True, will skip biosample ID checks in the database, data object URL check, and will use local IDs (skip API minting). Default is False.</span>
+<span class="sd">    skip_sample_id_check : bool, optional</span>
+<span class="sd">        Flag to skip sample ID checking in MongoDB. If True, will skip biosample and</span>
+<span class="sd">        processed sample ID checks even in production mode. Default is False.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    unique_columns : List[str]</span>
+<span class="sd">        List of columns used to check for uniqueness in the metadata before processing.</span>
+<span class="sd">    mass_spec_desc : str</span>
+<span class="sd">        Description of the mass spectrometry analysis.</span>
+<span class="sd">    mass_spec_eluent_intro : str</span>
+<span class="sd">        Eluent introduction category for mass spectrometry.</span>
+<span class="sd">    analyte_category : str</span>
+<span class="sd">        Category of the analyte.</span>
+<span class="sd">    raw_data_obj_type : str</span>
+<span class="sd">        Type of the raw data object.</span>
+<span class="sd">    raw_data_obj_desc : str</span>
+<span class="sd">        Description of the raw data object.</span>
+<span class="sd">    workflow_analysis_name : str</span>
+<span class="sd">        Name of the workflow analysis.</span>
+<span class="sd">    workflow_description : str</span>
+<span class="sd">        Description of the workflow.</span>
+<span class="sd">    workflow_git_url : str</span>
+<span class="sd">        URL of the workflow&#39;s Git repository.</span>
+<span class="sd">    workflow_version : str</span>
+<span class="sd">        Version of the workflow.</span>
+<span class="sd">    workflow_category : str</span>
+<span class="sd">        Category of the workflow.</span>
+<span class="sd">    processed_data_category : str</span>
+<span class="sd">        Category of the processed data.</span>
+<span class="sd">    processed_data_object_type : str</span>
+<span class="sd">        Type of the processed data object.</span>
+<span class="sd">    processed_data_object_description : str</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Metadata attributes</span>
+    <span class="n">unique_columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;processed_data_file&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Data Generation attributes</span>
+    <span class="n">mass_spec_desc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Generation of mass spectrometry data by GC/MS for the analysis of metabolites.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">mass_spec_eluent_intro</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gas_chromatography&quot;</span>
+    <span class="n">analyte_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;metabolome&quot;</span>
+    <span class="n">raw_data_obj_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;GC-MS Raw Data&quot;</span>
+    <span class="n">raw_data_obj_desc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;GC/MS low resolution raw data for metabolomics data acquisition.&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Workflow metadata</span>
+    <span class="n">workflow_analysis_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;GC/MS Metabolomics analysis&quot;</span>
+    <span class="n">workflow_description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Analysis of raw mass spectrometry data for the annotation of metabolites.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">workflow_git_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;https://github.com/microbiomedata/metaMS/wdl/metaMS_gcms.wdl&quot;</span>
+    <span class="p">)</span>
+    <span class="n">workflow_version</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">workflow_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gc_ms_metabolomics&quot;</span>
+
+    <span class="c1"># Processed data attributes</span>
+    <span class="n">processed_data_category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;processed_data&quot;</span>
+    <span class="n">processed_data_object_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;GC-MS Metabolomics Results&quot;</span>
+    <span class="n">processed_data_object_description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Metabolomics annotations as a result of a GC/MS metabolomics workflow activity.&quot;</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">metadata_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">database_dump_json_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">process_data_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">configuration_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">raw_data_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">minting_config_creds</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">workflow_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">calibration_standard</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;fames&quot;</span><span class="p">,</span>
+        <span class="n">test</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">skip_sample_id_check</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">metadata_file</span><span class="o">=</span><span class="n">metadata_file</span><span class="p">,</span>
+            <span class="n">database_dump_json_path</span><span class="o">=</span><span class="n">database_dump_json_path</span><span class="p">,</span>
+            <span class="n">raw_data_url</span><span class="o">=</span><span class="n">raw_data_url</span><span class="p">,</span>
+            <span class="n">process_data_url</span><span class="o">=</span><span class="n">process_data_url</span><span class="p">,</span>
+            <span class="n">test</span><span class="o">=</span><span class="n">test</span><span class="p">,</span>
+            <span class="n">skip_sample_id_check</span><span class="o">=</span><span class="n">skip_sample_id_check</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># Set the workflow version, prioritizing user input, then fetching from the Git URL, and finally using a default.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">workflow_version</span> <span class="o">=</span> <span class="n">workflow_version</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_workflow_version</span><span class="p">(</span>
+            <span class="n">workflow_version_git_url</span><span class="o">=</span><span class="s2">&quot;https://github.com/microbiomedata/metaMS/blob/master/.bumpversion.cfg&quot;</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">minting_config_creds</span> <span class="o">=</span> <span class="n">minting_config_creds</span>
+        <span class="c1"># Calibration attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calibration_standard</span> <span class="o">=</span> <span class="n">calibration_standard</span>
+
+        <span class="c1"># Workflow Configuration attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">configuration_file_name</span> <span class="o">=</span> <span class="n">configuration_file_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">test</span> <span class="o">=</span> <span class="n">test</span>
+
+<div class="viewcode-block" id="GCMSMetabolomicsMetadataGenerator.rerun">
+<a class="viewcode-back" href="../../functions.html#nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator.rerun">[docs]</a>
+    <span class="k">def</span> <span class="nf">rerun</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">nmdc</span><span class="o">.</span><span class="n">Database</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Execute a re run of the metadata generation process for GC/MS metabolomics data.</span>
+
+<span class="sd">        This method performs the following steps:</span>
+<span class="sd">        1. Initialize an NMDC Database instance.</span>
+<span class="sd">        3. Load and process metadata to create NMDC objects.</span>
+<span class="sd">        4. Generate Metabolomics Analysis and Processed Data objects.</span>
+<span class="sd">        5. Update outputs for the Metabolomics Analysis object.</span>
+<span class="sd">        6. Append generated objects to the NMDC Database.</span>
+<span class="sd">        7. Dump the NMDC Database to a JSON file.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        nmdc.Database</span>
+<span class="sd">            The generated NMDC database instance containing all generated metadata objects.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        FileNotFoundError</span>
+<span class="sd">            If the metadata file is not found.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This method uses tqdm to display progress bars for the processing of calibration information and</span>
+<span class="sd">        mass spectrometry metadata.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">wf_client</span> <span class="o">=</span> <span class="n">WorkflowExecutionSearch</span><span class="p">(</span><span class="n">env</span><span class="o">=</span><span class="n">ENV</span><span class="p">)</span>
+        <span class="n">client_id</span><span class="p">,</span> <span class="n">client_secret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_credentials</span><span class="p">(</span>
+            <span class="n">config_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">minting_config_creds</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Start NMDC database and make metadata dataframe</span>
+        <span class="n">nmdc_database_inst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_nmdc_database</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata_file</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Metadata file not found: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">metadata_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
+        <span class="c1"># just check the process data urls</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_doj_urls</span><span class="p">(</span>
+            <span class="n">metadata_df</span><span class="o">=</span><span class="n">metadata_df</span><span class="p">,</span> <span class="n">url_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;processed_data_file&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Get the configuration file data object id and add it to the metadata_df</span>
+        <span class="n">do_client</span> <span class="o">=</span> <span class="n">DataObjectSearch</span><span class="p">(</span><span class="n">env</span><span class="o">=</span><span class="n">ENV</span><span class="p">)</span>
+        <span class="n">config_do_id</span> <span class="o">=</span> <span class="n">do_client</span><span class="o">.</span><span class="n">get_record_by_attribute</span><span class="p">(</span>
+            <span class="n">attribute_name</span><span class="o">=</span><span class="s2">&quot;name&quot;</span><span class="p">,</span>
+            <span class="n">attribute_value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">configuration_file_name</span><span class="p">,</span>
+            <span class="n">fields</span><span class="o">=</span><span class="s2">&quot;id&quot;</span><span class="p">,</span>
+            <span class="n">exact_match</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+
+        <span class="c1"># process workflow metadata</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span>
+            <span class="n">metadata_df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">(),</span>
+            <span class="n">total</span><span class="o">=</span><span class="n">metadata_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Processing Remaining Metadata&quot;</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="n">raw_data_object_id</span> <span class="o">=</span> <span class="n">do_client</span><span class="o">.</span><span class="n">get_record_by_attribute</span><span class="p">(</span>
+                <span class="n">attribute_name</span><span class="o">=</span><span class="s2">&quot;url&quot;</span><span class="p">,</span>
+                <span class="n">attribute_value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_data_url</span> <span class="o">+</span> <span class="n">Path</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;raw_data_file&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">fields</span><span class="o">=</span><span class="s2">&quot;id&quot;</span><span class="p">,</span>
+                <span class="n">exact_match</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+            <span class="c1"># find the MetabolomicsAnalysis object - this is the old one</span>
+            <span class="n">prev_metab_analysis</span> <span class="o">=</span> <span class="n">wf_client</span><span class="o">.</span><span class="n">get_record_by_filter</span><span class="p">(</span>
+                <span class="nb">filter</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">{{</span><span class="s1">&quot;has_input&quot;:&quot;</span><span class="si">{</span><span class="n">raw_data_object_id</span><span class="si">}</span><span class="s1">&quot;,&quot;type&quot;:&quot;</span><span class="si">{</span><span class="n">NmdcTypes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;MetabolomicsAnalysis&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">&quot;</span><span class="se">}}</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="n">fields</span><span class="o">=</span><span class="s2">&quot;id,uses_calibration,execution_resource,processing_institution,was_informed_by&quot;</span><span class="p">,</span>
+                <span class="n">all_pages</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="c1"># find the most recent metabolomics analysis object by the max id</span>
+            <span class="n">prev_metab_analysis</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">prev_metab_analysis</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+            <span class="c1"># increment the metab_id, find the last .digit group with a regex</span>
+            <span class="n">regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(\d+)$&quot;</span>
+            <span class="n">metab_analysis_id</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
+                <span class="n">regex</span><span class="p">,</span>
+                <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
+                <span class="n">prev_metab_analysis</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Get qc fields, converting NaN to None</span>
+            <span class="n">qc_status</span><span class="p">,</span> <span class="n">qc_comment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_qc_fields</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+            <span class="c1"># Always generate metabolite_identifications (even for failed QC)</span>
+            <span class="n">metabolite_identifications</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_metab_identifications</span><span class="p">(</span>
+                <span class="n">processed_data_file</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;processed_data_file&quot;</span><span class="p">])</span>
+            <span class="p">)</span>
+
+            <span class="c1"># need to generate a new metabolomics analysis object with the newly incremented id</span>
+            <span class="n">metab_analysis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_metabolomics_analysis</span><span class="p">(</span>
+                <span class="n">cluster_name</span><span class="o">=</span><span class="n">prev_metab_analysis</span><span class="p">[</span><span class="s2">&quot;execution_resource&quot;</span><span class="p">],</span>
+                <span class="n">raw_data_name</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;raw_data_file&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">raw_data_id</span><span class="o">=</span><span class="n">raw_data_object_id</span><span class="p">,</span>
+                <span class="n">data_gen_id_list</span><span class="o">=</span><span class="n">prev_metab_analysis</span><span class="p">[</span><span class="s2">&quot;was_informed_by&quot;</span><span class="p">],</span>
+                <span class="n">processed_data_id</span><span class="o">=</span><span class="s2">&quot;nmdc:placeholder&quot;</span><span class="p">,</span>
+                <span class="n">parameter_data_id</span><span class="o">=</span><span class="n">config_do_id</span><span class="p">,</span>
+                <span class="n">processing_institution</span><span class="o">=</span><span class="n">prev_metab_analysis</span><span class="p">[</span><span class="s2">&quot;processing_institution&quot;</span><span class="p">],</span>
+                <span class="n">incremeneted_id</span><span class="o">=</span><span class="n">metab_analysis_id</span><span class="p">,</span>
+                <span class="n">CLIENT_ID</span><span class="o">=</span><span class="n">client_id</span><span class="p">,</span>
+                <span class="n">CLIENT_SECRET</span><span class="o">=</span><span class="n">client_secret</span><span class="p">,</span>
+                <span class="n">calibration_ids</span><span class="o">=</span><span class="n">prev_metab_analysis</span><span class="p">[</span><span class="s2">&quot;uses_calibration&quot;</span><span class="p">],</span>
+                <span class="n">metabolite_identifications</span><span class="o">=</span><span class="n">metabolite_identifications</span><span class="p">,</span>
+                <span class="n">qc_status</span><span class="o">=</span><span class="n">qc_status</span><span class="p">,</span>
+                <span class="n">qc_comment</span><span class="o">=</span><span class="n">qc_comment</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Always generate processed data object (even for failed QC)</span>
+            <span class="n">processed_data_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_data_object</span><span class="p">(</span>
+                <span class="n">file_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;processed_data_file&quot;</span><span class="p">]),</span>
+                <span class="n">data_category</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">processed_data_category</span><span class="p">,</span>
+                <span class="n">data_object_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">processed_data_object_type</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">processed_data_object_description</span><span class="p">,</span>
+                <span class="n">base_url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">process_data_url</span><span class="p">,</span>
+                <span class="n">CLIENT_ID</span><span class="o">=</span><span class="n">client_id</span><span class="p">,</span>
+                <span class="n">CLIENT_SECRET</span><span class="o">=</span><span class="n">client_secret</span><span class="p">,</span>
+                <span class="n">was_generated_by</span><span class="o">=</span><span class="n">metab_analysis_id</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Update MetabolomicsAnalysis times based on processed data file</span>
+            <span class="n">processed_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;processed_data_file&quot;</span><span class="p">])</span>
+            <span class="n">start_time</span><span class="p">,</span> <span class="n">end_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_start_end_times</span><span class="p">(</span><span class="n">processed_file</span><span class="p">)</span>
+            <span class="n">metab_analysis</span><span class="o">.</span><span class="n">started_at_time</span> <span class="o">=</span> <span class="n">start_time</span>
+            <span class="n">metab_analysis</span><span class="o">.</span><span class="n">ended_at_time</span> <span class="o">=</span> <span class="n">end_time</span>
+
+            <span class="n">processed_data_id_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">processed_data_object</span><span class="o">.</span><span class="n">id</span><span class="p">]</span>
+
+            <span class="n">has_inputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">config_do_id</span><span class="p">,</span> <span class="n">raw_data_object_id</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_outputs</span><span class="p">(</span>
+                <span class="n">analysis_obj</span><span class="o">=</span><span class="n">metab_analysis</span><span class="p">,</span>
+                <span class="n">raw_data_obj_id</span><span class="o">=</span><span class="n">raw_data_object_id</span><span class="p">,</span>
+                <span class="n">parameter_data_id</span><span class="o">=</span><span class="n">has_inputs</span><span class="p">,</span>
+                <span class="n">processed_data_id_list</span><span class="o">=</span><span class="n">processed_data_id_list</span><span class="p">,</span>
+                <span class="n">rerun</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="c1"># If QC failed, remove processed data and has_output, and clear metabolite_identifications</span>
+            <span class="k">if</span> <span class="n">qc_status</span> <span class="o">==</span> <span class="s2">&quot;fail&quot;</span><span class="p">:</span>
+                <span class="c1"># Remove has_output from workflow</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">metab_analysis</span><span class="p">,</span> <span class="s2">&quot;has_output&quot;</span><span class="p">):</span>
+                    <span class="nb">delattr</span><span class="p">(</span><span class="n">metab_analysis</span><span class="p">,</span> <span class="s2">&quot;has_output&quot;</span><span class="p">)</span>
+                <span class="c1"># Clear metabolite_identifications</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">metab_analysis</span><span class="p">,</span> <span class="s2">&quot;has_metabolite_identifications&quot;</span><span class="p">):</span>
+                    <span class="nb">delattr</span><span class="p">(</span><span class="n">metab_analysis</span><span class="p">,</span> <span class="s2">&quot;has_metabolite_identifications&quot;</span><span class="p">)</span>
+                <span class="c1"># Don&#39;t add processed data object to database</span>
+                <span class="n">processed_data_object</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="k">if</span> <span class="n">processed_data_object</span><span class="p">:</span>
+                <span class="n">nmdc_database_inst</span><span class="o">.</span><span class="n">data_object_set</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">processed_data_object</span><span class="p">)</span>
+            <span class="n">nmdc_database_inst</span><span class="o">.</span><span class="n">workflow_execution_set</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">metab_analysis</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dump_nmdc_database</span><span class="p">(</span>
+            <span class="n">nmdc_database</span><span class="o">=</span><span class="n">nmdc_database_inst</span><span class="p">,</span> <span class="n">json_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">database_dump_json_path</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nmdc_db_to_dict</span><span class="p">(</span><span class="n">nmdc_database_inst</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GCMSMetabolomicsMetadataGenerator.run">
+<a class="viewcode-back" href="../../functions.html#nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator.run">[docs]</a>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">nmdc</span><span class="o">.</span><span class="n">Database</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Execute the metadata generation process for GC/MS metabolomics data.</span>
+
+<span class="sd">        This method performs the following steps:</span>
+<span class="sd">        1. Initialize an NMDC Database instance.</span>
+<span class="sd">        2. Generate calibration information and data objects for each calibration file.</span>
+<span class="sd">        3. Load and process metadata to create NMDC objects.</span>
+<span class="sd">        4. Generate Mass Spectrometry (including metabolite identifications), Raw Data, Metabolomics Analysis, and</span>
+<span class="sd">        Processed Data objects.</span>
+<span class="sd">        5. Update outputs for Mass Spectrometry and Metabolomics Analysis objects.</span>
+<span class="sd">        6. Append generated objects to the NMDC Database.</span>
+<span class="sd">        7. Dump the NMDC Database to a JSON file.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        nmdc.Database</span>
+<span class="sd">            The generated NMDC database instance containing all generated metadata objects.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the calibration standard is not supported.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This method uses tqdm to display progress bars for the processing of calibration information and</span>
+<span class="sd">        mass spectrometry metadata.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">client_id</span><span class="p">,</span> <span class="n">client_secret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_credentials</span><span class="p">(</span>
+            <span class="n">config_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">minting_config_creds</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibration_standard</span> <span class="o">!=</span> <span class="s2">&quot;fames&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only FAMES calibration is supported at this time.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Start NMDC database and make metadata dataframe</span>
+        <span class="n">nmdc_database_inst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_nmdc_database</span><span class="p">()</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_metadata</span><span class="p">()</span>
+        <span class="n">metadata_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
+        <span class="c1"># check if the raw data url is directly passed in or needs to be built with raw data file</span>
+        <span class="n">raw_col</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;raw_data_url&quot;</span> <span class="k">if</span> <span class="s2">&quot;raw_data_url&quot;</span> <span class="ow">in</span> <span class="n">metadata_df</span><span class="o">.</span><span class="n">columns</span> <span class="k">else</span> <span class="s2">&quot;raw_data_file&quot;</span>
+        <span class="p">)</span>
+        <span class="n">urls_columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unique_columns</span> <span class="o">+</span> <span class="p">[</span><span class="n">raw_col</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">test</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check_doj_urls</span><span class="p">(</span><span class="n">metadata_df</span><span class="o">=</span><span class="n">metadata_df</span><span class="p">,</span> <span class="n">url_columns</span><span class="o">=</span><span class="n">urls_columns</span><span class="p">)</span>
+
+        <span class="c1"># Get the configuration file data object id and add it to the metadata_df</span>
+        <span class="n">do_client</span> <span class="o">=</span> <span class="n">DataObjectSearch</span><span class="p">(</span><span class="n">env</span><span class="o">=</span><span class="n">ENV</span><span class="p">)</span>
+        <span class="n">config_do_id</span> <span class="o">=</span> <span class="n">do_client</span><span class="o">.</span><span class="n">get_record_by_attribute</span><span class="p">(</span>
+            <span class="n">attribute_name</span><span class="o">=</span><span class="s2">&quot;name&quot;</span><span class="p">,</span>
+            <span class="n">attribute_value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">configuration_file_name</span><span class="p">,</span>
+            <span class="n">fields</span><span class="o">=</span><span class="s2">&quot;id&quot;</span><span class="p">,</span>
+            <span class="n">exact_match</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+
+        <span class="c1"># check if there is an existing calibration_id in the metadata. If not, we need to generate them</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="s2">&quot;calibration_id&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">metadata_df</span><span class="o">.</span><span class="n">columns</span>
+            <span class="ow">or</span> <span class="n">metadata_df</span><span class="p">[</span><span class="s2">&quot;calibration_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">generate_calibration_ids</span><span class="p">(</span>
+                <span class="n">metadata_df</span><span class="o">=</span><span class="n">metadata_df</span><span class="p">,</span>
+                <span class="n">nmdc_database_inst</span><span class="o">=</span><span class="n">nmdc_database_inst</span><span class="p">,</span>
+                <span class="n">CLIENT_ID</span><span class="o">=</span><span class="n">client_id</span><span class="p">,</span>
+                <span class="n">CLIENT_SECRET</span><span class="o">=</span><span class="n">client_secret</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="c1"># check if manifest ids are provided or if we need to generate them</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_manifest</span><span class="p">(</span>
+            <span class="n">metadata_df</span><span class="o">=</span><span class="n">metadata_df</span><span class="p">,</span>
+            <span class="n">nmdc_database_inst</span><span class="o">=</span><span class="n">nmdc_database_inst</span><span class="p">,</span>
+            <span class="n">CLIENT_ID</span><span class="o">=</span><span class="n">client_id</span><span class="p">,</span>
+            <span class="n">CLIENT_SECRET</span><span class="o">=</span><span class="n">client_secret</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">generate_mass_spec_fields</span><span class="p">(</span>
+            <span class="n">metadata_df</span><span class="o">=</span><span class="n">metadata_df</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># process workflow metadata</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span>
+            <span class="n">metadata_df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">(),</span>
+            <span class="n">total</span><span class="o">=</span><span class="n">metadata_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Processing Remaining Metadata&quot;</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="n">workflow_metadata_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_workflow_metadata</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+            <span class="c1"># Generate data generation / mass spectrometry object</span>
+            <span class="n">mass_spec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_mass_spectrometry</span><span class="p">(</span>
+                <span class="n">file_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">workflow_metadata_obj</span><span class="o">.</span><span class="n">raw_data_file</span><span class="p">),</span>
+                <span class="n">instrument_id</span><span class="o">=</span><span class="n">workflow_metadata_obj</span><span class="o">.</span><span class="n">instrument_id</span><span class="p">,</span>
+                <span class="n">sample_id</span><span class="o">=</span><span class="n">workflow_metadata_obj</span><span class="o">.</span><span class="n">sample_id</span><span class="p">,</span>
+                <span class="n">raw_data_id</span><span class="o">=</span><span class="s2">&quot;nmdc:placeholder&quot;</span><span class="p">,</span>
+                <span class="n">study_id</span><span class="o">=</span><span class="n">workflow_metadata_obj</span><span class="o">.</span><span class="n">nmdc_study</span><span class="p">,</span>
+                <span class="n">processing_institution</span><span class="o">=</span><span class="p">(</span>
+                    <span class="n">workflow_metadata_obj</span><span class="o">.</span><span class="n">processing_institution_generation</span>
+                    <span class="k">if</span> <span class="n">workflow_metadata_obj</span><span class="o">.</span><span class="n">processing_institution_generation</span>
+                    <span class="k">else</span> <span class="n">workflow_metadata_obj</span><span class="o">.</span><span class="n">processing_institution</span>
+                <span class="p">),</span>
+                <span class="n">mass_spec_configuration_id</span><span class="o">=</span><span class="n">workflow_metadata_obj</span><span class="o">.</span><span class="n">mass_spec_configuration_id</span><span class="p">,</span>
+                <span class="n">lc_config_id</span><span class="o">=</span><span class="n">workflow_metadata_obj</span><span class="o">.</span><span class="n">lc_config_id</span><span class="p">,</span>
+                <span class="n">start_date</span><span class="o">=</span><span class="n">workflow_metadata_obj</span><span class="o">.</span><span class="n">instrument_analysis_start_date</span><span class="p">,</span>
+                <span class="n">end_date</span><span class="o">=</span><span class="n">workflow_metadata_obj</span><span class="o">.</span><span class="n">instrument_analysis_end_date</span><span class="p">,</span>
+                <span class="n">CLIENT_ID</span><span class="o">=</span><span class="n">client_id</span><span class="p">,</span>
+                <span class="n">CLIENT_SECRET</span><span class="o">=</span><span class="n">client_secret</span><span class="p">,</span>
+                <span class="n">calibration_ids</span><span class="o">=</span><span class="n">workflow_metadata_obj</span><span class="o">.</span><span class="n">calibration_ids</span><span class="p">,</span>
+                <span class="n">instrument_instance_specifier</span><span class="o">=</span><span class="n">workflow_metadata_obj</span><span class="o">.</span><span class="n">instrument_instance_specifier</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="c1"># Generate raw data object</span>
+            <span class="n">raw_data_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_data_object</span><span class="p">(</span>
+                <span class="n">file_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">workflow_metadata_obj</span><span class="o">.</span><span class="n">raw_data_file</span><span class="p">),</span>
+                <span class="n">data_category</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_data_category</span><span class="p">,</span>
+                <span class="n">data_object_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_data_obj_type</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_data_obj_desc</span><span class="p">,</span>
+                <span class="n">base_url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_data_url</span><span class="p">,</span>
+                <span class="n">CLIENT_ID</span><span class="o">=</span><span class="n">client_id</span><span class="p">,</span>
+                <span class="n">CLIENT_SECRET</span><span class="o">=</span><span class="n">client_secret</span><span class="p">,</span>
+                <span class="n">was_generated_by</span><span class="o">=</span><span class="n">mass_spec</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                <span class="n">url</span><span class="o">=</span><span class="n">workflow_metadata_obj</span><span class="o">.</span><span class="n">raw_data_url</span><span class="p">,</span>
+                <span class="n">in_manifest</span><span class="o">=</span><span class="n">workflow_metadata_obj</span><span class="o">.</span><span class="n">manifest_id</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">raw_data_object_id</span> <span class="o">=</span> <span class="n">raw_data_object</span><span class="o">.</span><span class="n">id</span>
+
+            <span class="c1"># Get qc fields, converting NaN to None</span>
+            <span class="n">qc_status</span><span class="p">,</span> <span class="n">qc_comment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_qc_fields</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+            <span class="c1"># Always generate metabolite_identifications (even for failed QC)</span>
+            <span class="n">metabolite_identifications</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_metab_identifications</span><span class="p">(</span>
+                <span class="n">processed_data_file</span><span class="o">=</span><span class="n">workflow_metadata_obj</span><span class="o">.</span><span class="n">processed_data_file</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Generate metabolomics analysis object with metabolite identifications</span>
+            <span class="n">metab_analysis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_metabolomics_analysis</span><span class="p">(</span>
+                <span class="n">cluster_name</span><span class="o">=</span><span class="n">workflow_metadata_obj</span><span class="o">.</span><span class="n">execution_resource</span><span class="p">,</span>
+                <span class="n">raw_data_name</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">workflow_metadata_obj</span><span class="o">.</span><span class="n">raw_data_file</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">raw_data_id</span><span class="o">=</span><span class="n">raw_data_object_id</span><span class="p">,</span>
+                <span class="n">data_gen_id_list</span><span class="o">=</span><span class="p">[</span><span class="n">mass_spec</span><span class="o">.</span><span class="n">id</span><span class="p">],</span>
+                <span class="n">processed_data_id</span><span class="o">=</span><span class="s2">&quot;nmdc:placeholder&quot;</span><span class="p">,</span>
+                <span class="n">parameter_data_id</span><span class="o">=</span><span class="n">config_do_id</span><span class="p">,</span>
+                <span class="n">processing_institution</span><span class="o">=</span><span class="p">(</span>
+                    <span class="n">workflow_metadata_obj</span><span class="o">.</span><span class="n">processing_institution_workflow</span>
+                    <span class="k">if</span> <span class="n">workflow_metadata_obj</span><span class="o">.</span><span class="n">processing_institution_workflow</span>
+                    <span class="k">else</span> <span class="n">workflow_metadata_obj</span><span class="o">.</span><span class="n">processing_institution</span>
+                <span class="p">),</span>
+                <span class="n">CLIENT_ID</span><span class="o">=</span><span class="n">client_id</span><span class="p">,</span>
+                <span class="n">CLIENT_SECRET</span><span class="o">=</span><span class="n">client_secret</span><span class="p">,</span>
+                <span class="n">calibration_ids</span><span class="o">=</span><span class="n">workflow_metadata_obj</span><span class="o">.</span><span class="n">calibration_ids</span><span class="p">,</span>
+                <span class="n">metabolite_identifications</span><span class="o">=</span><span class="n">metabolite_identifications</span><span class="p">,</span>
+                <span class="n">qc_status</span><span class="o">=</span><span class="n">qc_status</span><span class="p">,</span>
+                <span class="n">qc_comment</span><span class="o">=</span><span class="n">qc_comment</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Always generate processed data object (even for failed QC)</span>
+            <span class="n">processed_data_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_data_object</span><span class="p">(</span>
+                <span class="n">file_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">workflow_metadata_obj</span><span class="o">.</span><span class="n">processed_data_file</span><span class="p">),</span>
+                <span class="n">data_category</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">processed_data_category</span><span class="p">,</span>
+                <span class="n">data_object_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">processed_data_object_type</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">processed_data_object_description</span><span class="p">,</span>
+                <span class="n">base_url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">process_data_url</span><span class="p">,</span>
+                <span class="n">CLIENT_ID</span><span class="o">=</span><span class="n">client_id</span><span class="p">,</span>
+                <span class="n">CLIENT_SECRET</span><span class="o">=</span><span class="n">client_secret</span><span class="p">,</span>
+                <span class="n">was_generated_by</span><span class="o">=</span><span class="n">metab_analysis</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Update MetabolomicsAnalysis times based on processed data file</span>
+            <span class="n">processed_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">workflow_metadata_obj</span><span class="o">.</span><span class="n">processed_data_file</span><span class="p">)</span>
+            <span class="n">start_time</span><span class="p">,</span> <span class="n">end_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_start_end_times</span><span class="p">(</span><span class="n">processed_file</span><span class="p">)</span>
+            <span class="n">metab_analysis</span><span class="o">.</span><span class="n">started_at_time</span> <span class="o">=</span> <span class="n">start_time</span>
+            <span class="n">metab_analysis</span><span class="o">.</span><span class="n">ended_at_time</span> <span class="o">=</span> <span class="n">end_time</span>
+
+            <span class="n">has_inputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">config_do_id</span><span class="p">,</span> <span class="n">raw_data_object_id</span><span class="p">]</span>
+            <span class="n">processed_data_id_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">processed_data_object</span><span class="o">.</span><span class="n">id</span><span class="p">]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_outputs</span><span class="p">(</span>
+                <span class="n">mass_spec_obj</span><span class="o">=</span><span class="n">mass_spec</span><span class="p">,</span>
+                <span class="n">analysis_obj</span><span class="o">=</span><span class="n">metab_analysis</span><span class="p">,</span>
+                <span class="n">raw_data_obj_id</span><span class="o">=</span><span class="n">raw_data_object_id</span><span class="p">,</span>
+                <span class="n">parameter_data_id</span><span class="o">=</span><span class="n">has_inputs</span><span class="p">,</span>
+                <span class="n">processed_data_id_list</span><span class="o">=</span><span class="n">processed_data_id_list</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="c1"># If QC failed, remove processed data and has_output, and clear metabolite_identifications</span>
+            <span class="k">if</span> <span class="n">qc_status</span> <span class="o">==</span> <span class="s2">&quot;fail&quot;</span><span class="p">:</span>
+                <span class="c1"># Remove has_output from workflow</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">metab_analysis</span><span class="p">,</span> <span class="s2">&quot;has_output&quot;</span><span class="p">):</span>
+                    <span class="nb">delattr</span><span class="p">(</span><span class="n">metab_analysis</span><span class="p">,</span> <span class="s2">&quot;has_output&quot;</span><span class="p">)</span>
+                <span class="c1"># Clear metabolite_identifications</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">metab_analysis</span><span class="p">,</span> <span class="s2">&quot;has_metabolite_identifications&quot;</span><span class="p">):</span>
+                    <span class="nb">delattr</span><span class="p">(</span><span class="n">metab_analysis</span><span class="p">,</span> <span class="s2">&quot;has_metabolite_identifications&quot;</span><span class="p">)</span>
+                <span class="c1"># Don&#39;t add processed data object to database</span>
+                <span class="n">processed_data_object</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="n">nmdc_database_inst</span><span class="o">.</span><span class="n">data_generation_set</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mass_spec</span><span class="p">)</span>
+            <span class="n">nmdc_database_inst</span><span class="o">.</span><span class="n">data_object_set</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">raw_data_object</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">processed_data_object</span><span class="p">:</span>
+                <span class="n">nmdc_database_inst</span><span class="o">.</span><span class="n">data_object_set</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">processed_data_object</span><span class="p">)</span>
+            <span class="n">nmdc_database_inst</span><span class="o">.</span><span class="n">workflow_execution_set</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">metab_analysis</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dump_nmdc_database</span><span class="p">(</span>
+            <span class="n">nmdc_database</span><span class="o">=</span><span class="n">nmdc_database_inst</span><span class="p">,</span> <span class="n">json_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">database_dump_json_path</span>
+        <span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Metadata processing completed.&quot;</span><span class="p">)</span>
+        <span class="c1"># change db object to dict</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nmdc_db_to_dict</span><span class="p">(</span><span class="n">nmdc_database_inst</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GCMSMetabolomicsMetadataGenerator.generate_calibration_ids">
+<a class="viewcode-back" href="../../functions.html#nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator.generate_calibration_ids">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_calibration_ids</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">metadata_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">nmdc_database_inst</span><span class="p">:</span> <span class="n">nmdc</span><span class="o">.</span><span class="n">Database</span><span class="p">,</span>
+        <span class="n">CLIENT_ID</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">CLIENT_SECRET</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate calibration information and data objects for each calibration file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        metadata_df : pd.DataFrame</span>
+<span class="sd">            The metadata DataFrame.</span>
+<span class="sd">        nmdc_database_inst : nmdc.Database</span>
+<span class="sd">            The NMDC Database instance.</span>
+<span class="sd">        CLIENT_ID : str</span>
+<span class="sd">            The client ID for the NMDC API.</span>
+<span class="sd">        CLIENT_SECRET : str</span>
+<span class="sd">            The client secret for the NMDC API.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get unique calibration file, create data object and Calibration information for each and attach associated ids to metadata_df</span>
+        <span class="n">calibration_files</span> <span class="o">=</span> <span class="n">metadata_df</span><span class="p">[</span><span class="s2">&quot;calibration_file&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">calibration_file</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span>
+            <span class="n">calibration_files</span><span class="p">,</span>
+            <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">calibration_files</span><span class="p">),</span>
+            <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Generating calibration information and data objects&quot;</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="c1"># Check if the df has calibration_file_url, if not, set url to None to use the raw_data_url</span>
+            <span class="k">if</span> <span class="s2">&quot;calibration_file_url&quot;</span> <span class="ow">in</span> <span class="n">metadata_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">url</span> <span class="o">=</span> <span class="n">metadata_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                    <span class="n">metadata_df</span><span class="p">[</span><span class="s2">&quot;calibration_file&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">calibration_file</span><span class="p">),</span>
+                    <span class="s2">&quot;calibration_file_url&quot;</span><span class="p">,</span>
+                <span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">url</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="n">calibration_data_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_data_object</span><span class="p">(</span>
+                <span class="n">file_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">calibration_file</span><span class="p">),</span>
+                <span class="n">data_category</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_data_category</span><span class="p">,</span>
+                <span class="n">data_object_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_data_obj_type</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_data_obj_desc</span><span class="p">,</span>
+                <span class="n">base_url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_data_url</span><span class="p">,</span>
+                <span class="n">CLIENT_ID</span><span class="o">=</span><span class="n">CLIENT_ID</span><span class="p">,</span>
+                <span class="n">CLIENT_SECRET</span><span class="o">=</span><span class="n">CLIENT_SECRET</span><span class="p">,</span>
+                <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">nmdc_database_inst</span><span class="o">.</span><span class="n">data_object_set</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">calibration_data_object</span><span class="p">)</span>
+
+            <span class="n">calibration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_calibration</span><span class="p">(</span>
+                <span class="n">calibration_object</span><span class="o">=</span><span class="n">calibration_data_object</span><span class="p">,</span>
+                <span class="n">CLIENT_ID</span><span class="o">=</span><span class="n">CLIENT_ID</span><span class="p">,</span>
+                <span class="n">CLIENT_SECRET</span><span class="o">=</span><span class="n">CLIENT_SECRET</span><span class="p">,</span>
+                <span class="n">fames</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">calibration_standard</span><span class="p">,</span>
+                <span class="n">internal</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">nmdc_database_inst</span><span class="o">.</span><span class="n">calibration_set</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">calibration</span><span class="p">)</span>
+
+            <span class="c1"># Add calibration information id to metadata_df</span>
+            <span class="n">metadata_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                <span class="n">metadata_df</span><span class="p">[</span><span class="s2">&quot;calibration_file&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">calibration_file</span><span class="p">,</span> <span class="s2">&quot;calibration_id&quot;</span>
+            <span class="p">]</span> <span class="o">=</span> <span class="n">calibration</span><span class="o">.</span><span class="n">id</span></div>
+
+
+<div class="viewcode-block" id="GCMSMetabolomicsMetadataGenerator.generate_calibration">
+<a class="viewcode-back" href="../../functions.html#nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator.generate_calibration">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_calibration</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">calibration_object</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+        <span class="n">CLIENT_ID</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">CLIENT_SECRET</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">fames</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">internal</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">nmdc</span><span class="o">.</span><span class="n">CalibrationInformation</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate a CalibrationInformation object for the NMDC Database.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        calibration_object : dict</span>
+<span class="sd">            The calibration data object.</span>
+<span class="sd">        CLIENT_ID : str</span>
+<span class="sd">            The client ID for the NMDC API.</span>
+<span class="sd">        CLIENT_SECRET : str</span>
+<span class="sd">            The client secret for the NMDC API.</span>
+<span class="sd">        fames : bool, optional</span>
+<span class="sd">            Whether the calibration is for FAMES. Default is True.</span>
+<span class="sd">        internal : bool, optional</span>
+<span class="sd">            Whether the calibration is internal. Default is False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        nmdc.CalibrationInformation</span>
+<span class="sd">            A CalibrationInformation object for the NMDC Database.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This method generates a CalibrationInformation object based on the calibration data object</span>
+<span class="sd">        and the calibration type.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the calibration type is not supported.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">fames</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">internal</span><span class="p">:</span>
+            <span class="n">nmdc_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_pool</span><span class="o">.</span><span class="n">get_id</span><span class="p">(</span>
+                <span class="n">nmdc_type</span><span class="o">=</span><span class="n">NmdcTypes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;CalibrationInformation&quot;</span><span class="p">),</span>
+                <span class="n">client_id</span><span class="o">=</span><span class="n">CLIENT_ID</span><span class="p">,</span>
+                <span class="n">client_secret</span><span class="o">=</span><span class="n">CLIENT_SECRET</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">data_dict</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">nmdc_id</span><span class="p">,</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">NmdcTypes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;CalibrationInformation&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;GC/MS FAMES calibration (</span><span class="si">{</span><span class="n">calibration_object</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Full scan GC/MS FAMES calibration run (</span><span class="si">{</span><span class="n">calibration_object</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">).&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;internal_calibration&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="s2">&quot;calibration_target&quot;</span><span class="p">:</span> <span class="s2">&quot;retention_index&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;calibration_standard&quot;</span><span class="p">:</span> <span class="s2">&quot;fames&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;calibration_object&quot;</span><span class="p">:</span> <span class="n">calibration_object</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="p">}</span>
+
+            <span class="n">calibration_information</span> <span class="o">=</span> <span class="n">nmdc</span><span class="o">.</span><span class="n">CalibrationInformation</span><span class="p">(</span><span class="o">**</span><span class="n">data_dict</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">calibration_information</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Calibration type not implemented, only external FAMES calibration is currently supported.&quot;</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GCMSMetabolomicsMetadataGenerator.create_workflow_metadata">
+<a class="viewcode-back" href="../../functions.html#nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator.create_workflow_metadata">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_workflow_metadata</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GCMSMetabWorkflowMetadata</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a GCMSMetabWorkflowMetadata object from a dictionary of workflow metadata.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        row : dict[str, str]</span>
+<span class="sd">            Dictionary containing metadata for a workflow. This is typically</span>
+<span class="sd">            a row from the input metadata CSV file.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        GCMSMetabWorkflowMetadata</span>
+<span class="sd">            A GCMSMetabWorkflowMetadata object populated with data from the input dictionary.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">GCMSMetabWorkflowMetadata</span><span class="p">(</span>
+            <span class="n">sample_id</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;sample_id&quot;</span><span class="p">],</span>
+            <span class="n">nmdc_study</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;associated_studies&quot;</span><span class="p">]),</span>
+            <span class="n">processing_institution</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;processing_institution&quot;</span><span class="p">),</span>
+            <span class="n">processing_institution_generation</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s2">&quot;processing_institution_generation&quot;</span>
+            <span class="p">),</span>
+            <span class="n">processing_institution_workflow</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;processing_institution_workflow&quot;</span><span class="p">),</span>
+            <span class="n">processed_data_file</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;processed_data_file&quot;</span><span class="p">],</span>
+            <span class="n">raw_data_file</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;raw_data_file&quot;</span><span class="p">],</span>
+            <span class="n">mass_spec_configuration_id</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;mass_spec_configuration_id&quot;</span><span class="p">],</span>
+            <span class="n">lc_config_id</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;lc_config_id&quot;</span><span class="p">],</span>
+            <span class="n">instrument_id</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;instrument_id&quot;</span><span class="p">],</span>
+            <span class="n">instrument_analysis_start_date</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;instrument_analysis_start_date&quot;</span><span class="p">),</span>
+            <span class="n">instrument_analysis_end_date</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;instrument_analysis_end_date&quot;</span><span class="p">),</span>
+            <span class="n">execution_resource</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;execution_resource&quot;</span><span class="p">),</span>
+            <span class="n">calibration_ids</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;calibration_id&quot;</span><span class="p">],</span>
+            <span class="n">raw_data_url</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;raw_data_url&quot;</span><span class="p">),</span>
+            <span class="n">manifest_id</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;manifest_id&quot;</span><span class="p">),</span>
+            <span class="n">instrument_instance_specifier</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;instrument_instance_specifier&quot;</span><span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GCMSMetabolomicsMetadataGenerator.generate_metab_identifications">
+<a class="viewcode-back" href="../../functions.html#nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator.generate_metab_identifications">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_metab_identifications</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">processed_data_file</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">nmdc</span><span class="o">.</span><span class="n">MetaboliteIdentification</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate MetaboliteIdentification objects from processed data file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        processed_data_file : str</span>
+<span class="sd">            Path to the processed data file.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        List[nmdc.MetaboliteIdentification]</span>
+<span class="sd">            List of MetaboliteIdentification objects generated from the processed data file.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This method reads in the processed data file and generates MetaboliteIdentification objects,</span>
+<span class="sd">        pulling out the best hit for each peak based on the highest &quot;Similarity Score&quot;.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Open the file and read in the data as a pandas dataframe</span>
+        <span class="n">processed_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">processed_data_file</span><span class="p">)</span>
+
+        <span class="c1"># Drop any rows with missing similarity scores</span>
+        <span class="n">processed_data</span> <span class="o">=</span> <span class="n">processed_data</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Similarity Score&quot;</span><span class="p">])</span>
+        <span class="c1"># Group by &quot;Peak Index&quot; and find the best hit for each peak based on the highest &quot;Similarity Score&quot;</span>
+        <span class="n">best_hits</span> <span class="o">=</span> <span class="n">processed_data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;Peak Index&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;Similarity Score&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">idxmax</span><span class="p">()],</span> <span class="n">include_groups</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+
+        <span class="n">metabolite_identifications</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">best_hit</span> <span class="ow">in</span> <span class="n">best_hits</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="c1"># Check if the best hit has a Chebi ID, if not, do not create a MetaboliteIdentification object</span>
+            <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">best_hit</span><span class="p">[</span><span class="s2">&quot;Chebi ID&quot;</span><span class="p">]):</span>
+                <span class="k">continue</span>
+            <span class="n">chebi_id</span> <span class="o">=</span> <span class="s2">&quot;chebi:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">best_hit</span><span class="p">[</span><span class="s2">&quot;Chebi ID&quot;</span><span class="p">]))</span>
+
+            <span class="c1"># Prepare KEGG Compound ID as an alternative identifier</span>
+            <span class="n">alt_ids</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">best_hit</span><span class="p">[</span><span class="s2">&quot;Kegg Compound ID&quot;</span><span class="p">]):</span>
+                <span class="c1"># Check for | in Kegg Compound ID and split if necessary</span>
+                <span class="k">if</span> <span class="s2">&quot;|&quot;</span> <span class="ow">in</span> <span class="n">best_hit</span><span class="p">[</span><span class="s2">&quot;Kegg Compound ID&quot;</span><span class="p">]:</span>
+                    <span class="n">alt_ids</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="s2">&quot;kegg:&quot;</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">best_hit</span><span class="p">[</span><span class="s2">&quot;Kegg Compound ID&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">)</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">alt_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;kegg:&quot;</span> <span class="o">+</span> <span class="n">best_hit</span><span class="p">[</span><span class="s2">&quot;Kegg Compound ID&quot;</span><span class="p">])</span>
+            <span class="n">alt_ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">alt_ids</span><span class="p">))</span>
+
+            <span class="n">data_dict</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;metabolite_identified&quot;</span><span class="p">:</span> <span class="n">chebi_id</span><span class="p">,</span>
+                <span class="s2">&quot;alternative_identifiers&quot;</span><span class="p">:</span> <span class="n">alt_ids</span><span class="p">,</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">NmdcTypes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;MetaboliteIdentification&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;highest_similarity_score&quot;</span><span class="p">:</span> <span class="n">best_hit</span><span class="p">[</span><span class="s2">&quot;Similarity Score&quot;</span><span class="p">],</span>
+            <span class="p">}</span>
+
+            <span class="n">metabolite_identification</span> <span class="o">=</span> <span class="n">nmdc</span><span class="o">.</span><span class="n">MetaboliteIdentification</span><span class="p">(</span><span class="o">**</span><span class="n">data_dict</span><span class="p">)</span>
+            <span class="n">metabolite_identifications</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">metabolite_identification</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">metabolite_identifications</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Olivia Hess.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
