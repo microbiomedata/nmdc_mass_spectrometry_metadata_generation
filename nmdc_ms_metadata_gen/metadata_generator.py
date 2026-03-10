@@ -1736,7 +1736,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
                 current_version = match.group(1)
             return current_version
         else:
-            logging.warning(
+            logging.error(
                 f"Failed to fetch the workflow version from the Git repository {workflow_version_git_url}"
             )
         return None
