@@ -1348,7 +1348,6 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             "id": nmdc_id,
             "name": file_path.stem,
             "description": self.mass_spec_desc,
-            "add_date": datetime.now().strftime("%Y-%m-%d"),
             "eluent_introduction_category": self.mass_spec_eluent_intro,
             "has_mass_spectrometry_configuration": mass_spec_configuration_id,
             "has_chromatography_configuration": lc_config_id,
