@@ -103,11 +103,13 @@ class NMDCMetadataGenerator:
             )
 
         source_system_of_record = "custom"
+        add_date = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
         provenance_metadata = nmdc.ProvenanceMetadata(
             type=type_str,
             git_url=git_url,
             version=version,
             source_system_of_record=source_system_of_record,
+            add_date=add_date,
         )
 
         return provenance_metadata
@@ -1365,6 +1367,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
 
         if calibration_ids is not None:
             data_dict["generates_calibration"] = calibration_ids
+        data_dict["provenance_metadata"] = self.provenance_metadata
         data_dict = self.clean_dict(data_dict)
         mass_spectrometry = nmdc.DataGeneration(**data_dict)
 
