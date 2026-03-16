@@ -206,8 +206,7 @@ class NMDCMetadataGenerator:
         return {
             k: v
             for k, v in dict.items()
-            if v not in [None, "", ""]
-            and not (isinstance(v, float) and np.isnan(v))
+            if v not in [None, "", ""] and not (isinstance(v, float) and np.isnan(v))
         }
 
     def generate_data_object(
@@ -703,6 +702,9 @@ class NMDCMetadataGenerator:
         incremeneted_id: str = None,
         metabolite_identifications: List[nmdc.MetaboliteIdentification] = None,
         type: str = NmdcTypes.get("MetabolomicsAnalysis"),
+        peak_count: int = None,
+        peak_assignment_count: int = None,
+        c13_isotopologue_count: int = None,
         qc_status: str = None,
         qc_comment: str = None,
     ) -> nmdc.MetabolomicsAnalysis:
@@ -743,6 +745,12 @@ class NMDCMetadataGenerator:
             Default is None, which indicates no metabolite identifications.
         type : str, optional
             The type of the analysis. Default resolves to the schema type for MetabolomicsAnalysis.
+        peak_count : int, optional
+            The number of peaks detected in the analysis.
+        peak_assignment_count : int, optional
+            The number of peak assignments made in the analysis.
+        c13_isotopologue_count : int, optional
+            The number of C13 isotopologues detected in the analysis.
         qc_status : str, optional
             The quality control status for the analysis.
         qc_comment : str, optional
@@ -796,6 +804,12 @@ class NMDCMetadataGenerator:
 
         if metabolite_identifications is not None:
             data_dict["has_metabolite_identifications"] = metabolite_identifications
+        if peak_count is not None:
+            data_dict["peak_count"] = peak_count
+        if peak_assignment_count is not None:
+            data_dict["peak_assignment_count"] = peak_assignment_count
+        if c13_isotopologue_count is not None:
+            data_dict["c13_isotopologue_count"] = c13_isotopologue_count
         data_dict = self.clean_dict(data_dict)
         metab_analysis = nmdc.MetabolomicsAnalysis(**data_dict)
 

@@ -166,8 +166,24 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 in_manifest=workflow_metadata.manifest_id,
             )
 
-            # Get qc fields, converting NaN to None
+            # Get qc fields from input CSV, converting NaN to None
             qc_status, qc_comment = self._get_qc_fields(data)
+
+            # Always generate qc stats (even for failed QC)
+            if self.add_wf_stats:
+                peak_count, peak_assignment_count, c13_isotopologue_count = (
+                    self.generate_stats(
+                        processed_data_dir=workflow_metadata.processed_data_dir
+                    )
+                )
+            else:
+                peak_count, peak_assignment_count, c13_isotopologue_count = (
+                    None,
+                    None,
+                    None,
+                )
+
+            # TODO: add qc_status and qc_comment based on qc stats (decide if overwrites CSV input)
 
             # Always generate metabolite_identifications (even for failed QC)
             if self.add_metabolite_ids:
@@ -192,6 +208,9 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_ID=client_id,
                 CLIENT_SECRET=client_secret,
                 metabolite_identifications=metabolite_identifications,
+                peak_count=peak_count,
+                peak_assignment_count=peak_assignment_count,
+                c13_isotopologue_count=c13_isotopologue_count,
                 qc_status=qc_status,
                 qc_comment=qc_comment,
             )
@@ -416,6 +435,20 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             # Get qc fields, converting NaN to None
             qc_status, qc_comment = self._get_qc_fields(data)
 
+            # Always generate qc stats (even for failed QC) if the method exists
+            if hasattr(self, "generate_stats"):
+                peak_count, peak_assignment_count, c13_isotopologue_count = (
+                    self.generate_stats(
+                        processed_data_dir=data["processed_data_directory"]
+                    )
+                )
+            else:
+                peak_count, peak_assignment_count, c13_isotopologue_count = (
+                    None,
+                    None,
+                    None,
+                )
+
             # Always generate metabolite identifications (even for failed QC) if the method exists
             if hasattr(self, "generate_metab_identifications"):
                 metabolite_identifications = self.generate_metab_identifications(
@@ -436,6 +469,9 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_SECRET=client_secret,
                 incremeneted_id=metab_analysis_id,
                 metabolite_identifications=metabolite_identifications,
+                peak_count=peak_count,
+                peak_assignment_count=peak_assignment_count,
+                c13_isotopologue_count=c13_isotopologue_count,
                 qc_status=qc_status,
                 qc_comment=qc_comment,
             )

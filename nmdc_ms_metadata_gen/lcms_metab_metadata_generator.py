@@ -73,6 +73,8 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
         Description of HDF5 processed data.
     add_metabolite_ids : bool
         Whether to add metabolite IDs to the metadata.
+    add_wf_stats: bool
+        Whether to add workflow statistics to the metadata.
     """
 
     unique_columns: list[str] = ["processed_data_directory"]
@@ -96,6 +98,7 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
     workflow_version: str
     workflow_category: str = "lc_ms_metabolomics"
     add_metabolite_ids: bool = True
+    add_wf_stats: bool = True
 
     # Processed data attributes
     wf_config_process_data_category: str = "workflow_parameter_data"
@@ -140,6 +143,48 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
         )
         self.minting_config_creds = minting_config_creds
         self.existing_data_objects = existing_data_objects
+
+    def generate_stats(
+        self, processed_data_dir: str
+    ) -> List[nmdc.MetaboliteIdentification]:
+        """
+        Generate QC Stats objects from processed data directory.
+
+        Parameters
+        ----------
+        workflow_metadata : str
+            Path to the processed data directory.
+
+        Returns
+        -------
+        List[nmdc.MetaboliteIdentification]
+            List of MetaboliteIdentification objects generated from the processed data directory.
+
+        Notes
+        -----
+        This method reads in the processed data file and generates MetaboliteIdentification objects,
+        pulling out the best hit for each peak based on the highest "Similarity Score".
+
+        """
+        # Find the .csv file within the processed data directory
+        processed_data_file = next(Path(processed_data_dir).glob("**/*.csv"), None)
+
+        # Open the file and read in the data as a pandas dataframe
+        processed_data = pd.read_csv(processed_data_file)
+
+        # Calculate peak_count
+        peak_count = processed_data["Mass Feature ID"].nunique()
+
+        # Calculate peak_assignment_count
+        peak_assignments = processed_data[["Mass Feature ID", "inchikey"]].dropna()
+        peak_assignment_count = peak_assignments["Mass Feature ID"].nunique()
+
+        # Calculate c13_isotopologue_count
+        c13_isotopologue_count = processed_data[
+            "Monoisotopic Mass Feature ID"
+        ].nunique()
+
+        return peak_count, peak_assignment_count, c13_isotopologue_count
 
     def generate_metab_identifications(
         self, processed_data_dir: str
