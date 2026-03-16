@@ -100,6 +100,11 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
     add_metabolite_ids: bool = True
     add_wf_stats: bool = True
 
+    # QC thresholds
+    peak_count_threshold: int = 1
+    peak_assignment_count_threshold: int = 1
+    c13_isotopologue_count_threshold: int = 1
+
     # Processed data attributes
     wf_config_process_data_category: str = "workflow_parameter_data"
     wf_config_process_data_obj_type: str = "Configuration toml"
@@ -252,6 +257,87 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
             metabolite_identifications.append(metabolite_identification)
 
         return metabolite_identifications
+
+    def _get_wf_stats(self, processed_data_dir: str) -> dict:
+        """Return workflow statistics for metabolomics data as a dict."""
+        peak_count, peak_assignment_count, c13_isotopologue_count = self.generate_stats(
+            processed_data_dir=processed_data_dir
+        )
+        return {
+            "peak_count": peak_count,
+            "peak_assignment_count": peak_assignment_count,
+            "c13_isotopologue_count": c13_isotopologue_count,
+        }
+
+    def _resolve_qc_from_stats(self, qc_status, qc_comment, wf_stats: dict):
+        """Determine qc_status and qc_comment from metabolomics stats and optional CSV input.
+
+        Threshold checks are always run. Resolution follows these rules:
+
+        1. Stats fail AND CSV says "fail": returns "fail" with both the CSV comment and
+           the stat failure message concatenated together.
+        2. Stats fail AND CSV says "pass" or no CSV input: stats prevail, returns "fail"
+           with the stat failure message only.
+        3. Stats pass AND CSV says "fail": CSV override is accepted unconditionally,
+           returns "fail" with the CSV comment only.
+        4. Stats pass AND no CSV "fail": returns "pass" with the CSV comment if provided,
+           otherwise the default pass message.
+
+        Parameters
+        ----------
+        qc_status : str or None
+            QC status value from the CSV, or None if not provided.
+        qc_comment : str or None
+            QC comment value from the CSV, or None if not provided.
+        wf_stats : dict
+            Dictionary of workflow statistics (peak_count, peak_assignment_count,
+            c13_isotopologue_count).
+
+        Returns
+        -------
+        tuple
+            A tuple of (qc_status, qc_comment) resolved according to the rules above.
+        """
+        # Always compute stat failures
+        failed = []
+        if wf_stats.get("peak_count", 0) < self.peak_count_threshold:
+            failed.append(
+                f"peak_count ({wf_stats.get('peak_count', 0)} < {self.peak_count_threshold})"
+            )
+        if (
+            wf_stats.get("peak_assignment_count", 0)
+            < self.peak_assignment_count_threshold
+        ):
+            failed.append(
+                f"peak_assignment_count ({wf_stats.get('peak_assignment_count', 0)} < {self.peak_assignment_count_threshold})"
+            )
+        if (
+            wf_stats.get("c13_isotopologue_count", 0)
+            < self.c13_isotopologue_count_threshold
+        ):
+            failed.append(
+                f"c13_isotopologue_count ({wf_stats.get('c13_isotopologue_count', 0)} < {self.c13_isotopologue_count_threshold})"
+            )
+
+        stat_comment = f"QC failed on: {', '.join(failed)}." if failed else None
+
+        if failed and qc_status == "fail":
+            # Both stats and CSV indicate failure — concatenate comments
+            combined_comment = "; ".join(filter(None, [qc_comment, stat_comment]))
+            return "fail", combined_comment
+        elif failed:
+            # Stats fail, CSV says "pass" or nothing — stats prevail
+            return "fail", stat_comment
+        elif qc_status == "fail":
+            # Stats pass, but CSV explicitly forces a fail — accept it
+            return qc_status, qc_comment
+        else:
+            # Stats pass and no CSV override to fail
+            return "pass", (
+                qc_comment
+                if qc_comment is not None
+                else "QC passed all computed peak count thresholds."
+            )
 
     def rerun(self):
         return super().rerun()
