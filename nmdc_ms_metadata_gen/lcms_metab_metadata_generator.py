@@ -149,26 +149,23 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
         self.minting_config_creds = minting_config_creds
         self.existing_data_objects = existing_data_objects
 
-    def generate_stats(
-        self, processed_data_dir: str
-    ) -> List[nmdc.MetaboliteIdentification]:
+    def generate_stats(self, processed_data_dir: str) -> List[int]:
         """
-        Generate QC Stats objects from processed data directory.
+        Generate QC Stats from processed data directory.
 
         Parameters
         ----------
-        workflow_metadata : str
+        processed_data_dir : str
             Path to the processed data directory.
 
         Returns
         -------
-        List[nmdc.MetaboliteIdentification]
-            List of MetaboliteIdentification objects generated from the processed data directory.
+        List[int]
+            List of QC stats generated from the processed data directory.
 
         Notes
         -----
-        This method reads in the processed data file and generates MetaboliteIdentification objects,
-        pulling out the best hit for each peak based on the highest "Similarity Score".
+        This method reads in the processed data file and generates QC stats.
 
         """
         # Find the .csv file within the processed data directory
