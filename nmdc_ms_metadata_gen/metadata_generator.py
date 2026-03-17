@@ -10,7 +10,7 @@ import pkgutil
 import re
 from abc import ABC
 from copy import deepcopy
-from datetime import datetime
+from datetime import datetime, timezone
 from io import BytesIO
 from pathlib import Path
 from typing import Dict, List
@@ -103,7 +103,7 @@ class NMDCMetadataGenerator:
             )
 
         source_system_of_record = "custom"
-        add_date = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+        add_date = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         provenance_metadata = nmdc.ProvenanceMetadata(
             type=type_str,
             git_url=git_url,
@@ -208,8 +208,7 @@ class NMDCMetadataGenerator:
         return {
             k: v
             for k, v in dict.items()
-            if v not in [None, "", ""]
-            and not (isinstance(v, float) and np.isnan(v))
+            if v not in [None, "", ""] and not (isinstance(v, float) and np.isnan(v))
         }
 
     def generate_data_object(
