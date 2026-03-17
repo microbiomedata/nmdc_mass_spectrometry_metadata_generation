@@ -48,6 +48,7 @@ def test_di_nom_biosample_gen_more_fields():
         working_data["biosample_set"][0]["provenance_metadata"]["version"]
         == nmdc_ms_metadata_gen.__version__
     )
+    assert "add_date" in working_data["biosample_set"][0]["provenance_metadata"]
 
 
 def test_biosample_gen():
