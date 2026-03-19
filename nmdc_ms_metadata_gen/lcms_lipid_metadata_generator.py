@@ -133,7 +133,7 @@ class LCMSLipidomicsMetadataGenerator(LCMSMetadataGenerator):
         )
         # Set the workflow version, prioritizing user input, then fetching from the Git URL, and finally using a default.
         self.workflow_version = workflow_version or self.get_workflow_version(
-            workflow_version_git_url="https://github.com/microbiomedata/metaMS/blob/master/.bumpversion_lipid.cfg"
+            workflow_version_git_url="https://raw.githubusercontent.com/microbiomedata/metaMS/master/.bumpversion_lipid.cfg"
         )
         self.minting_config_creds = minting_config_creds
         self.existing_data_objects = existing_data_objects
