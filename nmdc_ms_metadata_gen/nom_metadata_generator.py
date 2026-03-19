@@ -88,10 +88,6 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         ):
             workflow_metadata_obj = self.create_nom_metatdata(row=row)
 
-            if "raw_data_url" in row and row.get("raw_data_url"):
-                workflow_metadata_obj.raw_data_url = row["raw_data_url"]
-            else:
-                workflow_metadata_obj.raw_data_url = self.raw_data_url + Path(row["raw_data_file"]).name
             try:
                 raw_data_object_id = do_client.get_record_by_attribute(
                     attribute_name="url",
@@ -500,6 +496,11 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         NOMMetadata
 
         """
+        if "raw_data_url" in row and row.get("raw_data_url"):
+            r = row["raw_data_url"]
+        else:
+            r = self.raw_data_url + Path(row["raw_data_file"]).name
+
         data = NOMMetadata(
             raw_data_file=row.get("raw_data_file"),
             processed_data_directory=row.get("processed_data_directory"),
@@ -520,7 +521,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             processing_institution_workflow=row.get("processing_institution_workflow"),
             processing_institution=row.get("processing_institution"),
             instrument_instance_specifier=row.get("instrument_instance_specifier"),
-            raw_data_url=row.get("raw_data_url"),
+            raw_data_url=r,
         )
         return data
 
