@@ -1,2 +1,3 @@
-raw_data_file,processed_data_directory
-tests/test_data/test_raw_nom/Blanchard_MeOHExt_H-17-AB-M_20Feb18_000001.zip,tests/test_data/test_processed_lcms_nom/lcms_test_1
+raw_data_file,processed_data_directory,raw_data_url
+tests/test_data/test_raw_nom/Blanchard_MeOHExt_H-17-AB-M_20Feb18_000001.zip,tests/test_data/test_processed_lcms_nom/lcms_test_1,
+,tests/test_data/test_processed_lcms_nom/lcms_test_2,https://nmdcdemo.emsl.pnnl.gov/nom/brodie_11_dcqce727/raw/Brodie_141_H2O_14Mar19_R2_HESI_Neg.raw
