@@ -64,6 +64,15 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
         )
         self.test = test
 
+    def _get_wf_stats(self, processed_data_dir: str) -> dict:
+        """Hook for subclasses to provide workflow statistics as a dict. Returns {} by default."""
+        return {}
+
+    def _resolve_qc_from_stats(self, qc_status, qc_comment, wf_stats: dict):
+        """Hook for subclasses to determine qc_status/qc_comment from computed stats.
+        By default, returns the values unchanged (i.e. as read from the CSV)."""
+        return qc_status, qc_comment
+
     def run(self) -> nmdc.Database:
         """
         Execute the metadata generation process for lipidomics data.
@@ -167,8 +176,16 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 in_manifest=workflow_metadata.manifest_id,
             )
 
-            # Get qc fields, converting NaN to None
+            # Get qc fields from input CSV, converting NaN to None
             qc_status, qc_comment = self._get_qc_fields(data)
+
+            # Get workflow stats (subclass-specific) and resolve QC
+            wf_stats = self._get_wf_stats(
+                processed_data_dir=workflow_metadata.processed_data_dir
+            )
+            qc_status, qc_comment = self._resolve_qc_from_stats(
+                qc_status, qc_comment, wf_stats
+            )
 
             # Always generate metabolite_identifications (even for failed QC)
             if self.add_metabolite_ids:
@@ -195,6 +212,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 metabolite_identifications=metabolite_identifications,
                 qc_status=qc_status,
                 qc_comment=qc_comment,
+                **wf_stats,
             )
 
             # list all paths in the processed data directory
@@ -427,6 +445,14 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             # Get qc fields, converting NaN to None
             qc_status, qc_comment = self._get_qc_fields(data)
 
+            # Get workflow stats (subclass-specific) and resolve QC
+            wf_stats = self._get_wf_stats(
+                processed_data_dir=data["processed_data_directory"]
+            )
+            qc_status, qc_comment = self._resolve_qc_from_stats(
+                qc_status, qc_comment, wf_stats
+            )
+
             # Always generate metabolite identifications (even for failed QC) if the method exists
             if hasattr(self, "generate_metab_identifications"):
                 metabolite_identifications = self.generate_metab_identifications(
@@ -449,6 +475,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 metabolite_identifications=metabolite_identifications,
                 qc_status=qc_status,
                 qc_comment=qc_comment,
+                **wf_stats,
             )
 
             # list all paths in the processed data directory
