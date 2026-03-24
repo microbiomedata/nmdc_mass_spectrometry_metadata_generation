@@ -1320,7 +1320,7 @@ class NMDCMetadataGenerator:
         # Dump the NMDC database to a JSON file
         self.dump_nmdc_database(study_database, Path(database_dump_json_path))
 
-        return None
+        return study_database
 
 
 class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
