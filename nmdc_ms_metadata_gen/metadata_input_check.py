@@ -339,7 +339,10 @@ class MetadataSurveyor:
 
                 # if the provided raw identifier is not an nmdc id, it does not match any existing record names in mongo
                 else:
-                    if existing_study_dg_metadata:
+                    if (
+                        existing_study_dg_metadata is not None
+                        and not existing_study_dg_metadata.empty
+                    ):
                         if "raw_file_name" in existing_study_dg_metadata.columns:
                             existing_dgnames_for_biosample = existing_study_dg_metadata[
                                 existing_study_dg_metadata["raw_data_input"]
