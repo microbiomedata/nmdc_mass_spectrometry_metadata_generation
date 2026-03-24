@@ -1291,9 +1291,9 @@ class NMDCMetadataGenerator:
 
         studies = []
         if not self.test:
-            # Search for studies by name in Mongo.
+            # Search for studies by EMSL proposal number in Mongo.
             # Print a message saying that the study already exists, but do not stop the loop.
-            # If the study already exists, remove it from the parsed_studies list
+            # If the study already exists, remove it from the output
             for s in parsed_studies:
                 study_client = StudySearch(env=ENV)
                 response = study_client.get_batch_records(
