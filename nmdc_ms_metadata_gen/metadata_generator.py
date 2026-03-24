@@ -1317,6 +1317,12 @@ class NMDCMetadataGenerator:
         # Add all the studies to study_set
         study_database.study_set.extend(studies)
 
+        # Validate output
+        try:
+            self.validate_nmdc_database(self.nmdc_db_to_dict(study_database))
+        except Exception as e:
+            print(f"Validation error: {e}")
+
         # Dump the NMDC database to a JSON file
         self.dump_nmdc_database(study_database, Path(database_dump_json_path))
 

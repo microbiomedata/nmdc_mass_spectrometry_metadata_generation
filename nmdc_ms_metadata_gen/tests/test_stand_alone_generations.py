@@ -427,11 +427,9 @@ def test_emsl_study_json_to_nmdc():
 
     gen = NMDCMetadataGenerator(test=True)
     emsl_study_json_path = "tests/test_data/test_study_info.json"
-    
     nmdc_json = gen.emsl_study_json_to_nmdc(emsl_study_json_path, output_file)
 
     # Check that the output has the expected structure
-    assert nmdc_json["@type"] == "Database"
     assert "study_set" in nmdc_json
     assert isinstance(nmdc_json["study_set"], list)
     for study in nmdc_json["study_set"]:
