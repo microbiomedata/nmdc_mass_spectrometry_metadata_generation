@@ -1160,7 +1160,8 @@ class NMDCMetadataGenerator:
 
         # Map description
         if "abstract" in study_data:
-            parsed["description"] = study_data.get("abstract")
+            abstract = study_data.get("abstract").replace("\n", " ").replace("\r", " ").replace("\t", " ")
+            parsed["description"] = abstract
 
         # Study category - assume research study unless specified
         if "study_category" in study_data:
@@ -1288,7 +1289,15 @@ class NMDCMetadataGenerator:
             if not s["study_category"]:
                 raise ValueError(f"Study '{s.title}' is missing study_category.")
         
-        # TODO: Check if study name already exists
+        if not self.test: # why doesn't this test
+            # Search for studies by name in the nmdc databse and raise an error if any of the input study names already exist
+            for s in parsed_studies:
+                response = StudySearch().search(name="beep beep", page_size=1000)
+                print(response)
+                response = StudySearch().search(name=s["name"], page_size=1000)
+                print(response)
+                if response:
+                    raise ValueError(f"Study name '{s['name']}' already exists in the database. Study names must be unique.")
 
         # Mint and add IDs to study records
         for s in parsed_studies:
