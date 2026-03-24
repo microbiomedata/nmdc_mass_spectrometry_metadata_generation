@@ -426,7 +426,7 @@ def test_emsl_study_json_to_nmdc():
     )
 
     gen = NMDCMetadataGenerator(test=True)
-    emsl_study_json_path = "tests/test_data/emsl_study_json/emsl_study_12345.json"
+    emsl_study_json_path = "tests/test_data/test_study_info.json"
     
     nmdc_json = gen.emsl_study_json_to_nmdc(emsl_study_json_path, output_file)
 
