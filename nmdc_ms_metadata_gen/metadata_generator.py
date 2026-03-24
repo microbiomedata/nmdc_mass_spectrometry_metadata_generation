@@ -8,6 +8,7 @@ import logging
 import os
 import pkgutil
 import re
+import time
 from abc import ABC
 from copy import deepcopy
 from datetime import datetime
@@ -206,8 +207,7 @@ class NMDCMetadataGenerator:
         return {
             k: v
             for k, v in dict.items()
-            if v not in [None, "", ""]
-            and not (isinstance(v, float) and np.isnan(v))
+            if v not in [None, "", ""] and not (isinstance(v, float) and np.isnan(v))
         }
 
     def generate_data_object(
@@ -1408,6 +1408,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
                         response = requests.head(url)
                         if response.status_code != 200:
                             raise ValueError(f"URL {url} is not accessible.")
+                        time.sleep(2)  # Wait 2 seconds between URL checks
                     except requests.RequestException as e:
                         raise ValueError(f"URL {url} is not accessible. Error: {e}")
             elif "directory" in col:
@@ -1444,6 +1445,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
                         response = requests.head(url)
                         if response.status_code != 200:
                             raise ValueError(f"URL {url} is not accessible.")
+                        time.sleep(2)  # Wait 2 seconds between URL checks
                     except requests.RequestException as e:
                         raise ValueError(f"URL {url} is not accessible. Error: {e}")
             else:
@@ -1463,6 +1465,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
                         response = requests.head(url)
                         if response.status_code != 200:
                             raise ValueError(f"URL {url} is not accessible.")
+                        time.sleep(2)  # Wait 2 seconds between URL checks
                     except requests.RequestException as e:
                         raise ValueError(f"URL {url} is not accessible. Error: {e}")
 
