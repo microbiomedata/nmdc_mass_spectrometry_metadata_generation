@@ -1225,9 +1225,10 @@ class NMDCMetadataGenerator:
         if credit_assocs:
             parsed["has_credit_associations"] = credit_assocs
 
-        # Add MONet parent study if appropriate
+        # If MONet, add parent study and change to consortium
         if study_data.get("project_type") == "MONet":
             parsed["part_of"] = "nmdc:sty-11-srtxhh77"
+            parsed["study_category"] = "consortium"
 
         # Add EMSL external identifier
         if study_data.get("id"):
@@ -1288,34 +1289,38 @@ class NMDCMetadataGenerator:
             if not s["study_category"]:
                 raise ValueError(f"Study '{s.title}' is missing study_category.")
 
+        studies = []
         if not self.test:
-            # Search for studies by name in Mongo and raise an error if any of the input study names already exist
+            # Search for studies by name in Mongo.
+            # Print a message saying that the study already exists, but do not stop the loop.
+            # If the study already exists, remove it from the parsed_studies list
             for s in parsed_studies:
                 study_client = StudySearch(env=ENV)
                 response = study_client.get_batch_records(
-                    id_list = [s["name"]],
-                    search_field = "name",
+                    id_list = [s["emsl_project_identifiers"][0]],
+                    search_field = "emsl_project_identifiers",
                     fields = "id"
                 )
+                
                 if response:
-                    raise ValueError(f"A study named '{s['name']}' already exists in the database. Study names must be unique.")
+                    print(f"EMSL study '{s['emsl_project_identifiers'][0]}' already exists in the database. Removing this study from the output.")
+                
+                else:
+                    studies.append(s)
 
-        # Mint and add IDs to study records
-        for s in parsed_studies:
+        # Mint and add IDs to study records, clean and convert to nmdc:Study
+        cleaned_studies = []
+        for s in studies:
             s["id"] = self.id_pool.get_id(
                 nmdc_type = NmdcTypes.get("Study"),
                 client_id = client_id,
                 client_secret = client_secret
             )
-
-        # Clean out blank values and convert to nmdc:Study
-        studies = []
-        for s in parsed_studies:
             s = self.clean_dict(s)
-            studies.append(nmdc.Study(**s))
+            cleaned_studies.append(nmdc.Study(**s))
 
         # Add all the studies to study_set
-        study_database.study_set.extend(studies)
+        study_database.study_set.extend(cleaned_studies)
 
         # Validate output
         try:
