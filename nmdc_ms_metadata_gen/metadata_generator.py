@@ -13,7 +13,7 @@ from copy import deepcopy
 from datetime import datetime
 from io import BytesIO
 from pathlib import Path
-from typing import Dict, List, Union
+from typing import Dict, List
 
 import nmdc_schema.nmdc as nmdc
 import numpy as np
@@ -78,6 +78,7 @@ class NMDCMetadataGenerator:
         )
         # Add provenance metadata
         self.provenance_metadata = self._generate_provenance_metadata()
+        self.test = test
 
     def _generate_provenance_metadata(self) -> nmdc.ProvenanceMetadata:
         """
@@ -1129,8 +1130,7 @@ class NMDCMetadataGenerator:
         """
         return json_dumper.to_dict(nmdc_db)
 
-
-    def parse_study_metadata(self, study_data: Union[dict, pd.Series]) -> dict:
+    def parse_study_metadata(self, study_data: dict | pd.Series) -> dict:
         """
         Parse a single study metadata object.
 
@@ -1239,11 +1239,10 @@ class NMDCMetadataGenerator:
 
         return parsed
 
-
     def emsl_study_json_to_nmdc(self, 
                                 json_path: str, 
                                 database_dump_json_path: str,
-                                minting_config_creds: str = None) -> nmdc.Database:
+                                minting_config_creds: str = None,) -> nmdc.Database:
         """
         Convert an EMSL study JSON file to an NMDC Database object.
 
@@ -1288,16 +1287,18 @@ class NMDCMetadataGenerator:
                 raise ValueError("A study is missing a name and/or title - check input file!")
             if not s["study_category"]:
                 raise ValueError(f"Study '{s.title}' is missing study_category.")
-        
-        if not self.test: # why doesn't this test
-            # Search for studies by name in the nmdc databse and raise an error if any of the input study names already exist
+
+        if not self.test:
+            # Search for studies by name in Mongo and raise an error if any of the input study names already exist
             for s in parsed_studies:
-                response = StudySearch().search(name="beep beep", page_size=1000)
-                print(response)
-                response = StudySearch().search(name=s["name"], page_size=1000)
-                print(response)
+                study_client = StudySearch(env=ENV)
+                response = study_client.get_batch_records(
+                    id_list = [s["name"]],
+                    search_field = "name",
+                    fields = "id"
+                )
                 if response:
-                    raise ValueError(f"Study name '{s['name']}' already exists in the database. Study names must be unique.")
+                    raise ValueError(f"A study named '{s['name']}' already exists in the database. Study names must be unique.")
 
         # Mint and add IDs to study records
         for s in parsed_studies:
@@ -1339,6 +1340,8 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
     skip_sample_id_check : bool, optional
         Flag to skip sample ID checking in MongoDB. If True, will skip biosample and
         processed sample ID checks even in production mode. Default is False.
+    test : bool, optional
+        Flag to indicate if the run is a test. If True, will skip extra MongoDB checks. Default is False.
     """
 
     def __init__(
