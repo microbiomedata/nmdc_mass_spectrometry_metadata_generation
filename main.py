@@ -421,6 +421,11 @@ def biosample_generation(
     help="Path where the output database dump JSON file will be saved",
 )
 @click.option(
+    "--minting-config-creds",
+    default=None,
+    help="Path to the config file with credentials.",
+)
+@click.option(
     "--test",
     is_flag=True,
     default=False,
@@ -428,7 +433,7 @@ def biosample_generation(
 )
 def emsl_study_json_to_nmdc(emsl_json_path: str, 
                             database_dump_path: str, 
-                            minting_config_creds: str,
+                            minting_config_creds: str = None,
                             test: bool = False) -> None:
     """
     Convert an EMSL study JSON file to an NMDC Database JSON.
