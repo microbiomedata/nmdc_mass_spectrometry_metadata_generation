@@ -1129,6 +1129,188 @@ class NMDCMetadataGenerator:
         """
         return json_dumper.to_dict(nmdc_db)
 
+    
+    def emsl_study_json_to_nmdc(self, 
+                                json_path: str, 
+                                database_dump_json_path: str, 
+                                minting_config_creds: str) -> nmdc.Database:
+        """
+        Convert an EMSL study JSON file to an NMDC Database object.
+
+        This method reads an EMSL study JSON file, extracts the relevant metadata,
+        and constructs an NMDC Database object that represents the study and its
+        associated metadata.
+
+        Parameters
+        ----------
+        json_path : Path
+            The file path to the EMSL study JSON file.
+
+        Returns
+        -------
+        nmdc.Database
+            An NMDC Database object representing the EMSL study and its metadata.
+        """
+
+        def parse_study_metadata(study_data: dict) -> dict:
+            """
+            Parse a single study metadata object.
+
+            Parameters
+            ----------
+            study_data : dict or pd.Series
+                Study metadata object. Can be a dictionary (from JSON) or pandas Series (from CSV).
+
+            Returns
+            -------
+            dict
+                Parsed metadata in NMDC Study format.
+            """
+            # Convert pandas Series to dict if needed
+            if isinstance(study_data, pd.Series):
+                study_data = study_data.to_dict()
+
+            # Start with basic fields
+            parsed = {}
+            parsed["type"] = "nmdc:Study"
+
+            # Title is required
+            if "title" not in study_data:
+                raise ValueError("Study metadata must include a 'title' field")
+            parsed["name"] = study_data.get("title")
+            parsed["title"] = study_data.get("title")
+
+            # Map description
+            if "abstract" in study_data:
+                parsed["description"] = study_data.get("abstract")
+
+            # Study category - assume research study unless specified
+            if "study_category" in study_data:
+                parsed["study_category"] = study_data.get("study_category")
+            else:
+                parsed["study_category"] = "research_study"
+
+            # Handle DOIs
+            dois = []
+            if "award_doi" in study_data and study_data.get("award_doi"):
+                dois.append({
+                    "doi_value": "doi:" + study_data.get("award_doi"),
+                    "doi_category": "award_doi", 
+                    "doi_provider": "emsl",
+                    "type": "nmdc:Doi"})
+            if dois:
+                parsed["associated_dois"] = dois
+
+            # Extract principal investigator from project_members
+            project_members = study_data.get("project_members", [])
+
+            for member in project_members:
+                if member.get("project_role") == "principal_investigator":
+                    parsed["principal_investigator"] = {
+                        "name": f"{member.get('first_name', '')} {member.get('last_name', '')}".strip(),
+                        "orcid": member.get("orcid"),
+                        "type": "nmdc:PersonValue"
+                    }
+
+            # Handle credit associations for all project members
+            credit_assocs = []
+
+            role_mapping = {
+                "principal_investigator": "Principal Investigator",
+                "co_pi": "Principal Investigator",
+                "poc": "",
+                "project_manager": "",
+                "science_lead": "",
+                "active_member": "Investigation",
+                "metadata_poc": "",
+                "administrative_coordinator": "",
+            }
+
+            for member in project_members:
+                credit_assoc = {
+                    "applies_to_person": {
+                        "name": f"{member.get('first_name', '')} {member.get('last_name', '')}".strip(),
+                        "type": "nmdc:PersonValue"
+                    },
+                    "applied_roles": [role_mapping.get(member.get("project_role"))],
+                    "type": "prov:Association"
+                }
+
+                if member.get("orcid"):
+                    credit_assoc["applies_to_person"]["orcid"] = member.get("orcid")
+
+                # Exclude EMSL and PNNL staff that aren't PIs
+                if "" not in credit_assoc["applied_roles"]:
+                    credit_assocs.append(credit_assoc)
+
+            if credit_assocs:
+                parsed["has_credit_associations"] = credit_assocs
+
+            # Add MONet parent study if appropriate
+            if study_data.get("project_type") == "MONet":
+                parsed["part_of"] = "nmdc:sty-11-srtxhh77"
+
+            # Add EMSL external identifier
+            if study_data.get("id"):
+                parsed["emsl_project_identifiers"] = ["emsl.project:" + str(study_data.get("id"))]
+
+            # EMSL JSON details we don't care about:
+            # started_date, closed_date, current_status
+            # active, accepted, uuid, uri
+
+            return parsed
+
+        # Setup
+        client_id, client_secret = self.load_credentials(
+            config_file=minting_config_creds
+        )
+        study_database = self.start_nmdc_database()
+
+        # Check path and load EMSL study JSON
+        json_path = Path(json_path)
+        if not json_path.exists():
+            raise FileNotFoundError(f"JSON file not found: {json_path}")
+
+        with open(json_path, "r") as f:
+            data = json.load(f)
+
+        # Handle both single objects and arrays
+        if isinstance(data, list):
+            parsed_studies = [parse_study_metadata(study) for study in data]
+        else:
+            parsed_studies = [parse_study_metadata(data)]
+
+        # Check for required information
+        for s in parsed_studies:
+            if not s["name"]:
+                raise ValueError("A study is missing a name and/or title - check input file!")
+            if not s["study_category"]:
+                raise ValueError(f"Study '{s.title}' is missing study_category.")
+        
+        # TODO: Check if study name already exists
+
+        # Mint and add IDs to study records
+        for s in parsed_studies:
+            s["id"] = self.id_pool.get_id(
+                nmdc_type = NmdcTypes.get("Study"),
+                client_id = client_id,
+                client_secret = client_secret
+            )
+
+        # Clean out blank values and convert to nmdc:Study
+        studies = []
+        for s in parsed_studies:
+            s = self.clean_dict(s)
+            studies.append(nmdc.Study(**s))
+
+        # Add all the studies to study_set
+        study_database.study_set.extend(studies)
+
+        # Dump the NMDC database to a JSON file
+        self.dump_nmdc_database(study_database, Path(database_dump_json_path))
+
+        return None
+
 
 class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
     """
