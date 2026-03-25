@@ -5,8 +5,8 @@ import re
 from pathlib import Path
 
 import nmdc_schema.nmdc as nmdc
-import pandas as pd
 import numpy as np
+import pandas as pd
 from dotenv import load_dotenv
 from nmdc_api_utilities.data_object_search import DataObjectSearch
 from nmdc_api_utilities.workflow_execution_search import WorkflowExecutionSearch
@@ -184,10 +184,13 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             # Get qc fields from input CSV, converting NaN to None
             qc_status, qc_comment = self._get_qc_fields(data)
 
-            # Get workflow stats (subclass-specific) and resolve QC
-            wf_stats = self._get_wf_stats(
-                processed_data_dir=workflow_metadata.processed_data_dir
+            # Get the processed data .csv and read in as a pandas dataframe
+            processed_data = self._read_processed_csv(
+                workflow_metadata.processed_data_dir
             )
+
+            # Get workflow stats (subclass-specific) and resolve QC
+            wf_stats = self._get_wf_stats(processed_data=processed_data)
             qc_status, qc_comment = self._resolve_qc_from_stats(
                 qc_status, qc_comment, wf_stats
             )
@@ -195,7 +198,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             # Always generate metabolite_identifications (even for failed QC)
             if self.add_metabolite_ids:
                 metabolite_identifications = self.generate_metab_identifications(
-                    processed_data_dir=workflow_metadata.processed_data_dir
+                    processed_data=processed_data
                 )
             else:
                 metabolite_identifications = None
@@ -418,7 +421,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 raw_data_url = data["raw_data_url"]
             else:
                 raw_data_url = self.raw_data_url + Path(data["raw_data_file"]).name
-                
+
             try:
                 raw_data_object_id = do_client.get_record_by_attribute(
                     attribute_name="url",

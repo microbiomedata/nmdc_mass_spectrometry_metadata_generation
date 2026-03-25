@@ -149,27 +149,25 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
         self.minting_config_creds = minting_config_creds
         self.existing_data_objects = existing_data_objects
 
-    def generate_stats(self, processed_data_dir: str) -> List[int]:
+    def generate_stats(self, processed_data: pd.DataFrame) -> List[int]:
         """
-        Generate QC Stats from processed data directory.
+        Generate QC Stats from processed data.
 
         Parameters
         ----------
-        processed_data_dir : str
-            Path to the processed data directory.
+        processed_data : pd.DataFrame
+            DataFrame containing the processed data.
 
         Returns
         -------
         List[int]
-            List of QC stats generated from the processed data directory.
+            List of QC stats generated from the processed data.
 
         Notes
         -----
         This method reads in the processed data file and generates QC stats.
 
         """
-        # Find the processed data .csv and read in as a pandas dataframe
-        processed_data = self._read_processed_csv(processed_data_dir)
 
         # Calculate peak_count
         peak_count = processed_data["Mass Feature ID"].nunique()
@@ -186,20 +184,20 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
         return peak_count, peak_assignment_count, c13_isotopologue_count
 
     def generate_metab_identifications(
-        self, processed_data_dir: str
+        self, processed_data: pd.DataFrame
     ) -> List[nmdc.MetaboliteIdentification]:
         """
-        Generate MetaboliteIdentification objects from processed data directory.
+        Generate MetaboliteIdentification objects from processed data.
 
         Parameters
         ----------
-        workflow_metadata : str
-            Path to the processed data directory.
+        processed_data : pd.DataFrame
+            DataFrame containing the processed data.
 
         Returns
         -------
         List[nmdc.MetaboliteIdentification]
-            List of MetaboliteIdentification objects generated from the processed data directory.
+            List of MetaboliteIdentification objects generated from the processed data.
 
         Notes
         -----
@@ -207,8 +205,6 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
         pulling out the best hit for each peak based on the highest "Similarity Score".
 
         """
-        # Find the processed data .csv and read in as a pandas dataframe
-        processed_data = self._read_processed_csv(processed_data_dir)
 
         # Drop any rows with missing entropy similarity scores
         processed_data = processed_data.dropna(subset=["Entropy Similarity"])
@@ -249,10 +245,10 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
 
         return metabolite_identifications
 
-    def _get_wf_stats(self, processed_data_dir: str) -> dict:
+    def _get_wf_stats(self, processed_data: pd.DataFrame) -> dict:
         """Return workflow statistics for metabolomics data as a dict."""
         peak_count, peak_assignment_count, c13_isotopologue_count = self.generate_stats(
-            processed_data_dir=processed_data_dir
+            processed_data=processed_data
         )
         return {
             "peak_count": peak_count,
