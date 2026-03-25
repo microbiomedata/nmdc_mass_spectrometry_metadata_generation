@@ -7,6 +7,7 @@ from typing import List
 
 import nmdc_schema.nmdc as nmdc
 import pandas as pd
+import numpy as np
 from dotenv import load_dotenv
 from nmdc_api_utilities.data_object_search import DataObjectSearch
 from nmdc_api_utilities.workflow_execution_search import WorkflowExecutionSearch
@@ -32,10 +33,10 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         Path to the metadata CSV file.
     database_dump_json_path : str
         Path to the output JSON file for the NMDC database dump.
-    raw_data_url : str, optional
-        Base URL for the raw data files. If the raw data url is not directly passed in, it will use the raw data urls from the metadata file.
     process_data_url : str
         Base URL for the processed data files.
+    raw_data_url : str, optional
+        Base URL for the raw data files. If the raw data url is not directly passed in, it will use the raw data urls from the metadata file.
     minting_config_creds : str
         Path to the minting configuration credentials file.
     calibration_standard : str, optional
@@ -128,8 +129,8 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         super().__init__(
             metadata_file=metadata_file,
             database_dump_json_path=database_dump_json_path,
-            raw_data_url=raw_data_url,
             process_data_url=process_data_url,
+            raw_data_url=raw_data_url,
             test=test,
             skip_sample_id_check=skip_sample_id_check,
         )
@@ -182,7 +183,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         # Start NMDC database and make metadata dataframe
         nmdc_database_inst = self.start_nmdc_database()
         try:
-            df = pd.read_csv(self.metadata_file)
+            df = pd.read_csv(self.metadata_file).replace(np.nan, None)
         except FileNotFoundError:
             raise FileNotFoundError(f"Metadata file not found: {self.metadata_file}")
         metadata_df = df.apply(lambda x: x.reset_index(drop=True))
@@ -207,12 +208,22 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             total=metadata_df.shape[0],
             desc="Processing Remaining Metadata",
         ):
-            raw_data_object_id = do_client.get_record_by_attribute(
-                attribute_name="url",
-                attribute_value=self.raw_data_url + Path(data["raw_data_file"]).name,
-                fields="id",
-                exact_match=True,
-            )[0]["id"]
+            if "raw_data_url" in data and data.get("raw_data_url"):
+                raw_data_url = data["raw_data_url"]
+            else:
+                raw_data_url = self.raw_data_url + Path(data["raw_data_file"]).name
+            try:
+                raw_data_object_id = do_client.get_record_by_attribute(
+                    attribute_name="url",
+                    attribute_value=raw_data_url,
+                    fields="id",
+                    exact_match=True,
+                )[0]["id"]
+            except Exception as e:
+                raise ValueError(
+                    f"Raw data object not found for URL: {raw_data_url}"
+                ) from e
+
             # find the MetabolomicsAnalysis object - this is the old one
             prev_metab_analysis = wf_client.get_record_by_filter(
                 filter=f'{{"has_input":"{raw_data_object_id}","type":"{NmdcTypes.get("MetabolomicsAnalysis")}"}}',
@@ -240,7 +251,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             # need to generate a new metabolomics analysis object with the newly incremented id
             metab_analysis = self.generate_metabolomics_analysis(
                 cluster_name=prev_metab_analysis["execution_resource"],
-                raw_data_name=Path(data["raw_data_file"]).name,
+                raw_data_name=Path(raw_data_url).name,
                 raw_data_id=raw_data_object_id,
                 data_gen_id_list=prev_metab_analysis["was_informed_by"],
                 processed_data_id="nmdc:placeholder",

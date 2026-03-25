@@ -53,6 +53,8 @@ def test_lcms_metab_metadata_gen():
     # ensure empty instrument_instance_specifier does not appear as "nan"
     for record in working_data["data_generation_set"]:
         assert record.get("instrument_instance_specifier") != "nan"
+        assert "provenance_metadata" in record
+        assert "add_date" in record["provenance_metadata"]
 
 
 def test_lcms_metab_metadata_gen_processed_sample():

@@ -8,9 +8,10 @@ import logging
 import os
 import pkgutil
 import re
+import time
 from abc import ABC
 from copy import deepcopy
-from datetime import datetime
+from datetime import datetime, timezone
 from io import BytesIO
 from pathlib import Path
 from typing import Dict, List
@@ -103,11 +104,13 @@ class NMDCMetadataGenerator:
             )
 
         source_system_of_record = "custom"
+        add_date = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         provenance_metadata = nmdc.ProvenanceMetadata(
             type=type_str,
             git_url=git_url,
             version=version,
             source_system_of_record=source_system_of_record,
+            add_date=add_date,
         )
 
         return provenance_metadata
@@ -1373,6 +1376,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
 
         if calibration_ids is not None:
             data_dict["generates_calibration"] = calibration_ids
+        data_dict["provenance_metadata"] = self.provenance_metadata
         data_dict = self.clean_dict(data_dict)
         mass_spectrometry = nmdc.DataGeneration(**data_dict)
 
@@ -1416,6 +1420,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
                         response = requests.head(url)
                         if response.status_code != 200:
                             raise ValueError(f"URL {url} is not accessible.")
+                        time.sleep(2)  # Wait 2 seconds between URL checks
                     except requests.RequestException as e:
                         raise ValueError(f"URL {url} is not accessible. Error: {e}")
             elif "directory" in col:
@@ -1452,6 +1457,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
                         response = requests.head(url)
                         if response.status_code != 200:
                             raise ValueError(f"URL {url} is not accessible.")
+                        time.sleep(2)  # Wait 2 seconds between URL checks
                     except requests.RequestException as e:
                         raise ValueError(f"URL {url} is not accessible. Error: {e}")
             else:
@@ -1471,6 +1477,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
                         response = requests.head(url)
                         if response.status_code != 200:
                             raise ValueError(f"URL {url} is not accessible.")
+                        time.sleep(2)  # Wait 2 seconds between URL checks
                     except requests.RequestException as e:
                         raise ValueError(f"URL {url} is not accessible. Error: {e}")
 
