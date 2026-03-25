@@ -799,17 +799,11 @@ class NMDCMetadataGenerator:
             "qc_comment": qc_comment,
         }
 
-        if calibration_ids is not None:
-            data_dict["uses_calibration"] = calibration_ids
-
-        if metabolite_identifications is not None:
-            data_dict["has_metabolite_identifications"] = metabolite_identifications
-        if peak_count is not None:
-            data_dict["peak_count"] = peak_count
-        if peak_assignment_count is not None:
-            data_dict["peak_assignment_count"] = peak_assignment_count
-        if c13_isotopologue_count is not None:
-            data_dict["c13_isotopologue_count"] = c13_isotopologue_count
+        data_dict["uses_calibration"] = calibration_ids
+        data_dict["has_metabolite_identifications"] = metabolite_identifications
+        data_dict["peak_count"] = peak_count
+        data_dict["peak_assignment_count"] = peak_assignment_count
+        data_dict["c13_isotopologue_count"] = c13_isotopologue_count
         data_dict = self.clean_dict(data_dict)
         metab_analysis = nmdc.MetabolomicsAnalysis(**data_dict)
 

@@ -63,6 +63,11 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
         )
         self.test = test
 
+    def _read_processed_csv(self, processed_data_dir: str) -> pd.DataFrame:
+        """Read the processed data CSV file into a pandas DataFrame."""
+        processed_data_file = next(Path(processed_data_dir).glob("**/*.csv"), None)
+        return pd.read_csv(processed_data_file)
+
     def _get_wf_stats(self, processed_data_dir: str) -> dict:
         """Hook for subclasses to provide workflow statistics as a dict. Returns {} by default."""
         return {}

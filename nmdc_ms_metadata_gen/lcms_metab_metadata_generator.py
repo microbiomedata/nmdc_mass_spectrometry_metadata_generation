@@ -168,11 +168,8 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
         This method reads in the processed data file and generates QC stats.
 
         """
-        # Find the .csv file within the processed data directory
-        processed_data_file = next(Path(processed_data_dir).glob("**/*.csv"), None)
-
-        # Open the file and read in the data as a pandas dataframe
-        processed_data = pd.read_csv(processed_data_file)
+        # Find the processed data .csv and read in as a pandas dataframe
+        processed_data = self._read_processed_csv(processed_data_dir)
 
         # Calculate peak_count
         peak_count = processed_data["Mass Feature ID"].nunique()
@@ -210,11 +207,8 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
         pulling out the best hit for each peak based on the highest "Similarity Score".
 
         """
-        # Find the .csv file within the processed data directory
-        processed_data_file = next(Path(processed_data_dir).glob("**/*.csv"), None)
-
-        # Open the file and read in the data as a pandas dataframe
-        processed_data = pd.read_csv(processed_data_file)
+        # Find the processed data .csv and read in as a pandas dataframe
+        processed_data = self._read_processed_csv(processed_data_dir)
 
         # Drop any rows with missing entropy similarity scores
         processed_data = processed_data.dropna(subset=["Entropy Similarity"])
