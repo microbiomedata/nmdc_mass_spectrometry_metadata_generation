@@ -69,7 +69,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
         processed_data_file = next(Path(processed_data_dir).glob("**/*.csv"), None)
         return pd.read_csv(processed_data_file)
 
-    def _get_wf_stats(self, processed_data_dir: str) -> dict:
+    def _get_wf_stats(self, processed_data: pd.DataFrame) -> dict:
         """Hook for subclasses to provide workflow statistics as a dict. Returns {} by default."""
         return {}
 
@@ -188,6 +188,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             processed_data = self._read_processed_csv(
                 workflow_metadata.processed_data_dir
             )
+            print(processed_data)
 
             # Get workflow stats (subclass-specific) and resolve QC
             wf_stats = self._get_wf_stats(processed_data=processed_data)
