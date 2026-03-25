@@ -73,6 +73,8 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
         Description of HDF5 processed data.
     add_metabolite_ids : bool
         Whether to add metabolite IDs to the metadata.
+    add_wf_stats: bool
+        Whether to add workflow statistics to the metadata.
     """
 
     unique_columns: list[str] = ["processed_data_directory"]
@@ -96,6 +98,12 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
     workflow_version: str
     workflow_category: str = "lc_ms_metabolomics"
     add_metabolite_ids: bool = True
+    add_wf_stats: bool = True
+
+    # QC thresholds
+    peak_count_threshold: int = 0
+    peak_assignment_count_threshold: int = 0
+    c13_isotopologue_count_threshold: int = 0
 
     # Processed data attributes
     wf_config_process_data_category: str = "workflow_parameter_data"
@@ -141,21 +149,55 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
         self.minting_config_creds = minting_config_creds
         self.existing_data_objects = existing_data_objects
 
-    def generate_metab_identifications(
-        self, processed_data_dir: str
-    ) -> List[nmdc.MetaboliteIdentification]:
+    def generate_stats(self, processed_data: pd.DataFrame) -> List[int]:
         """
-        Generate MetaboliteIdentification objects from processed data directory.
+        Generate QC Stats from processed data.
 
         Parameters
         ----------
-        workflow_metadata : str
-            Path to the processed data directory.
+        processed_data : pd.DataFrame
+            DataFrame containing the processed data.
+
+        Returns
+        -------
+        List[int]
+            List of QC stats generated from the processed data.
+
+        Notes
+        -----
+        This method reads in the processed data file and generates QC stats.
+
+        """
+
+        # Calculate peak_count
+        peak_count = processed_data["Mass Feature ID"].nunique()
+
+        # Calculate peak_assignment_count
+        peak_assignments = processed_data[["Mass Feature ID", "inchikey"]].dropna()
+        peak_assignment_count = peak_assignments["Mass Feature ID"].nunique()
+
+        # Calculate c13_isotopologue_count
+        c13_isotopologue_count = processed_data[
+            "Monoisotopic Mass Feature ID"
+        ].nunique()
+
+        return peak_count, peak_assignment_count, c13_isotopologue_count
+
+    def generate_metab_identifications(
+        self, processed_data: pd.DataFrame
+    ) -> List[nmdc.MetaboliteIdentification]:
+        """
+        Generate MetaboliteIdentification objects from processed data.
+
+        Parameters
+        ----------
+        processed_data : pd.DataFrame
+            DataFrame containing the processed data.
 
         Returns
         -------
         List[nmdc.MetaboliteIdentification]
-            List of MetaboliteIdentification objects generated from the processed data directory.
+            List of MetaboliteIdentification objects generated from the processed data.
 
         Notes
         -----
@@ -163,11 +205,6 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
         pulling out the best hit for each peak based on the highest "Similarity Score".
 
         """
-        # Find the .csv file within the processed data directory
-        processed_data_file = next(Path(processed_data_dir).glob("**/*.csv"), None)
-
-        # Open the file and read in the data as a pandas dataframe
-        processed_data = pd.read_csv(processed_data_file)
 
         # Drop any rows with missing entropy similarity scores
         processed_data = processed_data.dropna(subset=["Entropy Similarity"])
@@ -207,6 +244,87 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
             metabolite_identifications.append(metabolite_identification)
 
         return metabolite_identifications
+
+    def _get_wf_stats(self, processed_data: pd.DataFrame) -> dict:
+        """Return workflow statistics for metabolomics data as a dict."""
+        peak_count, peak_assignment_count, c13_isotopologue_count = self.generate_stats(
+            processed_data=processed_data
+        )
+        return {
+            "peak_count": peak_count,
+            "peak_assignment_count": peak_assignment_count,
+            "c13_isotopologue_count": c13_isotopologue_count,
+        }
+
+    def _resolve_qc_from_stats(self, qc_status, qc_comment, wf_stats: dict):
+        """Determine qc_status and qc_comment from metabolomics stats and optional CSV input.
+
+        Threshold checks are always run. Resolution follows these rules:
+
+        1. Stats fail AND CSV says "fail": returns "fail" with both the CSV comment and
+           the stat failure message concatenated together.
+        2. Stats fail AND CSV says "pass" or no CSV input: stats prevail, returns "fail"
+           with the stat failure message only.
+        3. Stats pass AND CSV says "fail": CSV override is accepted unconditionally,
+           returns "fail" with the CSV comment only.
+        4. Stats pass AND no CSV "fail": returns "pass" with the CSV comment if provided,
+           otherwise the default pass message.
+
+        Parameters
+        ----------
+        qc_status : str or None
+            QC status value from the CSV, or None if not provided.
+        qc_comment : str or None
+            QC comment value from the CSV, or None if not provided.
+        wf_stats : dict
+            Dictionary of workflow statistics (peak_count, peak_assignment_count,
+            c13_isotopologue_count).
+
+        Returns
+        -------
+        tuple
+            A tuple of (qc_status, qc_comment) resolved according to the rules above.
+        """
+        # Always compute stat failures
+        failed = []
+        if wf_stats.get("peak_count", 0) < self.peak_count_threshold:
+            failed.append(
+                f"peak_count ({wf_stats.get('peak_count', 0)} < {self.peak_count_threshold})"
+            )
+        if (
+            wf_stats.get("peak_assignment_count", 0)
+            < self.peak_assignment_count_threshold
+        ):
+            failed.append(
+                f"peak_assignment_count ({wf_stats.get('peak_assignment_count', 0)} < {self.peak_assignment_count_threshold})"
+            )
+        if (
+            wf_stats.get("c13_isotopologue_count", 0)
+            < self.c13_isotopologue_count_threshold
+        ):
+            failed.append(
+                f"c13_isotopologue_count ({wf_stats.get('c13_isotopologue_count', 0)} < {self.c13_isotopologue_count_threshold})"
+            )
+
+        stat_comment = f"QC failed on: {', '.join(failed)}." if failed else None
+
+        if failed and qc_status == "fail":
+            # Both stats and CSV indicate failure — concatenate comments
+            combined_comment = "; ".join(filter(None, [qc_comment, stat_comment]))
+            return "fail", combined_comment
+        elif failed:
+            # Stats fail, CSV says "pass" or nothing — stats prevail
+            return "fail", stat_comment
+        elif qc_status == "fail":
+            # Stats pass, but CSV explicitly forces a fail — accept it
+            return qc_status, qc_comment
+        else:
+            # Stats pass and no CSV override to fail
+            return "pass", (
+                qc_comment
+                if qc_comment is not None
+                else "QC passed all computed peak count thresholds."
+            )
 
     def rerun(self):
         return super().rerun()

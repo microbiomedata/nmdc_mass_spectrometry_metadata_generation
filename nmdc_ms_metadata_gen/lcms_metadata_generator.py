@@ -5,8 +5,8 @@ import re
 from pathlib import Path
 
 import nmdc_schema.nmdc as nmdc
-import pandas as pd
 import numpy as np
+import pandas as pd
 from dotenv import load_dotenv
 from nmdc_api_utilities.data_object_search import DataObjectSearch
 from nmdc_api_utilities.workflow_execution_search import WorkflowExecutionSearch
@@ -63,6 +63,20 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             skip_sample_id_check=skip_sample_id_check,
         )
         self.test = test
+
+    def _read_processed_csv(self, processed_data_dir: str) -> pd.DataFrame:
+        """Read the processed data CSV file into a pandas DataFrame."""
+        processed_data_file = next(Path(processed_data_dir).glob("**/*.csv"), None)
+        return pd.read_csv(processed_data_file)
+
+    def _get_wf_stats(self, processed_data: pd.DataFrame) -> dict:
+        """Hook for subclasses to provide workflow statistics as a dict. Returns {} by default."""
+        return {}
+
+    def _resolve_qc_from_stats(self, qc_status, qc_comment, wf_stats: dict):
+        """Hook for subclasses to determine qc_status/qc_comment from computed stats.
+        By default, returns the values unchanged (i.e. as read from the CSV)."""
+        return qc_status, qc_comment
 
     def run(self) -> nmdc.Database:
         """
@@ -167,13 +181,25 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 in_manifest=workflow_metadata.manifest_id,
             )
 
-            # Get qc fields, converting NaN to None
+            # Get qc fields from input CSV, converting NaN to None
             qc_status, qc_comment = self._get_qc_fields(data)
+
+            # Get the processed data .csv and read in as a pandas dataframe
+            processed_data = self._read_processed_csv(
+                workflow_metadata.processed_data_dir
+            )
+            print(processed_data)
+
+            # Get workflow stats (subclass-specific) and resolve QC
+            wf_stats = self._get_wf_stats(processed_data=processed_data)
+            qc_status, qc_comment = self._resolve_qc_from_stats(
+                qc_status, qc_comment, wf_stats
+            )
 
             # Always generate metabolite_identifications (even for failed QC)
             if self.add_metabolite_ids:
                 metabolite_identifications = self.generate_metab_identifications(
-                    processed_data_dir=workflow_metadata.processed_data_dir
+                    processed_data=processed_data
                 )
             else:
                 metabolite_identifications = None
@@ -195,6 +221,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 metabolite_identifications=metabolite_identifications,
                 qc_status=qc_status,
                 qc_comment=qc_comment,
+                **wf_stats,
             )
 
             # list all paths in the processed data directory
@@ -395,7 +422,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 raw_data_url = data["raw_data_url"]
             else:
                 raw_data_url = self.raw_data_url + Path(data["raw_data_file"]).name
-                
+
             try:
                 raw_data_object_id = do_client.get_record_by_attribute(
                     attribute_name="url",
@@ -427,10 +454,19 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             # Get qc fields, converting NaN to None
             qc_status, qc_comment = self._get_qc_fields(data)
 
+            # Get the processed data .csv and read in as a pandas dataframe
+            processed_data = self._read_processed_csv(data["processed_data_directory"])
+
+            # Get workflow stats (subclass-specific) and resolve QC
+            wf_stats = self._get_wf_stats(processed_data=processed_data)
+            qc_status, qc_comment = self._resolve_qc_from_stats(
+                qc_status, qc_comment, wf_stats
+            )
+
             # Always generate metabolite identifications (even for failed QC) if the method exists
             if hasattr(self, "generate_metab_identifications"):
                 metabolite_identifications = self.generate_metab_identifications(
-                    processed_data_dir=data["processed_data_directory"]
+                    processed_data=processed_data
                 )
             else:
                 metabolite_identifications = None
@@ -449,6 +485,7 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 metabolite_identifications=metabolite_identifications,
                 qc_status=qc_status,
                 qc_comment=qc_comment,
+                **wf_stats,
             )
 
             # list all paths in the processed data directory
