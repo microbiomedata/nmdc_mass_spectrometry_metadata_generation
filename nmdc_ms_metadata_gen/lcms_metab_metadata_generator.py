@@ -101,9 +101,9 @@ class LCMSMetabolomicsMetadataGenerator(LCMSMetadataGenerator):
     add_wf_stats: bool = True
 
     # QC thresholds
-    peak_count_threshold: int = 1
-    peak_assignment_count_threshold: int = 1
-    c13_isotopologue_count_threshold: int = 1
+    peak_count_threshold: int = 0
+    peak_assignment_count_threshold: int = 0
+    c13_isotopologue_count_threshold: int = 0
 
     # Processed data attributes
     wf_config_process_data_category: str = "workflow_parameter_data"
