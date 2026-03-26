@@ -413,3 +413,28 @@ def test_clean_dict_removes_nan():
     assert "np_nan_key" not in result
     assert "none_key" not in result
     assert "empty_key" not in result
+
+def test_emsl_study_json_to_nmdc():
+    """
+    Test the conversion of an EMSL study JSON to NMDC format.
+    """
+    
+    output_file = (
+        "tests/test_data/test_database_emsl_study"
+        + datetime.now().strftime("%Y%m%d%H%M%S")
+        + ".json"
+    )
+
+    gen = NMDCMetadataGenerator(test=True)
+    emsl_study_json_path = "tests/test_data/test_study_info.json"
+    nmdc_json = gen.emsl_study_json_to_nmdc(emsl_study_json_path, output_file)
+
+    # Check that the output has the expected structure
+    assert "study_set" in nmdc_json
+    assert isinstance(nmdc_json["study_set"], list)
+    for study in nmdc_json["study_set"]:
+        assert "id" in study
+        assert "type" in study
+        assert "name" in study
+        assert "description" in study
+        assert "study_category" in study

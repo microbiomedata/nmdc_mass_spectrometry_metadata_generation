@@ -1,0 +1,311 @@
+[
+    {
+        "abstract": "The objective of this proposal is to characterize changes in soil functions associated conversion of the forest cover type from loblolly pine (Pinus taeda) to longleaf pine (Pinus palustris).  This treatment is a major goal in the southeastern U.S to restore millions of hectares of longleaf pine forest communities.  This watershed-scale experiment is being conducted on the Santee Experimental Forest (SEF), which is representative of the lower SE Atlantic coastal plain.  A paired watershed approach is being employed.  The reference watershed (WS-80) is unmanaged (60+ years), the treatment watershed (WS-77) was loblolly pine and managed using traditional silviculture and prescribed fire.  WS-77 was harvested in 2022 and planted to longleaf pine in 2023.  This long-term, watershed-scale experiment is designed to address questions about the effects of conversion to longleaf pine on water and carbon balance, and the associated ecosystem services.  The experiment is part of the Southern Research Stations long-term monitoring and assessment, which provides hydrologic, meteorological, vegetation and soil monitoring.  Each of the watershed have been instrumented with eddy-covariance towers.  Detailed field-based measurements of the soil water storage are being used to validate remote sensing data (via a NASA project).  Baseline data and samples exist for major milestones during the stand conversion process. \nThe watersheds have been monitored for over 60 years with respect to ecohydrology and vegetation. Recent work as focused on the effects of prescribed fire on DOC export, as well as the interactions with MeHg production.  WS-77 has lower DOC export than WS-80, but there\u2019s higher concentration of MeHg in aquatic biota on WS-77 as compared to WS-80.   Ongoing work supported by DOE-ESS is considering the effects of the altered hydrologic regime on MeHg production following harvesting.  Wetlands in each of the watershed are hot-spots for greenhouse gas emissions.  Accordingly, the plan is to sample both upland and wetland soils.\nParticipation in the MONET Soil Function will add a new and warranted dimension to the soil functional analyses.  It will enhance insights into endpoints into current measurements of soil properties and processes.   All monitoring and measurement data from the SEF are available.\n\n",
+        "started_date": "2023-05-04",
+        "closed_date": "2025-03-31",
+        "current_status": "closed",
+        "project_members": [
+            {
+                "project_role": "poc",
+                "orcid": "0000-0001-6299-2146",
+                "institution": "Environmental Molecular Sciences Laboratory",
+                "first_name": "Jason",
+                "last_name": "Toyoda"
+            },
+            {
+                "project_role": "metadata_poc",
+                "orcid": "0000-0002-8960-2926",
+                "institution": "Pacific Northwest National Laboratory",
+                "first_name": "Vanessa",
+                "last_name": "Paurus"
+            },
+            {
+                "project_role": "active_member",
+                "orcid": "0000-0001-7441-8934",
+                "institution": "The Chinese University of Hong Kong",
+                "first_name": "Alex",
+                "last_name": "Chow"
+            },
+            {
+                "project_role": "poc",
+                "orcid": "0000-0003-4489-3691",
+                "institution": "University of Texas at Dallas",
+                "first_name": "Qian",
+                "last_name": "Zhao"
+            },
+            {
+                "project_role": "principal_investigator",
+                "orcid": "0000-0003-0279-7191",
+                "institution": "United States Department of Agriculture - Forest Service",
+                "first_name": "Carl",
+                "last_name": "Trettin"
+            },
+            {
+                "project_role": "project_manager",
+                "orcid": "0000-0002-9609-9126",
+                "institution": "Environmental Molecular Sciences Laboratory",
+                "first_name": "Sarah",
+                "last_name": "Leichty"
+            },
+            {
+                "project_role": "science_lead",
+                "orcid": "0000-0001-9303-4901",
+                "institution": "Environmental Molecular Sciences Laboratory",
+                "first_name": "John",
+                "last_name": "Bargar"
+            },
+            {
+                "project_role": "poc",
+                "orcid": "0000-0002-6943-0063",
+                "institution": "Pacific Northwest National Laboratory",
+                "first_name": "Rey",
+                "last_name": "Huachambe"
+            },
+            {
+                "project_role": "poc",
+                "orcid": "0000-0001-7002-2318",
+                "institution": "Environmental Molecular Sciences Laboratory",
+                "first_name": "Andrew",
+                "last_name": "Townsend"
+            },
+            {
+                "project_role": "poc",
+                "orcid": "0000-0002-1634-0451",
+                "institution": "Environmental Molecular Sciences Laboratory",
+                "first_name": "Izabel",
+                "last_name": "Stohel"
+            },
+            {
+                "project_role": "active_member",
+                "orcid": "0009-0003-0446-6844",
+                "institution": "UNC Charlotte",
+                "first_name": "Craig",
+                "last_name": "Allan"
+            },
+            {
+                "project_role": "poc",
+                "orcid": "0009-0007-6946-9404",
+                "institution": "Environmental Molecular Sciences Laboratory",
+                "first_name": "William",
+                "last_name": "Petersen"
+            },
+            {
+                "project_role": "poc",
+                "orcid": null,
+                "institution": "Environmental Molecular Sciences Laboratory",
+                "first_name": "Saige",
+                "last_name": "Smith"
+            },
+            {
+                "project_role": "active_member",
+                "orcid": "0009-0002-9571-7954",
+                "institution": "USDA Forest Service Southern research station",
+                "first_name": "Hope",
+                "last_name": "Fillingim"
+            },
+            {
+                "project_role": "administrative_coordinator",
+                "orcid": "0009-0007-2935-6878",
+                "institution": "Environmental Molecular Sciences Laboratory",
+                "first_name": "Maria",
+                "last_name": "Perez"
+            }
+        ],
+        "project_type": "MONet",
+        "title": "Characterization of soil functions following forest conversion",
+        "active": false,
+        "accepted": true,
+        "award_doi": "10.46936/mone.proj.2023.60846/60008845",
+        "id": "60846",
+        "uuid": "078558b2-a273-5c08-8a0a-894c2b8b1a96",
+        "uri": "/external/projects/60846"
+    }
+    ,
+    {
+        "abstract": "Grasslands cover approximately 40% of the Earth's land surface and represent about 70% of the agricultural area. They contain about 10% of terrestrial biomass and contribute about 20\u201330% of the global soil organic carbon (SOC). Grasslands have some potential to sequester atmospheric CO2 as stable soil carbon (C) and hence could contribute to mitigation of climate change. However, the accumulation and storage of C in grasslands is strongly influenced by livestock grazing. Under dry climate conditions, grazing tended to increase SOC stocks but generally decreased the stocks under moist climate conditions. High grazing intensity increased SOC for C4-dominated grassland compared to C3 dominated and C3-C4 mixed grasslands, and increased total nitrogen and soil bulk density as well. However, the micro- and molecular-scale processes underpinning these changes have not been characterized, limiting our understanding of the grazing impacts on ecosystem processes and services. Thus, the goal of the proposed project is to characterize the molecular composition of soil organic matter (water extractable), the structure and composition of soil microbial communities, and the soil micropore network structure under grazing, in addition to characterizing those basic soil properties.\n\nThis study is part of an ongoing field experiment undertaken at the USDA-ARS High Plains Grasslands Research Station near Cheyenne, WY, to investigate the long-term influence of different grazing rates on a northern mixed-grass prairie ecosystem under a cool dry climate. Stocking rate treatments were established in 1982 with two replicate blocks (pastures) for each of the three stocking rates. The three treatments are ungrazed exclosures, and pastures grazed at a light and heavy stocking rates. Two articles have resulted from the 1993 and 2003 soil sampling events (Ingram et al., Soil Sci. Soc. Am. J., 2008; Schuman et al., Ecol. Appl., 1999), and a third from the 2013 sampling is drafted. Grazing increased SOC and N stocks in surface soils due to plant community changes from a C3 to a C4 plant dominated community. The SOC was partially lost due to a drought period (2000 \u2013 2002) occurring prior to the 2003 spring sampling. We propose to collect soils in May 2023, the 40th year since the sites were established. A 50-m permanent transect has been established in each block on nearly level sites. Soils will be sampled at 0, 10, 20, and 40 m along each 50-m transect, generating 24 samples totally.\n\nMONet is a great platform for the proposed project. It houses suitable instruments for the proposed analyses, and its mission is in line with this long-term USDA agroecosystem research.\n",
+        "started_date": "2023-05-05",
+        "closed_date": "2025-03-31",
+        "current_status": "closed",
+        "project_members": [
+            {
+                "project_role": "poc",
+                "orcid": "0000-0001-6299-2146",
+                "institution": "Environmental Molecular Sciences Laboratory",
+                "first_name": "Jason",
+                "last_name": "Toyoda"
+            },
+            {
+                "project_role": "metadata_poc",
+                "orcid": "0000-0002-8960-2926",
+                "institution": "Pacific Northwest National Laboratory",
+                "first_name": "Vanessa",
+                "last_name": "Paurus"
+            },
+            {
+                "project_role": "principal_investigator",
+                "orcid": "0000-0003-1739-1055",
+                "institution": "University of Maryland, College Park",
+                "first_name": "Mengqiang",
+                "last_name": "Zhu"
+            },
+            {
+                "project_role": "poc",
+                "orcid": "0000-0003-4489-3691",
+                "institution": "University of Texas at Dallas",
+                "first_name": "Qian",
+                "last_name": "Zhao"
+            },
+            {
+                "project_role": "project_manager",
+                "orcid": "0000-0002-9609-9126",
+                "institution": "Environmental Molecular Sciences Laboratory",
+                "first_name": "Sarah",
+                "last_name": "Leichty"
+            },
+            {
+                "project_role": "science_lead",
+                "orcid": "0000-0001-9303-4901",
+                "institution": "Environmental Molecular Sciences Laboratory",
+                "first_name": "John",
+                "last_name": "Bargar"
+            },
+            {
+                "project_role": "poc",
+                "orcid": "0000-0002-6943-0063",
+                "institution": "Pacific Northwest National Laboratory",
+                "first_name": "Rey",
+                "last_name": "Huachambe"
+            },
+            {
+                "project_role": "poc",
+                "orcid": "0000-0001-7002-2318",
+                "institution": "Environmental Molecular Sciences Laboratory",
+                "first_name": "Andrew",
+                "last_name": "Townsend"
+            },
+            {
+                "project_role": "poc",
+                "orcid": "0000-0002-1634-0451",
+                "institution": "Environmental Molecular Sciences Laboratory",
+                "first_name": "Izabel",
+                "last_name": "Stohel"
+            },
+            {
+                "project_role": "active_member",
+                "orcid": null,
+                "institution": "USDA-ARS Rangeland Resources and Systems Research Unit ",
+                "first_name": "Justin",
+                "last_name": "Derner"
+            },
+            {
+                "project_role": "active_member",
+                "orcid": "0009-0006-7390-7094",
+                "institution": "University of Maryland, College Park",
+                "first_name": "Jung-Chen",
+                "last_name": "Liu"
+            },
+            {
+                "project_role": "administrative_coordinator",
+                "orcid": "0009-0006-8594-6648",
+                "institution": "Environmental Molecular Sciences Laboratory",
+                "first_name": "Natalie",
+                "last_name": "Moore"
+            }
+        ],
+        "project_type": "MONet",
+        "title": "Grazing Impacts on Soil Organic Carbon Chemistry and Microbial Community Structure and Functions in a Mixed-Grass Ecosystem",
+        "active": false,
+        "accepted": true,
+        "award_doi": "10.46936/mone.proj.2023.60881/60008847",
+        "id": "60881",
+        "uuid": "f6582412-336f-5f94-9547-180e942587c0",
+        "uri": "/external/projects/60881"
+    }
+    ,
+    {
+        "abstract": "The Arctic is warming twice as fast as the rest of the planet, and Arctic soils currently store twice as much carbon as the entire atmosphere. These two facts make understanding how Arctic soil microbial communities are responding to climate change \u2014 particularly with regard to the potential respiration of the enormous reservoir of stored organic carbon \u2014 urgent for robust predictions of global environmental change in the coming decades. Greening of vegetation cover across the Arctic landscape \u2014 notably the shift from tussock/sedge-dominated tundra to a tundra more covered by taller, higher-biomass woody shrubs \u2014 is one of the most prominent climate-driven shifts in Arctic terrestrial ecology, with consequences for the soil microbial community that are only beginning to be understood. \n\nIn this project, we are using metaproteomics to document the microbial metabolism that underlies soil carbon and nutrient cycling processes in an Arctic tundra landscape undergoing warming-induced greening. Sampling focuses on the Toolik Lake area in the northern foothills of the Brooks Range, North Slope region of Alaska, site of 30+ years of longitudinal ecological research. In order to generate a deep and comprehensive view of protein expression across the soil microbial community, we are employing high-precision quantitative metaproteomics by in vitro peptide isotope tagging (diDO-IPTL). We will also use a proteomic nitrogen isotope tracking approach, developed in our group, to directly assay the incorporation and biosynthetic routing of 15N-labeled substrates by specific members of the community, which will provide new insights into critical nutrient dynamics of these N-limited soils. These new measurements will enable us to address key open questions in Arctic soil biogeochemistry, including:\n\n\u2022\tHow are metabolic functions partitioned between and among bacterial and fungal communities in \u2018baseline\u2019 (tussock/sedge) versus \u2018greened\u2019 (shrub) tundra?\n\u2022\tWhich metabolic processes are most limited by nitrogen scarcity in Arctic soil microbial communities throughout the deepening active layer, and how does vegetation influence the belowground N economy?\n\u2022\tHow will nitrogen availability modulate the capacity or tendency of active-layer microbial communities to access long-stored organic carbon as thaw depth increases?\n\nWe propose to sample 12 locations in the Toolik area for analysis by the MONet program. These will allow us to span the vegetation cover types (wet and dry sedge, tussock and upland and waterway shrub tundras) on the two different glacial land-surface ages (~60kyr and ~20kyr) present in the area. The MONet data will hugely enrich our ability to interpret our metaproteomic data in terms of the local microbial communities and edaphic properties. The metagenomic sequencing from closely-paired samples will enable more comprehensive peptide identification from our metaproteomic mass spectral data, especially for undersampled community constituents such as fungi. The molecular characterization of water-extractable organic matter will illuminate the solutes exchanged among the microbial communities and with root systems in the different tundra environments. Other measured soil parameters, notably the pore network structure and mineral-associated organic matter, have rarely been directly paired with community metaproteomic data and will likely reveal new kinds of biogeochemical interactions.",
+        "started_date": "2023-06-01",
+        "closed_date": "2025-03-31",
+        "current_status": "closed",
+        "project_members": [
+            {
+                "project_role": "poc",
+                "orcid": "0000-0001-6299-2146",
+                "institution": "Environmental Molecular Sciences Laboratory",
+                "first_name": "Jason",
+                "last_name": "Toyoda"
+            },
+            {
+                "project_role": "poc",
+                "orcid": "0000-0003-4489-3691",
+                "institution": "University of Texas at Dallas",
+                "first_name": "Qian",
+                "last_name": "Zhao"
+            },
+            {
+                "project_role": "project_manager",
+                "orcid": "0000-0002-9609-9126",
+                "institution": "Environmental Molecular Sciences Laboratory",
+                "first_name": "Sarah",
+                "last_name": "Leichty"
+            },
+            {
+                "project_role": "science_lead",
+                "orcid": "0000-0001-9303-4901",
+                "institution": "Environmental Molecular Sciences Laboratory",
+                "first_name": "John",
+                "last_name": "Bargar"
+            },
+            {
+                "project_role": "poc",
+                "orcid": "0000-0001-7002-2318",
+                "institution": "Environmental Molecular Sciences Laboratory",
+                "first_name": "Andrew",
+                "last_name": "Townsend"
+            },
+            {
+                "project_role": "poc",
+                "orcid": "0000-0002-1634-0451",
+                "institution": "Environmental Molecular Sciences Laboratory",
+                "first_name": "Izabel",
+                "last_name": "Stohel"
+            },
+            {
+                "project_role": "principal_investigator",
+                "orcid": "0000-0002-0338-6143",
+                "institution": "University of Chicago",
+                "first_name": "Jacob",
+                "last_name": "Waldbauer"
+            },
+            {
+                "project_role": "metadata_poc",
+                "orcid": "0009-0008-4055-9921",
+                "institution": "Pacific Northwest National Laboratory",
+                "first_name": "Beata",
+                "last_name": "Meluch"
+            },
+            {
+                "project_role": "active_member",
+                "orcid": null,
+                "institution": "University of Chicago",
+                "first_name": "Raechel",
+                "last_name": "Hearth"
+            },
+            {
+                "project_role": "administrative_coordinator",
+                "orcid": "0009-0007-2935-6878",
+                "institution": "Environmental Molecular Sciences Laboratory",
+                "first_name": "Maria",
+                "last_name": "Perez"
+            }
+        ],
+        "project_type": "MONet",
+        "title": "Waldbauer MONet Request",
+        "active": false,
+        "accepted": true,
+        "award_doi": "10.46936/mone.proj.2023.60920/60008848",
+        "id": "60920",
+        "uuid": "19177cf1-03cc-5633-bc09-75007a57c18b",
+        "uri": "/external/projects/60920"
+    }
+]

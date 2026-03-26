@@ -20,6 +20,7 @@ from nmdc_ms_metadata_gen.material_processing_generator import (
     MaterialProcessingMetadataGenerator,
 )
 from nmdc_ms_metadata_gen.validate_yaml_outline import validate_yaml_outline
+from nmdc_ms_metadata_gen.metadata_generator import NMDCMetadataGenerator
 
 
 @click.group()
@@ -406,6 +407,49 @@ def biosample_generation(
 
     metadata = generator.run()
     return metadata
+
+
+@cli.command()
+@click.option(
+    "--emsl-json-path",
+    required=True,
+    help="Path to the EMSL study JSON file.",
+)
+@click.option(
+    "--database-dump-path",
+    required=True,
+    help="Path where the output database dump JSON file will be saved",
+)
+@click.option(
+    "--minting-config-creds",
+    default=None,
+    help="Path to the config file with credentials.",
+)
+@click.option(
+    "--test",
+    is_flag=True,
+    default=False,
+    help="Whether to run in test mode. Will not use the NMDC API for validation if so.",
+)
+def emsl_study_json_to_nmdc(emsl_json_path: str, 
+                            database_dump_path: str, 
+                            minting_config_creds: str = None,
+                            test: bool = False) -> None:
+    """
+    Convert an EMSL study JSON file to an NMDC Database JSON.
+
+    Parameters
+    ----------
+    emsl_json_path : str
+        The file path to the EMSL study JSON file.
+
+    Returns
+    -------
+    None
+        This function does not return anything. The NMDC Database JSON is saved to the specified output path.
+    """
+    generator = NMDCMetadataGenerator(test = test)
+    generator.emsl_study_json_to_nmdc(emsl_json_path, database_dump_path, minting_config_creds)
 
 
 @cli.command()
