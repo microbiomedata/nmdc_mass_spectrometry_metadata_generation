@@ -1310,6 +1310,8 @@ class NMDCMetadataGenerator:
                 
                 else:
                     studies.append(s)
+        else:
+            studies = parsed_studies
 
         # Mint and add IDs to study records, clean and convert to nmdc:Study
         cleaned_studies = []
@@ -1334,7 +1336,7 @@ class NMDCMetadataGenerator:
         # Dump the NMDC database to a JSON file
         self.dump_nmdc_database(study_database, Path(database_dump_json_path))
 
-        return study_database
+        return self.nmdc_db_to_dict(study_database)
 
 
 class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
