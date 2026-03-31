@@ -428,6 +428,8 @@ def test_emsl_study_json_to_nmdc():
     gen = NMDCMetadataGenerator(test=True)
     emsl_study_json_path = "tests/test_data/test_study_info.json"
     nmdc_json = gen.emsl_study_json_to_nmdc(emsl_study_json_path, output_file)
+    validate = gen.validate_nmdc_database(json=nmdc_json, use_api=False)
+    assert validate["result"] == "All Okay!"   
 
     # Check that the output has the expected structure
     assert "study_set" in nmdc_json
@@ -438,3 +440,4 @@ def test_emsl_study_json_to_nmdc():
         assert "name" in study
         assert "description" in study
         assert "study_category" in study
+ 
