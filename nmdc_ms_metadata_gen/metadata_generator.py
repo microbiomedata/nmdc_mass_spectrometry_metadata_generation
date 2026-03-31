@@ -1130,23 +1130,21 @@ class NMDCMetadataGenerator:
         """
         return json_dumper.to_dict(nmdc_db)
 
-    def parse_study_metadata(self, study_data: dict | pd.Series) -> dict:
+    def _parse_single_emsl_study_metadata(self, study_data: dict) -> dict:
         """
-        Parse a single study metadata object.
+        Parse metadata for a single EMSL study. Takes a dictionary of study metadata
+        as read in from a JSON file dumped from the EMSL API.
 
         Parameters
         ----------
-        study_data : dict or pd.Series
-            Study metadata as a dictionary or pandas Series.
+        study_data : dict
+            Study metadata as a dictionary from JSON.
 
         Returns
         -------
         dict
             Parsed metadata in NMDC Study format.
         """
-        # Convert pandas Series to dict if needed
-        if isinstance(study_data, pd.Series):
-            study_data = study_data.to_dict()
 
         # Start with basic fields
         parsed = {}
@@ -1255,6 +1253,11 @@ class NMDCMetadataGenerator:
         ----------
         json_path : Path
             The file path to the EMSL study JSON file.
+        database_dump_json_path : Path
+            Path where the output database dump JSON file will be saved.
+        minting_config_creds : str, optional
+            Path to the configuration file containing the client ID and client secret for minting NMDC IDs.
+            If not provided, the CLIENT_ID, CLIENT_SECRET, and BIO_API_KEY environment variables will be used.
 
         Returns
         -------
@@ -1278,9 +1281,9 @@ class NMDCMetadataGenerator:
 
         # Handle both single objects and arrays
         if isinstance(data, list):
-            parsed_studies = [self.parse_study_metadata(study) for study in data]
+            parsed_studies = [self._parse_single_emsl_study_metadata(study) for study in data]
         else:
-            parsed_studies = [self.parse_study_metadata(data)]
+            parsed_studies = [self._parse_single_emsl_study_metadata(data)]
 
         # Check for required information
         for s in parsed_studies:

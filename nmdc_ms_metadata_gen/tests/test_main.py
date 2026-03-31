@@ -237,3 +237,36 @@ def test_info_command_invalid():
 
 
 test_cli_validate_yaml()
+
+def test_cli_emsl_study_json_converter():
+    """Test the EMSL study JSON converter command."""
+    runner = CliRunner()
+    current_directory = os.path.dirname(__file__)
+    json_file_path = os.path.join(
+        current_directory,
+        "test_data",
+        "test_study_info.json",
+    )
+    output_file = os.path.join(
+        current_directory,
+        "test_data",
+        f"test_emsl_study_json_cli_{datetime.now().strftime('%Y%m%d%H%M%S')}.json",
+    )
+
+    result = runner.invoke(
+        cli,
+        [
+            "emsl_study_json_to_nmdc",
+            "--emsl_json_path",
+            str(json_file_path),
+            "--database_dump_path",
+            output_file,
+            "--test",
+        ],
+        standalone_mode=False,
+    )
+    assert result.exit_code == 0
+    assert os.path.exists(output_file)
+    generator = NMDCMetadataGenerator()
+    result = generator.validate_nmdc_database(json=result.return_value, use_api=False)
+    assert result["result"] == "All Okay!"

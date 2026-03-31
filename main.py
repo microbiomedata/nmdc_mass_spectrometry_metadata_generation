@@ -434,22 +434,15 @@ def biosample_generation(
 def emsl_study_json_to_nmdc(emsl_json_path: str, 
                             database_dump_path: str, 
                             minting_config_creds: str = None,
-                            test: bool = False) -> None:
-    """
-    Convert an EMSL study JSON file to an NMDC Database JSON.
+                            test: bool = False):
 
-    Parameters
-    ----------
-    emsl_json_path : str
-        The file path to the EMSL study JSON file.
-
-    Returns
-    -------
-    None
-        This function does not return anything. The NMDC Database JSON is saved to the specified output path.
-    """
     generator = NMDCMetadataGenerator(test = test)
-    generator.emsl_study_json_to_nmdc(emsl_json_path, database_dump_path, minting_config_creds)
+    metadata = generator.emsl_study_json_to_nmdc(
+        emsl_json_path, 
+        database_dump_path, 
+        minting_config_creds)
+
+    return(metadata)
 
 
 @cli.command()
