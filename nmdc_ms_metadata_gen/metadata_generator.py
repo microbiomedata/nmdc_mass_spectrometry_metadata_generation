@@ -79,6 +79,7 @@ class NMDCMetadataGenerator:
         )
         # Add provenance metadata
         self.provenance_metadata = self._generate_provenance_metadata()
+        self.test = test
 
     def _generate_provenance_metadata(self) -> nmdc.ProvenanceMetadata:
         """
@@ -1140,6 +1141,214 @@ class NMDCMetadataGenerator:
         """
         return json_dumper.to_dict(nmdc_db)
 
+    def _parse_single_emsl_study_metadata(self, study_data: dict) -> dict:
+        """
+        Parse metadata for a single EMSL study. Takes a dictionary of study metadata
+        as read in from a JSON file dumped from the EMSL API.
+
+        Parameters
+        ----------
+        study_data : dict
+            Study metadata as a dictionary from JSON.
+
+        Returns
+        -------
+        dict
+            Parsed metadata in NMDC Study format.
+        """
+
+        # Start with basic fields
+        parsed = {}
+        parsed["type"] = "nmdc:Study"
+
+        # Title is required
+        if "title" not in study_data:
+            raise ValueError("Study metadata must include a 'title' field")
+        parsed["name"] = study_data.get("title")
+        parsed["title"] = study_data.get("title")
+
+        # Map description
+        if "abstract" in study_data:
+            abstract = study_data.get("abstract").replace("\n", " ").replace("\r", " ").replace("\t", " ")
+            parsed["description"] = abstract
+
+        # Study category - assume research study unless specified
+        if "study_category" in study_data:
+            parsed["study_category"] = study_data.get("study_category")
+        else:
+            parsed["study_category"] = "research_study"
+
+        # Handle DOIs
+        dois = []
+        if "award_doi" in study_data and study_data.get("award_doi"):
+            dois.append({
+                "doi_value": "doi:" + study_data.get("award_doi"),
+                "doi_category": "award_doi", 
+                "doi_provider": "emsl",
+                "type": "nmdc:Doi"})
+        if dois:
+            parsed["associated_dois"] = dois
+
+        # Extract principal investigator from project_members
+        project_members = study_data.get("project_members", [])
+
+        for member in project_members:
+            if member.get("project_role") == "principal_investigator":
+                parsed["principal_investigator"] = {
+                    "name": f"{member.get('first_name', '')} {member.get('last_name', '')}".strip(),
+                    "orcid": member.get("orcid"),
+                    "type": "nmdc:PersonValue"
+                }
+
+        # Handle credit associations for all project members
+        credit_assocs = []
+
+        role_mapping = {
+            "principal_investigator": "Principal Investigator",
+            "co_pi": "Principal Investigator",
+            "poc": "",
+            "project_manager": "",
+            "science_lead": "",
+            "active_member": "Investigation",
+            "metadata_poc": "",
+            "administrative_coordinator": "",
+        }
+
+        for member in project_members:
+            credit_assoc = {
+                "applies_to_person": {
+                    "name": f"{member.get('first_name', '')} {member.get('last_name', '')}".strip(),
+                    "type": "nmdc:PersonValue"
+                },
+                "applied_roles": [role_mapping.get(member.get("project_role"))],
+                "type": "prov:Association"
+            }
+
+            if member.get("orcid"):
+                credit_assoc["applies_to_person"]["orcid"] = member.get("orcid")
+
+            # Exclude EMSL and PNNL staff that aren't PIs
+            if "" not in credit_assoc["applied_roles"]:
+                credit_assocs.append(credit_assoc)
+
+        if credit_assocs:
+            parsed["has_credit_associations"] = credit_assocs
+
+        # If MONet, add parent study and change to consortium
+        if study_data.get("project_type") == "MONet":
+            parsed["part_of"] = "nmdc:sty-11-srtxhh77"
+            parsed["study_category"] = "consortium"
+
+        # Add EMSL external identifier
+        if study_data.get("id"):
+            parsed["emsl_project_identifiers"] = ["emsl.project:" + str(study_data.get("id"))]
+
+        # EMSL JSON details we don't care about:
+        # started_date, closed_date, current_status
+        # active, accepted, uuid, uri
+
+        return parsed
+
+    def emsl_study_json_to_nmdc(self, 
+                                json_path: str, 
+                                database_dump_json_path: str,
+                                minting_config_creds: str = None,) -> nmdc.Database:
+        """
+        Convert an EMSL study JSON file to an NMDC Database object.
+
+        This method reads an EMSL study JSON file, extracts the relevant metadata,
+        and constructs an NMDC Database object that represents the study and its
+        associated metadata.
+
+        Parameters
+        ----------
+        json_path : Path
+            The file path to the EMSL study JSON file.
+        database_dump_json_path : Path
+            Path where the output database dump JSON file will be saved.
+        minting_config_creds : str, optional
+            Path to the configuration file containing the client ID and client secret for minting NMDC IDs.
+            If not provided, the CLIENT_ID, CLIENT_SECRET, and BIO_API_KEY environment variables will be used.
+
+        Returns
+        -------
+        nmdc.Database
+            An NMDC Database object representing the EMSL study and its metadata.
+        """
+
+        # Setup
+        client_id, client_secret = self.load_credentials(
+            config_file=minting_config_creds
+        )
+        study_database = self.start_nmdc_database()
+
+        # Check path and load EMSL study JSON
+        json_path = Path(json_path)
+        if not json_path.exists():
+            raise FileNotFoundError(f"JSON file not found: {json_path}")
+
+        with open(json_path, "r") as f:
+            data = json.load(f)
+
+        # Handle both single objects and arrays
+        if isinstance(data, list):
+            parsed_studies = [self._parse_single_emsl_study_metadata(study) for study in data]
+        else:
+            parsed_studies = [self._parse_single_emsl_study_metadata(data)]
+
+        # Check for required information
+        for s in parsed_studies:
+            if not s["name"]:
+                raise ValueError("A study is missing a name and/or title - check input file!")
+            if not s["study_category"]:
+                raise ValueError(f"Study '{s.title}' is missing study_category.")
+
+        studies = []
+        if not self.test:
+            # Search for studies by EMSL proposal number in Mongo.
+            # Print a message saying that the study already exists, but do not stop the loop.
+            # If the study already exists, remove it from the output
+            for s in parsed_studies:
+                study_client = StudySearch(env=ENV)
+                response = study_client.get_batch_records(
+                    id_list = [s["emsl_project_identifiers"][0]],
+                    search_field = "emsl_project_identifiers",
+                    fields = "id"
+                )
+                
+                if response:
+                    print(f"EMSL study '{s['emsl_project_identifiers'][0]}' already exists in the database. Removing this study from the output.")
+                
+                else:
+                    studies.append(s)
+        else:
+            studies = parsed_studies
+
+        # Mint and add IDs to study records, clean and convert to nmdc:Study
+        cleaned_studies = []
+        for s in studies:
+            s["id"] = self.id_pool.get_id(
+                nmdc_type = NmdcTypes.get("Study"),
+                client_id = client_id,
+                client_secret = client_secret
+            )
+            s = self.clean_dict(s)
+            cleaned_studies.append(nmdc.Study(**s))
+
+        # Add all the studies to study_set
+        study_database.study_set.extend(cleaned_studies)
+
+        # Validate output
+        try:
+            self.validate_nmdc_database(self.nmdc_db_to_dict(study_database))
+        except Exception as e:
+            print(f"Validation error: {e}")
+
+        # Dump the NMDC database to a JSON file
+        self.dump_nmdc_database(study_database, Path(database_dump_json_path))
+
+        return self.nmdc_db_to_dict(study_database)
+
 
 class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
     """
@@ -1158,6 +1367,8 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
     skip_sample_id_check : bool, optional
         Flag to skip sample ID checking in MongoDB. If True, will skip biosample and
         processed sample ID checks even in production mode. Default is False.
+    test : bool, optional
+        Flag to indicate if the run is a test. If True, will skip extra MongoDB checks. Default is False.
     """
 
     def __init__(
