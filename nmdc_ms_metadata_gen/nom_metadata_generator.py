@@ -6,8 +6,8 @@ from abc import abstractmethod
 from pathlib import Path
 
 import nmdc_schema.nmdc as nmdc
-import pandas as pd
 import numpy as np
+import pandas as pd
 from dotenv import load_dotenv
 from nmdc_api_utilities.calibration_search import CalibrationSearch
 from nmdc_api_utilities.data_object_search import DataObjectSearch
@@ -47,6 +47,23 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         )
         self.minting_config_creds = minting_config_creds
         self.test = test
+
+    ###### TODO: can the below go into metadata_generator for this and lcms_metadata_generator
+    def _read_processed_csv(self, processed_data_directory: str) -> pd.DataFrame:
+        """Read the processed data CSV file into a pandas DataFrame."""
+        processed_data_file = next(
+            Path(processed_data_directory).glob("**/*.csv"), None
+        )
+        return pd.read_csv(processed_data_file)
+
+    def _get_wf_stats(self, processed_data: pd.DataFrame) -> dict:
+        """Hook for subclasses to provide workflow statistics as a dict. Returns {} by default."""
+        return {}
+
+    def _resolve_qc_from_stats(self, qc_status, qc_comment, wf_stats: dict):
+        """Hook for subclasses to determine qc_status/qc_comment from computed stats.
+        By default, returns the values unchanged (i.e. as read from the CSV)."""
+        return qc_status, qc_comment
 
     def rerun(self) -> nmdc.Database:
         """
@@ -132,6 +149,17 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             # Get qc fields, converting NaN to None
             qc_status, qc_comment = self._get_qc_fields(row)
 
+            # Get the processed data .csv and read in as a pandas dataframe
+            processed_data = self._read_processed_csv(
+                workflow_metadata_obj.processed_data_directory
+            )
+
+            # Get workflow stats (subclass-specific) and resolve QC
+            wf_stats = self._get_wf_stats(processed_data=processed_data)
+            qc_status, qc_comment = self._resolve_qc_from_stats(
+                qc_status, qc_comment, wf_stats
+            )
+
             # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
             nom_analysis = self.generate_nom_analysis(
                 file_path=Path(workflow_metadata_obj.raw_data_url),
@@ -150,6 +178,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_SECRET=client_secret,
                 qc_status=qc_status,
                 qc_comment=qc_comment,
+                **wf_stats,
             )
 
             # Always generate processed data objects (even for failed QC)
@@ -228,7 +257,10 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             )
 
         # Check if batch calibration is being used
-        if "srfa_calib_id" not in metadata_df.columns and "srfa_calib_path" not in metadata_df.columns:
+        if (
+            "srfa_calib_id" not in metadata_df.columns
+            and "srfa_calib_path" not in metadata_df.columns
+        ):
             print(
                 "Generating metadata without SRFA batch calibration records. "
                 "Include srfa_calib_id or srfa_calib_path columns in the metadata input CSV if you ran the enviroMS workflow with batch calibration."
@@ -290,14 +322,16 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             if "calibration_id" in row and row.get("calibration_id"):
                 workflow_metadata_obj.reference_calibration_id = row["calibration_id"]
             elif "ref_calibration_path" in row and row.get("ref_calibration_path"):
-                workflow_metadata_obj.reference_calibration_id = self.get_calibration_ids(
-                    calibration_path=Path(row["ref_calibration_path"])
+                workflow_metadata_obj.reference_calibration_id = (
+                    self.get_calibration_ids(
+                        calibration_path=Path(row["ref_calibration_path"])
+                    )
                 )
 
             # If SRFA calibration ID is included, add it, otherwise look it up by name
             if "srfa_calib_id" in row and row.get("srfa_calib_id"):
                 workflow_metadata_obj.srfa_calibration_id = row["srfa_calib_id"]
-            
+
             # If you cannot look it up by name (ie it doesn't exist) then we have to create a data object and a calibration record
             elif "srfa_calib_path" in row and row.get("srfa_calib_path"):
 
@@ -311,22 +345,35 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
                 # If no, create objects
                 else:
-                    workflow_metadata_obj.srfa_calibration_id = self.generate_calibration_ids(
-                        metadata_row = row,
-                        nmdc_database_inst=nmdc_database_inst,
-                        CLIENT_ID=client_id,
-                        CLIENT_SECRET=client_secret
+                    workflow_metadata_obj.srfa_calibration_id = (
+                        self.generate_calibration_ids(
+                            metadata_row=row,
+                            nmdc_database_inst=nmdc_database_inst,
+                            CLIENT_ID=client_id,
+                            CLIENT_SECRET=client_secret,
+                        )
                     )
 
             # List calibration IDs for generate_nom_analysis and remove blanks
             calibration_ids = [
                 workflow_metadata_obj.reference_calibration_id,
-                workflow_metadata_obj.srfa_calibration_id
+                workflow_metadata_obj.srfa_calibration_id,
             ]
             calibration_ids = [cid for cid in calibration_ids if cid is not None]
 
             # Get qc fields, converting NaN to None
             qc_status, qc_comment = self._get_qc_fields(row)
+
+            # Get the processed data .csv and read in as a pandas dataframe
+            processed_data = self._read_processed_csv(
+                workflow_metadata_obj.processed_data_directory
+            )
+
+            # Get workflow stats (subclass-specific) and resolve QC
+            wf_stats = self._get_wf_stats(processed_data=processed_data)
+            qc_status, qc_comment = self._resolve_qc_from_stats(
+                qc_status, qc_comment, wf_stats
+            )
 
             nom_analysis = self.generate_nom_analysis(
                 file_path=Path(workflow_metadata_obj.raw_data_file),
@@ -344,6 +391,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_SECRET=client_secret,
                 qc_status=qc_status,
                 qc_comment=qc_comment,
+                **wf_stats,
             )
 
             # Always generate processed data objects (even for failed QC)
@@ -484,7 +532,6 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             )
         return calibration_ids
 
-
     def generate_calibration_ids(
         self,
         metadata_row: pd.Series,
@@ -533,13 +580,12 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             calibration_object=calibration_data_object,
             CLIENT_ID=CLIENT_ID,
             CLIENT_SECRET=CLIENT_SECRET,
-            srfa=(self.calibration_standard=="srfa"),
+            srfa=(self.calibration_standard == "srfa"),
             internal=False,
         )
         nmdc_database_inst.calibration_set.append(calibration)
 
-        return(calibration["id"])
-
+        return calibration["id"]
 
     def generate_calibration(
         self,
@@ -606,7 +652,6 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 "Calibration type not implemented, only external SRFA calibration is currently supported."
             )
 
-
     def generate_nom_analysis(
         self,
         file_path: Path,
@@ -619,6 +664,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         execution_resource: str = None,
         calibration_ids: list[str] = None,
         incremented_id: str = None,
+        peak_count: int = None,
+        peak_assignment_count: int = None,
         qc_status: str = None,
         qc_comment: str = None,
     ) -> nmdc.NomAnalysis:
@@ -647,6 +694,10 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             The IDs of the calibration objects used in the analysis. If None, no calibration is used.
         incremented_id : str, optional
             The incremented ID for the NOM analysis. If None, a new ID will be minted.
+        peak_count : int, optional
+            The number of peaks detected in the analysis.
+        peak_assignment_count : int, optional
+            The number of peak assignments made in the analysis.
         qc_status : str, optional
             The quality control status for the analysis.
         qc_comment : str, optional
@@ -680,9 +731,12 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             "started_at_time": "placeholder",
             "ended_at_time": "placeholder",
             "type": NmdcTypes.get("NomAnalysis"),
+            "peak_count": peak_count,
+            "peak_assignment_count": peak_assignment_count,
             "qc_status": qc_status,
             "qc_comment": qc_comment,
         }
+
         self.clean_dict(data_dict)
         nomAnalysis = nmdc.NomAnalysis(**data_dict)
 

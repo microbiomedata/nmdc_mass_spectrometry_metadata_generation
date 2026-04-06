@@ -15,7 +15,6 @@ if python_path:
     os.environ["PYTHONPATH"] = python_path
 
 
-
 def test_di_nom_metadata_gen():
     """
     Test the DI NOM metadata generation script.
@@ -64,7 +63,7 @@ def test_di_nom_metadata_gen():
 
     assert (
         len(working_data["workflow_execution_set"][0]["uses_calibration"]) == 2
-        ), f"Workflow {working_data['workflow_execution_set'][0]['id']} uses_calibration should have two values"
+    ), f"Workflow {working_data['workflow_execution_set'][0]['id']} uses_calibration should have two values"
 
 
 def test_di_nom_metadata_gen_rerun():
@@ -202,7 +201,7 @@ def test_di_nom_metadata_gen_processed_sample():
     )
 
 
-def test_di_nom_metadata_gen_with_qc_fields():
+def test_di_nom_metadata_gen_with_csv_qc_fields():
     """
     Test the DI NOM metadata generation script with qc_status and qc_comment fields.
     """
@@ -235,7 +234,7 @@ def test_di_nom_metadata_gen_with_qc_fields():
     # Check that workflow_execution_set has qc_status and qc_comment where provided
     workflow_executions = working_data["workflow_execution_set"]
 
-    # We have 5 samples: 2 explicit pass, 2 fail, 1 no qc_status
+    # We have 5 samples: 2 with explicit CSV pass AND QC threshold pass, 1 with no explicit qc_status BUT QC threshold pass, 2 with explicit CSV fail which OVERWRITES QC threshold pass
     # Verify total count
     assert len(workflow_executions) == 5
 
@@ -251,10 +250,10 @@ def test_di_nom_metadata_gen_with_qc_fields():
             "nmdc:calib-"
         ), f"Workflow {wf['id']} uses_calibration should be a valid NMDC calibration ID"
 
-    # Find the workflow execution with qc_status = "pass" explicitly set
+    # Find the workflow execution with qc_status = "pass"
     pass_wf = [wf for wf in workflow_executions if wf.get("qc_status") == "pass"]
-    assert len(pass_wf) == 2
-    # Check first one has the expected comment
+    assert len(pass_wf) == 3
+    # Check first one has the expected comment from the CSV (should not be overwritten by stats)
     assert pass_wf[0].get("qc_comment") == "Sample passed all quality control checks"
     # Verify pass workflows have has_output
     for wf in pass_wf:
@@ -279,7 +278,7 @@ def test_di_nom_metadata_gen_with_qc_fields():
     # Count data objects: we should have:
     # - 5 raw data objects (one per sample) + 1 new calibration dobj = 6
     # - 5 workflow parameter objects (one per sample - always created)
-    # - 6 processed data objects (only for pass/no-qc samples: 3 samples × 2 files each = 6)
+    # - 6 processed data objects (only for pass samples: 3 samples × 2 files each = 6)
     data_objects = working_data["data_object_set"]
     raw_data_objects = [
         do
@@ -304,10 +303,10 @@ def test_di_nom_metadata_gen_with_qc_fields():
     # 3 samples without fail status × 2 processed files each (csv + png) = 6 processed data objects
     assert (
         len(processed_data_objects) == 6
-    ), f"Expected 6 processed data objects (3 pass/no-qc samples × 2 files), got {len(processed_data_objects)}"
+    ), f"Expected 6 processed data objects (3 pass samples × 2 files), got {len(processed_data_objects)}"
 
 
-def test_di_nom_metadata_gen_rerun_with_qc_fields():
+def test_di_nom_metadata_gen_rerun_with_csv_qc_fields():
     """
     Test the DI NOM metadata generation rerun with qc_status and qc_comment fields.
     """
@@ -344,3 +343,56 @@ def test_di_nom_metadata_gen_rerun_with_qc_fields():
     wf = workflow_executions[0]
     assert wf.get("qc_status") == "pass"
     assert wf.get("qc_comment") == "Reprocessed data meets quality standards"
+
+
+def test_di_nom_metadata_gen_csv_pass_overridden_by_failing_stats():
+    """Test that a CSV-provided 'pass' is overridden when stats fail the thresholds.
+    Stats always prevail for failures.
+    When both CSV and stats indicate failure, the comments should be concatenated to reflect both.
+    """
+    # Use the QC CSV which has a sample with qc_status="pass"
+    # Set up output file with datetime stamp
+    output_file = (
+        "tests/test_data/test_database_nom_qc_"
+        + datetime.now().strftime("%Y%m%d%H%M%S")
+        + ".json"
+    )
+
+    # Start the metadata generation setup
+    generator = DINOMMetaDataGenerator(
+        metadata_file="tests/test_data/test_metadata_file_nom_qc.csv",
+        database_dump_json_path=output_file,
+        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_raw_nom/",
+        process_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_nom/",
+        test=True,
+    )
+
+    # Run the metadata generation process with an impossibly high threshold so stats fail
+    generator.peak_count_threshold = 999999
+    metadata = generator.run()
+    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
+    assert validate["result"] == "All Okay!"
+    assert os.path.exists(output_file)
+
+    with open(output_file) as f:
+        working_data = json.load(f)
+
+    # All records should be "fail" regardless of CSV-provided "pass"
+    for record in working_data["workflow_execution_set"]:
+        assert record.get("qc_status") == "fail"
+
+    # Second record in the CSV should have concatenated qc_comment with CSV comment and the stat failure message
+    concat_comment = working_data["workflow_execution_set"][1].get("qc_comment", "")
+    assert "peak_count" in concat_comment
+    assert (
+        "< 999999" in concat_comment
+        and "Low signal intensity detected" in concat_comment
+    )
+
+    # Fifth record in the CSV should have concatenated qc_comment with CSV comment and the stat failure message
+    concat_comment = working_data["workflow_execution_set"][4].get("qc_comment", "")
+    assert "peak_count" in concat_comment
+    assert (
+        "< 999999" in concat_comment
+        and "Contamination suspected in blank" in concat_comment
+    )
