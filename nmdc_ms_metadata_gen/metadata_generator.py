@@ -801,13 +801,13 @@ class NMDCMetadataGenerator:
             "metabolomics_analysis_category": self.workflow_category,
             "qc_status": qc_status,
             "qc_comment": qc_comment,
-            "uses_calibration": calibration_ids,
-            "has_metabolite_identifications": metabolite_identifications,
-            "peak_count": peak_count,
-            "peak_assignment_count": peak_assignment_count,
-            "c13_isotopologue_count": c13_isotopologue_count,
         }
 
+        data_dict["uses_calibration"] = calibration_ids
+        data_dict["has_metabolite_identifications"] = metabolite_identifications
+        data_dict["peak_count"] = peak_count
+        data_dict["peak_assignment_count"] = peak_assignment_count
+        data_dict["c13_isotopologue_count"] = c13_isotopologue_count
         data_dict = self.clean_dict(data_dict)
         metab_analysis = nmdc.MetabolomicsAnalysis(**data_dict)
 
