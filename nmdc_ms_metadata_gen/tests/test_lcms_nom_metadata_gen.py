@@ -17,7 +17,7 @@ if python_path:
 
 def test_lcms_nom_metadata_gen_processed_sample():
     """
-    Test the LCMS NOM metadata generation script.
+    Test the LCMS NOM metadata generation script with a processed sample id input
     Test case does not include generating a biosample
     """
     # Set up output file with datetime stame
@@ -62,7 +62,7 @@ def test_lcms_nom_metadata_gen_processed_sample():
 
 def test_lcms_nom_metadata_gen():
     """
-    Test the LCMS NOM metadata generation script.
+    Test the LCMS NOM metadata generation script with a biosample id input
     Test case does not include generating a biosample
     """
     # Set up output file with datetime stame

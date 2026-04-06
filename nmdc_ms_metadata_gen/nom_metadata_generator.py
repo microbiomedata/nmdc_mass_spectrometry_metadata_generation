@@ -48,12 +48,24 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         self.minting_config_creds = minting_config_creds
         self.test = test
 
-    ###### TODO: can the below go into metadata_generator for this and lcms_metadata_generator
     def _read_processed_csv(self, processed_data_directory: str) -> pd.DataFrame:
-        """Read the processed data CSV file into a pandas DataFrame."""
+        """Read and return the first processed data CSV that does not contain 'statdicts', an output from LCMS NOM that is not the main processed data file."""
+        pattern = re.compile(r"statdicts", re.IGNORECASE)
+
         processed_data_file = next(
-            Path(processed_data_directory).glob("**/*.csv"), None
+            (
+                p
+                for p in Path(processed_data_directory).glob("**/*.csv")
+                if not pattern.search(p.name)
+            ),
+            None,
         )
+
+        if processed_data_file is None:
+            raise FileNotFoundError(
+                f"No CSV file found in {processed_data_directory} without 'statdicts' in its path"
+            )
+
         return pd.read_csv(processed_data_file)
 
     def _get_wf_stats(self, processed_data: pd.DataFrame) -> dict:
