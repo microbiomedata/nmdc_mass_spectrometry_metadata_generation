@@ -30,8 +30,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
     # QC thresholds
     peak_count_threshold: int = 0
-    peak_assignment_count_threshold: int = 0
-    peak_assignment_rate_threshold: float = 0.0
+    peak_assignment_count_threshold: int = 250
+    peak_assignment_rate_threshold: float = 0.3
 
     def __init__(
         self,

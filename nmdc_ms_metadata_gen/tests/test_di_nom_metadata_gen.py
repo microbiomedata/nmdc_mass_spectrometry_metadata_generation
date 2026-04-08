@@ -16,9 +16,7 @@ if python_path:
 
 
 def test_di_nom_metadata_gen():
-    """
-    Test the DI NOM metadata generation script.
-    """
+    """Run metadata generation using a biosample id as input and validate the output."""
     # Set up output file with datetime stame
     output_file = (
         "tests/test_data/test_database_nom_"
@@ -41,20 +39,14 @@ def test_di_nom_metadata_gen():
     assert validate["result"] == "All Okay!"
     assert os.path.exists(output_file)
 
-    file = open(output_file)
-    working_data = json.load(file)
-    file.close()
-    exists = any(
-        any("QC" in str(value) for value in d.values())
-        for d in working_data["data_object_set"]
-    )
-    assert exists
-    count = sum(
-        1
-        for d in working_data["data_object_set"]
-        if any("QC" in str(value) for value in d.values())
-    )
-    assert count >= 5
+    working_data = json.load(open(output_file))
+    for wf in working_data["workflow_execution_set"]:
+        has_qc_plot = any(
+            "QC" in str(d.get("data_object_type", ""))
+            for d in working_data["data_object_set"]
+            if d.get("was_generated_by") == wf["id"]
+        )
+        assert has_qc_plot == (wf.get("qc_status") == "pass")
 
     assert (
         "specifier"
@@ -67,10 +59,7 @@ def test_di_nom_metadata_gen():
 
 
 def test_di_nom_metadata_gen_rerun():
-    """
-    Test the DI NOM metadata generation script.
-    Test case does not include generating a biosample
-    """
+    """Run the rerun code path using raw data file paths as input and validate the output."""
     # Set up output file with datetime stame
     output_file = (
         "tests/test_data/test_database_nom_rerun_"
@@ -92,27 +81,18 @@ def test_di_nom_metadata_gen_rerun():
     assert validate["result"] == "All Okay!"
     assert os.path.exists(output_file)
 
-    file = open(output_file)
-    working_data = json.load(file)
-    file.close()
-    exists = any(
-        any("QC" in str(value) for value in d.values())
-        for d in working_data["data_object_set"]
-    )
-    assert exists
-    count = sum(
-        1
-        for d in working_data["data_object_set"]
-        if any("QC" in str(value) for value in d.values())
-    )
-    assert count >= 1
+    working_data = json.load(open(output_file))
+    for wf in working_data["workflow_execution_set"]:
+        has_qc_plot = any(
+            "QC" in str(d.get("data_object_type", ""))
+            for d in working_data["data_object_set"]
+            if d.get("was_generated_by") == wf["id"]
+        )
+        assert has_qc_plot == (wf.get("qc_status") == "pass")
 
 
 def test_di_nom_config_file():
-    """
-    Test the DI NOM metadata generation script.
-    Test purpose is to test the config file
-    """
+    """Run metadata generation with a minting config file path supplied and validate the output."""
     # Set up output file with datetime stame
     output_file = (
         "tests/test_data/test_database_nom_"
@@ -136,28 +116,18 @@ def test_di_nom_config_file():
     assert validate["result"] == "All Okay!"
 
     assert os.path.exists(output_file)
-    file = open(output_file)
-    working_data = json.load(file)
-    file.close()
-
-    exists = any(
-        any("QC" in str(value) for value in d.values())
-        for d in working_data["data_object_set"]
-    )
-    assert exists
-    count = sum(
-        1
-        for d in working_data["data_object_set"]
-        if any("QC" in str(value) for value in d.values())
-    )
-    assert count >= 5
+    working_data = json.load(open(output_file))
+    for wf in working_data["workflow_execution_set"]:
+        has_qc_plot = any(
+            "QC" in str(d.get("data_object_type", ""))
+            for d in working_data["data_object_set"]
+            if d.get("was_generated_by") == wf["id"]
+        )
+        assert has_qc_plot == (wf.get("qc_status") == "pass")
 
 
 def test_di_nom_metadata_gen_processed_sample():
-    """
-    Test the DI NOM metadata generation script.
-    Test case includes using processed sample ids
-    """
+    """Run metadata generation using a processed sample id as input and validate the output."""
     # Set up output file with datetime stame
     output_file = (
         "tests/test_data/test_database_nom_processed_sample_"
@@ -180,20 +150,14 @@ def test_di_nom_metadata_gen_processed_sample():
     assert validate["result"] == "All Okay!"
     assert os.path.exists(output_file)
 
-    file = open(output_file)
-    working_data = json.load(file)
-    file.close()
-    exists = any(
-        any("QC" in str(value) for value in d.values())
-        for d in working_data["data_object_set"]
-    )
-    assert exists
-    count = sum(
-        1
-        for d in working_data["data_object_set"]
-        if any("QC" in str(value) for value in d.values())
-    )
-    assert count >= 1
+    working_data = json.load(open(output_file))
+    for wf in working_data["workflow_execution_set"]:
+        has_qc_plot = any(
+            "QC" in str(d.get("data_object_type", ""))
+            for d in working_data["data_object_set"]
+            if d.get("was_generated_by") == wf["id"]
+        )
+        assert has_qc_plot == (wf.get("qc_status") == "pass")
 
     assert (
         "specifier"
@@ -202,9 +166,7 @@ def test_di_nom_metadata_gen_processed_sample():
 
 
 def test_di_nom_metadata_gen_with_csv_qc_fields():
-    """
-    Test the DI NOM metadata generation script with qc_status and qc_comment fields.
-    """
+    """Assert QC status/comment from CSV are correctly applied and only passing workflows produce processed data objects."""
     # Set up output file with datetime stamp
     output_file = (
         "tests/test_data/test_database_nom_qc_"
@@ -307,9 +269,7 @@ def test_di_nom_metadata_gen_with_csv_qc_fields():
 
 
 def test_di_nom_metadata_gen_rerun_with_csv_qc_fields():
-    """
-    Test the DI NOM metadata generation rerun with qc_status and qc_comment fields.
-    """
+    """Run the rerun code path with CSV qc_status/qc_comment fields and validate they are applied correctly."""
     # Set up output file with datetime stamp
     output_file = (
         "tests/test_data/test_database_nom_rerun_qc_"
@@ -346,10 +306,7 @@ def test_di_nom_metadata_gen_rerun_with_csv_qc_fields():
 
 
 def test_di_nom_metadata_gen_csv_pass_overridden_by_failing_stats():
-    """Test that a CSV-provided 'pass' is overridden when stats fail the thresholds.
-    Stats always prevail for failures.
-    When both CSV and stats indicate failure, the comments should be concatenated to reflect both.
-    """
+    """Assert that a CSV-provided 'pass' is overridden by failing stats, and comments from both sources are concatenated."""
     # Use the QC CSV which has a sample with qc_status="pass"
     # Set up output file with datetime stamp
     output_file = (
