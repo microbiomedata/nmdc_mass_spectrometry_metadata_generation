@@ -15,11 +15,8 @@ if python_path:
     os.environ["PYTHONPATH"] = python_path
 
 
-
 def test_di_nom_metadata_gen():
-    """
-    Test the DI NOM metadata generation script.
-    """
+    """Run metadata generation using a biosample id as input and validate the output."""
     # Set up output file with datetime stame
     output_file = (
         "tests/test_data/test_database_nom_"
@@ -42,20 +39,14 @@ def test_di_nom_metadata_gen():
     assert validate["result"] == "All Okay!"
     assert os.path.exists(output_file)
 
-    file = open(output_file)
-    working_data = json.load(file)
-    file.close()
-    exists = any(
-        any("QC" in str(value) for value in d.values())
-        for d in working_data["data_object_set"]
-    )
-    assert exists
-    count = sum(
-        1
-        for d in working_data["data_object_set"]
-        if any("QC" in str(value) for value in d.values())
-    )
-    assert count >= 5
+    working_data = json.load(open(output_file))
+    for wf in working_data["workflow_execution_set"]:
+        has_qc_plot = any(
+            "QC" in str(d.get("data_object_type", ""))
+            for d in working_data["data_object_set"]
+            if d.get("was_generated_by") == wf["id"]
+        )
+        assert has_qc_plot == (wf.get("qc_status") == "pass")
 
     assert (
         "specifier"
@@ -64,14 +55,11 @@ def test_di_nom_metadata_gen():
 
     assert (
         len(working_data["workflow_execution_set"][0]["uses_calibration"]) == 2
-        ), f"Workflow {working_data['workflow_execution_set'][0]['id']} uses_calibration should have two values"
+    ), f"Workflow {working_data['workflow_execution_set'][0]['id']} uses_calibration should have two values"
 
 
 def test_di_nom_metadata_gen_rerun():
-    """
-    Test the DI NOM metadata generation script.
-    Test case does not include generating a biosample
-    """
+    """Run the rerun code path using raw data file paths as input and validate the output."""
     # Set up output file with datetime stame
     output_file = (
         "tests/test_data/test_database_nom_rerun_"
@@ -93,27 +81,18 @@ def test_di_nom_metadata_gen_rerun():
     assert validate["result"] == "All Okay!"
     assert os.path.exists(output_file)
 
-    file = open(output_file)
-    working_data = json.load(file)
-    file.close()
-    exists = any(
-        any("QC" in str(value) for value in d.values())
-        for d in working_data["data_object_set"]
-    )
-    assert exists
-    count = sum(
-        1
-        for d in working_data["data_object_set"]
-        if any("QC" in str(value) for value in d.values())
-    )
-    assert count >= 1
+    working_data = json.load(open(output_file))
+    for wf in working_data["workflow_execution_set"]:
+        has_qc_plot = any(
+            "QC" in str(d.get("data_object_type", ""))
+            for d in working_data["data_object_set"]
+            if d.get("was_generated_by") == wf["id"]
+        )
+        assert has_qc_plot == (wf.get("qc_status") == "pass")
 
 
 def test_di_nom_config_file():
-    """
-    Test the DI NOM metadata generation script.
-    Test purpose is to test the config file
-    """
+    """Run metadata generation with a minting config file path supplied and validate the output."""
     # Set up output file with datetime stame
     output_file = (
         "tests/test_data/test_database_nom_"
@@ -137,28 +116,18 @@ def test_di_nom_config_file():
     assert validate["result"] == "All Okay!"
 
     assert os.path.exists(output_file)
-    file = open(output_file)
-    working_data = json.load(file)
-    file.close()
-
-    exists = any(
-        any("QC" in str(value) for value in d.values())
-        for d in working_data["data_object_set"]
-    )
-    assert exists
-    count = sum(
-        1
-        for d in working_data["data_object_set"]
-        if any("QC" in str(value) for value in d.values())
-    )
-    assert count >= 5
+    working_data = json.load(open(output_file))
+    for wf in working_data["workflow_execution_set"]:
+        has_qc_plot = any(
+            "QC" in str(d.get("data_object_type", ""))
+            for d in working_data["data_object_set"]
+            if d.get("was_generated_by") == wf["id"]
+        )
+        assert has_qc_plot == (wf.get("qc_status") == "pass")
 
 
 def test_di_nom_metadata_gen_processed_sample():
-    """
-    Test the DI NOM metadata generation script.
-    Test case includes using processed sample ids
-    """
+    """Run metadata generation using a processed sample id as input and validate the output."""
     # Set up output file with datetime stame
     output_file = (
         "tests/test_data/test_database_nom_processed_sample_"
@@ -181,20 +150,14 @@ def test_di_nom_metadata_gen_processed_sample():
     assert validate["result"] == "All Okay!"
     assert os.path.exists(output_file)
 
-    file = open(output_file)
-    working_data = json.load(file)
-    file.close()
-    exists = any(
-        any("QC" in str(value) for value in d.values())
-        for d in working_data["data_object_set"]
-    )
-    assert exists
-    count = sum(
-        1
-        for d in working_data["data_object_set"]
-        if any("QC" in str(value) for value in d.values())
-    )
-    assert count >= 1
+    working_data = json.load(open(output_file))
+    for wf in working_data["workflow_execution_set"]:
+        has_qc_plot = any(
+            "QC" in str(d.get("data_object_type", ""))
+            for d in working_data["data_object_set"]
+            if d.get("was_generated_by") == wf["id"]
+        )
+        assert has_qc_plot == (wf.get("qc_status") == "pass")
 
     assert (
         "specifier"
@@ -202,10 +165,8 @@ def test_di_nom_metadata_gen_processed_sample():
     )
 
 
-def test_di_nom_metadata_gen_with_qc_fields():
-    """
-    Test the DI NOM metadata generation script with qc_status and qc_comment fields.
-    """
+def test_di_nom_metadata_gen_with_csv_qc_fields():
+    """Assert QC status/comment from CSV are correctly applied and only passing workflows produce processed data objects."""
     # Set up output file with datetime stamp
     output_file = (
         "tests/test_data/test_database_nom_qc_"
@@ -235,7 +196,7 @@ def test_di_nom_metadata_gen_with_qc_fields():
     # Check that workflow_execution_set has qc_status and qc_comment where provided
     workflow_executions = working_data["workflow_execution_set"]
 
-    # We have 5 samples: 2 explicit pass, 2 fail, 1 no qc_status
+    # We have 5 samples: 2 with explicit CSV pass AND QC threshold pass, 1 with no explicit qc_status BUT QC threshold pass, 2 with explicit CSV fail which OVERWRITES QC threshold pass
     # Verify total count
     assert len(workflow_executions) == 5
 
@@ -251,10 +212,10 @@ def test_di_nom_metadata_gen_with_qc_fields():
             "nmdc:calib-"
         ), f"Workflow {wf['id']} uses_calibration should be a valid NMDC calibration ID"
 
-    # Find the workflow execution with qc_status = "pass" explicitly set
+    # Find the workflow execution with qc_status = "pass"
     pass_wf = [wf for wf in workflow_executions if wf.get("qc_status") == "pass"]
-    assert len(pass_wf) == 2
-    # Check first one has the expected comment
+    assert len(pass_wf) == 3
+    # Check first one has the expected comment from the CSV (should not be overwritten by stats)
     assert pass_wf[0].get("qc_comment") == "Sample passed all quality control checks"
     # Verify pass workflows have has_output
     for wf in pass_wf:
@@ -279,7 +240,7 @@ def test_di_nom_metadata_gen_with_qc_fields():
     # Count data objects: we should have:
     # - 5 raw data objects (one per sample) + 1 new calibration dobj = 6
     # - 5 workflow parameter objects (one per sample - always created)
-    # - 6 processed data objects (only for pass/no-qc samples: 3 samples × 2 files each = 6)
+    # - 6 processed data objects (only for pass samples: 3 samples × 2 files each = 6)
     data_objects = working_data["data_object_set"]
     raw_data_objects = [
         do
@@ -304,13 +265,11 @@ def test_di_nom_metadata_gen_with_qc_fields():
     # 3 samples without fail status × 2 processed files each (csv + png) = 6 processed data objects
     assert (
         len(processed_data_objects) == 6
-    ), f"Expected 6 processed data objects (3 pass/no-qc samples × 2 files), got {len(processed_data_objects)}"
+    ), f"Expected 6 processed data objects (3 pass samples × 2 files), got {len(processed_data_objects)}"
 
 
-def test_di_nom_metadata_gen_rerun_with_qc_fields():
-    """
-    Test the DI NOM metadata generation rerun with qc_status and qc_comment fields.
-    """
+def test_di_nom_metadata_gen_rerun_with_csv_qc_fields():
+    """Run the rerun code path with CSV qc_status/qc_comment fields and validate they are applied correctly."""
     # Set up output file with datetime stamp
     output_file = (
         "tests/test_data/test_database_nom_rerun_qc_"
@@ -344,3 +303,53 @@ def test_di_nom_metadata_gen_rerun_with_qc_fields():
     wf = workflow_executions[0]
     assert wf.get("qc_status") == "pass"
     assert wf.get("qc_comment") == "Reprocessed data meets quality standards"
+
+
+def test_di_nom_metadata_gen_csv_pass_overridden_by_failing_stats():
+    """Assert that a CSV-provided 'pass' is overridden by failing stats, and comments from both sources are concatenated."""
+    # Use the QC CSV which has a sample with qc_status="pass"
+    # Set up output file with datetime stamp
+    output_file = (
+        "tests/test_data/test_database_nom_qc_"
+        + datetime.now().strftime("%Y%m%d%H%M%S")
+        + ".json"
+    )
+
+    # Start the metadata generation setup
+    generator = DINOMMetaDataGenerator(
+        metadata_file="tests/test_data/test_metadata_file_nom_qc.csv",
+        database_dump_json_path=output_file,
+        raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_raw_nom/",
+        process_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_nom/",
+        test=True,
+    )
+
+    # Run the metadata generation process with an impossibly high threshold so stats fail
+    generator.peak_count_threshold = 999999
+    metadata = generator.run()
+    validate = generator.validate_nmdc_database(json=metadata, use_api=False)
+    assert validate["result"] == "All Okay!"
+    assert os.path.exists(output_file)
+
+    with open(output_file) as f:
+        working_data = json.load(f)
+
+    # All records should be "fail" regardless of CSV-provided "pass"
+    for record in working_data["workflow_execution_set"]:
+        assert record.get("qc_status") == "fail"
+
+    # Second record in the CSV should have concatenated qc_comment with CSV comment and the stat failure message
+    concat_comment = working_data["workflow_execution_set"][1].get("qc_comment", "")
+    assert "peak_count" in concat_comment
+    assert (
+        "< 999999" in concat_comment
+        and "Low signal intensity detected" in concat_comment
+    )
+
+    # Fifth record in the CSV should have concatenated qc_comment with CSV comment and the stat failure message
+    concat_comment = working_data["workflow_execution_set"][4].get("qc_comment", "")
+    assert "peak_count" in concat_comment
+    assert (
+        "< 999999" in concat_comment
+        and "Contamination suspected in blank" in concat_comment
+    )
