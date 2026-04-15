@@ -175,9 +175,11 @@ class NMDCMetadataGenerator:
         """
         return nmdc.Database()
 
-    def find_associated_ids(self, ids: list[str]):
+    def find_associated_studies(self, ids: list[str]):
         """
-        Given a list of sample ids, find the associated study ids.
+        Given a list of sample ids, find the associated studies.
+
+        Directly retrieves the associated_studies field from each biosample corresponding to the input sample ids.
 
         Parameters
         ----------
@@ -186,11 +188,52 @@ class NMDCMetadataGenerator:
 
         Returns
         -------
+        dict
+            A dictionary mapping each input sample id to its associated studies.
         """
         search_obj = NMDCSearch(env=ENV)
-        resp = search_obj.get_linked_instances_and_associate_ids(
-            ids=ids, types="nmdc:Study"
+
+        # For processed sample ids, get the biosample ids they are associated with
+        processed_sample_ids = [id for id in ids if "nmdc:procsm" in id]
+        if processed_sample_ids:
+            ps_bio_dict = search_obj.get_linked_instances_and_associate_ids(
+                ids=processed_sample_ids, types="nmdc:Biosample"
+            )
+        else:
+            ps_bio_dict = {}
+
+        # Gather all biosample ids, including those linked from processed sample ids
+        ps_derived_biosamples = [
+            id[0] if isinstance(id, list) else id for id in list(ps_bio_dict.values())
+        ]
+        biosample_ids = [
+            id for id in ids if "nmdc:procsm" not in id
+        ] + ps_derived_biosamples
+
+        # Grab the associated_studies on biosample records
+        biosample_search = BiosampleSearch(env=ENV)
+        biosample_records = biosample_search.get_batch_records(
+            id_list=biosample_ids, search_field="id", fields="id,associated_studies"
         )
+        # Transform into a dictionary keyed by biosample id
+        biosample_records = {record["id"]: record for record in biosample_records}
+
+        # Clean up export so it's a dictionary of original (input) id:associated_studies
+        resp = {}
+        for id in ids:
+            if "nmdc:procsm" in id:
+                bio_id = ps_bio_dict.get(id)
+                if isinstance(bio_id, list):
+                    bio_id = bio_id[0]
+                resp[id] = (
+                    biosample_records.get(bio_id, {}).get("associated_studies")
+                    if bio_id
+                    else None
+                )
+            else:
+                resp[id] = biosample_records.get(id, {}).get("associated_studies")
+
+        # dictionary of sample_id:associated_studies
         return resp
 
     def clean_dict(self, dict: Dict) -> Dict:
@@ -1502,7 +1545,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
             # make a call to find_associated_ids to get the associated studies
             # build the ID list from the input samples
             sample_ids = metadata_df["sample_id"].unique().tolist()
-            associations = self.find_associated_ids(ids=sample_ids)
+            associations = self.find_associated_studies(ids=sample_ids)
             # map the ids back to the df before returning. associations will be a list of dictionaries with study ids
             for sample_id, studies in associations.items():
                 study_str = str(studies)
