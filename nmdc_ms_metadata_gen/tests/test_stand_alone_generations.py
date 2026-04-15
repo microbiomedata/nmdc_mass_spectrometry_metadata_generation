@@ -345,6 +345,7 @@ def test_get_associated_studies():
     Test getting associated ids from a mix of biosample and processed sample IDs.
     """
 
+    # Gather example input ids
     bs = BiosampleSearch(env=ENV)
     ids = bs.get_records(max_page_size=100, fields="id")
     ps = ProcessedSampleSearch(env=ENV)
