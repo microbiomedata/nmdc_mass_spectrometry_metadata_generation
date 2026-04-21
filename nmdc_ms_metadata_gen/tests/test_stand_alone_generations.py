@@ -4,6 +4,7 @@ from datetime import datetime
 
 from dotenv import load_dotenv
 from nmdc_api_utilities.biosample_search import BiosampleSearch
+from nmdc_api_utilities.processed_sample_search import ProcessedSampleSearch
 
 from nmdc_ms_metadata_gen.metadata_generator import NMDCMetadataGenerator
 
@@ -339,20 +340,26 @@ def test_json_validate_units_fail():
     assert "'minute' is not one of [" in results["detail"]["configuration_set"][0]
 
 
-def test_get_associated_ids():
+def test_get_associated_studies():
     """
-    Test getting multiple associated ids.
+    Test getting associated ids from a mix of biosample and processed sample IDs.
     """
 
+    # Gather example input ids
     bs = BiosampleSearch(env=ENV)
-    ids = bs.get_records(max_page_size=500, fields="id")
-    id_list = [x["id"] for x in ids]
+    ids = bs.get_records(max_page_size=100, fields="id")
+    ps = ProcessedSampleSearch(env=ENV)
+    ps_ids = ps.get_records(max_page_size=100, fields="id")
+
+    id_list = [x["id"] for x in ids + ps_ids]
+    assert len(id_list) == 200
 
     gen = NMDCMetadataGenerator()
-    resp = gen.find_associated_ids(ids=id_list)
+    resp = gen.find_associated_studies(ids=id_list)
 
     for id in id_list:
         assert id in resp.keys()
+        assert "nmdc:sty" in resp[id][0]
 
 
 def test_validate_yaml_outline():
@@ -414,11 +421,12 @@ def test_clean_dict_removes_nan():
     assert "none_key" not in result
     assert "empty_key" not in result
 
+
 def test_emsl_study_json_to_nmdc():
     """
     Test the conversion of an EMSL study JSON to NMDC format.
     """
-    
+
     output_file = (
         "tests/test_data/test_database_emsl_study"
         + datetime.now().strftime("%Y%m%d%H%M%S")
@@ -429,7 +437,7 @@ def test_emsl_study_json_to_nmdc():
     emsl_study_json_path = "tests/test_data/test_study_info.json"
     nmdc_json = gen.emsl_study_json_to_nmdc(emsl_study_json_path, output_file)
     validate = gen.validate_nmdc_database(json=nmdc_json, use_api=False)
-    assert validate["result"] == "All Okay!"   
+    assert validate["result"] == "All Okay!"
 
     # Check that the output has the expected structure
     assert "study_set" in nmdc_json
@@ -440,4 +448,3 @@ def test_emsl_study_json_to_nmdc():
         assert "name" in study
         assert "description" in study
         assert "study_category" in study
- 
