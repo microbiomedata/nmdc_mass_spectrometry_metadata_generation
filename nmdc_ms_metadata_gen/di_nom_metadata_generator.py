@@ -1,7 +1,3 @@
-from typing import List
-
-import pandas as pd
-
 from nmdc_ms_metadata_gen.nom_metadata_generator import NOMMetadataGenerator
 
 
