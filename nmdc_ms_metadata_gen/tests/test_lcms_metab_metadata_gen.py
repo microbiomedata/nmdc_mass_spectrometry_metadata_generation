@@ -22,9 +22,9 @@ def test_lcms_metab_metadata_gen():
     csv_file_path = os.path.join(
         current_directory, "test_data", "test_metadata_file_lcms_lipid.csv"
     )
-    # Set up output file with datetime stame
+    # Set up output file with datetime stamp
     output_file = (
-        "tests/test_data/test_database_lcms_lipid_"
+        "tests/test_data/test_database_lcms_metab_"
         + datetime.now().strftime("%Y%m%d%H%M%S")
         + ".json"
     )
@@ -64,9 +64,9 @@ def test_lcms_metab_metadata_gen_processed_sample():
         "test_data",
         "test_metadata_file_lcms_lipid_processed_sample.csv",
     )
-    # Set up output file with datetime stame
+    # Set up output file with datetime stamp
     output_file = (
-        "tests/test_data/test_database_lcms_lipid_processed_sample_"
+        "tests/test_data/test_database_lcms_metab_processed_sample_"
         + datetime.now().strftime("%Y%m%d%H%M%S")
         + ".json"
     )
@@ -104,7 +104,7 @@ def test_lcms_metab_metadata_gen_with_qc_fields_from_csv():
     )
     # Set up output file with datetime stamp
     output_file = (
-        "tests/test_data/test_database_lcms_lipid_qc_"
+        "tests/test_data/test_database_lcms_metab_qc_"
         + datetime.now().strftime("%Y%m%d%H%M%S")
         + ".json"
     )
@@ -173,7 +173,7 @@ def test_lcms_metab_csv_pass_overridden_by_failing_stats():
         current_directory, "test_data", "test_metadata_file_lcms_lipid_qc.csv"
     )
     output_file = (
-        "tests/test_data/test_database_lcms_lipid_csv_pass_stat_fail_"
+        "tests/test_data/test_database_lcms_metab_csv_pass_stat_fail_"
         + datetime.now().strftime("%Y%m%d%H%M%S")
         + ".json"
     )
@@ -211,7 +211,7 @@ def test_lcms_metab_csv_fail_and_stats_fail_concatenated_comment():
         current_directory, "test_data", "test_metadata_file_lcms_lipid_qc.csv"
     )
     output_file = (
-        "tests/test_data/test_database_lcms_lipid_csv_fail_stat_fail_"
+        "tests/test_data/test_database_lcms_metab_csv_fail_stat_fail_"
         + datetime.now().strftime("%Y%m%d%H%M%S")
         + ".json"
     )
@@ -262,9 +262,9 @@ def test_lcms_metab_metadata_gen_rerun():
     csv_file_path = os.path.join(
         current_directory, "test_data", "test_metadata_file_lcms_lipid_rerun.csv"
     )
-    # Set up output file with datetime stame
+    # Set up output file with datetime stamp
     output_file = (
-        "tests/test_data/test_database_lcms_lipid_rerun_"
+        "tests/test_data/test_database_lcms_metab_rerun_"
         + datetime.now().strftime("%Y%m%d%H%M%S")
         + ".json"
     )
@@ -298,7 +298,7 @@ def test_lcms_metab_metadata_gen_with_qc_fields_from_processed_data():
 
     # --- Run 1: default thresholds (=1), all samples should pass ---
     output_file_pass = (
-        "tests/test_data/test_database_lcms_lipid_threshold_pass_"
+        "tests/test_data/test_database_lcms_metab_threshold_pass_"
         + datetime.now().strftime("%Y%m%d%H%M%S")
         + ".json"
     )
@@ -324,7 +324,7 @@ def test_lcms_metab_metadata_gen_with_qc_fields_from_processed_data():
 
     # --- Run 2: impossibly high peak_count_threshold, all samples should fail ---
     output_file_fail = (
-        "tests/test_data/test_database_lcms_lipid_threshold_fail_"
+        "tests/test_data/test_database_lcms_metab_threshold_fail_"
         + datetime.now().strftime("%Y%m%d%H%M%S")
         + ".json"
     )
