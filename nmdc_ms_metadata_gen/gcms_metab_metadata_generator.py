@@ -6,8 +6,8 @@ from pathlib import Path
 from typing import List
 
 import nmdc_schema.nmdc as nmdc
-import pandas as pd
 import numpy as np
+import pandas as pd
 from dotenv import load_dotenv
 from nmdc_api_utilities.data_object_search import DataObjectSearch
 from nmdc_api_utilities.workflow_execution_search import WorkflowExecutionSearch
@@ -113,6 +113,10 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         "Metabolomics annotations as a result of a GC/MS metabolomics workflow activity."
     )
 
+    # QC thresholds
+    peak_count_threshold: int = 0
+    peak_assignment_count_threshold: int = 0
+
     def __init__(
         self,
         metadata_file: str,
@@ -146,6 +150,104 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         # Workflow Configuration attributes
         self.configuration_file_name = configuration_file_name
         self.test = test
+
+    def _read_processed_csv(self, processed_data_file: Path) -> pd.DataFrame:
+        """Read the processed data CSV file into a pandas DataFrame."""
+        return pd.read_csv(processed_data_file)
+
+    def _get_wf_stats(self, processed_data: pd.DataFrame) -> dict:
+        """
+        Generate QC Stats from processed data.
+
+        Parameters
+        ----------
+        processed_data : pd.DataFrame
+            DataFrame containing the processed data.
+
+        Returns
+        -------
+        dict
+            Dictionary of QC stats generated from the processed data.
+
+        Notes
+        -----
+        This method reads in the processed data file and generates QC stats.
+
+        """
+
+        # Calculate peak_count
+        peak_count = processed_data["Peak Index"].nunique()
+
+        # Calculate peak_assignment_count
+        peak_assignments = processed_data[["Peak Index", "Inchi Key"]].dropna()
+        peak_assignment_count = peak_assignments["Peak Index"].nunique()
+
+        return {
+            "peak_count": peak_count,
+            "peak_assignment_count": peak_assignment_count,
+        }
+
+    def _resolve_qc_from_stats(self, qc_status, qc_comment, wf_stats: dict):
+        """Determine qc_status and qc_comment from metabolomics stats and optional CSV input.
+
+        Threshold checks are always run. Resolution follows these rules:
+
+        1. Stats fail AND CSV says "fail": returns "fail" with both the CSV comment and
+           the stat failure message concatenated together.
+        2. Stats fail AND CSV says "pass" or no CSV input: stats prevail, returns "fail"
+           with the stat failure message only.
+        3. Stats pass AND CSV says "fail": CSV override is accepted unconditionally,
+           returns "fail" with the CSV comment only.
+        4. Stats pass AND no CSV "fail": returns "pass" with the CSV comment if provided,
+           otherwise the default pass message.
+
+        Parameters
+        ----------
+        qc_status : str or None
+            QC status value from the CSV, or None if not provided.
+        qc_comment : str or None
+            QC comment value from the CSV, or None if not provided.
+        wf_stats : dict
+            Dictionary of workflow statistics (peak_count, peak_assignment_count).
+
+        Returns
+        -------
+        tuple
+            A tuple of (qc_status, qc_comment) resolved according to the rules above.
+        """
+        # Always compute stat failures
+        failed = []
+        if wf_stats.get("peak_count", 0) < self.peak_count_threshold:
+            failed.append(
+                f"peak_count ({wf_stats.get('peak_count', 0)} < {self.peak_count_threshold})"
+            )
+        if (
+            wf_stats.get("peak_assignment_count", 0)
+            < self.peak_assignment_count_threshold
+        ):
+            failed.append(
+                f"peak_assignment_count ({wf_stats.get('peak_assignment_count', 0)} < {self.peak_assignment_count_threshold})"
+            )
+
+        stat_comment = f"QC failed on: {', '.join(failed)}." if failed else None
+
+        if failed and qc_status == "fail":
+            # Both stats and CSV indicate failure — concatenate comments
+            combined_comment = "; ".join(filter(None, [qc_comment, stat_comment]))
+            return "fail", combined_comment
+        elif failed:
+            # Stats fail, CSV says "pass" or nothing — stats prevail
+            return "fail", stat_comment
+        elif qc_status == "fail":
+            # Stats pass, but CSV explicitly forces a fail — accept it
+            return qc_status, qc_comment
+        else:
+            # Stats pass and no CSV override to fail
+            return "pass", (
+                qc_comment
+                if qc_comment is not None
+                else "QC passed all computed peak count thresholds."
+            )
 
     def rerun(self) -> nmdc.Database:
         """
@@ -243,9 +345,18 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             # Get qc fields, converting NaN to None
             qc_status, qc_comment = self._get_qc_fields(data)
 
+            # Get the processed data .csv and read in as a pandas dataframe
+            processed_data = self._read_processed_csv(data["processed_data_file"])
+
+            # Get workflow stats (subclass-specific) and resolve QC
+            wf_stats = self._get_wf_stats(processed_data=processed_data)
+            qc_status, qc_comment = self._resolve_qc_from_stats(
+                qc_status, qc_comment, wf_stats
+            )
+
             # Always generate metabolite_identifications (even for failed QC)
             metabolite_identifications = self.generate_metab_identifications(
-                processed_data_file=Path(data["processed_data_file"])
+                processed_data=processed_data
             )
 
             # need to generate a new metabolomics analysis object with the newly incremented id
@@ -264,6 +375,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 metabolite_identifications=metabolite_identifications,
                 qc_status=qc_status,
                 qc_comment=qc_comment,
+                **wf_stats,
             )
 
             # Always generate processed data object (even for failed QC)
@@ -445,9 +557,20 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             # Get qc fields, converting NaN to None
             qc_status, qc_comment = self._get_qc_fields(data)
 
+            # Get the processed data .csv and read in as a pandas dataframe
+            processed_data = self._read_processed_csv(
+                workflow_metadata_obj.processed_data_file
+            )
+
+            # Get workflow stats (subclass-specific) and resolve QC
+            wf_stats = self._get_wf_stats(processed_data=processed_data)
+            qc_status, qc_comment = self._resolve_qc_from_stats(
+                qc_status, qc_comment, wf_stats
+            )
+
             # Always generate metabolite_identifications (even for failed QC)
             metabolite_identifications = self.generate_metab_identifications(
-                processed_data_file=workflow_metadata_obj.processed_data_file
+                processed_data=processed_data
             )
 
             # Generate metabolomics analysis object with metabolite identifications
@@ -469,6 +592,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 metabolite_identifications=metabolite_identifications,
                 qc_status=qc_status,
                 qc_comment=qc_comment,
+                **wf_stats,
             )
 
             # Always generate processed data object (even for failed QC)
@@ -697,15 +821,15 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         )
 
     def generate_metab_identifications(
-        self, processed_data_file: str
+        self, processed_data: pd.DataFrame
     ) -> List[nmdc.MetaboliteIdentification]:
         """
         Generate MetaboliteIdentification objects from processed data file.
 
         Parameters
         ----------
-        processed_data_file : str
-            Path to the processed data file.
+        processed_data : pd.DataFrame
+            DataFrame containing the processed data.
 
         Returns
         -------
@@ -718,8 +842,6 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         pulling out the best hit for each peak based on the highest "Similarity Score".
 
         """
-        # Open the file and read in the data as a pandas dataframe
-        processed_data = pd.read_csv(processed_data_file)
 
         # Drop any rows with missing similarity scores
         processed_data = processed_data.dropna(subset=["Similarity Score"])
