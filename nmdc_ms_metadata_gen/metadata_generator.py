@@ -720,9 +720,7 @@ class NMDCMetadataGenerator:
             client_secret=CLIENT_SECRET,
         )
 
-        for key, value in data.items():
-            if value is None:
-                data.pop(key)
+        data = {k: v for k, v in data.items() if v is not None}
         data.update(
             {
                 "id": nmdc_id,
