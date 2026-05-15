@@ -386,7 +386,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             )
         else: # if SRFA calibration is being used
             # if all rows have srfa IDs, great, use them
-            if metadata_df['srfa_calib_id'].notna().all():
+            if "srfa_calib_id" in metadata_df.columns and metadata_df['srfa_calib_id'].notna().all():
                 print("Using provided SRFA calibration IDs from metadata CSV.")
             
             # If some rows have srfa paths
@@ -401,12 +401,10 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
                 # for each unique srfa path, check if there is a calibration record in the database with the same name
                 for srfa_path in srfa_paths:
-                    print(srfa_path)
 
                     # Trim to base name. Does it exist?
                     srfa_name_trim = Path(srfa_path).stem
                     srfa_mongo_id = self.get_srfa_ids(srfa_name_trim)
-                    print(srfa_mongo_id)
 
                     # If yes, look up and use that calib id
                     if srfa_mongo_id is not None:
@@ -414,10 +412,9 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                         metadata_df.loc[
                             metadata_df["srfa_calib_path"] == srfa_path, "srfa_calib_id"
                         ] = srfa_mongo_id
-                        print(srfa_mongo_id)
+
                     # If no, create objects
                     else:
-                        print("beep")
                         srfa_calibration_id = (
                             self.generate_calibration_ids(
                                 srfa_calib_path=Path(srfa_path),
@@ -431,8 +428,6 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                         metadata_df.loc[
                             metadata_df["srfa_calib_path"] == srfa_path, "srfa_calib_id"
                         ] = srfa_calibration_id
-                        print('im here', srfa_calibration_id)
-
 
         self.generate_mass_spec_fields(
             metadata_df=metadata_df,
