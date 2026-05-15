@@ -411,7 +411,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                     else workflow_metadata_obj.processing_institution
                 ),
                 mass_spec_configuration_id=workflow_metadata_obj.mass_spec_configuration_id,
-                start_date=row["instrument_analysis_start_date"],
+                start_date=row.get("instrument_analysis_start_date"),
                 end_date=row["instrument_analysis_end_date"],
                 lc_config_id=workflow_metadata_obj.lc_config_id,
                 instrument_instance_specifier=workflow_metadata_obj.instrument_instance_specifier,
