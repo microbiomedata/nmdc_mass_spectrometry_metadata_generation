@@ -1,0 +1,14 @@
+# Please see the documentation for all configuration options:
+# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  - package-ecosystem: "pip" # See documentation for possible values
+    directory: "/" # Location of package manifests
+    schedule:
+      interval: "weekly"
+    # Do not open PRs for `nmdc-schema` — updates will be handled
+    # by a runtime-driven workflow that only creates PRs when the
+    # NMDC runtime has actually upgraded its schema.
+    ignore:
+      - dependency-name: "nmdc-schema"
