@@ -1,0 +1,83 @@
+name: runtime-triggered nmdc-schema update
+
+on:
+  schedule:
+    - cron: '0 7 * * *' # daily at 07:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-nmdc-schema:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch NMDC runtime schema version
+        id: runtime
+        run: |
+          RUNTIME_VERSION=$(curl -sf https://api.microbiomedata.org/version \
+            | python3 -c "import sys, json; print(json.load(sys.stdin)['nmdc-schema'])")
+          echo "runtime=${RUNTIME_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Runtime: ${RUNTIME_VERSION}"
+
+      - name: Read current requirements entry
+        id: current
+        run: |
+          CURRENT_LINE=$(grep -E '^nmdc-schema' requirements.txt || true)
+          echo "current=${CURRENT_LINE}" >> "$GITHUB_OUTPUT"
+          echo "Current line: ${CURRENT_LINE}"
+
+      - name: Create PR if runtime changed
+        env:
+          RUNTIME: ${{ steps.runtime.outputs.runtime }}
+          CURRENT: ${{ steps.current.outputs.current }}
+        run: |
+          if [ "$CURRENT" = "nmdc-schema==$RUNTIME" ]; then
+            echo "requirements.txt already pinned to runtime version; nothing to do"
+            exit 0
+          fi
+
+          BRANCH="update/nmdc-schema-${RUNTIME}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+
+          if grep -qE '^nmdc-schema' requirements.txt; then
+            sed -E "s/^nmdc-schema.*/nmdc-schema==${RUNTIME}/" -i requirements.txt
+          else
+            echo "nmdc-schema==${RUNTIME}" >> requirements.txt
+          fi
+
+          git add requirements.txt
+          git commit -m "Pin nmdc-schema to ${RUNTIME} (sync with NMDC runtime)" || true
+          git push --set-upstream origin "$BRANCH"
+
+      - name: Create pull request
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const runtime = "${{ steps.runtime.outputs.runtime }}";
+            const branch = `update/nmdc-schema-${runtime}`;
+            const { owner, repo } = context.repo;
+            const { data: repoData } = await github.rest.repos.get({ owner, repo });
+            const base = repoData.default_branch;
+
+            // Check for existing open PRs from the same branch
+            const prs = await github.rest.pulls.list({ owner, repo, head: `${owner}:${branch}`, state: 'open' });
+            if (prs.data.length > 0) {
+              console.log('PR already open for branch, skipping creation.');
+              return;
+            }
+
+            await github.rest.pulls.create({
+              owner,
+              repo,
+              title: `Pin nmdc-schema to ${runtime} (sync with NMDC runtime)`,
+              head: branch,
+              base,
+              body: `This PR pins \`nmdc-schema\` to the NMDC runtime version ${runtime} so the project stays compatible with the deployed runtime.\n\nDetected by the scheduled runtime-triggered dependency update workflow.`,
+            });
