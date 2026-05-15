@@ -91,6 +91,7 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
         raw_data_url: str = None,
         minting_config_creds: str = None,
         workflow_version: str = None,
+        existing_data_objects: list[str] = [],
         calibration_standard: str = None,
         test: bool = False,
         skip_sample_id_check: bool = False,
@@ -109,6 +110,7 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
         )
         self.minting_config_creds = minting_config_creds
         self.calibration_standard = "srfa"
+        self.existing_data_objects = existing_data_objects
 
     def rerun(self):
         return super().rerun()

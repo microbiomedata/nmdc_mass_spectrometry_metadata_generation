@@ -86,6 +86,7 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
         raw_data_url: str = None,
         minting_config_creds: str = None,
         workflow_version: str = None,
+        existing_data_objects: list[str] = [],
         test: bool = False,
         skip_sample_id_check: bool = False,
     ):
@@ -102,6 +103,7 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
             workflow_version_git_url="https://raw.githubusercontent.com/microbiomedata/enviroMS/master/.bumpversion.cfg"
         )
         self.minting_config_creds = minting_config_creds
+        self.existing_data_objects = existing_data_objects
 
     def rerun(self):
         return super().rerun()

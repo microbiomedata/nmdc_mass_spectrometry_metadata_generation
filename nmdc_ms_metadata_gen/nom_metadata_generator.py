@@ -311,7 +311,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 nom_analysis=nom_analysis,
                 nmdc_database_inst=nmdc_database_inst,
             )
-            has_input = [workflow_data_object.id, raw_data_object_id]
+            has_input = [workflow_data_object.id, raw_data_object_id] + self.existing_data_objects
 
             # Update the outputs for mass_spectrometry and nom_analysis
             self.update_outputs(
@@ -524,7 +524,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 nom_analysis=nom_analysis,
                 nmdc_database_inst=nmdc_database_inst,
             )
-            has_input = [workflow_data_object.id, raw_data_object.id]
+            has_input = [workflow_data_object.id, raw_data_object.id] + self.existing_data_objects
 
             # Update the outputs for mass_spectrometry and nom_analysis
             self.update_outputs(
