@@ -1710,10 +1710,18 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
 
                 # if it is a directory, we need to grab the directory from the metadata file path
                 if "process" in col:
-                    urls += [
-                        self.process_data_url + str(x.parent.name) + "/" + str(x.name)
-                        for x in file_data_paths
-                    ]
+                    if "nom" in self.process_data_url:
+                        # don't include the parent directory in the MinIO path for NOM
+                        # we may have to put up with nested outputs locally but not in MinIO
+                        urls += [
+                            self.process_data_url + "/" + str(x.name)
+                            for x in file_data_paths
+                        ]
+                    else:
+                        urls += [
+                            self.process_data_url + str(x.parent.name) + "/" + str(x.name)
+                            for x in file_data_paths
+                        ]
                 elif "raw" in col:
                     urls += [
                         self.raw_data_url + str(x.parent.name) + "/" + str(x.name)
