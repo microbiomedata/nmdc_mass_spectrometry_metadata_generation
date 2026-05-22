@@ -23,7 +23,7 @@ class LCMSNOMMetadataGenerator(NOMMetadataGenerator):
         Path to the configuration file containing the client ID and client secret for minting NMDC IDs. It can also include the bio ontology API key if generating biosample ids is needed.
         If not provided, the CLIENT_ID, CLIENT_SECRET, and BIO_API_KEY environment variables will be used.
     existing_data_objects: list[str], optional
-        A list of existing data object IDs to include as inputs in the workflow. Default is an empty list.
+        A list of existing data object IDs to include as inputs in the workflow. Default is an empty list. NOT for calibration records.
     test : bool, optional
         Flag indicating whether to run in test mode. If True, will skip biosample ID checks in the database, data object URL check, and will use local IDs (skip API minting). Default is False.
 

@@ -21,7 +21,7 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
         Path to the configuration file containing the client ID and client secret for minting NMDC IDs. It can also include the bio ontology API key if generating biosample ids is needed.
         If not provided, the CLIENT_ID, CLIENT_SECRET, and BIO_API_KEY environment variables will be used.
     existing_data_objects: list[str], optional
-        A list of existing data object IDs to include as inputs in the workflow. Default is an empty list.
+        A list of existing data object IDs to include as inputs in the workflow. Default is an empty list. NOT for calibration records.
     calibration_standard : str, optional
         Calibration standard used for the data. Default is "srfa".
     test : bool, optional
