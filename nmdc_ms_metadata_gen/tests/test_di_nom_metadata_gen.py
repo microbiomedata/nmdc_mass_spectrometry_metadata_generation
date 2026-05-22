@@ -30,7 +30,6 @@ def test_di_nom_metadata_gen():
         database_dump_json_path=output_file,
         raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_raw_nom/",
         process_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_nom/",
-        existing_data_objects=["nmdc:dobj-14-1e9qeq49"],
         test=True,
     )
 

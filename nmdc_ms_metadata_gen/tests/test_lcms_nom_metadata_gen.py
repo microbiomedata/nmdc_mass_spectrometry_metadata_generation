@@ -28,7 +28,6 @@ def test_lcms_nom_metadata_gen_processed_sample():
         database_dump_json_path=output_file,
         raw_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_raw_lcms_nom/",
         process_data_url="https://nmdcdemo.emsl.pnnl.gov/nom/test_data/test_processed_lcms_nom/",
-        existing_data_objects=["nmdc:dobj-14-1e9qeq49"],
         test=True,
     )
     metadata = generator.run()
