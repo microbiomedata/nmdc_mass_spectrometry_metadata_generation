@@ -20,6 +20,8 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
     minting_config_creds : str, optional
         Path to the configuration file containing the client ID and client secret for minting NMDC IDs. It can also include the bio ontology API key if generating biosample ids is needed.
         If not provided, the CLIENT_ID, CLIENT_SECRET, and BIO_API_KEY environment variables will be used.
+    existing_data_objects: list[str], optional
+        A list of existing data object IDs to include as inputs in the workflow. Default is an empty list. NOT for calibration records.
     calibration_standard : str, optional
         Calibration standard used for the data. Default is "srfa".
     test : bool, optional
@@ -91,6 +93,7 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
         raw_data_url: str = None,
         minting_config_creds: str = None,
         workflow_version: str = None,
+        existing_data_objects: list[str] = [],
         calibration_standard: str = None,
         test: bool = False,
         skip_sample_id_check: bool = False,
@@ -109,6 +112,7 @@ class DINOMMetaDataGenerator(NOMMetadataGenerator):
         )
         self.minting_config_creds = minting_config_creds
         self.calibration_standard = "srfa"
+        self.existing_data_objects = existing_data_objects
 
     def rerun(self):
         return super().rerun()

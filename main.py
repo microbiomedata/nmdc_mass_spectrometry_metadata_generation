@@ -215,6 +215,7 @@ def di_nom(
     metadata_file: str,
     database_dump_path: str,
     process_data_url: str,
+    existing_data_objects: list,
     test: bool,
 ):
     """Generate Direct Infusion NOM metadata"""
@@ -225,6 +226,7 @@ def di_nom(
         process_data_url=process_data_url,
         minting_config_creds=minting_config_creds,
         workflow_version=workflow_version,
+        existing_data_objects=ast.literal_eval(existing_data_objects),
         test=test,
     )
     if rerun:
@@ -244,6 +246,7 @@ def lcms_nom(
     metadata_file: str,
     database_dump_path: str,
     process_data_url: str,
+    existing_data_objects: list,
     test: bool,
 ):
     """Generate LCMS NOM metadata"""
@@ -254,6 +257,7 @@ def lcms_nom(
         process_data_url=process_data_url,
         minting_config_creds=minting_config_creds,
         workflow_version=workflow_version,
+        existing_data_objects=ast.literal_eval(existing_data_objects),
         test=test,
     )
     if rerun:

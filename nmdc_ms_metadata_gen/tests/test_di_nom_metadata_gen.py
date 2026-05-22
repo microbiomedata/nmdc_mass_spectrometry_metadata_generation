@@ -57,6 +57,9 @@ def test_di_nom_metadata_gen():
         len(working_data["workflow_execution_set"][0]["uses_calibration"]) == 2
     ), f"Workflow {working_data['workflow_execution_set'][0]['id']} uses_calibration should have two values"
 
+    assert ( # assert that two new srfa calib records have been created
+        len(working_data["calibration_set"]) == 1
+    ), "Expected 1 SRFA Calibration Data Object to be created, but found a different number"
 
 def test_di_nom_metadata_gen_rerun():
     """Run the rerun code path using raw data file paths as input and validate the output."""
