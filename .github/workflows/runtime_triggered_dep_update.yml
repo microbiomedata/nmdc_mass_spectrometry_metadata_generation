@@ -26,9 +26,9 @@ jobs:
       - name: Read current requirements entry
         id: current
         run: |
-          CURRENT_LINE=$(grep -E '^nmdc-schema' requirements.txt | sed -E 's/^nmdc-schema==([^[:space:]#]+).*/\1/' || true)
-          echo "current=${CURRENT_LINE}" >> "$GITHUB_OUTPUT"
-          echo "Current line: ${CURRENT_LINE}"
+          CURRENT_VERSION=$(grep -E '^nmdc-schema' requirements.txt | sed -E 's/^nmdc-schema==([^[:space:]#]+).*/\1/' || true)
+          echo "current=${CURRENT_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Current line: ${CURRENT_VERSION}"
 
       - name: Create PR if runtime changed
         env:
