@@ -4,12 +4,14 @@ import string
 from collections import defaultdict
 
 from dotenv import load_dotenv
-from nmdc_api_utilities.minter import Minter
+from nmdc_client.api_client import get_api_base_url
+from nmdc_client.minter import Minter
 
 from nmdc_ms_metadata_gen.data_classes import NmdcTypes
 
 load_dotenv()
 ENV = os.getenv("NMDC_ENV", "prod")
+API_BASE_URL = get_api_base_url(env=ENV)
 
 
 class IDPool:
@@ -90,7 +92,7 @@ class IDPool:
             attempt = 0
             while attempt < retries:
                 try:
-                    minter = Minter(env=ENV)
+                    minter = Minter(api_base_url=API_BASE_URL)
                     new_ids = minter.mint(
                         nmdc_type=nmdc_type,
                         count=self.pool_size,

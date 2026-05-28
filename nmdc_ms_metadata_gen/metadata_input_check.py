@@ -1,10 +1,12 @@
 import os
 
 import pandas as pd
-from nmdc_api_utilities.biosample_search import BiosampleSearch
-from nmdc_api_utilities.data_generation_search import DataGenerationSearch
+from nmdc_client.api_client import get_api_base_url
+from nmdc_client.biosample_search import BiosampleSearch
+from nmdc_client.data_generation_search import DataGenerationSearch
 
 ENV = os.getenv("NMDC_ENV", "prod")
+API_BASE_URL = get_api_base_url(env=ENV)
 
 
 class MetadataSurveyor:
@@ -22,8 +24,8 @@ class MetadataSurveyor:
     """
 
     def __init__(self, study: str):
-        self.dg_client = DataGenerationSearch(env=ENV)
-        self.bsmp_client = BiosampleSearch(env=ENV)
+        self.dg_client = DataGenerationSearch(api_base_url=API_BASE_URL)
+        self.bsmp_client = BiosampleSearch(api_base_url=API_BASE_URL)
         self.study = study
 
     def mass_spec_records(self) -> list:

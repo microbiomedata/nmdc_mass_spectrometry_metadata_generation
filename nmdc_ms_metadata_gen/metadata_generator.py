@@ -19,21 +19,22 @@ from typing import Dict, List
 import nmdc_schema.nmdc as nmdc
 import numpy as np
 import pandas as pd
+from nmdc_client.api_client import get_api_base_url
 import requests
 import toml
 from linkml.validator import Validator
 from linkml.validator.plugins import JsonschemaValidationPlugin
 from linkml_runtime import SchemaView
 from linkml_runtime.dumpers import json_dumper
-from nmdc_api_utilities.auth import NMDCAuth
-from nmdc_api_utilities.biosample_search import BiosampleSearch
-from nmdc_api_utilities.configuration_search import ConfigurationSearch
-from nmdc_api_utilities.data_object_search import DataObjectSearch
-from nmdc_api_utilities.instrument_search import InstrumentSearch
-from nmdc_api_utilities.metadata import Metadata
-from nmdc_api_utilities.nmdc_search import NMDCSearch
-from nmdc_api_utilities.processed_sample_search import ProcessedSampleSearch
-from nmdc_api_utilities.study_search import StudySearch
+from nmdc_client.auth import NMDCAuth
+from nmdc_client.biosample_search import BiosampleSearch
+from nmdc_client.configuration_search import ConfigurationSearch
+from nmdc_client.data_object_search import DataObjectSearch
+from nmdc_client.instrument_search import InstrumentSearch
+from nmdc_client.metadata import Metadata
+from nmdc_client.nmdc_search import NMDCSearch
+from nmdc_client.processed_sample_search import ProcessedSampleSearch
+from nmdc_client.study_search import StudySearch
 from nmdc_schema import NmdcSchemaValidationPlugin
 from nmdc_schema.nmdc import Database as NMDCDatabase
 from tqdm import tqdm
@@ -44,6 +45,7 @@ from nmdc_ms_metadata_gen.id_pool import IDPool
 from nmdc_ms_metadata_gen.schema_bridge import get_curie_for_class
 
 ENV = os.getenv("NMDC_ENV", "prod")
+API_BASE_URL = get_api_base_url(env=ENV)
 
 # Configure logging
 logging.basicConfig(
@@ -191,7 +193,7 @@ class NMDCMetadataGenerator:
         dict
             A dictionary mapping each input sample id to its associated studies.
         """
-        search_obj = NMDCSearch(env=ENV)
+        search_obj = NMDCSearch(api_base_url=API_BASE_URL)
 
         # For processed sample ids, get the biosample ids they are associated with
         processed_sample_ids = [id for id in ids if "nmdc:procsm" in id]
@@ -211,7 +213,7 @@ class NMDCMetadataGenerator:
         ] + ps_derived_biosamples
 
         # Grab the associated_studies on biosample records
-        biosample_search = BiosampleSearch(env=ENV)
+        biosample_search = BiosampleSearch(api_base_url=API_BASE_URL)
         biosample_records = biosample_search.get_batch_records(
             id_list=biosample_ids, search_field="id", fields="id,associated_studies"
         )
@@ -974,7 +976,7 @@ class NMDCMetadataGenerator:
             with open(json) as f:
                 json = json_lib.load(f)
         if use_api:
-            api_metadata = Metadata(env=ENV)
+            api_metadata = Metadata(api_base_url=API_BASE_URL)
             api_metadata.validate_json(json)
             return {"result": "All okay!"}
         else:
@@ -1006,7 +1008,7 @@ class NMDCMetadataGenerator:
             with open(json) as f:
                 json = json_lib.load(f)
         auth = NMDCAuth(client_id=CLIENT_ID, client_secret=CLIENT_SECRET)
-        md = Metadata(env=ENV, auth=auth)
+        md = Metadata(api_base_url=API_BASE_URL, auth=auth)
         success = md.submit_json(json)
         if success != 200:
             logging.error("Failed to submit JSON metadata: %s", json)
@@ -1366,7 +1368,7 @@ class NMDCMetadataGenerator:
             # Print a message saying that the study already exists, but do not stop the loop.
             # If the study already exists, remove it from the output
             for s in parsed_studies:
-                study_client = StudySearch(env=ENV)
+                study_client = StudySearch(api_base_url=API_BASE_URL)
                 response = study_client.get_batch_records(
                     id_list=[s["emsl_project_identifiers"][0]],
                     search_field="emsl_project_identifiers",
@@ -1530,9 +1532,9 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
                 sample_type = ""
 
             if sample_type == "biosample":
-                sample_client = BiosampleSearch(env=ENV)
+                sample_client = BiosampleSearch(api_base_url=API_BASE_URL)
             else:
-                sample_client = ProcessedSampleSearch(env=ENV)
+                sample_client = ProcessedSampleSearch(api_base_url=API_BASE_URL)
 
             # Only check if IDs exist if skip_sample_id_check is False
             if not self.skip_sample_id_check:
@@ -1615,7 +1617,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
 
         Notes
         -----
-        This method uses the nmdc_api_utilities package to fetch IDs for the instrument
+        This method uses the nmdc_client package to fetch IDs for the instrument
         and configurations. It also mints a new NMDC ID for the DataGeneration object.
 
         """
@@ -1759,7 +1761,7 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
                     except requests.RequestException as e:
                         raise ValueError(f"URL {url} is not accessible. Error: {e}")
 
-        doj_client = DataObjectSearch(env=ENV)
+        doj_client = DataObjectSearch(api_base_url=API_BASE_URL)
         resp = doj_client.get_batch_records(
             id_list=urls, search_field="url", fields="id", chunk_size=10
         )
@@ -1872,8 +1874,8 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         -------
         None
         """
-        is_client = InstrumentSearch(env=ENV)
-        cs_client = ConfigurationSearch(env=ENV)
+        is_client = InstrumentSearch(api_base_url=API_BASE_URL)
+        cs_client = ConfigurationSearch(api_base_url=API_BASE_URL)
         instrument_names = metadata_df["instrument_used"].unique()
         if "chromat_configuration_name" in metadata_df.columns:
             # If the column exists, get unique LC configuration names
