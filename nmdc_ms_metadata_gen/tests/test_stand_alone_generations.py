@@ -349,11 +349,11 @@ def test_get_associated_studies():
 
     # Gather example input ids
     bs = BiosampleSearch(api_base_url=API_BASE_URL)
-    ids = bs.get_records(max_page_size=100, fields="id")
+    ids = bs.get_records(max_page_size=100, fields="id", all_pages=False)
     ps = ProcessedSampleSearch(api_base_url=API_BASE_URL)
-    ps_ids = ps.get_records(max_page_size=100, fields="id")
+    ps_ids = ps.get_records(max_page_size=100, fields="id", all_pages=False)
 
-    id_list = [x["id"] for x in ids[:100] + ps_ids[:100]]
+    id_list = [x["id"] for x in ids + ps_ids]
     assert len(id_list) == 200
 
     gen = NMDCMetadataGenerator()
