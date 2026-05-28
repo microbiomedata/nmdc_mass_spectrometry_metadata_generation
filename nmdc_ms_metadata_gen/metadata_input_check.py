@@ -6,7 +6,7 @@ from nmdc_client.biosample_search import BiosampleSearch
 from nmdc_client.data_generation_search import DataGenerationSearch
 
 ENV = os.getenv("NMDC_ENV", "prod")
-API_BASE_URL = get_api_base_url(env=ENV)
+API_BASE_URL = os.getenv("API_BASE_URL", get_api_base_url(env=ENV))
 
 
 class MetadataSurveyor:

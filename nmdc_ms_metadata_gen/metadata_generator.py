@@ -45,7 +45,7 @@ from nmdc_ms_metadata_gen.id_pool import IDPool
 from nmdc_ms_metadata_gen.schema_bridge import get_curie_for_class
 
 ENV = os.getenv("NMDC_ENV", "prod")
-API_BASE_URL = get_api_base_url(env=ENV)
+API_BASE_URL = os.getenv("API_BASE_URL", get_api_base_url(env=ENV))
 
 # Configure logging
 logging.basicConfig(

@@ -19,7 +19,7 @@ from nmdc_ms_metadata_gen.metadata_generator import NMDCWorkflowMetadataGenerato
 
 load_dotenv()
 ENV = os.getenv("NMDC_ENV", "prod")
-API_BASE_URL = get_api_base_url(env=ENV)
+API_BASE_URL = os.getenv("API_BASE_URL", get_api_base_url(env=ENV))
 
 
 class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):

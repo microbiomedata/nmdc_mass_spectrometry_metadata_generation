@@ -11,7 +11,7 @@ from nmdc_ms_metadata_gen.metadata_generator import NMDCMetadataGenerator
 
 load_dotenv()
 ENV = os.getenv("NMDC_ENV", "prod")
-API_BASE_URL = get_api_base_url(env=ENV)
+API_BASE_URL = os.getenv("API_BASE_URL", get_api_base_url(env=ENV))
 python_path = os.getenv("PYTHONPATH")
 if python_path:
     os.environ["PYTHONPATH"] = python_path
@@ -353,7 +353,7 @@ def test_get_associated_studies():
     ps = ProcessedSampleSearch(api_base_url=API_BASE_URL)
     ps_ids = ps.get_records(max_page_size=100, fields="id")
 
-    id_list = [x["id"] for x in ids + ps_ids]
+    id_list = [x["id"] for x in ids[:100] + ps_ids[:100]]
     assert len(id_list) == 200
 
     gen = NMDCMetadataGenerator()

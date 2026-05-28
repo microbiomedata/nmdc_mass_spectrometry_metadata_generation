@@ -11,7 +11,7 @@ from nmdc_ms_metadata_gen.data_classes import NmdcTypes
 
 load_dotenv()
 ENV = os.getenv("NMDC_ENV", "prod")
-API_BASE_URL = get_api_base_url(env=ENV)
+API_BASE_URL = os.getenv("API_BASE_URL", get_api_base_url(env=ENV))
 
 
 class IDPool:
