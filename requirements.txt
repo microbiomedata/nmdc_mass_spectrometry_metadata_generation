@@ -1,6 +1,6 @@
 pandas<3.0
 nmdc-schema==11.19.1
-nmdc_api_utilities==0.6.1
+nmdc_api_utilities==0.7.0
 python-dotenv==1.2.2
 tqdm~=4.67.3
 toml~=0.10.2
