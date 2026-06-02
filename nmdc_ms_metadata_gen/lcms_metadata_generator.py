@@ -8,8 +8,9 @@ import nmdc_schema.nmdc as nmdc
 import numpy as np
 import pandas as pd
 from dotenv import load_dotenv
-from nmdc_api_utilities.data_object_search import DataObjectSearch
-from nmdc_api_utilities.workflow_execution_search import WorkflowExecutionSearch
+from nmdc_client.api_client import get_api_base_url
+from nmdc_client.data_object_search import DataObjectSearch
+from nmdc_client.workflow_execution_search import WorkflowExecutionSearch
 from tqdm import tqdm
 
 from nmdc_ms_metadata_gen.data_classes import LCMSLipidWorkflowMetadata, NmdcTypes
@@ -17,6 +18,7 @@ from nmdc_ms_metadata_gen.metadata_generator import NMDCWorkflowMetadataGenerato
 
 load_dotenv()
 ENV = os.getenv("NMDC_ENV", "prod")
+API_BASE_URL = os.getenv("API_BASE_URL", get_api_base_url(env=ENV))
 
 
 class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
@@ -499,8 +501,8 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
         client_id, client_secret = self.load_credentials(
             config_file=self.minting_config_creds
         )
-        wf_client = WorkflowExecutionSearch(env=ENV)
-        do_client = DataObjectSearch(env=ENV)
+        wf_client = WorkflowExecutionSearch(api_base_url=API_BASE_URL)
+        do_client = DataObjectSearch(api_base_url=API_BASE_URL)
         client_id, client_secret = self.load_credentials(
             config_file=self.minting_config_creds
         )

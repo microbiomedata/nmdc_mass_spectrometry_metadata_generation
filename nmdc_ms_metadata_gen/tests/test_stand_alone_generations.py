@@ -3,13 +3,15 @@ import os
 from datetime import datetime
 
 from dotenv import load_dotenv
-from nmdc_api_utilities.biosample_search import BiosampleSearch
-from nmdc_api_utilities.processed_sample_search import ProcessedSampleSearch
+from nmdc_client.api_client import get_api_base_url
+from nmdc_client.biosample_search import BiosampleSearch
+from nmdc_client.processed_sample_search import ProcessedSampleSearch
 
 from nmdc_ms_metadata_gen.metadata_generator import NMDCMetadataGenerator
 
 load_dotenv()
 ENV = os.getenv("NMDC_ENV", "prod")
+API_BASE_URL = os.getenv("API_BASE_URL", get_api_base_url(env=ENV))
 python_path = os.getenv("PYTHONPATH")
 if python_path:
     os.environ["PYTHONPATH"] = python_path
@@ -346,10 +348,10 @@ def test_get_associated_studies():
     """
 
     # Gather example input ids
-    bs = BiosampleSearch(env=ENV)
-    ids = bs.get_records(max_page_size=100, fields="id")
-    ps = ProcessedSampleSearch(env=ENV)
-    ps_ids = ps.get_records(max_page_size=100, fields="id")
+    bs = BiosampleSearch(api_base_url=API_BASE_URL)
+    ids = bs.get_records(max_page_size=100, fields="id", all_pages=False)
+    ps = ProcessedSampleSearch(api_base_url=API_BASE_URL)
+    ps_ids = ps.get_records(max_page_size=100, fields="id", all_pages=False)
 
     id_list = [x["id"] for x in ids + ps_ids]
     assert len(id_list) == 200

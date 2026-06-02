@@ -10,9 +10,10 @@ import nmdc_schema.nmdc as nmdc
 import numpy as np
 import pandas as pd
 from dotenv import load_dotenv
-from nmdc_api_utilities.calibration_search import CalibrationSearch
-from nmdc_api_utilities.data_object_search import DataObjectSearch
-from nmdc_api_utilities.workflow_execution_search import WorkflowExecutionSearch
+from nmdc_client.api_client import get_api_base_url
+from nmdc_client.calibration_search import CalibrationSearch
+from nmdc_client.data_object_search import DataObjectSearch
+from nmdc_client.workflow_execution_search import WorkflowExecutionSearch
 from tqdm import tqdm
 
 from nmdc_ms_metadata_gen.data_classes import NmdcTypes, NOMMetadata
@@ -20,6 +21,7 @@ from nmdc_ms_metadata_gen.metadata_generator import NMDCWorkflowMetadataGenerato
 
 load_dotenv()
 ENV = os.getenv("NMDC_ENV", "prod")
+API_BASE_URL = os.getenv("API_BASE_URL", get_api_base_url(env=ENV))
 
 
 class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
@@ -198,8 +200,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         nmdc.Database
             The generated NMDC database instance containing all generated metadata objects.
         """
-        do_client = DataObjectSearch(env=ENV)
-        wf_client = WorkflowExecutionSearch(env=ENV)
+        do_client = DataObjectSearch(api_base_url=API_BASE_URL)
+        wf_client = WorkflowExecutionSearch(api_base_url=API_BASE_URL)
         client_id, client_secret = self.load_credentials(
             config_file=self.minting_config_creds
         )
@@ -601,8 +603,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         """
         # Lookup calibration id by md5 checksum of calibration_path file
         calib_md5 = hashlib.md5(calibration_path.open("rb").read()).hexdigest()
-        do_client = DataObjectSearch(env=ENV)
-        cs_client = CalibrationSearch(env=ENV)
+        do_client = DataObjectSearch(api_base_url=API_BASE_URL)
+        cs_client = CalibrationSearch(api_base_url=API_BASE_URL)
         try:
             calib_do_id = do_client.get_record_by_attribute(
                 attribute_name="md5_checksum",
@@ -649,8 +651,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         str
             The calibration ID if found, otherwise None.
         """
-        do_client = DataObjectSearch(env=ENV)
-        cs_client = CalibrationSearch(env=ENV)
+        do_client = DataObjectSearch(api_base_url=API_BASE_URL)
+        cs_client = CalibrationSearch(api_base_url=API_BASE_URL)
         try:
             calib_do_id = do_client.get_record_by_attribute(
                 attribute_name="name",

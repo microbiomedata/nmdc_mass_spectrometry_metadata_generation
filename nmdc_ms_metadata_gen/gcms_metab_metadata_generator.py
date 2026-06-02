@@ -9,8 +9,9 @@ import nmdc_schema.nmdc as nmdc
 import numpy as np
 import pandas as pd
 from dotenv import load_dotenv
-from nmdc_api_utilities.data_object_search import DataObjectSearch
-from nmdc_api_utilities.workflow_execution_search import WorkflowExecutionSearch
+from nmdc_client.api_client import get_api_base_url
+from nmdc_client.data_object_search import DataObjectSearch
+from nmdc_client.workflow_execution_search import WorkflowExecutionSearch
 from tqdm import tqdm
 
 from nmdc_ms_metadata_gen.data_classes import GCMSMetabWorkflowMetadata, NmdcTypes
@@ -18,6 +19,7 @@ from nmdc_ms_metadata_gen.metadata_generator import NMDCWorkflowMetadataGenerato
 
 load_dotenv()
 ENV = os.getenv("NMDC_ENV", "prod")
+API_BASE_URL = os.getenv("API_BASE_URL", get_api_base_url(env=ENV))
 
 
 class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
@@ -277,7 +279,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         mass spectrometry metadata.
 
         """
-        wf_client = WorkflowExecutionSearch(env=ENV)
+        wf_client = WorkflowExecutionSearch(api_base_url=API_BASE_URL)
         client_id, client_secret = self.load_credentials(
             config_file=self.minting_config_creds
         )
@@ -296,7 +298,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         )
 
         # Get the configuration file data object id and add it to the metadata_df
-        do_client = DataObjectSearch(env=ENV)
+        do_client = DataObjectSearch(api_base_url=API_BASE_URL)
         config_do_id = do_client.get_record_by_attribute(
             attribute_name="name",
             attribute_value=self.configuration_file_name,
@@ -479,7 +481,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             self.check_doj_urls(metadata_df=metadata_df, url_columns=urls_columns)
 
         # Get the configuration file data object id and add it to the metadata_df
-        do_client = DataObjectSearch(env=ENV)
+        do_client = DataObjectSearch(api_base_url=API_BASE_URL)
         config_do_id = do_client.get_record_by_attribute(
             attribute_name="name",
             attribute_value=self.configuration_file_name,
