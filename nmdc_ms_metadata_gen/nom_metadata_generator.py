@@ -1002,9 +1002,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                     data_category=self.workflow_param_data_category,
                     data_object_type=self.workflow_param_data_object_type,
                     description=self.workflow_param_data_object_desc,
-                    base_url=self.process_data_url
-                    + Path(row["processed_data_directory"]).name
-                    + "/",
+                    base_url=self.process_data_url,
                     was_generated_by=nom_analysis.id,
                     CLIENT_ID=client_id,
                     CLIENT_SECRET=client_secret,
@@ -1018,9 +1016,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                     data_category=self.processed_data_category,
                     data_object_type=self.qc_process_data_obj_type,
                     description=self.qc_process_data_description,
-                    base_url=self.process_data_url
-                    + Path(row["processed_data_directory"]).name
-                    + "/",
+                    base_url=self.process_data_url,
                     was_generated_by=nom_analysis.id,
                     CLIENT_ID=client_id,
                     CLIENT_SECRET=client_secret,
@@ -1038,9 +1034,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                     data_category=self.workflow_param_data_category,
                     data_object_type=self.workflow_param_data_object_type,
                     description=self.workflow_param_data_object_desc,
-                    base_url=self.process_data_url
-                    + Path(row["processed_data_directory"]).name
-                    + "/",
+                    base_url=self.process_data_url,
                     was_generated_by=nom_analysis.id,
                     CLIENT_ID=client_id,
                     CLIENT_SECRET=client_secret,
