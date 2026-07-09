@@ -1,0 +1,208 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NMDC Mass Spectrometry Metadata Generation Documentation &mdash; nmdc_mass_spectrometry_metadata_generation 3/1/2025 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=1e0eaa87"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Bio Ontology API Class" href="functions.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            nmdc_mass_spectrometry_metadata_generation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="functions.html">Bio Ontology API Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#biosample-metadata-parser-base-class">Biosample Metadata Parser Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#biosample-generator-class">Biosample Generator Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#metadata-generator-base-class">Metadata Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#metadata-workflow-generator-base-class">Metadata Workflow Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#material-processing-metadata-generator-base-class">Material Processing Metadata Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#lc-ms-metadata-generator-base-class">LC/MS Metadata Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#data-class">Data Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#lc-ms-lipidomics-metadata-generator-subclass">LC/MS Lipidomics Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#lc-ms-metabolomics-metadata-generator-subclass">LC/MS Metabolomics Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#gc-ms-metabolomics-metadata-generator-subclass">GC/MS Metabolomics Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#direct-infusion-nom-metadata-generator-subclass">Direct Infusion NOM Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#lc-nom-metadata-generator-subclass">LC NOM Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#validate-yaml-outline-function">Validate YAML Outline Function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#change-sheet-generator">Change Sheet Generator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#workflow-sheet-generator">Workflow Sheet Generator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#id-pool">ID Pool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#main-cli-class">Main CLI Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">nmdc_mass_spectrometry_metadata_generation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">NMDC Mass Spectrometry Metadata Generation Documentation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="nmdc-mass-spectrometry-metadata-generation-documentation">
+<h1>NMDC Mass Spectrometry Metadata Generation Documentation<a class="headerlink" href="#nmdc-mass-spectrometry-metadata-generation-documentation" title="Link to this heading"></a></h1>
+<p>Welcome to NMDC Mass Spectrometry Metadata Generation documentation. This package provides tools for mass spectrometry metadata generation for GC/MS metabolomics, LC-MS lipidomics, and NOM data.</p>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="functions.html">Bio Ontology API Class</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#nmdc_ms_metadata_gen.bio_ontology_api.BioOntologyInfoRetriever"><code class="docutils literal notranslate"><span class="pre">BioOntologyInfoRetriever</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#biosample-metadata-parser-base-class">Biosample Metadata Parser Base Class</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#nmdc_ms_metadata_gen.metadata_parser.BiosampleMetadataParser"><code class="docutils literal notranslate"><span class="pre">BiosampleMetadataParser</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#biosample-generator-class">Biosample Generator Class</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#nmdc_ms_metadata_gen.biosample_generator.BiosampleGenerator"><code class="docutils literal notranslate"><span class="pre">BiosampleGenerator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#metadata-generator-base-class">Metadata Generator Base Class</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCMetadataGenerator"><code class="docutils literal notranslate"><span class="pre">NMDCMetadataGenerator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#metadata-workflow-generator-base-class">Metadata Workflow Generator Base Class</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#nmdc_ms_metadata_gen.metadata_generator.NMDCWorkflowMetadataGenerator"><code class="docutils literal notranslate"><span class="pre">NMDCWorkflowMetadataGenerator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#material-processing-metadata-generator-base-class">Material Processing Metadata Generator Base Class</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#nmdc_ms_metadata_gen.material_processing_generator.MaterialProcessingMetadataGenerator"><code class="docutils literal notranslate"><span class="pre">MaterialProcessingMetadataGenerator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#lc-ms-metadata-generator-base-class">LC/MS Metadata Generator Base Class</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#nmdc_ms_metadata_gen.lcms_metadata_generator.LCMSMetadataGenerator"><code class="docutils literal notranslate"><span class="pre">LCMSMetadataGenerator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#data-class">Data Class</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#nmdc_ms_metadata_gen.data_classes.NmdcTypes"><code class="docutils literal notranslate"><span class="pre">NmdcTypes</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#nmdc_ms_metadata_gen.data_classes.GCMSMetabWorkflowMetadata"><code class="docutils literal notranslate"><span class="pre">GCMSMetabWorkflowMetadata</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#nmdc_ms_metadata_gen.data_classes.LCMSLipidWorkflowMetadata"><code class="docutils literal notranslate"><span class="pre">LCMSLipidWorkflowMetadata</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#lc-ms-lipidomics-metadata-generator-subclass">LC/MS Lipidomics Metadata Generator Subclass</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#nmdc_ms_metadata_gen.lcms_lipid_metadata_generator.LCMSLipidomicsMetadataGenerator"><code class="docutils literal notranslate"><span class="pre">LCMSLipidomicsMetadataGenerator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#lc-ms-metabolomics-metadata-generator-subclass">LC/MS Metabolomics Metadata Generator Subclass</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#nmdc_ms_metadata_gen.lcms_metab_metadata_generator.LCMSMetabolomicsMetadataGenerator"><code class="docutils literal notranslate"><span class="pre">LCMSMetabolomicsMetadataGenerator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#gc-ms-metabolomics-metadata-generator-subclass">GC/MS Metabolomics Metadata Generator Subclass</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#nmdc_ms_metadata_gen.gcms_metab_metadata_generator.GCMSMetabolomicsMetadataGenerator"><code class="docutils literal notranslate"><span class="pre">GCMSMetabolomicsMetadataGenerator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#direct-infusion-nom-metadata-generator-subclass">Direct Infusion NOM Metadata Generator Subclass</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#nmdc_ms_metadata_gen.di_nom_metadata_generator.DINOMMetaDataGenerator"><code class="docutils literal notranslate"><span class="pre">DINOMMetaDataGenerator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#lc-nom-metadata-generator-subclass">LC NOM Metadata Generator Subclass</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#nmdc_ms_metadata_gen.lcms_nom_metadata_generator.LCMSNOMMetadataGenerator"><code class="docutils literal notranslate"><span class="pre">LCMSNOMMetadataGenerator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#validate-yaml-outline-function">Validate YAML Outline Function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#change-sheet-generator">Change Sheet Generator</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#nmdc_ms_metadata_gen.sheet_generator.ChangeSheetGenerator"><code class="docutils literal notranslate"><span class="pre">ChangeSheetGenerator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#workflow-sheet-generator">Workflow Sheet Generator</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#nmdc_ms_metadata_gen.sheet_generator.WorkflowSheetGenerator"><code class="docutils literal notranslate"><span class="pre">WorkflowSheetGenerator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#id-pool">ID Pool</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#nmdc_ms_metadata_gen.id_pool.IDPool"><code class="docutils literal notranslate"><span class="pre">IDPool</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html#main-cli-class">Main CLI Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+</ul>
+</div>
+</section>
+<section id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading"></a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="functions.html" class="btn btn-neutral float-right" title="Bio Ontology API Class" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Olivia Hess.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
