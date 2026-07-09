@@ -115,6 +115,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const runtime = "${{ steps.runtime.outputs.runtime }}";
+            const projectVersion = "${{ steps.changes.outputs.project_version }}";
             const branch = `update/nmdc-schema-${runtime}`;
             const { owner, repo } = context.repo;
             const { data: repoData } = await github.rest.repos.get({ owner, repo });
@@ -127,11 +128,34 @@ jobs:
               return;
             }
 
-            await github.rest.pulls.create({
+            const { data: createdPr } = await github.rest.pulls.create({
               owner,
               repo,
               title: `Pin nmdc-schema to ${runtime} (sync with NMDC runtime)`,
               head: branch,
               base,
-              body: `This PR pins \`nmdc-schema\` to the NMDC runtime version ${runtime} so the project stays compatible with the deployed runtime.\n\nDetected by the scheduled runtime-triggered dependency update workflow.`,
+              body: `This PR pins \`nmdc-schema\` to the NMDC runtime version ${runtime} so the project stays compatible with the deployed runtime. It also bumps the package version in \`pyproject.toml\` using the same semantic-version change type detected in the runtime update.\n\nAfter this is merged, create a \`v${projectVersion}\` tag and trigger a new release.\n\nDetected by the scheduled runtime-triggered dependency update workflow.`,
             });
+
+            for (const username of ['kheal', 'bmeluch']) {
+              try {
+                await github.rest.pulls.requestReviewers({
+                  owner,
+                  repo,
+                  pull_number: createdPr.number,
+                  reviewers: [username],
+                });
+              } catch (reviewError) {
+                console.warn(`Could not request review from ${username}: ${reviewError.message}`);
+                try {
+                  await github.rest.issues.addAssignees({
+                    owner,
+                    repo,
+                    issue_number: createdPr.number,
+                    assignees: [username],
+                  });
+                } catch (assignError) {
+                  console.warn(`Could not assign ${username}: ${assignError.message}`);
+                }
+              }
+            }
