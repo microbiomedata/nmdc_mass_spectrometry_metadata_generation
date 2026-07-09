@@ -52,7 +52,54 @@ jobs:
             echo "nmdc-schema==${RUNTIME}" >> requirements.txt
           fi
 
-          git add requirements.txt
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          import re
+
+          current_runtime = [int(part) for part in os.environ["CURRENT"].split(".")]
+          next_runtime = [int(part) for part in os.environ["RUNTIME"].split(".")]
+
+          if len(current_runtime) != 3 or len(next_runtime) != 3:
+              raise SystemExit("Expected three-part semantic versions for nmdc-schema")
+          if next_runtime == current_runtime:
+              raise SystemExit(0)
+          if next_runtime < current_runtime:
+              raise SystemExit("Refusing to derive a package version bump from a runtime downgrade")
+
+          if next_runtime[0] != current_runtime[0]:
+              bump_kind = "major"
+          elif next_runtime[1] != current_runtime[1]:
+              bump_kind = "minor"
+          else:
+              bump_kind = "patch"
+
+          pyproject_path = Path("pyproject.toml")
+          pyproject_text = pyproject_path.read_text()
+          match = re.search(r'(?m)^version = "(\d+)\.(\d+)\.(\d+)"$', pyproject_text)
+          if not match:
+              raise SystemExit("Could not find project version in pyproject.toml")
+
+          major, minor, patch = [int(group) for group in match.groups()]
+          if bump_kind == "major":
+              next_project_version = f"{major + 1}.0.0"
+          elif bump_kind == "minor":
+              next_project_version = f"{major}.{minor + 1}.0"
+          else:
+              next_project_version = f"{major}.{minor}.{patch + 1}"
+
+          updated_text = (
+              pyproject_text[:match.start()]
+              + f'version = "{next_project_version}"'
+              + pyproject_text[match.end():]
+          )
+          pyproject_path.write_text(updated_text)
+          print(f"Project version bumped to {next_project_version} ({bump_kind})")
+          with Path(os.environ["GITHUB_OUTPUT"]).open("a") as github_output:
+              github_output.write(f"project_version={next_project_version}\n")
+          PY
+
+          git add requirements.txt pyproject.toml
           if git commit -m "Pin nmdc-schema to ${RUNTIME} (sync with NMDC runtime)"; then
             git push --set-upstream origin "$BRANCH"
             echo "pushed=true" >> "$GITHUB_OUTPUT"
@@ -68,6 +115,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const runtime = "${{ steps.runtime.outputs.runtime }}";
+            const projectVersion = "${{ steps.changes.outputs.project_version }}";
             const branch = `update/nmdc-schema-${runtime}`;
             const { owner, repo } = context.repo;
             const { data: repoData } = await github.rest.repos.get({ owner, repo });
@@ -80,11 +128,34 @@ jobs:
               return;
             }
 
-            await github.rest.pulls.create({
+            const { data: createdPr } = await github.rest.pulls.create({
               owner,
               repo,
               title: `Pin nmdc-schema to ${runtime} (sync with NMDC runtime)`,
               head: branch,
               base,
-              body: `This PR pins \`nmdc-schema\` to the NMDC runtime version ${runtime} so the project stays compatible with the deployed runtime.\n\nDetected by the scheduled runtime-triggered dependency update workflow.`,
+              body: `This PR pins \`nmdc-schema\` to the NMDC runtime version ${runtime} so the project stays compatible with the deployed runtime. It also bumps the package version in \`pyproject.toml\` using the same semantic-version change type detected in the runtime update.\n\nAfter this is merged, create a \`v${projectVersion}\` tag and trigger a new release.\n\nDetected by the scheduled runtime-triggered dependency update workflow.`,
             });
+
+            for (const username of ['kheal', 'bmeluch']) {
+              try {
+                await github.rest.pulls.requestReviewers({
+                  owner,
+                  repo,
+                  pull_number: createdPr.number,
+                  reviewers: [username],
+                });
+              } catch (reviewError) {
+                console.warn(`Could not request review from ${username}: ${reviewError.message}`);
+                try {
+                  await github.rest.issues.addAssignees({
+                    owner,
+                    repo,
+                    issue_number: createdPr.number,
+                    assignees: [username],
+                  });
+                } catch (assignError) {
+                  console.warn(`Could not assign ${username}: ${assignError.message}`);
+                }
+              }
+            }
