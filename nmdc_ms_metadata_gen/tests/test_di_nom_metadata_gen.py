@@ -239,6 +239,14 @@ def test_di_nom_metadata_gen_with_csv_qc_fields():
         assert "has_output" not in wf or not wf.get(
             "has_output"
         ), f"Failed QC workflow {wf['id']} should not have has_output"
+    # Verify failed workflows have has_failure_categorization with expected values
+    for wf in fail_wf:
+        assert "has_failure_categorization" in wf, f"Failed QC workflow {wf['id']} should have has_failure_categorization"
+        failure_categorization = wf["has_failure_categorization"]
+        assert failure_categorization is not None, f"Failed QC workflow {wf['id']} has_failure_categorization should not be None"
+        assert failure_categorization["qc_failure_what"] == "low_molecular_formula_assignment", f"Failed QC workflow {wf['id']} has_failure_categorization should have qc_failure_what = 'low_molecular_formula_assignment'"
+        assert failure_categorization["qc_failure_where"] == "NomAnalysis", f"Failed QC workflow {wf['id']} has_failure_categorization should have qc_failure_where = 'NomAnalysis'"
+
 
     # Count data objects: we should have:
     # - 5 raw data objects (one per sample) + 1 new calibration dobj = 6

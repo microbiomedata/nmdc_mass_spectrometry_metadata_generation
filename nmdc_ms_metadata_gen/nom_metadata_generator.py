@@ -149,7 +149,6 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         """
         # Always compute stat failures
         failed = []
-        qc_failure_where, qc_failure_what = None, None
         if wf_stats.get("peak_count", 0) < self.peak_count_threshold:
             failed.append(
                 f"peak_count ({wf_stats.get('peak_count', 0)} < {self.peak_count_threshold})"
