@@ -189,7 +189,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             "peak_assignment_count": peak_assignment_count,
         }
 
-    def _resolve_qc_from_stats(self, qc_status, qc_comment, wf_stats: dict):
+    def _resolve_qc_from_stats(self, qc_status, qc_comment, qc_failure_what, qc_failure_where, wf_stats: dict):
         """Determine qc_status and qc_comment from metabolomics stats and optional CSV input.
 
         Threshold checks are always run. Resolution follows these rules:
@@ -209,6 +209,10 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             QC status value from the CSV, or None if not provided.
         qc_comment : str or None
             QC comment value from the CSV, or None if not provided.
+        qc_failure_what : str or None
+            QC failure categorization for what failed, if provided.
+        qc_failure_where : str or None
+            QC failure categorization for where the failure occurred, if provided.
         wf_stats : dict
             Dictionary of workflow statistics (peak_count, peak_assignment_count).
 
@@ -219,10 +223,13 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
         """
         # Always compute stat failures
         failed = []
+        qc_failure_where, qc_failure_what = None, None
         if wf_stats.get("peak_count", 0) < self.peak_count_threshold:
             failed.append(
                 f"peak_count ({wf_stats.get('peak_count', 0)} < {self.peak_count_threshold})"
             )
+            qc_failure_what = "low_metabolite_assignment"
+            qc_failure_where = "MetabolomicsAnalysis"
         if (
             wf_stats.get("peak_assignment_count", 0)
             < self.peak_assignment_count_threshold
@@ -230,26 +237,28 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             failed.append(
                 f"peak_assignment_count ({wf_stats.get('peak_assignment_count', 0)} < {self.peak_assignment_count_threshold})"
             )
+            qc_failure_what = "low_metabolite_assignment"
+            qc_failure_where = "MetabolomicsAnalysis"
 
         stat_comment = f"QC failed on: {', '.join(failed)}." if failed else None
 
         if failed and qc_status == "fail":
             # Both stats and CSV indicate failure — concatenate comments
             combined_comment = "; ".join(filter(None, [qc_comment, stat_comment]))
-            return "fail", combined_comment
+            return "fail", combined_comment, qc_failure_what, qc_failure_where
         elif failed:
             # Stats fail, CSV says "pass" or nothing — stats prevail
-            return "fail", stat_comment
+            return "fail", stat_comment, qc_failure_what, qc_failure_where
         elif qc_status == "fail":
             # Stats pass, but CSV explicitly forces a fail — accept it
-            return qc_status, qc_comment
+            return qc_status, qc_comment, qc_failure_what, qc_failure_where
         else:
             # Stats pass and no CSV override to fail
             return "pass", (
                 qc_comment
                 if qc_comment is not None
                 else "QC passed all computed peak count thresholds."
-            )
+            ), qc_failure_what, qc_failure_where
 
     def rerun(self) -> nmdc.Database:
         """
@@ -345,15 +354,15 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             )
 
             # Get qc fields, converting NaN to None
-            qc_status, qc_comment = self._get_qc_fields(data)
+            qc_status, qc_comment, qc_failure_what, qc_failure_where = self._get_qc_fields(data)
 
             # Get the processed data .csv and read in as a pandas dataframe
             processed_data = self._read_processed_csv(data["processed_data_file"])
 
             # Get workflow stats (subclass-specific) and resolve QC
             wf_stats = self._get_wf_stats(processed_data=processed_data)
-            qc_status, qc_comment = self._resolve_qc_from_stats(
-                qc_status, qc_comment, wf_stats
+            qc_status, qc_comment, qc_failure_what, qc_failure_where = self._resolve_qc_from_stats(
+                qc_status, qc_comment, qc_failure_what, qc_failure_where, wf_stats
             )
 
             # Always generate metabolite_identifications (even for failed QC)
@@ -377,6 +386,8 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 metabolite_identifications=metabolite_identifications,
                 qc_status=qc_status,
                 qc_comment=qc_comment,
+                qc_failure_what=qc_failure_what,
+                qc_failure_where=qc_failure_where,
                 **wf_stats,
             )
 
@@ -557,7 +568,7 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
             raw_data_object_id = raw_data_object.id
 
             # Get qc fields, converting NaN to None
-            qc_status, qc_comment = self._get_qc_fields(data)
+            qc_status, qc_comment, qc_failure_what, qc_failure_where = self._get_qc_fields(data)
 
             # Get the processed data .csv and read in as a pandas dataframe
             processed_data = self._read_processed_csv(
@@ -566,8 +577,8 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
             # Get workflow stats (subclass-specific) and resolve QC
             wf_stats = self._get_wf_stats(processed_data=processed_data)
-            qc_status, qc_comment = self._resolve_qc_from_stats(
-                qc_status, qc_comment, wf_stats
+            qc_status, qc_comment, qc_failure_what, qc_failure_where = self._resolve_qc_from_stats(
+                qc_status, qc_comment, qc_failure_what, qc_failure_where, wf_stats
             )
 
             # Always generate metabolite_identifications (even for failed QC)
@@ -594,6 +605,8 @@ class GCMSMetabolomicsMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 metabolite_identifications=metabolite_identifications,
                 qc_status=qc_status,
                 qc_comment=qc_comment,
+                qc_failure_what=qc_failure_what,
+                qc_failure_where=qc_failure_where,
                 **wf_stats,
             )
 
