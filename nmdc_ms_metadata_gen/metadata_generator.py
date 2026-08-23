@@ -1241,6 +1241,7 @@ class NMDCMetadataGenerator:
             parsed["associated_dois"] = dois
 
         # Handle credit associations for all project members
+        project_members = study_data.get("project_members", [])
         credit_assocs = []
 
         role_mapping = {
