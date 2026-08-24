@@ -1240,18 +1240,8 @@ class NMDCMetadataGenerator:
         if dois:
             parsed["associated_dois"] = dois
 
-        # Extract principal investigator from project_members
-        project_members = study_data.get("project_members", [])
-
-        for member in project_members:
-            if member.get("project_role") == "principal_investigator":
-                parsed["principal_investigator"] = {
-                    "name": f"{member.get('first_name', '')} {member.get('last_name', '')}".strip(),
-                    "orcid": member.get("orcid"),
-                    "type": "nmdc:PersonValue",
-                }
-
         # Handle credit associations for all project members
+        project_members = study_data.get("project_members", [])
         credit_assocs = []
 
         role_mapping = {
