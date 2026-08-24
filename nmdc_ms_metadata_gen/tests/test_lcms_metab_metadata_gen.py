@@ -211,7 +211,7 @@ def test_lcms_metab_csv_pass_overridden_by_failing_stats():
         assert "peak_count" in record.get("qc_comment", "")
         assert "< 999999" in record.get("qc_comment", "")
     
-    # All records should have failure categorization with qc_failure_what = "low_molecular_formula_assignment"
+    # All records should have failure categorization with qc_failure_what = "low_metabolite_assignment"
     for record in working_data["workflow_execution_set"]:
         failure_categorization = record.get("has_failure_categorization", [])
         assert len(failure_categorization) == 1

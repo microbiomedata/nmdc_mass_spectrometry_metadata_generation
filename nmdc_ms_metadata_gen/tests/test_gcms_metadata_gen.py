@@ -230,6 +230,19 @@ def test_gcms_metadata_gen_with_qc_fields_from_csv():
             # CSV comment is returned as-is; no prefix is added
             assert record["qc_comment"] == "Poor peak resolution"
 
+    # Check has_failure_categorization
+    for record in working_data["workflow_execution_set"]:
+        failure_categorization = record.get("has_failure_categorization", [])
+        if record.get("qc_status") == "fail":
+            assert len(failure_categorization) == 1
+            assert (
+                failure_categorization[0].get("qc_failure_what")
+                == "other"
+            )
+        else:
+            # For passing QC, should not have failure categorization
+            assert len(failure_categorization) == 0
+
     assert qc_pass_count == 1
     assert qc_fail_count == 1
 
@@ -289,7 +302,15 @@ def test_gcms_metab_csv_pass_overridden_by_failing_stats():
         assert record.get("qc_status") == "fail"
         assert "peak_count" in record.get("qc_comment", "")
         assert "< 999999" in record.get("qc_comment", "")
-
+    
+    # All records should have failure categorization with qc_failure_what = "low_molecular_formula_assignment"
+    for record in working_data["workflow_execution_set"]:
+        failure_categorization = record.get("has_failure_categorization", [])
+        assert len(failure_categorization) == 1
+        assert (
+            failure_categorization[0].get("qc_failure_what")
+            == "low_metabolite_assignment"
+        )
 
 def test_gcms_metab_csv_fail_and_stats_fail_concatenated_comment():
     """Test that when both CSV provides 'fail' and stats fail, the qc_comment contains
