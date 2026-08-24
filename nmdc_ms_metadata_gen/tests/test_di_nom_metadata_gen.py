@@ -360,6 +360,15 @@ def test_di_nom_metadata_gen_csv_pass_overridden_by_failing_stats():
     for record in working_data["workflow_execution_set"]:
         assert record.get("qc_status") == "fail"
 
+    # All records should have failure categorization with qc_failure_what = "low_molecular_formula_assignment"
+    for record in working_data["workflow_execution_set"]:
+        failure_categorization = record.get("has_failure_categorization", [])
+        assert len(failure_categorization) == 1
+        assert (
+            failure_categorization[0].get("qc_failure_what")
+            == "low_molecular_formula_assignment"
+        )
+
     # Second record in the CSV should have concatenated qc_comment with CSV comment and the stat failure message
     concat_comment = working_data["workflow_execution_set"][1].get("qc_comment", "")
     assert "peak_count" in concat_comment
