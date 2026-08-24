@@ -164,11 +164,13 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             )
             qc_failure_what = "low_molecular_formula_assignment"
             qc_failure_where = "NomAnalysis"
+
         peak_assignment_rate = (
             wf_stats.get("peak_assignment_count", 0) / wf_stats.get("peak_count", 0)
             if wf_stats.get("peak_count", 0) > 0
             else 0
         )
+
         if peak_assignment_rate < self.peak_assignment_rate_threshold:
             failed.append(
                 f"peak_assignment_rate ({peak_assignment_rate} < {self.peak_assignment_rate_threshold})"
@@ -187,6 +189,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             return "fail", stat_comment, qc_failure_what, qc_failure_where
         elif qc_status == "fail":
             # Stats pass, but CSV explicitly forces a fail — accept it
+            qc_failure_what = qc_failure_what if qc_failure_what else "other"
+            qc_failure_where = "NomAnalysis"
             return qc_status, qc_comment, qc_failure_what, qc_failure_where
         else:
             # Stats pass and no CSV override to fail
@@ -309,6 +313,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_SECRET=client_secret,
                 qc_status=qc_status,
                 qc_comment=qc_comment,
+                qc_failure_what=qc_failure_what,
+                qc_failure_where=qc_failure_where,
                 **wf_stats,
             )
 
@@ -545,6 +551,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_SECRET=client_secret,
                 qc_status=qc_status,
                 qc_comment=qc_comment,
+                qc_failure_what=qc_failure_what,
+                qc_failure_where=qc_failure_where,
                 **wf_stats,
             )
 
@@ -896,9 +904,10 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             "qc_status": qc_status,
             "qc_comment": qc_comment,
             "has_failure_categorization": {
-                "qc_failure_what": qc_failure_what,
-                "qc_failure_where": qc_failure_where
-            } if qc_failure_what or qc_failure_where else None
+                "qc_failure_what": qc_failure_what if qc_failure_what else "other",
+                "qc_failure_where": qc_failure_where if qc_failure_where else "NomAnalysis",
+                "type": NmdcTypes.get("FailureCategorization")
+            } if qc_status == "fail" else None
         }
 
         self.clean_dict(data_dict)
