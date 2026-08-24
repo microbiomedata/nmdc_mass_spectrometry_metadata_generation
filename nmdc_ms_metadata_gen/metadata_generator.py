@@ -852,7 +852,8 @@ class NMDCMetadataGenerator:
             "qc_comment": qc_comment,
             "has_failure_categorization": {
                 "qc_failure_what": qc_failure_what,
-                "qc_failure_where": qc_failure_where
+                "qc_failure_where": qc_failure_where,
+                "type": NmdcTypes.get("FailureCategorization")
             } if qc_failure_what or qc_failure_where else None
         }
 

@@ -186,6 +186,8 @@ class LCMSMetadataGenerator(NMDCWorkflowMetadataGenerator):
             return "fail", stat_comment, qc_failure_what, qc_failure_where
         elif qc_status == "fail":
             # Stats pass, but CSV explicitly forces a fail — accept it
+            qc_failure_what = qc_failure_what if qc_failure_what else "other"
+            qc_failure_where = "MetabolomicsAnalysis"
             return qc_status, qc_comment, qc_failure_what, qc_failure_where
         else:
             # Stats pass and no CSV override to fail
