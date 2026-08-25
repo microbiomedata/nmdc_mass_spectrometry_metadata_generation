@@ -754,6 +754,8 @@ class NMDCMetadataGenerator:
         c13_isotopologue_count: int = None,
         qc_status: str = None,
         qc_comment: str = None,
+        qc_failure_what: str = None,
+        qc_failure_where: str = None
     ) -> nmdc.MetabolomicsAnalysis:
         """
         Create an NMDC MetabolomicsAnalysis object with metadata for a workflow analysis.
@@ -802,6 +804,10 @@ class NMDCMetadataGenerator:
             The quality control status for the analysis.
         qc_comment : str, optional
             The quality control comment for the analysis.
+        qc_failure_what : str, optional
+            Description of what failed during quality control, if applicable.
+        qc_failure_where : str, optional
+            Description of where the failure occurred during quality control, if applicable.
 
         Returns
         -------
@@ -844,6 +850,11 @@ class NMDCMetadataGenerator:
             "metabolomics_analysis_category": self.workflow_category,
             "qc_status": qc_status,
             "qc_comment": qc_comment,
+            "has_failure_categorization": {
+                "qc_failure_what": qc_failure_what,
+                "qc_failure_where": qc_failure_where,
+                "type": NmdcTypes.get("FailureCategorization")
+            } if qc_failure_what or qc_failure_where else None
         }
 
         data_dict["uses_calibration"] = calibration_ids
@@ -1457,7 +1468,11 @@ class NMDCWorkflowMetadataGenerator(NMDCMetadataGenerator, ABC):
         qc_status = None if pd.isna(qc_status) else qc_status
         qc_comment = row.get("qc_comment")
         qc_comment = None if pd.isna(qc_comment) else qc_comment
-        return qc_status, qc_comment
+        qc_failure_what = row.get("qc_failure_what")
+        qc_failure_what = None if pd.isna(qc_failure_what) else qc_failure_what
+        qc_failure_where = row.get("qc_failure_where")
+        qc_failure_where = None if pd.isna(qc_failure_where) else qc_failure_where
+        return qc_status, qc_comment, qc_failure_what, qc_failure_where
 
     def load_metadata(self) -> pd.core.frame.DataFrame:
         """

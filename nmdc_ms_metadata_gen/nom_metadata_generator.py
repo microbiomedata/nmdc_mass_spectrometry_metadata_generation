@@ -115,7 +115,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             "peak_assignment_count": peak_assignment_count,
         }
 
-    def _resolve_qc_from_stats(self, qc_status, qc_comment, wf_stats: dict):
+    def _resolve_qc_from_stats(self, qc_status, qc_comment, qc_failure_what, qc_failure_where, wf_stats: dict):
         """Determine qc_status and qc_comment from di NOM stats and optional CSV input.
 
         Threshold checks are always run. Resolution follows these rules:
@@ -135,13 +135,17 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             QC status value from the CSV, or None if not provided.
         qc_comment : str or None
             QC comment value from the CSV, or None if not provided.
+        qc_failure_what : str or None
+            FailureCategorization.qc_failure_what value from the CSV, or None if not provided.
+        qc_failure_where : str or None
+            FailureCategorization.qc_failure_where value from the CSV, or None if not provided.
         wf_stats : dict
             Dictionary of workflow statistics (peak_count, peak_assignment_count).
 
         Returns
         -------
         tuple
-            A tuple of (qc_status, qc_comment) resolved according to the rules above.
+            A tuple of (qc_status, qc_comment, qc_failure_what, qc_failure_where) resolved according to the rules above.
         """
         # Always compute stat failures
         failed = []
@@ -149,6 +153,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             failed.append(
                 f"peak_count ({wf_stats.get('peak_count', 0)} < {self.peak_count_threshold})"
             )
+            qc_failure_what = "low_molecular_formula_assignment"
+            qc_failure_where = "NomAnalysis"
         if (
             wf_stats.get("peak_assignment_count", 0)
             < self.peak_assignment_count_threshold
@@ -156,35 +162,43 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             failed.append(
                 f"peak_assignment_count ({wf_stats.get('peak_assignment_count', 0)} < {self.peak_assignment_count_threshold})"
             )
+            qc_failure_what = "low_molecular_formula_assignment"
+            qc_failure_where = "NomAnalysis"
+
         peak_assignment_rate = (
             wf_stats.get("peak_assignment_count", 0) / wf_stats.get("peak_count", 0)
             if wf_stats.get("peak_count", 0) > 0
             else 0
         )
+
         if peak_assignment_rate < self.peak_assignment_rate_threshold:
             failed.append(
                 f"peak_assignment_rate ({peak_assignment_rate} < {self.peak_assignment_rate_threshold})"
             )
+            qc_failure_what = "low_molecular_formula_assignment"
+            qc_failure_where = "NomAnalysis"
 
         stat_comment = f"QC failed on: {', '.join(failed)}." if failed else None
 
         if failed and qc_status == "fail":
             # Both stats and CSV indicate failure — concatenate comments
             combined_comment = "; ".join(filter(None, [qc_comment, stat_comment]))
-            return "fail", combined_comment
+            return "fail", combined_comment, qc_failure_what, qc_failure_where
         elif failed:
             # Stats fail, CSV says "pass" or nothing — stats prevail
-            return "fail", stat_comment
+            return "fail", stat_comment, qc_failure_what, qc_failure_where
         elif qc_status == "fail":
             # Stats pass, but CSV explicitly forces a fail — accept it
-            return qc_status, qc_comment
+            qc_failure_what = qc_failure_what if qc_failure_what else "other"
+            qc_failure_where = "NomAnalysis"
+            return qc_status, qc_comment, qc_failure_what, qc_failure_where
         else:
             # Stats pass and no CSV override to fail
             return "pass", (
                 qc_comment
                 if qc_comment is not None
                 else "QC passed all computed peak count thresholds."
-            )
+            ), qc_failure_what, qc_failure_where
 
     def rerun(self) -> nmdc.Database:
         """
@@ -268,7 +282,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
             # grab the calibration_ids from the previous metabolomics analysis
             # Get qc fields, converting NaN to None
-            qc_status, qc_comment = self._get_qc_fields(row)
+            qc_status, qc_comment, qc_failure_what, qc_failure_where = self._get_qc_fields(row)
 
             # Get the processed data .csv and read in as a pandas dataframe
             processed_data = self._read_processed_csv(
@@ -277,8 +291,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
             # Get workflow stats (subclass-specific) and resolve QC
             wf_stats = self._get_wf_stats(processed_data=processed_data)
-            qc_status, qc_comment = self._resolve_qc_from_stats(
-                qc_status, qc_comment, wf_stats
+            qc_status, qc_comment, qc_failure_what, qc_failure_where = self._resolve_qc_from_stats(
+                qc_status, qc_comment, qc_failure_what, qc_failure_where, wf_stats
             )
 
             # Generate nom analysis instance, workflow_execution_set (metabolomics analysis), uses the raw data zip file
@@ -299,6 +313,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_SECRET=client_secret,
                 qc_status=qc_status,
                 qc_comment=qc_comment,
+                qc_failure_what=qc_failure_what,
+                qc_failure_where=qc_failure_where,
                 **wf_stats,
             )
 
@@ -506,7 +522,7 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             calibration_ids = [cid for cid in calibration_ids if cid is not None]
 
             # Get qc fields, converting NaN to None
-            qc_status, qc_comment = self._get_qc_fields(row)
+            qc_status, qc_comment, qc_failure_what, qc_failure_where = self._get_qc_fields(row)
 
             # Get the processed data .csv and read in as a pandas dataframe
             processed_data = self._read_processed_csv(
@@ -515,8 +531,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
 
             # Get workflow stats (subclass-specific) and resolve QC
             wf_stats = self._get_wf_stats(processed_data=processed_data)
-            qc_status, qc_comment = self._resolve_qc_from_stats(
-                qc_status, qc_comment, wf_stats
+            qc_status, qc_comment, qc_failure_what, qc_failure_where = self._resolve_qc_from_stats(
+                qc_status, qc_comment, qc_failure_what, qc_failure_where, wf_stats
             )
 
             nom_analysis = self.generate_nom_analysis(
@@ -535,6 +551,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
                 CLIENT_SECRET=client_secret,
                 qc_status=qc_status,
                 qc_comment=qc_comment,
+                qc_failure_what=qc_failure_what,
+                qc_failure_where=qc_failure_where,
                 **wf_stats,
             )
 
@@ -812,6 +830,8 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
         peak_assignment_count: int = None,
         qc_status: str = None,
         qc_comment: str = None,
+        qc_failure_what: str = None,
+        qc_failure_where: str = None,
     ) -> nmdc.NomAnalysis:
         """
         Generate a NOM analysis object from the provided file information.
@@ -846,6 +866,10 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             The quality control status for the analysis.
         qc_comment : str, optional
             The quality control comment for the analysis.
+        qc_failure_what : str, optional
+            The QC failure categorization for what failed. If None, no failure is recorded.
+        qc_failure_where : str, optional
+            The QC failure categorization for where the failure occurred. If None, no failure is recorded.
 
         Returns
         -------
@@ -879,6 +903,11 @@ class NOMMetadataGenerator(NMDCWorkflowMetadataGenerator):
             "peak_assignment_count": peak_assignment_count,
             "qc_status": qc_status,
             "qc_comment": qc_comment,
+            "has_failure_categorization": {
+                "qc_failure_what": qc_failure_what if qc_failure_what else "other",
+                "qc_failure_where": qc_failure_where if qc_failure_where else "NomAnalysis",
+                "type": NmdcTypes.get("FailureCategorization")
+            } if qc_status == "fail" else None
         }
 
         self.clean_dict(data_dict)

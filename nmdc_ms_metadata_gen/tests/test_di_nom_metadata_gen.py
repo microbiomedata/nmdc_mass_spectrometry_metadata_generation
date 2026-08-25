@@ -234,11 +234,30 @@ def test_di_nom_metadata_gen_with_csv_qc_fields():
     fail_comments = [wf.get("qc_comment") for wf in fail_wf]
     assert "Low signal intensity detected" in fail_comments
     assert "Contamination suspected in blank" in fail_comments
+
+    # Check that both expected failure categorizations are present
+    fail_categorization = [wf.get("has_failure_categorization")[0] for wf in fail_wf]
+    assert any(
+        fc.get("qc_failure_what") == "low_molecular_formula_assignment" for fc in fail_categorization
+    )
+    assert any(
+        fc.get("qc_failure_what") == "other" for fc in fail_categorization
+    )
+
     # Verify fail workflows do NOT have has_output
     for wf in fail_wf:
         assert "has_output" not in wf or not wf.get(
             "has_output"
         ), f"Failed QC workflow {wf['id']} should not have has_output"
+
+    # Verify failed workflows have has_failure_categorization with expected values
+    for wf in fail_wf:
+        print(f"Workflow {wf['id']}: {json.dumps(wf, indent=2)}")
+        assert "has_failure_categorization" in wf, f"Failed QC workflow {wf['id']} should have has_failure_categorization"
+        failure_categorization = wf.get("has_failure_categorization")[0]
+        assert failure_categorization is not None, f"Failed QC workflow {wf['id']} has_failure_categorization should not be None"
+        assert failure_categorization["qc_failure_where"] == "NomAnalysis", f"Failed QC workflow {wf['id']} has_failure_categorization should have qc_failure_where = 'NomAnalysis'"
+
 
     # Count data objects: we should have:
     # - 5 raw data objects (one per sample) + 1 new calibration dobj = 6
@@ -340,6 +359,15 @@ def test_di_nom_metadata_gen_csv_pass_overridden_by_failing_stats():
     # All records should be "fail" regardless of CSV-provided "pass"
     for record in working_data["workflow_execution_set"]:
         assert record.get("qc_status") == "fail"
+
+    # All records should have failure categorization with qc_failure_what = "low_molecular_formula_assignment"
+    for record in working_data["workflow_execution_set"]:
+        failure_categorization = record.get("has_failure_categorization", [])
+        assert len(failure_categorization) == 1
+        assert (
+            failure_categorization[0].get("qc_failure_what")
+            == "low_molecular_formula_assignment"
+        )
 
     # Second record in the CSV should have concatenated qc_comment with CSV comment and the stat failure message
     concat_comment = working_data["workflow_execution_set"][1].get("qc_comment", "")
