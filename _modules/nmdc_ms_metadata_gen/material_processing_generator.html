@@ -1,0 +1,572 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>nmdc_ms_metadata_gen.material_processing_generator &mdash; nmdc_mass_spectrometry_metadata_generation 3/1/2025 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=1e0eaa87"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            nmdc_mass_spectrometry_metadata_generation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html">Bio Ontology API Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#biosample-metadata-parser-base-class">Biosample Metadata Parser Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#biosample-generator-class">Biosample Generator Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#metadata-generator-base-class">Metadata Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#metadata-workflow-generator-base-class">Metadata Workflow Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#material-processing-metadata-generator-base-class">Material Processing Metadata Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#lc-ms-metadata-generator-base-class">LC/MS Metadata Generator Base Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#data-class">Data Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#lc-ms-lipidomics-metadata-generator-subclass">LC/MS Lipidomics Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#lc-ms-metabolomics-metadata-generator-subclass">LC/MS Metabolomics Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#gc-ms-metabolomics-metadata-generator-subclass">GC/MS Metabolomics Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#direct-infusion-nom-metadata-generator-subclass">Direct Infusion NOM Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#lc-nom-metadata-generator-subclass">LC NOM Metadata Generator Subclass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#validate-yaml-outline-function">Validate YAML Outline Function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#change-sheet-generator">Change Sheet Generator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#workflow-sheet-generator">Workflow Sheet Generator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#id-pool">ID Pool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html#main-cli-class">Main CLI Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">nmdc_mass_spectrometry_metadata_generation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">nmdc_ms_metadata_gen.material_processing_generator</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for nmdc_ms_metadata_gen.material_processing_generator</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">import</span> <span class="nn">nmdc_schema.nmdc</span> <span class="k">as</span> <span class="nn">nmdc</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="kn">from</span> <span class="nn">nmdc_ms_metadata_gen.metadata_generator</span> <span class="kn">import</span> <span class="n">NMDCMetadataGenerator</span>
+<span class="kn">from</span> <span class="nn">nmdc_ms_metadata_gen.metadata_input_check</span> <span class="kn">import</span> <span class="n">MetadataSurveyor</span>
+<span class="kn">from</span> <span class="nn">nmdc_ms_metadata_gen.metadata_parser</span> <span class="kn">import</span> <span class="n">YamlSpecifier</span>
+<span class="kn">from</span> <span class="nn">nmdc_ms_metadata_gen.schema_bridge</span> <span class="kn">import</span> <span class="n">list_material_processing_types</span>
+<span class="kn">from</span> <span class="nn">nmdc_ms_metadata_gen.sheet_generator</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ChangeSheetGenerator</span><span class="p">,</span>
+    <span class="n">WorkflowSheetGenerator</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">nmdc_ms_metadata_gen.utils</span> <span class="kn">import</span> <span class="n">save_to_csv</span><span class="p">,</span> <span class="n">validate_generated_output</span>
+
+
+<div class="viewcode-block" id="MaterialProcessingMetadataGenerator">
+<a class="viewcode-back" href="../../functions.html#nmdc_ms_metadata_gen.material_processing_generator.MaterialProcessingMetadataGenerator">[docs]</a>
+<span class="k">class</span> <span class="nc">MaterialProcessingMetadataGenerator</span><span class="p">(</span><span class="n">NMDCMetadataGenerator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class provides functionality for generating material processing steps and processed samples based on an adjusted yaml outline and</span>
+<span class="sd">    tracking the final outputs for changesheets (datageneration records exist in mongo) or workflowsheets (no data generation records in mongo)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    study_id : str</span>
+<span class="sd">        The id of the study the samples are related to.</span>
+<span class="sd">    yaml_outline_path : str</span>
+<span class="sd">        YAML file that contains the sample processing steps to be analyzed.</span>
+<span class="sd">    database_dump_json_path : str</span>
+<span class="sd">        Path where the output database dump JSON file will be saved.</span>
+<span class="sd">    sample_to_dg_mapping_path : str</span>
+<span class="sd">        CSV file mapping biosample ids to their data generation record id.</span>
+<span class="sd">    test : bool</span>
+<span class="sd">        Value to determine if extra checks are needed based on it being a test run or real run.</span>
+<span class="sd">    sample_specific_info_path : str or None</span>
+<span class="sd">        Path to a CSV file containing sample specific information.</span>
+<span class="sd">    minting_config_creds : str, optional</span>
+<span class="sd">        Path to the configuration file containing the client ID and client secret for minting NMDC IDs. It can also include the bio ontology API key if generating biosample ids is needed.</span>
+<span class="sd">        If not provided, the CLIENT_ID, CLIENT_SECRET, and BIO_API_KEY environment variables will be used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">database_dump_json_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">study_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">yaml_outline_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">sample_to_dg_mapping_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">test</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">sample_specific_info_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">minting_config_creds</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">test</span><span class="o">=</span><span class="n">test</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">database_dump_json_path</span> <span class="o">=</span> <span class="n">database_dump_json_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">study_id</span> <span class="o">=</span> <span class="n">study_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yaml_outline_path</span> <span class="o">=</span> <span class="n">yaml_outline_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sample_to_dg_mapping_path</span> <span class="o">=</span> <span class="n">sample_to_dg_mapping_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">test</span> <span class="o">=</span> <span class="n">test</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minting_config_creds</span> <span class="o">=</span> <span class="n">minting_config_creds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sample_specific_info_path</span> <span class="o">=</span> <span class="n">sample_specific_info_path</span>
+
+<div class="viewcode-block" id="MaterialProcessingMetadataGenerator.run">
+<a class="viewcode-back" href="../../functions.html#nmdc_ms_metadata_gen.material_processing_generator.MaterialProcessingMetadataGenerator.run">[docs]</a>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">nmdc</span><span class="o">.</span><span class="n">Database</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This main function generates mass spectrometry material processing steps for a given study using a yaml outline and sample specific metadata</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        nmdc.Database</span>
+<span class="sd">            The generated NMDC database instance containing all generated metadata objects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1">## Setup</span>
+        <span class="n">client_id</span><span class="p">,</span> <span class="n">client_secret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_credentials</span><span class="p">(</span>
+            <span class="n">config_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">minting_config_creds</span>
+        <span class="p">)</span>
+        <span class="n">nmdc_database</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_nmdc_database</span><span class="p">()</span>
+        <span class="n">output_changesheet</span> <span class="o">=</span> <span class="n">ChangeSheetGenerator</span><span class="o">.</span><span class="n">initialize_empty_df</span><span class="p">()</span>
+        <span class="n">output_workflowsheet</span> <span class="o">=</span> <span class="n">WorkflowSheetGenerator</span><span class="o">.</span><span class="n">initialize_empty_df</span><span class="p">()</span>
+        <span class="n">survey</span> <span class="o">=</span> <span class="n">MetadataSurveyor</span><span class="p">(</span><span class="n">study</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">study_id</span><span class="p">)</span>
+        <span class="n">data_parser</span> <span class="o">=</span> <span class="n">YamlSpecifier</span><span class="p">(</span><span class="n">yaml_outline_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">yaml_outline_path</span><span class="p">)</span>
+
+        <span class="c1">## Load mapping info</span>
+        <span class="n">reference_mapping</span> <span class="o">=</span> <span class="n">survey</span><span class="o">.</span><span class="n">mapping_info</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_to_dg_mapping_path</span><span class="p">))</span>
+
+        <span class="c1">## Double check data against mongodb if this isn&#39;t a test</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">test</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">survey</span><span class="o">.</span><span class="n">metadata_test</span><span class="p">(</span><span class="n">reference_mapping</span><span class="p">)</span>
+
+        <span class="c1">## Determine number of biosamples with each number of final outputs (ex 10 biosamples with 1 final output, 100 biosamples with 2 final outputs)</span>
+        <span class="n">pattern_counts</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">reference_mapping</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;biosample_id&quot;</span><span class="p">)[</span><span class="s2">&quot;processedsample_placeholder&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot; + &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">unique</span><span class="p">())))</span>
+            <span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;expected number of biosamples with x final outputs:</span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">pattern_counts</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1">## Get sample specific info for yaml if its provided</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_specific_info_path</span><span class="p">:</span>
+            <span class="n">sample_specific_info</span> <span class="o">=</span> <span class="n">survey</span><span class="o">.</span><span class="n">additional_info</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sample_specific_info_path</span><span class="p">,</span>
+                <span class="n">reference_mapping</span><span class="p">[</span><span class="s2">&quot;biosample_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="p">)</span>
+
+        <span class="c1">## For each biosample create json of necessary material processing steps and processed samples, as well as output dataframe</span>
+        <span class="k">for</span> <span class="n">biosample</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span>
+            <span class="n">reference_mapping</span><span class="p">[</span><span class="s2">&quot;biosample_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">(),</span>
+            <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Biosamples&quot;</span><span class="p">,</span>
+            <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span>
+            <span class="n">dynamic_ncols</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">leave</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">):</span>
+
+            <span class="c1"># Get mapping info for this biosample</span>
+            <span class="n">sample_mapping</span> <span class="o">=</span> <span class="n">reference_mapping</span><span class="p">[</span>
+                <span class="n">reference_mapping</span><span class="p">[</span><span class="s2">&quot;biosample_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">biosample</span>
+            <span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="c1"># Get any additional info for this biosample</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_specific_info_path</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">sample_specific_info</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                <span class="n">sample_specific_info_subset</span> <span class="o">=</span> <span class="n">sample_specific_info</span><span class="p">[</span>
+                    <span class="n">sample_specific_info</span><span class="p">[</span><span class="s2">&quot;biosample_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">biosample</span>
+                <span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="c1"># Get protocols for this biosample</span>
+            <span class="n">protocols</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">sample_mapping</span><span class="p">[</span><span class="s2">&quot;material_processing_protocol_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Iterate through each protocol</span>
+            <span class="k">for</span> <span class="n">protocol</span> <span class="ow">in</span> <span class="n">protocols</span><span class="p">:</span>
+
+                <span class="n">yaml_parameters</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">yaml_parameters</span><span class="p">[</span><span class="s2">&quot;protocol_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">protocol</span>
+
+                <span class="c1"># Get mapping info for this protocol</span>
+                <span class="n">protocol_mapping</span> <span class="o">=</span> <span class="n">sample_mapping</span><span class="p">[</span>
+                    <span class="n">sample_mapping</span><span class="p">[</span><span class="s2">&quot;material_processing_protocol_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">protocol</span>
+                <span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+                <span class="c1"># Get any additional info for this protocol</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_specific_info_path</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">sample_specific_info</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                    <span class="n">yaml_parameters</span><span class="p">[</span><span class="s2">&quot;sample_specific_info_protocol_subset&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">sample_specific_info_subset</span><span class="p">[</span>
+                            <span class="n">sample_specific_info_subset</span><span class="p">[</span>
+                                <span class="s2">&quot;material_processing_protocol_id&quot;</span>
+                            <span class="p">]</span>
+                            <span class="o">==</span> <span class="n">protocol</span>
+                        <span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="p">)</span>
+
+                <span class="c1"># Get placeholders for this protocol</span>
+                <span class="n">yaml_parameters</span><span class="p">[</span><span class="s2">&quot;target_outputs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">protocol_mapping</span><span class="p">[</span><span class="s2">&quot;processedsample_placeholder&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                <span class="p">)</span>
+
+                <span class="c1"># Use the additional info and target output information to adjust the yaml outline for this biosample and protocol</span>
+                <span class="n">full_outline</span> <span class="o">=</span> <span class="n">data_parser</span><span class="o">.</span><span class="n">yaml_generation</span><span class="p">(</span><span class="o">**</span><span class="n">yaml_parameters</span><span class="p">)</span>
+
+                <span class="c1"># Create necessary material processing and processed sample ids to link this biosample to a final processed sample that will be the new input to the data generation records</span>
+                <span class="n">input_dict</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;Biosample&quot;</span><span class="p">:</span> <span class="n">biosample</span>
+                <span class="p">}</span>  <span class="c1"># placeholder is key, value is nmdc id</span>
+                <span class="n">final_processed_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">json_generation</span><span class="p">(</span>
+                    <span class="n">data</span><span class="o">=</span><span class="n">full_outline</span><span class="p">,</span>
+                    <span class="n">placeholder_dict</span><span class="o">=</span><span class="n">input_dict</span><span class="p">,</span>
+                    <span class="n">nmdc_database</span><span class="o">=</span><span class="n">nmdc_database</span><span class="p">,</span>
+                    <span class="n">CLIENT_ID</span><span class="o">=</span><span class="n">client_id</span><span class="p">,</span>
+                    <span class="n">CLIENT_SECRET</span><span class="o">=</span><span class="n">client_secret</span><span class="p">,</span>
+                <span class="p">)</span>
+
+                <span class="c1"># Match the new final processed sample ids back to raw data files via a changesheet (if dg exists) or a workflowsheet (no dg yet)</span>
+                <span class="p">(</span>
+                    <span class="n">unmatched_current</span><span class="p">,</span>
+                    <span class="n">output_changesheet</span><span class="p">,</span>
+                    <span class="n">output_workflowsheet</span><span class="p">,</span>
+                <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_final_samples</span><span class="p">(</span>
+                    <span class="n">biosample</span><span class="p">,</span>
+                    <span class="n">final_processed_samples</span><span class="p">,</span>
+                    <span class="n">protocol_mapping</span><span class="p">,</span>
+                    <span class="n">output_changesheet</span><span class="p">,</span>
+                    <span class="n">output_workflowsheet</span><span class="p">,</span>
+                <span class="p">)</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">unmatched_current</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">biosample</span><span class="si">}</span><span class="s2"> had </span><span class="si">{</span><span class="n">unmatched_current</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> unmatched final processed sample(s):</span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">unmatched_current</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+
+        <span class="c1"># Validate output based on expected counts before saving</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database_dump_json_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.json&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">validation_passed</span> <span class="o">=</span> <span class="n">validate_generated_output</span><span class="p">(</span>
+            <span class="n">reference_mapping</span><span class="p">,</span>
+            <span class="n">nmdc_database</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">yaml_outline_path</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">_validation.txt&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">validation_passed</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">⚠️  WARNING: Validation failed but continuing with output generation&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Save database</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dump_nmdc_database</span><span class="p">(</span>
+            <span class="n">nmdc_database</span><span class="o">=</span><span class="n">nmdc_database</span><span class="p">,</span> <span class="n">json_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">database_dump_json_path</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Save output sheets</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database_dump_json_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.json&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">output_changesheet</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="n">save_to_csv</span><span class="p">(</span><span class="n">output_changesheet</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">_changesheet.csv&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">output_workflowsheet</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="n">save_to_csv</span><span class="p">(</span>
+                <span class="n">output_workflowsheet</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">_workflowreference.csv&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="c1"># change db object to dict</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nmdc_db_to_dict</span><span class="p">(</span><span class="n">nmdc_database</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MaterialProcessingMetadataGenerator.map_final_samples">
+<a class="viewcode-back" href="../../functions.html#nmdc_ms_metadata_gen.material_processing_generator.MaterialProcessingMetadataGenerator.map_final_samples">[docs]</a>
+    <span class="k">def</span> <span class="nf">map_final_samples</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">biosample</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">final_processed_samples</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+        <span class="n">protocol_mapping</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">output_changesheet</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">output_workflowsheet</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Use the final processed samples to create changesheets and/or workflowsheets capturing input for the data generation records</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        biosample: str</span>
+<span class="sd">            biosample id to map</span>
+<span class="sd">        final_processed_samples: dict</span>
+
+<span class="sd">        protocol_mapping: pd.DataFrame</span>
+
+<span class="sd">        output_changesheet: pd.DataFrame</span>
+<span class="sd">            Dataframe that holds necessary changes to upload to the database.</span>
+<span class="sd">        output_workflowsheet: pd.DataFrame</span>
+<span class="sd">            Dataframe that holds</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># all raw identifiers for sample</span>
+        <span class="n">unmatched_samples</span> <span class="o">=</span> <span class="n">protocol_mapping</span><span class="p">[</span><span class="s2">&quot;raw_data_identifier&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="c1"># Get the final processed samples associated with each of the raw files</span>
+        <span class="k">for</span> <span class="n">ps_placeholder</span><span class="p">,</span> <span class="n">ps_id</span> <span class="ow">in</span> <span class="n">final_processed_samples</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># Build changesheet or workflowsheet based on raw identifiers for this placeholder</span>
+            <span class="n">rawids</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">protocol_mapping</span><span class="p">[</span>
+                    <span class="n">protocol_mapping</span><span class="p">[</span><span class="s2">&quot;processedsample_placeholder&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">ps_placeholder</span>
+                <span class="p">][</span><span class="s2">&quot;raw_data_identifier&quot;</span><span class="p">]</span>
+                <span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+                <span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">rawid</span> <span class="ow">in</span> <span class="n">rawids</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">&quot;nmdc:&quot;</span> <span class="ow">in</span> <span class="n">rawid</span><span class="p">:</span>
+                    <span class="n">output_changesheet</span> <span class="o">=</span> <span class="n">ChangeSheetGenerator</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+                        <span class="n">df</span><span class="o">=</span><span class="n">output_changesheet</span><span class="p">,</span>
+                        <span class="nb">id</span><span class="o">=</span><span class="n">rawid</span><span class="p">,</span>
+                        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;update&quot;</span><span class="p">,</span>
+                        <span class="n">attribute</span><span class="o">=</span><span class="s2">&quot;has_input&quot;</span><span class="p">,</span>
+                        <span class="n">value</span><span class="o">=</span><span class="n">ps_id</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">output_workflowsheet</span> <span class="o">=</span> <span class="n">WorkflowSheetGenerator</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+                        <span class="n">df</span><span class="o">=</span><span class="n">output_workflowsheet</span><span class="p">,</span>
+                        <span class="n">biosample_id</span><span class="o">=</span><span class="n">biosample</span><span class="p">,</span>
+                        <span class="n">raw_data_identifier</span><span class="o">=</span><span class="n">rawid</span><span class="p">,</span>
+                        <span class="n">last_processed_sample</span><span class="o">=</span><span class="n">ps_id</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+            <span class="c1"># Remove mapped raw files from list of unmatched samples</span>
+            <span class="n">unmatched_samples</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">unmatched_samples</span> <span class="k">if</span> <span class="n">item</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">rawids</span>
+            <span class="p">]</span>
+
+        <span class="c1"># Raw ids that did not map to a placeholder in final processed samples</span>
+        <span class="n">unmatched_samples_df</span> <span class="o">=</span> <span class="n">protocol_mapping</span><span class="p">[</span>
+            <span class="n">protocol_mapping</span><span class="p">[</span><span class="s2">&quot;raw_data_identifier&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">unmatched_samples</span><span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">unmatched_samples_df</span><span class="p">,</span> <span class="n">output_changesheet</span><span class="p">,</span> <span class="n">output_workflowsheet</span></div>
+
+
+<div class="viewcode-block" id="MaterialProcessingMetadataGenerator.json_generation">
+<a class="viewcode-back" href="../../functions.html#nmdc_ms_metadata_gen.material_processing_generator.MaterialProcessingMetadataGenerator.json_generation">[docs]</a>
+    <span class="k">def</span> <span class="nf">json_generation</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+        <span class="n">placeholder_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+        <span class="n">nmdc_database</span><span class="p">:</span> <span class="n">nmdc</span><span class="o">.</span><span class="n">Database</span><span class="p">,</span>
+        <span class="n">CLIENT_ID</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">CLIENT_SECRET</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function that creates the json and all minted ids based on the biosample adjusted yaml (tracking ids to make sure they are minted before reference)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data:dict</span>
+<span class="sd">            The nested dictionary containing the workflow steps (yaml outline)</span>
+<span class="sd">        placeholder_dict:dict</span>
+<span class="sd">            Dictionary with yaml placeholder as key and actual NMDC id as value</span>
+<span class="sd">        CLIENT_ID:str</span>
+<span class="sd">            The client ID for authentication</span>
+<span class="sd">        CLIENT_SECRET:str</span>
+<span class="sd">            The client secret for authentication</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        final_output:dict</span>
+<span class="sd">            Dictionary with final outputs from yaml in placeholder_dict format (for changesheet)</span>
+
+<span class="sd">        Json file with generated data saved to specified database_dump_json_path</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">all_input</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">all_output</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># for each step in yaml outline</span>
+        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;steps&quot;</span><span class="p">]:</span>
+
+            <span class="c1"># Get process/step info from yaml outline</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">step_data</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+            <span class="n">process_type</span><span class="p">,</span> <span class="n">process_data</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">step_data</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+
+            <span class="c1">## Validate that all input placeholders for this step have minted NMDC ids in placeholder_dict and</span>
+            <span class="c1"># save the ids to a list of step inputs, used to fill in the material processing step&#39;s has_input slot</span>
+            <span class="c1"># save the ids to a list of all inputs, used to determine final products of the yaml</span>
+            <span class="n">step_input</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">input_placeholder</span> <span class="ow">in</span> <span class="n">process_data</span><span class="p">[</span><span class="s2">&quot;has_input&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">input_placeholder</span> <span class="ow">in</span> <span class="n">placeholder_dict</span><span class="p">:</span>
+                    <span class="n">step_input</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">placeholder_dict</span><span class="p">[</span><span class="n">input_placeholder</span><span class="p">])</span>
+                    <span class="n">all_input</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">placeholder_dict</span><span class="p">[</span><span class="n">input_placeholder</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;ProcessedSample </span><span class="si">{</span><span class="n">input_placeholder</span><span class="si">}</span><span class="s2"> referenced before creation&quot;</span>
+                    <span class="p">)</span>
+
+            <span class="c1">## Mint the processed samples created by this step using the placeholder&#39;s outline in the yaml</span>
+            <span class="n">step_output</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">output_placeholder</span> <span class="ow">in</span> <span class="n">process_data</span><span class="p">[</span><span class="s2">&quot;has_output&quot;</span><span class="p">]:</span>
+
+                <span class="n">placeholder_outline</span> <span class="o">=</span> <span class="kc">None</span>
+
+                <span class="c1"># find the template for this placeholder in the yaml outline or error</span>
+                <span class="k">for</span> <span class="n">sample_outline</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;processedsamples&quot;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">output_placeholder</span> <span class="ow">in</span> <span class="n">sample_outline</span><span class="p">:</span>
+                        <span class="n">placeholder_outline</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+                            <span class="n">sample_outline</span><span class="p">[</span><span class="n">output_placeholder</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+                        <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="n">placeholder_outline</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;No definition found for placeholder: </span><span class="si">{</span><span class="n">output_placeholder</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+
+                <span class="c1"># replace any placeholders (&lt;&gt;) in the outline with actual nmdc ids from placeholder_dict</span>
+                <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">placeholder_outline</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">placeholder_outline</span><span class="p">[</span><span class="n">slot</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+                        <span class="n">placeholder_references</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span>
+                            <span class="sa">r</span><span class="s2">&quot;&lt;(.*?)&gt;&quot;</span><span class="p">,</span> <span class="n">placeholder_outline</span><span class="p">[</span><span class="n">slot</span><span class="p">]</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">reference</span> <span class="ow">in</span> <span class="n">placeholder_references</span><span class="p">:</span>
+                            <span class="n">nmdc_id</span> <span class="o">=</span> <span class="n">placeholder_dict</span><span class="p">[</span><span class="n">reference</span><span class="p">]</span>
+                            <span class="n">placeholder_outline</span><span class="p">[</span><span class="n">slot</span><span class="p">]</span> <span class="o">=</span> <span class="n">placeholder_outline</span><span class="p">[</span>
+                                <span class="n">slot</span>
+                            <span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                                <span class="sa">f</span><span class="s2">&quot;&lt;</span><span class="si">{</span><span class="n">reference</span><span class="si">}</span><span class="s2">&gt;&quot;</span><span class="p">,</span>
+                                <span class="n">nmdc_id</span><span class="p">,</span>
+                            <span class="p">)</span>
+
+                <span class="c1"># remove id and type from the outline</span>
+                <span class="n">placeholder_outline</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">placeholder_outline</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+                <span class="c1"># mint processed sample using outline</span>
+                <span class="n">processed_sample</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_processed_sample</span><span class="p">(</span>
+                    <span class="o">**</span><span class="n">placeholder_outline</span><span class="p">,</span>
+                    <span class="n">CLIENT_ID</span><span class="o">=</span><span class="n">CLIENT_ID</span><span class="p">,</span>
+                    <span class="n">CLIENT_SECRET</span><span class="o">=</span><span class="n">CLIENT_SECRET</span><span class="p">,</span>
+                <span class="p">)</span>
+
+                <span class="c1"># Map the output placeholder to its newly minted id in placeholder_dict</span>
+                <span class="c1"># info is used to replace the placeholder if its referenced in any future steps (i.e. as an input)</span>
+                <span class="n">placeholder_dict</span><span class="p">[</span><span class="n">output_placeholder</span><span class="p">]</span> <span class="o">=</span> <span class="n">processed_sample</span><span class="o">.</span><span class="n">id</span>
+
+                <span class="c1"># save the new processed sample ids to a list of step outputs, used to fill in the material processing step&#39;s has_output slot</span>
+                <span class="c1"># save the new processed sample ids to a list of all outputs, used to determine final products of the yaml</span>
+                <span class="n">step_output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">processed_sample</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+                <span class="n">all_output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">processed_sample</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+
+                <span class="c1"># add processed sample to Database</span>
+                <span class="n">nmdc_database</span><span class="o">.</span><span class="n">processed_sample_set</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">processed_sample</span><span class="p">)</span>
+
+            <span class="c1">## Create the material processing step</span>
+
+            <span class="c1"># replace any placeholders (&lt;&gt;) with actual nmdc ids from placeholder_dict</span>
+            <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">process_data</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process_data</span><span class="p">[</span><span class="n">slot</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="n">placeholder_references</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;(.*?)&gt;&quot;</span><span class="p">,</span> <span class="n">process_data</span><span class="p">[</span><span class="n">slot</span><span class="p">])</span>
+                    <span class="k">for</span> <span class="n">reference</span> <span class="ow">in</span> <span class="n">placeholder_references</span><span class="p">:</span>
+                        <span class="n">nmdc_id</span> <span class="o">=</span> <span class="n">placeholder_dict</span><span class="p">[</span><span class="n">reference</span><span class="p">]</span>
+                        <span class="n">process_data</span><span class="p">[</span><span class="n">slot</span><span class="p">]</span> <span class="o">=</span> <span class="n">process_data</span><span class="p">[</span><span class="n">slot</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;&lt;</span><span class="si">{</span><span class="n">reference</span><span class="si">}</span><span class="s2">&gt;&quot;</span><span class="p">,</span> <span class="n">nmdc_id</span>
+                        <span class="p">)</span>
+
+            <span class="c1"># Replace has_input and has_output with the lists of actual NMDC ids, also remove id and type which will instead be added in the generator method</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;has_input&quot;</span><span class="p">,</span> <span class="s2">&quot;has_output&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">]:</span>
+                <span class="n">process_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="c1"># check that the type is of material processing</span>
+            <span class="k">if</span> <span class="n">process_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">list_material_processing_types</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Material processing type &#39;</span><span class="si">{</span><span class="n">process_type</span><span class="si">}</span><span class="s2">&#39; is not recognized in the NMDC schema&quot;</span>
+                <span class="p">)</span>
+            <span class="n">material_processing_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_material_processing</span><span class="p">(</span>
+                <span class="n">data</span><span class="o">=</span><span class="n">process_data</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="n">process_type</span><span class="p">,</span>
+                <span class="n">has_input</span><span class="o">=</span><span class="n">step_input</span><span class="p">,</span>
+                <span class="n">has_output</span><span class="o">=</span><span class="n">step_output</span><span class="p">,</span>
+                <span class="n">CLIENT_ID</span><span class="o">=</span><span class="n">CLIENT_ID</span><span class="p">,</span>
+                <span class="n">CLIENT_SECRET</span><span class="o">=</span><span class="n">CLIENT_SECRET</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Add material processing step to Database</span>
+            <span class="n">nmdc_database</span><span class="o">.</span><span class="n">material_processing_set</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">material_processing_metadata</span><span class="p">)</span>
+
+        <span class="c1">## After generating all the steps and samples, identify outputs that aren&#39;t consumed by another step</span>
+
+        <span class="c1"># if the placeholder was an output created from any of these steps but not used as an input to another step, it is a final output</span>
+        <span class="n">final_output</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">placeholder</span> <span class="ow">in</span> <span class="n">placeholder_dict</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">placeholder_dict</span><span class="p">[</span><span class="n">placeholder</span><span class="p">]</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">all_output</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">all_input</span><span class="p">):</span>
+                <span class="n">final_output</span><span class="p">[</span><span class="n">placeholder</span><span class="p">]</span> <span class="o">=</span> <span class="n">placeholder_dict</span><span class="p">[</span><span class="n">placeholder</span><span class="p">]</span>
+
+        <span class="c1"># Return the dictionary mapping final output placeholders to an nmdc processed sample id (necessary for change sheet)</span>
+        <span class="k">return</span> <span class="n">final_output</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Olivia Hess.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
