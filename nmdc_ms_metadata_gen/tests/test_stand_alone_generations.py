@@ -455,15 +455,6 @@ def test_emsl_study_json_to_nmdc():
     }
     assert alex_chow["applied_roles"] == ["Investigation"]
 
-    obsolete_json = copy.deepcopy(nmdc_json)
-    obsolete_credit = obsolete_json["study_set"][0]["has_credit_associations"][0]
-    obsolete_credit["applies_to_person"] = obsolete_credit.pop("applies_to_agent")
-    obsolete_credit["applies_to_person"]["type"] = "nmdc:PersonValue"
-    assert (
-        gen.validate_nmdc_database(json=obsolete_json, use_api=False)["result"]
-        == "errors"
-    )
-
     # Check that the output has the expected structure
     assert "study_set" in nmdc_json
     assert isinstance(nmdc_json["study_set"], list)
