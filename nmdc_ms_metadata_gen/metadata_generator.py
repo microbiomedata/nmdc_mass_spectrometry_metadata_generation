@@ -19,13 +19,13 @@ from typing import Dict, List
 import nmdc_schema.nmdc as nmdc
 import numpy as np
 import pandas as pd
-from nmdc_client.api_client import get_api_base_url
 import requests
 import toml
 from linkml.validator import Validator
 from linkml.validator.plugins import JsonschemaValidationPlugin
 from linkml_runtime import SchemaView
 from linkml_runtime.dumpers import json_dumper
+from nmdc_client.api_client import get_api_base_url
 from nmdc_client.auth import NMDCAuth
 from nmdc_client.biosample_search import BiosampleSearch
 from nmdc_client.configuration_search import ConfigurationSearch
@@ -1268,16 +1268,19 @@ class NMDCMetadataGenerator:
 
         for member in project_members:
             credit_assoc = {
-                "applies_to_person": {
+                "applies_to_agent": {
                     "name": f"{member.get('first_name', '')} {member.get('last_name', '')}".strip(),
-                    "type": "nmdc:PersonValue",
+                    "type": "nmdc:Person",
                 },
                 "applied_roles": [role_mapping.get(member.get("project_role"))],
                 "type": "prov:Association",
             }
 
             if member.get("orcid"):
-                credit_assoc["applies_to_person"]["orcid"] = member.get("orcid")
+                orcid = member.get("orcid")
+                credit_assoc["applies_to_agent"]["orcid"] = (
+                    orcid if orcid.startswith("orcid:") else f"orcid:{orcid}"
+                )
 
             # Exclude EMSL and PNNL staff that aren't PIs
             if "" not in credit_assoc["applied_roles"]:

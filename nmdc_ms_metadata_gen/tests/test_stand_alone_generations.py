@@ -1,4 +1,5 @@
 # This script will serve as a test for the generation of `MassSpectrometryConfiguration` and `ChromatographyConfiguration` records
+import copy
 import os
 from datetime import datetime
 
@@ -440,6 +441,28 @@ def test_emsl_study_json_to_nmdc():
     nmdc_json = gen.emsl_study_json_to_nmdc(emsl_study_json_path, output_file)
     validate = gen.validate_nmdc_database(json=nmdc_json, use_api=False)
     assert validate["result"] == "All Okay!"
+
+    alex_chow = next(
+        credit
+        for study in nmdc_json["study_set"]
+        for credit in study["has_credit_associations"]
+        if credit["applies_to_agent"]["name"] == "Alex Chow"
+    )
+    assert alex_chow["applies_to_agent"] == {
+        "name": "Alex Chow",
+        "orcid": "orcid:0000-0001-7441-8934",
+        "type": "nmdc:Person",
+    }
+    assert alex_chow["applied_roles"] == ["Investigation"]
+
+    obsolete_json = copy.deepcopy(nmdc_json)
+    obsolete_credit = obsolete_json["study_set"][0]["has_credit_associations"][0]
+    obsolete_credit["applies_to_person"] = obsolete_credit.pop("applies_to_agent")
+    obsolete_credit["applies_to_person"]["type"] = "nmdc:PersonValue"
+    assert (
+        gen.validate_nmdc_database(json=obsolete_json, use_api=False)["result"]
+        == "errors"
+    )
 
     # Check that the output has the expected structure
     assert "study_set" in nmdc_json
