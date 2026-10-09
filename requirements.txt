@@ -1,6 +1,6 @@
 pandas<3.0
 nmdc-schema==11.24.0
-nmdc-client==1.0.1
+nmdc-client==1.1.0
 python-dotenv==1.2.3
 tqdm~=4.70.1
 toml~=0.10.2
