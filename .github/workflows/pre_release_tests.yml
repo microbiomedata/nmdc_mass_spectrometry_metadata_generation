@@ -4,7 +4,7 @@ on:
   pull_request:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 0 * * 3' # weekly, Wednesday 00:00 UTC
 
 permissions:
   contents: write
@@ -48,10 +48,22 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const { owner, repo } = context.repo;
-            await github.rest.issues.create({
+            const { data: issue } = await github.rest.issues.create({
               owner,
               repo,
               title: "pre release tests failed",
               body: "The pre release tests have failed in the latest run. Please investigate the issue.",
               labels: ["report", "automated issue"]
             });
+            for (const username of ['kheal', 'bmeluch']) {
+              try {
+                await github.rest.issues.addAssignees({
+                  owner,
+                  repo,
+                  issue_number: issue.number,
+                  assignees: [username],
+                });
+              } catch (assignError) {
+                console.warn(`Could not assign ${username}: ${assignError.message}`);
+              }
+            }

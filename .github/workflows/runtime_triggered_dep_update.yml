@@ -36,7 +36,16 @@ jobs:
           RUNTIME: ${{ steps.runtime.outputs.runtime }}
           CURRENT: ${{ steps.current.outputs.current }}
         run: |
-          if [ "$CURRENT" = "$RUNTIME" ]; then
+          # PyPI 11.25 is the same release as 11.25.0. The runtime reports
+          # the two-part form, so compare normalized versions.
+          normalize_schema_version() {
+            case "$1" in
+              *.*.*) printf '%s' "$1" ;;
+              *.*) printf '%s.0' "$1" ;;
+              *) printf '%s' "$1" ;;
+            esac
+          }
+          if [ "$(normalize_schema_version "$CURRENT")" = "$(normalize_schema_version "$RUNTIME")" ]; then
             echo "already pinned"
             exit 0
           fi
@@ -57,11 +66,20 @@ jobs:
           from pathlib import Path
           import re
 
-          current_runtime = [int(part) for part in os.environ["CURRENT"].split(".")]
-          next_runtime = [int(part) for part in os.environ["RUNTIME"].split(".")]
+          def parse_schema_version(value: str) -> list[int]:
+              parts = value.split(".")
+              if not 2 <= len(parts) <= 3 or not all(part.isdigit() for part in parts):
+                  raise SystemExit(
+                      "Expected a two- or three-part numeric version for nmdc-schema, "
+                      f"got {value!r}"
+                  )
+              numbers = [int(part) for part in parts]
+              if len(numbers) == 2:
+                  numbers.append(0)
+              return numbers
 
-          if len(current_runtime) != 3 or len(next_runtime) != 3:
-              raise SystemExit("Expected three-part semantic versions for nmdc-schema")
+          current_runtime = parse_schema_version(os.environ["CURRENT"])
+          next_runtime = parse_schema_version(os.environ["RUNTIME"])
           if next_runtime == current_runtime:
               raise SystemExit(0)
           if next_runtime < current_runtime:
