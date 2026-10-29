@@ -6,7 +6,7 @@ on:
     types: [opened, synchronize, reopened]
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 0 * * 3' # weekly, Wednesday 00:00 UTC
 
 permissions:
   contents: write
